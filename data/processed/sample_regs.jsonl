@@ -1,0 +1,12 @@
+{"chunk_id": "toy_001", "source": "Toy sample", "text": "The label must show the unique device identifier in plain text and in machine readable form such as a barcode.", "module": "device"}
+{"chunk_id": "toy_002", "source": "Toy sample", "text": "Devices supplied sterile must carry a symbol indicating sterile status and the method of sterilization used.", "module": "device"}
+{"chunk_id": "toy_003", "source": "Toy sample", "text": "The expiration date must appear in a consistent format and be accompanied by a symbol or text indicating use by.", "module": "device"}
+{"chunk_id": "toy_004", "source": "Toy sample", "text": "Storage conditions such as temperature limits must be stated on the label when they affect device performance.", "module": "device"}
+{"chunk_id": "toy_005", "source": "Toy sample", "text": "Prescription devices must bear a statement that sale is restricted to or on the order of a licensed practitioner.", "module": "device"}
+{"chunk_id": "toy_006", "source": "Toy sample", "text": "The label must state the name and address of the manufacturer responsible for the device.", "module": "device"}
+{"chunk_id": "toy_007", "source": "Toy sample", "text": "Lot or batch number must be printed so the product can be traced after distribution.", "module": "device"}
+{"chunk_id": "toy_008", "source": "Toy sample", "text": "Single use devices must be marked do not reuse with the corresponding symbol.", "module": "device"}
+{"chunk_id": "toy_009", "source": "Toy sample", "text": "Warnings and precautions must be conspicuous and legible and refer to the instructions for use.", "module": "device"}
+{"chunk_id": "toy_010", "source": "Toy sample", "text": "Symbols used on labels should conform to a recognised standard and be explained in the instructions for use.", "module": "device"}
+{"chunk_id": "toy_011", "source": "Toy sample", "text": "Medicinal products must list active substances and strength on the outer packaging.", "module": "device"}
+{"chunk_id": "toy_012", "source": "Toy sample", "text": "Packaging changes must be reviewed so that all affected labels are updated before release.", "module": "device"}
