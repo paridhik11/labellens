@@ -45,10 +45,30 @@ def load_qrels(path: str) -> dict[str, dict[str, int]]:
     return qrels
 
 
-def build_systems(docs: list[tuple[str, str]]) -> list[Retriever]:
-    """Register new systems here (dense, hybrid, rerank...) so they appear in the table."""
+def build_systems(
+    docs: list[tuple[str, str]],
+    with_dense: bool = True,
+) -> list[Retriever]:
+    """Register new systems here so they appear in the eval table.
+
+    Systems: tfidf, bm25, dense (sentence-transformer + FAISS), hybrid (RRF).
+    Set with_dense=False to skip the two slow systems for a quick BM25-only run.
+    """
     ix = InvertedIndex().build(docs)
-    return [TfidfRetriever(ix), BM25Retriever(ix)]
+    tfidf = TfidfRetriever(ix)
+    bm25 = BM25Retriever(ix)
+
+    if not with_dense:
+        return [tfidf, bm25]
+
+    from src.common.schemas import Chunk
+    from src.ir.dense import DenseRetriever
+    from src.ir.hybrid import HybridRetriever
+
+    chunks = [Chunk(chunk_id=cid, source="", text=txt) for cid, txt in docs]
+    dense = DenseRetriever.from_chunks(chunks)
+    hybrid = HybridRetriever(bm25=bm25, dense=dense)
+    return [tfidf, bm25, dense, hybrid]
 
 
 def evaluate(systems, queries, qrels, k_ndcg=10, k_recall=20):
@@ -88,8 +108,13 @@ def main() -> None:
     ap.add_argument("--qrels", required=True)
     ap.add_argument("--out", default="results/results.md")
     ap.add_argument("--baseline", default="bm25")
+    ap.add_argument(
+        "--no-dense",
+        action="store_true",
+        help="Skip dense and hybrid systems (faster, BM25+TF-IDF only)",
+    )
     a = ap.parse_args()
-    systems = build_systems(load_corpus(a.corpus))
+    systems = build_systems(load_corpus(a.corpus), with_dense=not a.no_dense)
     results, per_query = evaluate(systems, load_queries(a.queries), load_qrels(a.qrels))
     md = to_markdown(results, per_query, a.baseline)
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)

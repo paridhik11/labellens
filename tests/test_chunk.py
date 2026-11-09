@@ -85,3 +85,20 @@ def test_write_chunks_jsonl(tmp_path: Path) -> None:
     data = json.loads(lines[0])
     assert data["chunk_id"] == "fda_21cfr830_s830.20"
     assert data["text"] == "Every medical device must bear a UDI."
+
+def test_section_to_chunks_medicine_module() -> None:
+    """Verifies that module and source are propagated into Chunk objects."""
+    sec = {
+        "section": "201.100",
+        "title": "Prescription drugs.",
+        "text": "Every prescription drug must bear adequate directions for use.",
+        "url": "https://example.org/201.100",
+    }
+    chunks = section_to_chunks(
+        sec, part="201", fetch_date="2026-11-09", module="medicine", source="FDA"
+    )
+    assert len(chunks) == 1
+    c = chunks[0]
+    assert c.module == "medicine"
+    assert c.source == "FDA"
+    assert c.chunk_id == "fda_21cfr201_s201.100"

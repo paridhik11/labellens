@@ -1,7 +1,9 @@
 """Crawler for the Electronic Code of Federal Regulations (eCFR) API.
 
-Fetches 21 CFR Part 801 (device labeling) and Part 830 (unique device identification)
-from the official public eCFR API endpoints, with retries and rate limiting.
+Fetches specified 21 CFR parts from the official public eCFR API endpoints,
+with retries and rate limiting. The part list is configurable; callers supply
+the parts they need. Default parts cover medical-device labeling, MDR, recalls,
+registration, IVD, IDE, QSR, and pharmaceutical labeling/cGMP.
 """
 from __future__ import annotations
 
@@ -19,6 +21,29 @@ from urllib3.util import Retry
 
 DEFAULT_USER_AGENT = "LabelLensCourseProject/1.0 (cse.student.ir.project@university.edu)"
 BASE_API_URL = "https://www.ecfr.gov/api/versioner/v1"
+
+# Canonical part coverage descriptions, keyed by part number.
+# Verified 2026-11-05 against eCFR API (all returned HTTP 200).
+PART_COVERAGE: dict[int, str] = {
+    # Device parts
+    801: "Device labeling -- general requirements for labels on medical devices",
+    803: "Medical Device Reporting (MDR) -- mandatory reporting of device malfunctions, serious injuries, and deaths",
+    806: "Medical Devices -- Corrections and Removals (recall/correction reporting to FDA)",
+    807: "Establishment Registration and Device Listing for manufacturers and distributors",
+    809: "In Vitro Diagnostic (IVD) Products for Human Use -- labeling and performance standards",
+    812: "Investigational Device Exemptions (IDE) -- rules for using unapproved devices in clinical studies",
+    820: "Quality System Regulation (QSR) -- device quality management and manufacturing requirements",
+    830: "Unique Device Identification (UDI) -- labeling and database submission rules",
+    # Medicine parts
+    201: "Drug Labeling -- comprehensive general labeling requirements for human prescription and OTC drugs",
+    208: "Medication Guides for Prescription Drug Products -- when and how to distribute patient medication guides",
+    211: "Current Good Manufacturing Practice (cGMP) for Finished Pharmaceuticals",
+}
+
+# Default parts fetched when none are specified on the command line.
+DEFAULT_DEVICE_PARTS: list[int] = [801, 803, 806, 807, 809, 812, 820, 830]
+DEFAULT_MEDICINE_PARTS: list[int] = [201, 208, 211]
+DEFAULT_ALL_PARTS: list[int] = DEFAULT_DEVICE_PARTS + DEFAULT_MEDICINE_PARTS
 
 
 def create_resilient_session(
@@ -57,7 +82,11 @@ def get_title_issue_date(
             titles = resp.json().get("titles", [])
             for t in titles:
                 if t.get("number") == title:
-                    date_val = t.get("up_to_date_as_of") or t.get("latest_amended_on") or t.get("latest_issue_date")
+                    date_val = (
+                        t.get("up_to_date_as_of")
+                        or t.get("latest_amended_on")
+                        or t.get("latest_issue_date")
+                    )
                     if date_val:
                         return str(date_val)
     except Exception:
@@ -91,7 +120,7 @@ def clean_section_title(raw_title: str) -> str:
 def parse_sections_from_xml(xml_content: str | bytes) -> list[dict]:
     """Parses section elements (DIV8 tags) from eCFR XML content.
 
-    Returns a list of dictionaries with section, title, citation, text, and paragraphs count.
+    Returns a list of dicts with section, title, citation, text, and paragraphs count.
     """
     root = ET.fromstring(xml_content)
     sections: list[dict] = []
@@ -111,7 +140,9 @@ def parse_sections_from_xml(xml_content: str | bytes) -> list[dict]:
 
         full_text = "\n\n".join(paragraphs) if paragraphs else cleaned_head
         citation = f"21 CFR {sec_num}" if sec_num else ""
-        canonical_url = f"https://www.ecfr.gov/current/title-21/section-{sec_num}" if sec_num else ""
+        canonical_url = (
+            f"https://www.ecfr.gov/current/title-21/section-{sec_num}" if sec_num else ""
+        )
 
         sections.append(
             {
@@ -132,8 +163,18 @@ def crawl_ecfr_parts(
     delay_seconds: float = 1.0,
     session: Optional[requests.Session] = None,
 ) -> dict[int, list[dict]]:
-    """Crawls specified parts from 21 CFR, saves raw XML to disk, and extracts sections."""
-    target_parts = parts or [801, 830]
+    """Crawls specified parts from 21 CFR, saves raw XML to disk, and extracts sections.
+
+    Args:
+        parts: List of CFR part numbers to fetch. Defaults to all device + medicine parts.
+        out_dir: Directory to write raw XML files.
+        delay_seconds: Polite delay between requests.
+        session: Optional pre-built requests.Session for testability.
+
+    Returns:
+        Mapping from part number to list of parsed section dicts.
+    """
+    target_parts = parts if parts is not None else DEFAULT_ALL_PARTS
     output_path = Path(out_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
@@ -155,13 +196,32 @@ def crawl_ecfr_parts(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Fetch 21 CFR Part 801 and 830 from eCFR API.")
-    parser.add_argument("--parts", nargs="+", type=int, default=[801, 830], help="CFR parts to fetch")
+    parser = argparse.ArgumentParser(
+        description="Fetch 21 CFR parts from the eCFR API. Default: device + medicine corpus."
+    )
+    parser.add_argument(
+        "--parts",
+        nargs="+",
+        type=int,
+        default=DEFAULT_ALL_PARTS,
+        help=(
+            "CFR parts to fetch (default: device corpus 801 803 806 807 809 812 820 830"
+            " + medicine 201 208 211)"
+        ),
+    )
     parser.add_argument("--out", default="data/raw", help="Directory to save raw XML responses")
-    parser.add_argument("--delay", type=float, default=1.0, help="Rate limit delay in seconds between calls")
+    parser.add_argument(
+        "--delay", type=float, default=1.0, help="Rate limit delay in seconds between calls"
+    )
     args = parser.parse_args()
 
     print(f"Fetching 21 CFR parts {args.parts} from eCFR API...")
+    print("Verified coverage per part:")
+    for p in args.parts:
+        desc = PART_COVERAGE.get(p, "No description available")
+        print(f"  Part {p}: {desc}")
+    print()
+
     results = crawl_ecfr_parts(parts=args.parts, out_dir=args.out, delay_seconds=args.delay)
     total_sections = 0
     for part, sections in results.items():

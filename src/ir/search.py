@@ -1,7 +1,11 @@
-"""Interactive BM25 search over processed regulatory chunks.
+"""Interactive retrieval search over processed regulatory chunks.
 
-Builds an inverted index over data/processed/regs.jsonl and returns the top k
+Builds an index over data/processed/regs.jsonl and returns the top k
 matching chunks with scores, section IDs, and passage snippets.
+
+Systems available via --system:
+  bm25   -- BM25 inverted-index (default, our own implementation)
+  dense  -- sentence-transformer embeddings + FAISS ANN search
 """
 from __future__ import annotations
 
@@ -72,7 +76,7 @@ def main() -> None:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
 
-    parser = argparse.ArgumentParser(description="Search regulatory chunks using BM25.")
+    parser = argparse.ArgumentParser(description="Search regulatory chunks.")
     parser.add_argument("query", help="Search query string")
     parser.add_argument(
         "--corpus",
@@ -80,13 +84,27 @@ def main() -> None:
         help="Path to processed regulatory JSONL corpus",
     )
     parser.add_argument("-k", type=int, default=5, help="Number of results to return")
+    parser.add_argument(
+        "--system",
+        choices=["bm25", "dense"],
+        default="bm25",
+        help="Retrieval system: bm25 (default) or dense (sentence-transformer + FAISS)",
+    )
     args = parser.parse_args()
 
     chunks = load_chunks(args.corpus)
-    _, retriever = build_bm25_searcher(chunks)
-    results = search_chunks(retriever, chunks, args.query, k=args.k)
 
-    print(f"Query: \"{args.query}\" (Top {len(results)} of {len(chunks)} chunks)")
+    if args.system == "dense":
+        from src.ir.dense import DenseRetriever
+
+        retriever = DenseRetriever.from_chunks(list(chunks.values()))
+        hits = retriever.search(args.query, k=args.k)
+        results = [(hit, chunks[hit.doc_id]) for hit in hits if hit.doc_id in chunks]
+    else:
+        _, retriever = build_bm25_searcher(chunks)
+        results = search_chunks(retriever, chunks, args.query, k=args.k)
+
+    print(f'Query: "{args.query}" | system={args.system} (Top {len(results)} of {len(chunks)} chunks)')
     print("-" * 70)
     print(format_search_results(results))
 

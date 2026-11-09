@@ -1,8 +1,10 @@
 .venv/
+.venv312/
 __pycache__/
 .env
 data/raw/
 data/processed/*.faiss
+data/processed/*.npy
 *.pt
 runs/
 .ipynb_checkpoints/
