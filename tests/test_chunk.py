@@ -102,3 +102,26 @@ def test_section_to_chunks_medicine_module() -> None:
     assert c.module == "medicine"
     assert c.source == "FDA"
     assert c.chunk_id == "fda_21cfr201_s201.100"
+
+
+def test_section_to_chunks_skips_under_min_words() -> None:
+    """Verifies that sections under min_words threshold (e.g. [Reserved]) are skipped."""
+    reserved_sec = {
+        "section": "820.5",
+        "title": "[Reserved]",
+        "text": "[Reserved]",
+    }
+    chunks = section_to_chunks(reserved_sec, part="820", min_words=5)
+    assert chunks == []
+
+
+def test_section_to_chunks_keeps_exact_min_words() -> None:
+    """Verifies that sections with at least min_words words are retained."""
+    short_sec = {
+        "section": "211.44",
+        "title": "Lighting.",
+        "text": "Adequate lighting shall be provided.",
+    }
+    chunks = section_to_chunks(short_sec, part="211", min_words=5)
+    assert len(chunks) == 1
+    assert chunks[0].chunk_id == "fda_21cfr211_s211.44"

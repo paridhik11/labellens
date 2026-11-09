@@ -61,6 +61,7 @@ def section_to_chunks(
     overlap: int = 25,
     module: Literal["device", "medicine"] = "device",
     source: str = "FDA",
+    min_words: int = 5,
 ) -> list[Chunk]:
     """Converts a parsed section dictionary into one or more Chunk schema objects.
 
@@ -72,6 +73,7 @@ def section_to_chunks(
         overlap: Word overlap between consecutive windows.
         module: Regulatory module -- "device" for device parts, "medicine" for drug parts.
         source: Corpus source label (e.g. "FDA").
+        min_words: Minimum word threshold; sections with fewer words are skipped.
     """
     sec_num = str(section.get("section", "")).strip()
     sec_text = str(section.get("text", "")).strip()
@@ -79,6 +81,10 @@ def section_to_chunks(
     url = str(section.get("url", "")).strip()
     if not url and sec_num:
         url = f"https://www.ecfr.gov/current/title-21/section-{sec_num}"
+
+    words = sec_text.split()
+    if len(words) < min_words:
+        return []
 
     pieces = split_text_into_chunks(sec_text, max_words=max_words, overlap=overlap)
     chunks: list[Chunk] = []
@@ -111,14 +117,17 @@ def build_regulatory_chunks(
     fetch_date: Optional[str] = None,
     max_words: int = 200,
     overlap: int = 25,
+    min_words: int = 5,
 ) -> list[Chunk]:
     """Reads raw XML files from disk and generates a flattened list of Chunk objects.
 
     The module (device/medicine) and source label are inferred from the part number
     using PART_MODULE. Unknown parts default to module='device' and source='FDA'.
+    Sections with fewer than min_words words (e.g. reserved or heading-only) are skipped.
     """
-    date_val = fetch_date or datetime.date.today().isoformat()
+    date_val = fetch_date or "2026-11-09"
     all_chunks: list[Chunk] = []
+    dropped: list[dict[str, str | int]] = []
 
     for path_item in xml_paths:
         p = Path(path_item)
@@ -130,6 +139,17 @@ def build_regulatory_chunks(
         mod: Literal["device", "medicine"] = PART_MODULE.get(part_int, "device")
         sections = parse_sections_from_xml(p.read_bytes())
         for sec in sections:
+            sec_text = str(sec.get("text", "")).strip()
+            word_count = len(sec_text.split())
+            if word_count < min_words:
+                dropped.append({
+                    "part": part_num,
+                    "section": str(sec.get("section", "")),
+                    "title": str(sec.get("title", "")),
+                    "text": sec_text,
+                    "words": word_count,
+                })
+                continue
             sec_chunks = section_to_chunks(
                 sec,
                 part=part_num,
@@ -138,8 +158,14 @@ def build_regulatory_chunks(
                 overlap=overlap,
                 module=mod,
                 source="FDA",
+                min_words=min_words,
             )
             all_chunks.extend(sec_chunks)
+
+    if dropped:
+        print(f"Skipped {len(dropped)} section(s) under {min_words} words (reserved or heading only):")
+        for d in dropped:
+            print(f"  - Part {d['part']} Section {d['section']} ({d['title']}): {repr(d['text'])} [{d['words']}w]")
 
     return all_chunks
 
@@ -177,6 +203,12 @@ def main() -> None:
     parser.add_argument(
         "--overlap", type=int, default=25, help="Word overlap between consecutive chunks"
     )
+    parser.add_argument(
+        "--min-words", type=int, default=5, help="Minimum words required to retain a section"
+    )
+    parser.add_argument(
+        "--fetch-date", default="2026-11-09", help="Fetch date stamped on chunks (YYYY-MM-DD)"
+    )
     args = parser.parse_args()
 
     xml_files = [Path(f) for f in args.raw_files]
@@ -188,9 +220,10 @@ def main() -> None:
 
     chunks = build_regulatory_chunks(
         existing,
-        fetch_date=datetime.date.today().isoformat(),
+        fetch_date=args.fetch_date,
         max_words=args.max_words,
         overlap=args.overlap,
+        min_words=args.min_words,
     )
     write_chunks_jsonl(chunks, args.out)
 
