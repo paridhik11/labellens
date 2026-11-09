@@ -1,6 +1,4 @@
 """Tests for eCFR crawler parsing and utilities."""
-import xml.etree.ElementTree as ET
-
 from src.crawl.ecfr import (
     clean_section_title,
     create_resilient_session,
