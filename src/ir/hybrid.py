@@ -10,7 +10,7 @@ Worked example (k=60):
   BM25 ranking:   doc_A rank 1, doc_B rank 2, doc_C rank 10
   Dense ranking:  doc_B rank 1, doc_A rank 3, doc_D rank 5
 
-  doc_A: 1/(60+1) + 1/(60+3) = 0.0164 + 0.0156 = 0.0320
+  doc_A: 1/(60+1) + 1/(60+3) = 0.0164 + 0.0159 = 0.0323
   doc_B: 1/(60+2) + 1/(60+1) = 0.0161 + 0.0164 = 0.0325  <- winner (ranked in both)
   doc_C: 1/(60+10)            = 0.0143
   doc_D: 1/(60+5)             = 0.0154

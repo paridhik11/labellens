@@ -98,5 +98,18 @@ A sequential log of progress, implementation decisions, worked examples, and ver
 6. **Assumptions:** Used `BAAI/bge-small-en-v1.5` (384-dim, ~134.5 MB snapshot) symmetrically without query instruction prefixes; `IndexFlatIP` exact scan is fast enough for 903 chunks.
 7. **Questions:** (1) Why does editing chunk text without changing `chunk_id` fail to invalidate the current fingerprint cache? (2) Why did Dense catch `211.137_c1` ("Expiration dating") while drifting to `806.10_c3` on manufacturer address?
 
+---
+
+## Step 9: Hybrid Retrieval with Reciprocal Rank Fusion (plus Pre-Step-9 Fixes)
+
+1. **What I did:** Pushed pending commits to GitHub, fixed CI ruff lint errors and added `numpy`/`faiss-cpu` with `-m "not slow"` to `.github/workflows/ci.yml`, updated `_corpus_fingerprint` to hash `chunk_id:content_hash` pairs, injected `FakeTransformer` into fast dense/hybrid unit tests while marking 1 real-model test `slow`, added `--module device|medicine|all` pre-ranking filters to `search.py` and `query_compare.py`, walked through `src/ir/hybrid.py` and verified `build_systems` in `src/ir/eval.py` registers `tfidf`, `bm25`, `dense`, and `hybrid`, and ran all 4 systems on the 5 benchmark queries.
+2. **Files created or changed:** `src/ir/dense.py` (content-hash fingerprint + `model` param), `src/ir/search.py` and `src/ir/query_compare.py` (`--module` pre-ranking filter), `src/ir/hybrid.py` (fixed docstring RRF arithmetic typo), `src/crawl/chunk.py` and `.github/workflows/ci.yml` (CI ruff/test fixes), `pyproject.toml` (`slow` marker), `tests/test_dense.py`, `tests/test_hybrid.py`, `tests/test_search.py` (fake encoder, fingerprint invalidation, module filter tests).
+3. **How it works:** RRF combines BM25 and Dense rankings without calibrating raw scores by summing `1 / (k + rank)` with `k=60` over an over-fetched top `max(k*3, 50)` list from each retriever. Documents appearing high in both ranked lists overtake single-list winners.
+4. **How I verified it:** Ran `ruff check src tests` (All checks passed), `pytest tests -q -m "not slow"` (39 passed, 1 deselected), `python -m src.ir.query_compare --systems bm25 dense --module device`, and `python -m src.ir.query_compare --systems tfidf bm25 dense hybrid`.
+5. **Check yourself:** Inspect `_corpus_fingerprint` in `src/ir/dense.py`, `--module` filtering in `src/ir/search.py` and `src/ir/query_compare.py`, and `_rrf_score`/`search` in `src/ir/hybrid.py`.
+6. **Assumptions:** Equal RRF weights (`bm25_weight=1.0`, `dense_weight=1.0`, `k=60`) and over-fetch window `max(k*3, 50)`; no full-corpus qrels exist yet, so quality comparison on the 5 queries is qualitative.
+7. **Questions:** Ask without answers in Step Report.
+
+
 
 
