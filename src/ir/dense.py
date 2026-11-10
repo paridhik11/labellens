@@ -46,10 +46,10 @@ def _corpus_fingerprint(chunk_ids: list[str]) -> str:
     return hashlib.sha256(blob).hexdigest()[:16]
 
 
-def _cache_paths(fingerprint: str, model_tag: str) -> tuple[Path, Path]:
+def _cache_paths(fingerprint: str, model_tag: str, cache_dir: Path = CACHE_DIR) -> tuple[Path, Path]:
     """Returns (embeddings .npy path, metadata .json path) for the given fingerprint."""
     stem = f"dense_cache_{model_tag}_{fingerprint}"
-    return CACHE_DIR / f"{stem}.npy", CACHE_DIR / f"{stem}.json"
+    return Path(cache_dir) / f"{stem}.npy", Path(cache_dir) / f"{stem}.json"
 
 
 class DenseRetriever:
@@ -66,11 +66,13 @@ class DenseRetriever:
         chunk_ids: list[str],
         texts: list[str],
         model_name: str = MODEL_NAME,
+        model: object | None = None,
     ) -> None:
         """Stores normalised embeddings and builds a FAISS flat inner-product index."""
         self._model_name = model_name
         self._chunk_ids = chunk_ids
         self._texts = texts
+        self._model = model
 
         # L2-normalise so inner product equals cosine similarity.
         norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
@@ -83,9 +85,11 @@ class DenseRetriever:
 
     def _encode_query(self, query: str) -> np.ndarray:
         """Encodes a single query string to a normalised float32 vector."""
-        from sentence_transformers import SentenceTransformer  # lazy import
-        model = SentenceTransformer(self._model_name)
-        vec = model.encode([query], normalize_embeddings=True, show_progress_bar=False)
+        if self._model is None:
+            from sentence_transformers import SentenceTransformer  # lazy import
+
+            self._model = SentenceTransformer(self._model_name)
+        vec = self._model.encode([query], normalize_embeddings=True, show_progress_bar=False)
         return vec.astype(np.float32)
 
     def search(self, query: str, k: int = 10) -> list[Hit]:
@@ -93,13 +97,13 @@ class DenseRetriever:
         q_vec = self._encode_query(query)
         scores, indices = self._index.search(q_vec, k)
         hits: list[Hit] = []
-        for rank, (idx, score) in enumerate(zip(indices[0], scores[0]), start=1):
+        for idx, score in zip(indices[0], scores[0], strict=True):
             if idx < 0 or idx >= len(self._chunk_ids):
                 continue
             hits.append(Hit(
                 doc_id=self._chunk_ids[idx],
                 score=float(score),
-                rank=rank,
+                rank=len(hits) + 1,
                 text=self._texts[idx],
             ))
         return hits
@@ -109,7 +113,7 @@ class DenseRetriever:
         cls,
         chunks: list[Chunk],
         model_name: str = MODEL_NAME,
-        cache_dir: Path = CACHE_DIR,
+        cache_dir: Path | None = CACHE_DIR,
         force_recompute: bool = False,
     ) -> "DenseRetriever":
         """Builds a DenseRetriever from a list of Chunk objects, using disk cache if available."""
@@ -119,15 +123,16 @@ class DenseRetriever:
         texts = [c.text for c in chunks]
         fp = _corpus_fingerprint(chunk_ids)
         model_tag = model_name.replace("/", "_")
-        emb_path, meta_path = _cache_paths(fp, model_tag)
 
-        if not force_recompute and emb_path.exists() and meta_path.exists():
-            print(f"[DenseRetriever] Loading cached embeddings from {emb_path}")
-            embeddings = np.load(str(emb_path))
-            cached_ids = json.loads(meta_path.read_text(encoding="utf-8"))
-            if cached_ids == chunk_ids:
-                return cls(embeddings, chunk_ids, texts, model_name=model_name)
-            print("[DenseRetriever] Cache mismatch -- recomputing.")
+        if cache_dir is not None:
+            emb_path, meta_path = _cache_paths(fp, model_tag, Path(cache_dir))
+            if not force_recompute and emb_path.exists() and meta_path.exists():
+                print(f"[DenseRetriever] Loading cached embeddings from {emb_path}")
+                embeddings = np.load(str(emb_path))
+                cached_ids = json.loads(meta_path.read_text(encoding="utf-8"))
+                if cached_ids == chunk_ids:
+                    return cls(embeddings, chunk_ids, texts, model_name=model_name)
+                print("[DenseRetriever] Cache mismatch -- recomputing.")
 
         print(f"[DenseRetriever] Encoding {len(chunks)} chunks with {model_name} ...")
         model = SentenceTransformer(model_name)
@@ -138,19 +143,21 @@ class DenseRetriever:
             normalize_embeddings=True,
         ).astype(np.float32)
 
-        cache_dir.mkdir(parents=True, exist_ok=True)
-        np.save(str(emb_path), embeddings)
-        meta_path.write_text(json.dumps(chunk_ids), encoding="utf-8")
-        print(f"[DenseRetriever] Embeddings cached to {emb_path}")
+        if cache_dir is not None:
+            Path(cache_dir).mkdir(parents=True, exist_ok=True)
+            emb_path, meta_path = _cache_paths(fp, model_tag, Path(cache_dir))
+            np.save(str(emb_path), embeddings)
+            meta_path.write_text(json.dumps(chunk_ids), encoding="utf-8")
+            print(f"[DenseRetriever] Embeddings cached to {emb_path}")
 
-        return cls(embeddings, chunk_ids, texts, model_name=model_name)
+        return cls(embeddings, chunk_ids, texts, model_name=model_name, model=model)
 
     @classmethod
     def from_jsonl(
         cls,
         corpus_path: str | Path,
         model_name: str = MODEL_NAME,
-        cache_dir: Path = CACHE_DIR,
+        cache_dir: Path | None = CACHE_DIR,
         force_recompute: bool = False,
     ) -> "DenseRetriever":
         """Convenience loader: reads a regs.jsonl corpus and calls from_chunks."""

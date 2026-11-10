@@ -1,8 +1,7 @@
 """Tests for DenseRetriever (sentence-transformers + FAISS)."""
 from __future__ import annotations
 
-import numpy as np
-import pytest
+from pathlib import Path
 
 from src.common.schemas import Chunk, Hit
 from src.ir.dense import DenseRetriever, _corpus_fingerprint
@@ -55,3 +54,16 @@ def test_dense_retriever_scores_decreasing() -> None:
     # We just check that scores are non-increasing.
     scores = [h.score for h in hits]
     assert scores == sorted(scores, reverse=True)
+
+
+def test_dense_retriever_from_jsonl_and_cache_files(tmp_path: Path) -> None:
+    chunks = _make_chunks(4)
+    jsonl_path = tmp_path / "mini.jsonl"
+    jsonl_path.write_text("\n".join(c.model_dump_json() for c in chunks) + "\n", encoding="utf-8")
+
+    cache_dir = tmp_path / "cache"
+    retriever = DenseRetriever.from_jsonl(jsonl_path, cache_dir=cache_dir)
+    hits = retriever.search("labeling requirement", k=2)
+    assert len(hits) == 2
+    assert list(cache_dir.glob("dense_cache_*.npy"))
+    assert list(cache_dir.glob("dense_cache_*.json"))

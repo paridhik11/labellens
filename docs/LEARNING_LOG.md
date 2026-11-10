@@ -86,5 +86,17 @@ A sequential log of progress, implementation decisions, worked examples, and ver
 6. **Assumptions:** Empty or reserved sections containing only [Reserved] carry no regulatory value and should be omitted; 200-word window with 25-word overlap remains appropriate across all parts.
 7. **Questions:** How does filtering out 5 reserved sections improve the quality and precision of the BM25 inverted index?
 
+---
+
+## Step 8: Dense Retrieval with Embeddings, FAISS, and Caching
+
+1. **What I did:** Implemented and reviewed dense semantic retrieval in `src/ir/dense.py` using `BAAI/bge-small-en-v1.5` embeddings and a FAISS `IndexFlatIP` index behind the `Retriever` interface. Added disk caching keyed by corpus SHA-256 fingerprint, fixed `cache_dir=None` handling and instance-level model caching, updated `.gitignore` for `dense_cache_*` files, and ran side-by-side comparisons against BM25 on the 5 Step 6 benchmark queries via `src/ir/query_compare.py`.
+2. **Files created or changed:** `src/ir/dense.py` (fixed `cache_dir=None` bug, reused loaded model across searches), `src/ir/query_compare.py` (5-query Step 6 comparison CLI), `src/ir/search.py` (`--system dense` option), `.gitignore` (ignored `data/processed/dense_cache_*`), `tests/test_dense.py` and `tests/test_search.py` (cache, JSONL loader, and comparison tests).
+3. **How it works:** Sentences are mapped to 384-dimensional float vectors capturing semantic meaning, L2-normalised to unit length so inner product equals cosine similarity, and indexed in FAISS `IndexFlatIP` for exact nearest-neighbour search. Embeddings and chunk IDs are cached to `data/processed/` as `.npy` and `.json`.
+4. **How I verified it:** Ran `ruff check` (All checks passed), `pytest tests -q` (36 passed in 126.60s), `python -m src.ir.query_compare`, and `python -m src.ir.search "sterile symbol" --system dense -k 3` in `.venv312` (Python 3.12.10).
+5. **Check yourself:** Inspect `_corpus_fingerprint`, `DenseRetriever.__init__` normalization, and `from_chunks` cache guard in `src/ir/dense.py`, plus `data/processed/dense_cache_*` exclusion in `git status`.
+6. **Assumptions:** Used `BAAI/bge-small-en-v1.5` (384-dim, ~134.5 MB snapshot) symmetrically without query instruction prefixes; `IndexFlatIP` exact scan is fast enough for 903 chunks.
+7. **Questions:** (1) Why does editing chunk text without changing `chunk_id` fail to invalidate the current fingerprint cache? (2) Why did Dense catch `211.137_c1` ("Expiration dating") while drifting to `806.10_c3` on manufacturer address?
+
 
 
