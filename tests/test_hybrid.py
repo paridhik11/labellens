@@ -7,7 +7,6 @@ from __future__ import annotations
 import hashlib
 
 import numpy as np
-import pytest
 
 from src.common.schemas import Chunk, Hit
 from src.ir.bm25 import BM25Retriever, InvertedIndex

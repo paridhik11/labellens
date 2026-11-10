@@ -15,7 +15,6 @@ import pytest
 from src.common.schemas import Chunk, Hit
 from src.ir.dense import DenseRetriever, _corpus_fingerprint
 
-
 # ---------------------------------------------------------------------------
 # Fake encoder -- replaces SentenceTransformer in every fast test
 # ---------------------------------------------------------------------------

@@ -8,7 +8,6 @@ source name are caller-supplied, not hardcoded.
 from __future__ import annotations
 
 import argparse
-import datetime
 import hashlib
 import re
 import sys
@@ -240,7 +239,7 @@ def main() -> None:
         part_key = m.group(1) if m else "?"
         per_part[part_key].append(len(c.text.split()))
 
-    print(f"\nChunks per part:")
+    print("\nChunks per part:")
     for part_key in sorted(per_part, key=int):
         lens = per_part[part_key]
         print(f"  Part {part_key}: {len(lens)} chunks, avg {sum(lens)/len(lens):.0f} words")
