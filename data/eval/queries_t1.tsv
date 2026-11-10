@@ -1,12 +1,62 @@
-qid	query	module	type
-q01	unique device identifier on label	device	keyword
-q02	sterile symbol	device	keyword
-q03	expiration date format	device	keyword
-q04	prescription use only statement	device	keyword
-q05	manufacturer name and address	device	keyword
-q06	adverse event reporting timeframe for medical devices	device	paraphrase
-q07	over the counter drug facts warnings	medicine	keyword
-q08	medication guide patient handout requirement	medicine	paraphrase
-q09	prescription drug expiration dating requirements	medicine	keyword
-q10	drug active ingredients and dosage strength	medicine	paraphrase
-
+q01	Rx only legend wording on device label	device	direct
+q02	statement required for prescription devices	device	direct
+q03	unique device identifier plain text and barcode form	device	direct
+q04	where the UDI must appear on the package	device	direct
+q05	manufacturer name and place of business on label	device	direct
+q06	symbols allowed on device labeling	device	direct
+q07	date format for expiration date on device label	device	direct
+q08	warning for devices containing natural rubber latex	device	direct
+q09	labeling for in vitro diagnostic products	device	direct
+q10	adequate directions for use of a device	device	direct
+q11	use by date on the package	device	vocab_mismatch
+q12	address of the maker on the box	device	vocab_mismatch
+q13	barcode requirement on a medical device	device	vocab_mismatch
+q14	who is responsible for the label when a device is repacked	device	vocab_mismatch
+q15	relabeling a device made by another company	device	vocab_mismatch
+q16	required statements in another language for devices	device	vocab_mismatch
+q17	batch or serial number on the device label	device	vocab_mismatch
+q18	what information makes up a device identifier	device	vocab_mismatch
+q19	how big and prominent must warnings on the label be	device	vocab_mismatch
+q20	requirements for lot or serial number marking on a device	device	field_req
+q21	storage conditions statement on device labeling	device	field_req
+q22	labeling when a device is supplied sterile	device	field_req
+q23	marking a device as nonsterile when it will be sterilized later	device	field_req
+q24	labeling for over the counter devices	device	field_req
+q25	labeling of devices intended for investigational use	device	field_req
+q26	exemptions from adequate directions for use	device	field_req
+q27	labeler obligations to submit data to the GUDID	device	field_req
+q28	direct marking of the UDI on the device itself	device	field_req
+q29	when a labeler needs a new device identifier	device	field_req
+q30	direct marking requirement for reusable devices	device	field_req
+q31	symbol for single use device	device	symbol
+q32	symbol for consult instructions for use	device	symbol
+q33	symbol for manufacturer and date of manufacture	device	symbol
+q34	using symbols without explanatory text	device	symbol
+q35	symbol for sterile device	device	symbol
+q36	what must be updated when the manufacturer address changes	device	change_impact
+q37	label changes that require a new UDI device identifier	device	change_impact
+q38	product changes that require updating the GUDID record	device	change_impact
+q39	labeling after a change in sterilization method	device	change_impact
+q40	label corrections required during a product recall	device	change_impact
+q41	ISO 15223-1 symbol artwork specifications	device	no_answer
+q42	EU MDR Annex I labelling requirements	device	no_answer
+q43	GS1 DataMatrix barcode print quality grading	device	no_answer
+q44	CE mark placement on the label	device	no_answer
+q45	where the expiration date appears on a drug package	medicine	direct
+q46	statement required on a prescription drug label	medicine	direct
+q47	how the strength of the active ingredient is shown on the label	medicine	direct
+q48	storage temperature statement for a drug	medicine	direct
+q49	name and address of the drug manufacturer on the label	medicine	direct
+q50	drug facts labeling for over the counter products	medicine	direct
+q51	medication guide requirement for patients	medicine	direct
+q52	warning for pregnant or nursing women on a drug label	medicine	field_req
+q53	pediatric use information in drug labeling	medicine	field_req
+q54	labeling of drug containers for controlled substances	medicine	field_req
+q55	barcode on a drug label	medicine	vocab_mismatch
+q56	lot number on a drug container	medicine	vocab_mismatch
+q57	listing of inactive ingredients	medicine	field_req
+q58	shelf life dating requirements for drug products	medicine	vocab_mismatch
+q59	expiry of a drug after it is mixed with liquid	medicine	vocab_mismatch
+q60	controls to prevent label mixups in drug packaging	medicine	field_req
+q61	what labeling must change when a drug formulation changes	medicine	change_impact
+q62	EMA summary of product characteristics format	medicine	no_answer
