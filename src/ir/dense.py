@@ -17,8 +17,9 @@ overlap; a dense retriever finds it.
 CACHING
 Embeddings are expensive to recompute. After the first encode, vectors are
 saved to disk as a NumPy array (.npy) and an ID list (.json). On subsequent
-calls the cache is loaded if the corpus fingerprint (SHA-256 of all chunk_ids)
-matches.
+calls the cache is loaded if the corpus fingerprint (SHA-256 of all
+chunk_id:content_hash pairs) matches. Including the content hash ensures the
+cache is invalidated when a chunk's text changes even if its ID stays the same.
 
 FAISS
 FAISS is a library for fast nearest-neighbour search over large vector
@@ -40,9 +41,13 @@ MODEL_NAME = "BAAI/bge-small-en-v1.5"
 CACHE_DIR = Path("data/processed")
 
 
-def _corpus_fingerprint(chunk_ids: list[str]) -> str:
-    """Returns a short hash of the ordered list of chunk IDs for cache validation."""
-    blob = "\n".join(chunk_ids).encode("utf-8")
+def _corpus_fingerprint(chunk_keys: list[str]) -> str:
+    """Returns a short hash of the ordered list of 'chunk_id:content_hash' keys.
+
+    Including content hashes (not just IDs) ensures the cache is invalidated
+    when a chunk's text changes even if its chunk_id remains the same.
+    """
+    blob = "\n".join(chunk_keys).encode("utf-8")
     return hashlib.sha256(blob).hexdigest()[:16]
 
 
@@ -115,13 +120,24 @@ class DenseRetriever:
         model_name: str = MODEL_NAME,
         cache_dir: Path | None = CACHE_DIR,
         force_recompute: bool = False,
+        model: object | None = None,
     ) -> "DenseRetriever":
-        """Builds a DenseRetriever from a list of Chunk objects, using disk cache if available."""
-        from sentence_transformers import SentenceTransformer  # lazy import
+        """Builds a DenseRetriever from a list of Chunk objects, using disk cache if available.
 
+        Args:
+            chunks: Corpus chunks to encode.
+            model_name: Sentence-transformer model identifier.
+            cache_dir: Directory for the embedding cache. Pass None to skip caching.
+            force_recompute: If True, ignore existing cache and re-encode.
+            model: Optional pre-loaded (or fake) encoder. If None, loads model_name.
+                   Injecting a fake encoder makes tests fast without a network call.
+        """
         chunk_ids = [c.chunk_id for c in chunks]
         texts = [c.text for c in chunks]
-        fp = _corpus_fingerprint(chunk_ids)
+        # Build fingerprint from id+content_hash pairs so that text changes
+        # (without id changes) also invalidate the cache.
+        chunk_keys = [f"{c.chunk_id}:{c.hash}" for c in chunks]
+        fp = _corpus_fingerprint(chunk_keys)
         model_tag = model_name.replace("/", "_")
 
         if cache_dir is not None:
@@ -131,11 +147,13 @@ class DenseRetriever:
                 embeddings = np.load(str(emb_path))
                 cached_ids = json.loads(meta_path.read_text(encoding="utf-8"))
                 if cached_ids == chunk_ids:
-                    return cls(embeddings, chunk_ids, texts, model_name=model_name)
+                    return cls(embeddings, chunk_ids, texts, model_name=model_name, model=model)
                 print("[DenseRetriever] Cache mismatch -- recomputing.")
 
         print(f"[DenseRetriever] Encoding {len(chunks)} chunks with {model_name} ...")
-        model = SentenceTransformer(model_name)
+        if model is None:
+            from sentence_transformers import SentenceTransformer  # lazy import
+            model = SentenceTransformer(model_name)
         embeddings = model.encode(
             texts,
             batch_size=64,

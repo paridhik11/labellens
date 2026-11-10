@@ -6,6 +6,9 @@ requires-python = ">=3.10"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+markers = [
+    "slow: marks tests that load the real sentence-transformer model (deselect with -m 'not slow')",
+]
 
 [tool.ruff]
 line-length = 120

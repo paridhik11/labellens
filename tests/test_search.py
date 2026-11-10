@@ -82,3 +82,39 @@ def test_query_compare_pipeline(tmp_path: Path) -> None:
     text_out = format_comparison(results, chunk_map)
     assert "QUERY: expiration date" in text_out
     assert "Title: Expiration date format" in text_out
+
+
+def test_module_filter_excludes_wrong_module(tmp_path: Path) -> None:
+    """Chunks from the wrong module must not appear in search results when filtered."""
+    dev_chunk = Chunk(
+        chunk_id="dev1",
+        source="FDA",
+        section="830.10",
+        module="device",
+        text="Unique device identifier labeling on the label.",
+    )
+    med_chunk = Chunk(
+        chunk_id="med1",
+        source="FDA",
+        section="201.10",
+        module="medicine",
+        text="Unique device identifier labeling on the label.",
+    )
+    corpus_file = tmp_path / "regs.jsonl"
+    corpus_file.write_text(
+        f"{dev_chunk.model_dump_json()}\n{med_chunk.model_dump_json()}\n",
+        encoding="utf-8",
+    )
+
+    all_chunks = load_chunks(corpus_file)
+
+    # Apply device filter -- same logic as in search.main().
+    device_chunks = {k: v for k, v in all_chunks.items() if v.module == "device"}
+    assert len(device_chunks) == 1
+    assert "med1" not in device_chunks
+
+    _, retriever = build_bm25_searcher(device_chunks)
+    results = search_chunks(retriever, device_chunks, "unique device identifier", k=5)
+    result_ids = [hit.doc_id for hit, _ in results]
+    assert "med1" not in result_ids
+    assert "dev1" in result_ids

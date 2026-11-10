@@ -6,6 +6,11 @@ matching chunks with scores, section IDs, and passage snippets.
 Systems available via --system:
   bm25   -- BM25 inverted-index (default, our own implementation)
   dense  -- sentence-transformer embeddings + FAISS ANN search
+
+Modules available via --module:
+  all      -- search the full corpus (default)
+  device   -- restrict to device-labeling chunks (CFR Parts 801-830)
+  medicine -- restrict to drug-labeling chunks (CFR Parts 201, 208, 211)
 """
 from __future__ import annotations
 
@@ -90,9 +95,20 @@ def main() -> None:
         default="bm25",
         help="Retrieval system: bm25 (default) or dense (sentence-transformer + FAISS)",
     )
+    parser.add_argument(
+        "--module",
+        choices=["device", "medicine", "all"],
+        default="all",
+        help="Restrict search to a module: device, medicine, or all (default)",
+    )
     args = parser.parse_args()
 
     chunks = load_chunks(args.corpus)
+
+    # Apply module filter before building the index.
+    if args.module != "all":
+        chunks = {k: v for k, v in chunks.items() if v.module == args.module}
+        print(f"[search] Module filter '{args.module}': {len(chunks)} chunks retained.")
 
     if args.system == "dense":
         from src.ir.dense import DenseRetriever

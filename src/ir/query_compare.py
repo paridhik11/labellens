@@ -93,6 +93,12 @@ def main() -> None:
     )
     parser.add_argument("--corpus", default=str(CORPUS_PATH), help="Path to regs.jsonl")
     parser.add_argument("--k", type=int, default=TOP_K, help="Number of top hits to display.")
+    parser.add_argument(
+        "--module",
+        choices=["device", "medicine", "all"],
+        default="all",
+        help="Restrict retrieval to a module: device, medicine, or all (default)",
+    )
     args = parser.parse_args()
 
     if hasattr(sys.stdout, "reconfigure"):
@@ -101,6 +107,13 @@ def main() -> None:
     corpus_path = Path(args.corpus)
     print(f"Loading corpus from {corpus_path} ...")
     docs, chunk_map = load_corpus(corpus_path)
+
+    # Apply module filter before building indexes.
+    if args.module != "all":
+        chunk_map = {k: v for k, v in chunk_map.items() if v.module == args.module}
+        docs = [(cid, txt) for cid, txt in docs if cid in chunk_map]
+        print(f"[query_compare] Module filter '{args.module}': {len(docs)} chunks retained.")
+
     chunks = list(chunk_map.values())
     print(f"  {len(docs)} chunks loaded.")
 
