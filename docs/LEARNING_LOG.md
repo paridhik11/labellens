@@ -110,6 +110,18 @@ A sequential log of progress, implementation decisions, worked examples, and ver
 6. **Assumptions:** Equal RRF weights (`bm25_weight=1.0`, `dense_weight=1.0`, `k=60`) and over-fetch window `max(k*3, 50)`; no full-corpus qrels exist yet, so quality comparison on the 5 queries is qualitative.
 7. **Questions:** Ask without answers in Step Report.
 
+---
+
+## Step 10: Queries, Pooling, Qrels Tooling, and Section-Level Eval
+
+1. **What I did:** Updated `src/ir/eval.py` so `build_systems` preserves `Chunk.hash` to reuse the disk embedding cache, added `--module device|medicine|all` filtering and `--section-level` max-score aggregation, created `data/eval/queries_t1.tsv` with 10 placeholder queries, and wrote `src/ir/qrels_tool.py` (`pool`, `to-qrels`, `kappa`) plus tests. Ran pooling over all 4 systems to produce `data/eval/pool_t1.csv` with empty `grade` values.
+2. **Files created or changed:** `src/ir/eval.py` (cache hash passthrough, `--module`, `--section-level`, UTF-8), `data/eval/queries_t1.tsv` (10 placeholder queries), `src/ir/qrels_tool.py` (pooling, TREC qrels export, Cohen's kappa), `data/eval/pool_t1.csv` (184 ungraded pooled rows), `tests/test_eval.py` and `tests/test_qrels_tool.py` (unit tests).
+3. **How it works:** Pooling takes top-10 candidates per system within each query's module, deduplicates by `chunk_id`, and shuffles with a deterministic seed so annotators judge 184 unique passages without knowing which system retrieved them. `to-qrels` writes graded `{0, 1, 2}` rows to TREC format, `kappa` measures inter-annotator agreement `(po - pe) / (1 - pe)`, and section-level eval aggregates chunk scores and qrels by `max`.
+4. **How I verified it:** Ran `ruff check src tests` (All checks passed), `pytest tests -q -m "not slow"` (46 passed, 1 deselected), `python -m src.ir.eval --corpus data/processed/sample_regs.jsonl --queries data/eval/queries_sample.tsv --qrels data/eval/qrels_sample.tsv --out results/sample_results.md --no-dense --section-level`, and `python -m src.ir.qrels_tool pool --queries data/eval/queries_t1.tsv --out data/eval/pool_t1.csv` (184 rows across 10 queries, device cache reused).
+5. **Check yourself:** Inspect `data/eval/queries_t1.tsv`, `data/eval/pool_t1.csv` (verify empty `grade` column), `src/ir/qrels_tool.py`, and `aggregate_hits_by_section` in `src/ir/eval.py`.
+6. **Assumptions:** `pool_t1.csv` uses placeholder queries and leaves `grade` empty so no synthetic relevance labels are fabricated; `Section-level` fetch depth multiplies `max(k_ndcg, k_recall)` by 5 before max-pooling to prevent multi-chunk sections from collapsing top-k depth.
+7. **Questions:** Asked without answers in Step Report.
+
 
 
 

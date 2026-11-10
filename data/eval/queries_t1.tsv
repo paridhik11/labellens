@@ -1,0 +1,12 @@
+qid	query	module	type
+q01	unique device identifier on label	device	keyword
+q02	sterile symbol	device	keyword
+q03	expiration date format	device	keyword
+q04	prescription use only statement	device	keyword
+q05	manufacturer name and address	device	keyword
+q06	adverse event reporting timeframe for medical devices	device	paraphrase
+q07	over the counter drug facts warnings	medicine	keyword
+q08	medication guide patient handout requirement	medicine	paraphrase
+q09	prescription drug expiration dating requirements	medicine	keyword
+q10	drug active ingredients and dosage strength	medicine	paraphrase
+
