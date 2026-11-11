@@ -59,7 +59,8 @@ Rules:
 - Step 10b done: eval leaves no_answer queries and corpus gaps (answerable, no doc graded >= 1) out of the main averages and reports them separately; table headers show the query count.
 - Step 11a done: LLM grading allowed in separate `_llm` files only; grader prompt and batch log in `docs/LLM_GRADER_PROMPT.md`.
 - Step 11b done: `src/ir/llm_grade_tool.py` (sample, next-batch, record, to-qrels), rows identified as `qid:chunk_id`.
-- Step 11c done: human sample `data/eval/pool_t1_human_sample.csv`, 308 rows, 15 queries (seed 42; 4 direct, 4 field_req, 3 vocab_mismatch, 2 change_impact, 1 symbol, 1 no_answer; 11 device, 4 medicine). No grades of any kind exist yet.
+- Step 11c done: human sample `data/eval/pool_t1_human_sample.csv`, 308 rows, 15 queries (seed 42; 4 direct, 4 field_req, 3 vocab_mismatch, 2 change_impact, 1 symbol, 1 no_answer; 11 device, 4 medicine).
+- Sample split for two annotators (`llm_grade_tool split`, seed 42): `data/eval/sample_pari.csv` (9 queries, 182 rows) and `data/eval/sample_parth.csv` (9 queries, 195 rows), shared q05, q44, q46 (69 rows) for human kappa. Parth grades his file from Day 6. No grades of any kind exist yet.
 - Docs updated for the template-based workflow (README, PRODUCT_SPEC, GENERATION, WORKFLOW, EVALUATION, TEAM_PLAN, TASKS, API_CONTRACT, QRELS_GUIDE, CLAUDE_CODE_GUIDE).
 - Open issues: corpus lacks symbols and non-US sources.
 

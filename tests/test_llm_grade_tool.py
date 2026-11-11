@@ -22,6 +22,7 @@ from src.ir.llm_grade_tool import (
     parse_grades,
     query_order,
     select_sample,
+    split_between_annotators,
     write_sample,
 )
 
@@ -155,6 +156,48 @@ def test_write_sample_blanks_grades_and_refuses_overwrite(tmp_path: Path) -> Non
     assert list(rows[0].keys()) == POOL_FIELDS
     with pytest.raises(FileExistsError):
         write_sample(pool, ["q2"], out)
+
+
+def test_split_between_annotators_overlap_and_balance() -> None:
+    rows = [
+        QueryRow("q01", "x", "device", "direct"),
+        QueryRow("q02", "x", "device", "direct"),
+        QueryRow("q03", "x", "device", "direct"),
+        QueryRow("q04", "x", "device", "field_req"),
+        QueryRow("q05", "x", "device", "field_req"),
+        QueryRow("q06", "x", "device", "no_answer"),
+        QueryRow("q07", "x", "medicine", "direct"),
+        QueryRow("q08", "x", "medicine", "field_req"),
+    ]
+    counts = {r.qid: 10 for r in rows}
+    overlap, assigned = split_between_annotators(rows, counts, ("a", "b"), seed=42)
+    mods = {r.qid: r.module for r in rows}
+    assert "q06" in overlap and len(overlap) == 3
+    assert sorted(mods[q] for q in overlap if q != "q06") == ["device", "medicine"]
+    # Every query is graded by someone; only the overlap is graded by both.
+    assert set(assigned["a"]) | set(assigned["b"]) == {r.qid for r in rows}
+    assert set(assigned["a"]) & set(assigned["b"]) == set(overlap)
+    assert abs(len(assigned["a"]) - len(assigned["b"])) <= 1
+    assert (overlap, assigned) == split_between_annotators(rows, counts, ("a", "b"), seed=42)
+
+
+def test_cli_split_refuses_to_overwrite(tmp_path: Path, monkeypatch) -> None:
+    pool = tmp_path / "pool.csv"
+    _write_pool_csv(pool, _pool({"q1": 2, "q2": 2, "q3": 2}))
+    sample = tmp_path / "sample.csv"
+    write_sample(pool, ["q1", "q2", "q3"], sample)
+    queries = tmp_path / "q.tsv"
+    queries.write_text("q1\tx\tdevice\tdirect\nq2\tx\tmedicine\tdirect\nq3\tx\tdevice\tno_answer\n",
+                       encoding="utf-8")
+    args = ["t", "split", "--queries", str(queries), "--sample", str(sample),
+            "--out-dir", str(tmp_path)]
+    monkeypatch.setattr(sys, "argv", args)
+    tool.main()
+    assert (tmp_path / "sample_pari.csv").exists() and (tmp_path / "sample_parth.csv").exists()
+    (tmp_path / "sample_pari.csv").write_text("graded by hand", encoding="utf-8")
+    with pytest.raises(SystemExit, match="Refusing to overwrite"):
+        tool.main()
+    assert (tmp_path / "sample_pari.csv").read_text(encoding="utf-8") == "graded by hand"
 
 
 def test_cli_next_batch_and_record(tmp_path: Path, monkeypatch, capsys) -> None:

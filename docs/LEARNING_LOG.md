@@ -170,3 +170,14 @@ A sequential log of progress, implementation decisions, worked examples, and ver
 4. **How I verified it:** Checked the sample has the pool's 6 columns, 308 rows and 0 filled grades, that `pool_t1.csv` is unchanged, and that `pool_t1_llm.csv` does not exist (no grading started). Tests and lint pass.
 5. **Check yourself:** The 15 qids and their types, the empty grade column in the sample file, and the new section in `docs/QRELS_GUIDE.md`.
 6. **Assumptions:** 15 queries is a validation sample, so agreement numbers in Step 13 will have wide error bars.
+
+---
+
+## Step 11d: Split the Human Sample Between Two Annotators
+
+1. **What I did:** Added a seeded `split` subcommand to `src/ir/llm_grade_tool.py` and split the 15-query human sample into `data/eval/sample_pari.csv` (q05, q11, q21, q31, q36, q44, q46, q51, q60; 182 rows) and `data/eval/sample_parth.csv` (q04, q05, q12, q28, q30, q40, q44, q46, q56; 195 rows). q05 (device), q46 (medicine) and q44 (no_answer) are in both files (69 rows) so human-human kappa can be measured.
+2. **Files created or changed:** `src/ir/llm_grade_tool.py` (`split_between_annotators`, `split` subcommand), `tests/test_llm_grade_tool.py` (2 tests), the two sample files, `docs/QRELS_GUIDE.md`, `docs/LLM_GRADER_PROMPT.md`, `CLAUDE.md`.
+3. **How it works:** The non-shared queries are dealt type by type after a seeded shuffle, each to the annotator with fewer queries so far, so both get a similar mix. The command refuses to overwrite existing annotator files.
+4. **How I verified it:** `python -m pytest -q -m "not slow"` (65 passed, 1 deselected), `ruff check src tests` (All checks passed), and checked both files have the pool columns and 0 filled grades.
+5. **Check yourself:** The two qid lists, the overlap queries, and the overwrite check in the `split` branch of `main()`.
+6. **Assumptions:** The sample has only one symbol query (q31), so only Pari's file has it. Which grade to use for the 3 shared queries in Step 13 is still to be decided.

@@ -317,6 +317,52 @@ def write_sample(
     return len(rows)
 
 
+def split_between_annotators(
+    rows: list[QueryRow],
+    row_counts: dict[str, int],
+    names: tuple[str, str] = ("pari", "parth"),
+    seed: int = 42,
+) -> tuple[list[str], dict[str, list[str]]]:
+    """Splits sample queries between two annotators with a shared overlap.
+
+    Overlap (graded by both, for inter-annotator kappa): every no_answer
+    query, plus one seeded device query and one seeded medicine query
+    (when that module exists among the answerable queries).
+    The other queries are dealt type by type: within each type the qids are
+    shuffled with the seed, and each goes to the annotator with fewer queries
+    so far (ties: fewer rows, then the first name). Both annotators get a
+    similar mix of types and a similar number of rows.
+
+    Returns (overlap_qids, {name: all qids that annotator grades}).
+    """
+    rng = random.Random(seed)
+    rows = sorted(rows, key=lambda r: r.qid)
+    overlap = [r.qid for r in rows if r.qtype == NO_ANSWER]
+    answerable = [r for r in rows if r.qtype != NO_ANSWER]
+    for module in ("device", "medicine"):
+        pool = [r.qid for r in answerable if r.module == module]
+        if pool:
+            overlap.append(rng.choice(pool))
+
+    own: dict[str, list[str]] = {n: [] for n in names}
+    by_type: dict[str, list[str]] = defaultdict(list)
+    for r in answerable:
+        if r.qid not in overlap:
+            by_type[r.qtype].append(r.qid)
+    for qtype in sorted(by_type):
+        qids = by_type[qtype]
+        rng.shuffle(qids)
+        for qid in qids:
+            name = min(
+                names,
+                key=lambda n: (len(own[n]), sum(row_counts.get(q, 0) for q in own[n]), names.index(n)),
+            )
+            own[name].append(qid)
+
+    overlap = sorted(overlap)
+    return overlap, {n: sorted(overlap + own[n]) for n in names}
+
+
 # ---------- CLI ----------
 
 def _current_batch(args: argparse.Namespace) -> tuple[list[PoolRow], list[PoolRow], set[str], list[str], int]:
@@ -354,6 +400,13 @@ def main() -> None:
     p_s.add_argument("--seed", type=int, default=42)
     p_s.add_argument("--force", action="store_true", help="Replace an existing sample file")
 
+    p_sp = sub.add_parser("split", help="Split the human sample between two annotators.")
+    p_sp.add_argument("--queries", default=str(QUERIES_PATH))
+    p_sp.add_argument("--sample", default=str(SAMPLE_PATH))
+    p_sp.add_argument("--names", nargs=2, default=["pari", "parth"])
+    p_sp.add_argument("--out-dir", default="data/eval")
+    p_sp.add_argument("--seed", type=int, default=42)
+
     p_n = sub.add_parser("next-batch", help="Write the next ungraded batch for the grader.")
     batch_args(p_n)
     p_n.add_argument("--out", required=True, help="File to write the batch text to")
@@ -380,6 +433,27 @@ def main() -> None:
         print("by module:", dict(sorted(Counter(info[q].module for q in qids).items())))
         print("no_answer included:", any(info[q].qtype == NO_ANSWER for q in qids))
         print("qids:", ", ".join(qids))
+    elif a.cmd == "split":
+        sample_qids = set(load_sample_qids(a.sample))
+        rows = [r for r in load_query_rows(a.queries) if r.qid in sample_qids]
+        with Path(a.sample).open(encoding="utf-8", newline="") as f:
+            row_counts = Counter(r["qid"] for r in csv.DictReader(f))
+        names = (a.names[0], a.names[1])
+        outs = {n: Path(a.out_dir) / f"sample_{n}.csv" for n in names}
+        existing = [str(p) for p in outs.values() if p.exists()]
+        if existing:
+            raise SystemExit(f"Refusing to overwrite (may hold human grades): {', '.join(existing)}")
+        overlap, assigned = split_between_annotators(rows, row_counts, names, a.seed)
+        info = {r.qid: r for r in rows}
+        print("overlap (graded by both):", ", ".join(overlap))
+        for n in names:
+            n_rows = write_sample(a.sample, assigned[n], outs[n])
+            types = dict(sorted(Counter(info[q].qtype for q in assigned[n]).items()))
+            mods = dict(sorted(Counter(info[q].module for q in assigned[n]).items()))
+            print(f"{n}: {len(assigned[n])} queries, {n_rows} rows -> {outs[n]}")
+            print(f"  qids: {', '.join(assigned[n])}")
+            print(f"  by type: {types}")
+            print(f"  by module: {mods}")
     elif a.cmd == "next-batch":
         pool, batch, graded, sample_qids, batch_no = _current_batch(a)
         print(progress_line(pool, graded, sample_qids))

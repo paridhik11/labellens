@@ -15,6 +15,7 @@ This file is the single source for LLM relevance grading in LabelLens. The LLM g
 |---|---|---|
 | `data/eval/pool_t1.csv` | Human only | The pool with the human `grade` column. The LLM grader never writes here. |
 | `data/eval/pool_t1_human_sample.csv` | Human only | 15 sampled queries for human grading. Contains no LLM grades. |
+| `data/eval/sample_pari.csv`, `data/eval/sample_parth.csv` | One human each | The sample split between two annotators, 3 queries shared. No LLM grades. |
 | `data/eval/pool_t1_llm.csv` | LLM grader via the tool | `qid, chunk_id, llm_grade, batch, model, date` |
 | `data/eval/qrels_t1_llm.tsv` | Tool | TREC qrels built from `pool_t1_llm.csv` |
 
