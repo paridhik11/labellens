@@ -125,3 +125,15 @@ A sequential log of progress, implementation decisions, worked examples, and ver
 
 
 
+
+---
+
+## Step 10b: Pool Check and Separate Reporting of no_answer Queries and Corpus Gaps
+
+1. **What I did:** Checked that `data/eval/pool_t1.csv` already covers all 62 queries in `data/eval/queries_t1.tsv` (1269 rows: 908 device, 361 medicine, 0 grades filled), so no re-pooling was needed. Changed `src/ir/eval.py` so the main averages leave out `no_answer` queries and answerable queries with no document graded 1 or higher (corpus gaps). Both groups are now reported in their own sections, and every table header shows how many queries it covers.
+2. **Files created or changed:** `src/ir/eval.py` (new `split_no_answer`, `find_corpus_gaps`, `mean_top1_score`, `evaluate_no_answer`, `no_answer_to_markdown`, new output sections, no crash when nothing is graded yet), `tests/test_eval.py` (5 new tests, CLI test extended), `docs/QRELS_GUIDE.md` (how no_answer queries and gaps are reported), `CLAUDE.md` (current state).
+3. **How it works:** If 4 answerable queries score nDCG 1.0 and 1 no_answer query scores 0.0, the old average was 0.8, which punishes systems for a question with no answer. Now the average is 1.0 over 4 queries. The no_answer table separately shows whether a grade 1 passage (related, fine) or a grade 2 passage (states the rule, so the label may be wrong) reached the top 10.
+4. **How I verified it:** `ruff check src tests` (All checks passed), `python -m pytest -q -m "not slow"` (51 passed, 1 deselected), plus a smoke run of eval on the real ungraded pool (0 queries evaluated in every table, no crash).
+5. **Check yourself:** The `queries = {...}` filter in `main()`, the `any(g >= 2 ...)` line in `evaluate_no_answer`, and `find_corpus_gaps` treating ungraded queries as not gaps.
+6. **Assumptions:** no_answer metrics use chunk level and k=10. Mean top-1 scores are only comparable within one system.
+7. **Questions:** Asked without answers in the Step Report.

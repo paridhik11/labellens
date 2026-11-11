@@ -53,6 +53,8 @@ python -m src.ir.qrels_tool kappa data/eval/pool_t1_a.csv data/eval/pool_t1_b.cs
 - Read the passage text and ignore the section number when deciding.
 - A passage that uses the right words but belongs to a different topic is 0.
 - Queries of type `no_answer` should mostly get 0s. That is expected and is reported separately.
+- Grade `no_answer` queries exactly like the others. `src/ir/eval.py` leaves them out of the main averages and reports, per system, the share with any grade 1 or higher in the top 10 (related context, not an error) and the share with a grade 2 (a passage states the rule, so check the query label).
+- Answerable queries where every pooled passage gets 0 are listed as corpus gaps and left out of the main averages. Do not raise a grade to avoid a gap.
 - Grade device queries with device passages and medicine queries with medicine passages only.
 - If unsure between two grades, pick the lower one.
 - When re-grading the 30% sample for agreement, do not look at your old grades.

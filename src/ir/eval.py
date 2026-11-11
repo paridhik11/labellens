@@ -9,6 +9,12 @@ queries file:
   4-col: qid<TAB>query text<TAB>module<TAB>type (optional header row allowed)
 qrels file (TREC):
   qid 0 doc_id relevance
+
+Which queries go into the main averages:
+  - Queries of type no_answer are left out and reported in their own table.
+  - Answerable queries whose graded docs are all 0 are left out and listed
+    as corpus gaps (the corpus has no passage that answers them).
+  - Queries with no grades yet are skipped.
 """
 from __future__ import annotations
 
@@ -23,6 +29,9 @@ from src.common.schemas import Chunk, Hit
 from src.ir.base import Retriever
 from src.ir.bm25 import BM25Retriever, InvertedIndex, TfidfRetriever
 from src.ir.metrics import average_precision, mrr, ndcg_at_k, paired_bootstrap, recall_at_k
+
+NO_ANSWER = "no_answer"
+METRIC_NAMES = ("ndcg", "recall", "mrr", "map")
 
 
 @dataclass(frozen=True)
@@ -190,8 +199,108 @@ def evaluate(
             rows["mrr"].append(mrr(ranked, active_qrels[qid]))
             rows["map"].append(average_precision(ranked, active_qrels[qid]))
         per_query[s.name] = rows
-        results[s.name] = {m: sum(v) / max(len(v), 1) for m, v in rows.items()}
+        results[s.name] = {
+            m: sum(rows[m]) / max(len(rows[m]), 1) for m in METRIC_NAMES
+        }
     return results, per_query
+
+
+def split_no_answer(rows: list[QueryRow]) -> tuple[list[QueryRow], list[QueryRow]]:
+    """Splits query rows into (answerable, no_answer) by qtype.
+
+    Rows with an empty or other qtype count as answerable.
+    """
+    answerable = [r for r in rows if r.qtype != NO_ANSWER]
+    no_answer = [r for r in rows if r.qtype == NO_ANSWER]
+    return answerable, no_answer
+
+
+def find_corpus_gaps(qids: list[str], qrels: dict[str, dict[str, int]]) -> list[str]:
+    """Returns graded qids where no document has a grade of 1 or higher.
+
+    These answerable queries have no answer in the corpus, so every system
+    would score 0 on them. Ungraded qids (absent from qrels) are not gaps.
+    """
+    return [
+        qid for qid in qids
+        if qid in qrels and not any(g >= 1 for g in qrels[qid].values())
+    ]
+
+
+def mean_top1_score(
+    systems: list[Retriever], queries: dict[str, str]
+) -> dict[str, float]:
+    """Mean score of the rank-1 hit per system (0.0 for a query with no hits).
+
+    Scores are on different scales per system (BM25 vs cosine vs RRF), so
+    compare these only within one system, never across systems.
+    """
+    out: dict[str, float] = {}
+    for s in systems:
+        tops = []
+        for q in queries.values():
+            hits = s.search(q, k=1)
+            tops.append(hits[0].score if hits else 0.0)
+        out[s.name] = sum(tops) / max(len(tops), 1)
+    return out
+
+
+def evaluate_no_answer(
+    systems: list[Retriever],
+    queries: dict[str, str],
+    qrels: dict[str, dict[str, int]],
+    k: int = 10,
+) -> dict[str, dict[str, float]]:
+    """Reports how systems behave on graded no_answer queries.
+
+    For each system:
+      n            number of graded no_answer queries
+      any_rel_topk share of those queries with a grade >= 1 doc in the top k
+      grade2_topk  share with a grade 2 doc in the top k (a passage that
+                   states the rule, which suggests the query is mislabelled)
+      top1_score   mean rank-1 score (compare within one system only)
+    Grade 1 docs are related context and are expected; they are not errors.
+    """
+    graded = {qid: q for qid, q in queries.items() if qid in qrels}
+    top1 = mean_top1_score(systems, graded)
+    out: dict[str, dict[str, float]] = {}
+    for s in systems:
+        any_rel = grade2 = 0
+        for qid, q in graded.items():
+            grades = [qrels[qid].get(h.doc_id, 0) for h in s.search(q, k=k)]
+            any_rel += any(g >= 1 for g in grades)
+            grade2 += any(g >= 2 for g in grades)
+        n = len(graded)
+        out[s.name] = {
+            "n": float(n),
+            "any_rel_topk": any_rel / n if n else 0.0,
+            "grade2_topk": grade2 / n if n else 0.0,
+            "top1_score": top1[s.name],
+        }
+    return out
+
+
+def no_answer_to_markdown(
+    na_results: dict[str, dict[str, float]],
+    answerable_top1: dict[str, float] | None = None,
+    k: int = 10,
+) -> str:
+    """Formats the no_answer table, optionally with answerable top-1 for comparison."""
+    head = f"| System | Any grade>=1 in top {k} | Grade 2 in top {k} | Mean top-1 score (no_answer) |"
+    sep = "|---|---|---|---|"
+    if answerable_top1 is not None:
+        head += " Mean top-1 score (answerable) |"
+        sep += "---|"
+    lines = [head, sep]
+    for name, r in na_results.items():
+        line = (
+            f"| {name} | {r['any_rel_topk']:.3f} | {r['grade2_topk']:.3f} "
+            f"| {r['top1_score']:.3f} |"
+        )
+        if answerable_top1 is not None:
+            line += f" {answerable_top1.get(name, 0.0):.3f} |"
+        lines.append(line)
+    return "\n".join(lines)
 
 
 def to_markdown(results, per_query, baseline: str | None = None) -> str:
@@ -247,24 +356,44 @@ def main() -> None:
     if a.module != "all":
         # Keep untagged queries (no module column) and queries matching --module.
         query_rows = [r for r in query_rows if not r.module or r.module == a.module]
-    queries = {r.qid: r.query for r in query_rows}
     qrels = load_qrels(a.qrels)
 
-    chunk_results, chunk_per_query = evaluate(systems, queries, qrels)
-    chunk_md = to_markdown(chunk_results, chunk_per_query, a.baseline)
+    answerable_rows, no_answer_rows = split_no_answer(query_rows)
+    gaps = find_corpus_gaps([r.qid for r in answerable_rows], qrels)
+    gap_set = set(gaps)
+    # Main averages: answerable, graded, and with at least one doc graded >= 1.
+    queries = {
+        r.qid: r.query for r in answerable_rows
+        if r.qid in qrels and r.qid not in gap_set
+    }
+    na_queries = {r.qid: r.query for r in no_answer_rows}
+    n_main = len(queries)
 
     sections_out: list[str] = []
+    chunk_results, chunk_per_query = evaluate(systems, queries, qrels)
+    chunk_md = to_markdown(chunk_results, chunk_per_query, a.baseline)
+    sections_out.append(f"### Chunk-level (queries evaluated: {n_main})\n\n" + chunk_md)
+
     if a.section_level:
         chunk_to_section = {c.chunk_id: (c.section or c.chunk_id) for c in chunks}
         sec_results, sec_per_query = evaluate(
             systems, queries, qrels, chunk_to_section=chunk_to_section
         )
         sec_md = to_markdown(sec_results, sec_per_query, a.baseline)
-        sections_out.append("### Chunk-level\n\n" + chunk_md)
-        sections_out.append("### Section-level\n\n" + sec_md)
-        output_md = "\n\n".join(sections_out)
-    else:
-        output_md = chunk_md
+        sections_out.append(f"### Section-level (queries evaluated: {n_main})\n\n" + sec_md)
+
+    na_results = evaluate_no_answer(systems, na_queries, qrels)
+    n_na = sum(1 for qid in na_queries if qid in qrels)
+    na_md = no_answer_to_markdown(na_results, mean_top1_score(systems, queries))
+    sections_out.append(
+        f"### no_answer queries (queries evaluated: {n_na}, reported separately, not in averages)"
+        "\n\n" + na_md
+    )
+    sections_out.append(
+        f"### Corpus gaps (count: {len(gaps)}, answerable but no doc graded >= 1,"
+        " not in averages)\n\n" + (", ".join(gaps) if gaps else "none")
+    )
+    output_md = "\n\n".join(sections_out)
 
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     Path(a.out).write_text(output_md + "\n", encoding="utf-8")
