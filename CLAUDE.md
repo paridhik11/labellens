@@ -44,6 +44,7 @@ Rules:
 - LLM relevance grades are allowed only in separate files labelled `_llm` (for example `data/eval/pool_t1_llm.csv`, `data/eval/qrels_t1_llm.tsv`). They follow `docs/LLM_GRADER_PROMPT.md` exactly, and every batch is logged there with the model id as `/model` shows it at grading time. Never present LLM grades as human grades.
 - Label artwork is generated from templates, never by an image generation model. Never invent GTIN or UDI-DI values, raise `IdentifierRequired` instead. Every generated label carries a DRAFT mark until approved, and nothing is published without an approval record.
 - Keep the public medicine module and professional device module separate in data, rules and results.
+- No Co-Authored-By, Claude-Session or Generated-with lines in any commit message or PR description.
 
 ## Git rules
 1. Start by showing `git status`, `git remote -v`, `git branch`. Remote: https://github.com/paridhik11/labellens.
