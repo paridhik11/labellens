@@ -22,15 +22,8 @@ Pari is a third-year CSE student and the project lead, doing most of the work. N
 ## Working agreement
 Start every task in plan mode: propose the plan (files to touch, steps, how to verify) and wait for approval. Work in numbered steps, ONE at a time. After each step, STOP and wait for the user to say "continue".
 
-After EVERY step give a Step Report:
-1. What I did (plain English, 3 to 5 sentences, define jargon)
-2. Files created or changed (one line reason each)
-3. How it works (tiny worked example or analogy)
-4. How I verified it (exact command and the REAL pasted output)
-5. What you should check yourself (2 or 3 specific things in the diff)
-6. What I am unsure about or assumed
-7. Two quiz questions WITHOUT answers. Wait for the user's reply, then correct her.
-Also append a shortened version to docs/LEARNING_LOG.md.
+After EVERY step give a short summary of 3 to 4 lines in plain English: what I did, which files changed, how I verified it (real test result) and anything I am unsure about. No quiz questions.
+Also append the same short summary to docs/LEARNING_LOG.md.
 
 Rules:
 - Never invent data, URLs, endpoints, relevance grades or results. If unsure, check official docs. Report failures plainly.

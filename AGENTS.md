@@ -1,4 +1,4 @@
-# Rules for the coding agent (Antigravity)
+# Rules for the coding agent
 
 Project: LabelLens, a course project where information retrieval is the core. Read README.md and docs/WORKFLOW.md before doing anything.
 
@@ -43,13 +43,6 @@ Tests pass, lint clean, docs updated, metrics line written, and a short summary 
 
 ## Working agreement
 Work in numbered steps, one step at a time. After each step, stop and wait for the user to say "continue".
-After every step, provide a Step Report in exactly this format:
-1. What I did (plain English, 3 to 5 sentences, no jargon without a definition)
-2. Files created or changed (with a one line reason each)
-3. How it works (a small worked example or analogy, and define every new term)
-4. How I verified it (the exact command and the REAL output pasted, never summarized)
-5. What you should check yourself (2 or 3 specific things to look at in the diff)
-6. What I am unsure about or assumed
-7. Two questions to test if I understood
-Also append the same report, shortened, to docs/LEARNING_LOG.md.
+After every step, give a short summary of 3 to 4 lines in plain English: what was done, which files changed, how it was verified (real test result) and anything uncertain. No quiz questions.
+Also append the same short summary to docs/LEARNING_LOG.md.
 
