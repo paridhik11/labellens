@@ -137,3 +137,14 @@ A sequential log of progress, implementation decisions, worked examples, and ver
 5. **Check yourself:** The `queries = {...}` filter in `main()`, the `any(g >= 2 ...)` line in `evaluate_no_answer`, and `find_corpus_gaps` treating ungraded queries as not gaps.
 6. **Assumptions:** no_answer metrics use chunk level and k=10. Mean top-1 scores are only comparable within one system.
 7. **Questions:** Asked without answers in the Step Report.
+
+---
+
+## Step 11a: Rules and Prompt for LLM Relevance Grading
+
+1. **What I did:** Restored the full Step Report (items 1 to 6, no quiz) in `CLAUDE.md` and `AGENTS.md`, and replaced the "humans only" grading rule: LLM grades are allowed only in separate `_llm` files, and the agent never writes to the human `grade` column, `pool_t1.csv` or the human sample. Created `docs/LLM_GRADER_PROMPT.md` with the exact grader prompt, procedure and an empty batch log.
+2. **Files created or changed:** `CLAUDE.md` and `AGENTS.md` (report format, grading rules, state and next steps), `docs/LLM_GRADER_PROMPT.md` (new), `docs/LEARNING_LOG.md` (this entry).
+3. **How it works:** One fixed prompt plus fixed, seeded batches makes the LLM grading auditable. Keeping LLM grades in their own files means human and LLM grades can later be compared (kappa, system ranking) instead of being mixed.
+4. **How I verified it:** No code changed. Searched the changed docs for em dashes (none found) and ran the fast tests and lint (results in the Step Report).
+5. **Check yourself:** The grader prompt text in `docs/LLM_GRADER_PROMPT.md`, the two new grading rules in `CLAUDE.md`, and the restored report list in `AGENTS.md`.
+6. **Assumptions:** The grader output format (`chunk_id<TAB>grade`) is fixed now and Step 11b's `record` command will read it. The batch log is empty because nothing has been graded.

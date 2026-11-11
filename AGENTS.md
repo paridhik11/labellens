@@ -19,6 +19,8 @@ Project: LabelLens, a course project where information retrieval is the core. Re
 - All retrieval systems expose the same interface: `search(query: str, k: int) -> list[Hit]`.
 - Any change to retrieval must be followed by `python -m src.ir.eval` and the numbers pasted in the PR.
 - Fixed random seeds. Results must be reproducible from one command.
+- Human relevance grades are made only by humans. Never write to the human `grade` column, `data/eval/pool_t1.csv` or the human sample file.
+- LLM relevance grades go only in separate `_llm` files, follow `docs/LLM_GRADER_PROMPT.md` exactly, and every batch is logged there with the model id. Never present them as human grades.
 
 ## CV specific
 - Keep preprocessing steps as separate, testable functions.
@@ -43,6 +45,13 @@ Tests pass, lint clean, docs updated, metrics line written, and a short summary 
 
 ## Working agreement
 Work in numbered steps, one step at a time. After each step, stop and wait for the user to say "continue".
-After every step, give a short summary of 3 to 4 lines in plain English: what was done, which files changed, how it was verified (real test result) and anything uncertain. No quiz questions.
-Also append the same short summary to docs/LEARNING_LOG.md.
+After every step, provide a Step Report in exactly this format:
+1. What I did (plain English, 3 to 5 sentences, no jargon without a definition)
+2. Files created or changed (with a one line reason each)
+3. How it works (a small worked example or analogy, and define every new term)
+4. How I verified it (the exact command and the REAL output pasted, never summarized)
+5. What you should check yourself (2 or 3 specific things to look at in the diff)
+6. What I am unsure about or assumed
+No quiz questions.
+Also append the same report, shortened, to docs/LEARNING_LOG.md.
 

@@ -22,8 +22,15 @@ Pari is a third-year CSE student and the project lead, doing most of the work. N
 ## Working agreement
 Start every task in plan mode: propose the plan (files to touch, steps, how to verify) and wait for approval. Work in numbered steps, ONE at a time. After each step, STOP and wait for the user to say "continue".
 
-After EVERY step give a short summary of 3 to 4 lines in plain English: what I did, which files changed, how I verified it (real test result) and anything I am unsure about. No quiz questions.
-Also append the same short summary to docs/LEARNING_LOG.md.
+After EVERY step give a Step Report:
+1. What I did (plain English, 3 to 5 sentences, define jargon)
+2. Files created or changed (one line reason each)
+3. How it works (tiny worked example or analogy)
+4. How I verified it (exact command and the REAL pasted output)
+5. What you should check yourself (2 or 3 specific things in the diff)
+6. What I am unsure about or assumed
+No quiz questions.
+Also append a shortened version to docs/LEARNING_LOG.md.
 
 Rules:
 - Never invent data, URLs, endpoints, relevance grades or results. If unsure, check official docs. Report failures plainly.
@@ -33,7 +40,8 @@ Rules:
 - Run tests yourself and paste real output.
 - Do not use em dashes in docs or comments.
 - Check repo state (git status, counts) before stating it.
-- Relevance grades (qrels) are made by humans. Build tooling, never fill grades.
+- Human relevance grades are made only by humans. The agent never writes to the human `grade` column, to `data/eval/pool_t1.csv` or to the human sample file.
+- LLM relevance grades are allowed only in separate files labelled `_llm` (for example `data/eval/pool_t1_llm.csv`, `data/eval/qrels_t1_llm.tsv`). They follow `docs/LLM_GRADER_PROMPT.md` exactly, and every batch is logged there with the model id as `/model` shows it at grading time. Never present LLM grades as human grades.
 - Label artwork is generated from templates, never by an image generation model. Never invent GTIN or UDI-DI values, raise `IdentifierRequired` instead. Every generated label carries a DRAFT mark until approved, and nothing is published without an approval record.
 - Keep the public medicine module and professional device module separate in data, rules and results.
 
@@ -49,10 +57,13 @@ Rules:
 - Steps 1 to 10 done and pushed (built with Antigravity): eCFR crawler (11 CFR parts), chunker (min 5 words), 903 chunks (435 device, 468 medicine), own BM25 and TF-IDF, dense retrieval (BAAI/bge-small-en-v1.5 and FAISS, cached by content hash), hybrid RRF, metrics, eval harness (--module, --no-dense, --section-level), qrels tooling (pool, to-qrels, kappa).
 - 62 queries (`data/eval/queries_t1.tsv`: qid, query, module, type; 44 device, 18 medicine, 5 no_answer) fully pooled in `data/eval/pool_t1.csv` (1269 rows: 908 device, 361 medicine). No qrels graded yet, so no real results table yet.
 - Step 10b done: eval leaves no_answer queries and corpus gaps (answerable, no doc graded >= 1) out of the main averages and reports them separately; table headers show the query count.
+- Step 11a done: LLM grading allowed in separate `_llm` files only; grader prompt and batch log in `docs/LLM_GRADER_PROMPT.md`. No grades of any kind exist yet.
 - Docs updated for the template-based workflow (README, PRODUCT_SPEC, GENERATION, WORKFLOW, EVALUATION, TEAM_PLAN, TASKS, API_CONTRACT, QRELS_GUIDE, CLAUDE_CODE_GUIDE).
 - Open issues: corpus lacks symbols and non-US sources.
 
 ## Next steps (see docs/TEAM_PLAN.md for the day plan)
-1. User grades qrels (device first), then first real results table.
-2. Ablations, corpus expansion, query expansion, LTR.
-3. Checker, data model, template spec, API contract, mock JSON, basic synthetic generator.
+1. Step 11b: `src/ir/llm_grade_tool.py` (next-batch, record, to-qrels) with tests. Step 11c: 15-query stratified human sample (seed 42) in `data/eval/pool_t1_human_sample.csv`.
+2. Step 12: LLM grading in batches of about 40 (about 32 batches), human-sample queries first so they are fully graded. User grades the human sample.
+3. Step 13: compare LLM vs human grades (weighted kappa, binary agreement, side-by-side system ranking and nDCG@10, Kendall's tau, per-system grade distribution). Then first real results table.
+4. Ablations, corpus expansion, query expansion, LTR.
+5. Checker, data model, template spec, API contract, mock JSON, basic synthetic generator.
