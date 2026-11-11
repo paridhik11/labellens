@@ -159,3 +159,14 @@ A sequential log of progress, implementation decisions, worked examples, and ver
 4. **How I verified it:** `python -m pytest -q -m "not slow"` (63 passed, 1 deselected), `ruff check src tests` (All checks passed).
 5. **Check yourself:** `build_next_batch` (whole queries, max rows), `check_batch_grades` (exact row match), `load_pool_rows` (which columns are read).
 6. **Assumptions:** `next-batch` refuses to run until the human sample exists, so sample queries are always graded first. `--model` has no default, so the model id is never guessed.
+
+---
+
+## Step 11c: Human Validation Sample
+
+1. **What I did:** Ran `python -m src.ir.llm_grade_tool sample` to create `data/eval/pool_t1_human_sample.csv`: 308 rows for 15 queries chosen with seed 42, stratified by query type (4 direct, 4 field_req, 3 vocab_mismatch, 2 change_impact, 1 symbol, 1 no_answer) and by module within each type (11 device, 4 medicine). The grade column is empty.
+2. **Files created or changed:** `data/eval/pool_t1_human_sample.csv` (new, for the user to grade), `docs/QRELS_GUIDE.md` (how to grade the sample), `CLAUDE.md` (state and next steps).
+3. **How it works:** Each query type gets slots in proportion to its size (largest remainder), with at least one per type, so rare types like no_answer and symbol are always in the sample. A dry run of `next-batch` confirmed batch 1 would contain sample queries q04 and q05 first.
+4. **How I verified it:** Checked the sample has the pool's 6 columns, 308 rows and 0 filled grades, that `pool_t1.csv` is unchanged, and that `pool_t1_llm.csv` does not exist (no grading started). Tests and lint pass.
+5. **Check yourself:** The 15 qids and their types, the empty grade column in the sample file, and the new section in `docs/QRELS_GUIDE.md`.
+6. **Assumptions:** 15 queries is a validation sample, so agreement numbers in Step 13 will have wide error bars.

@@ -57,13 +57,14 @@ Rules:
 - Steps 1 to 10 done and pushed (built with Antigravity): eCFR crawler (11 CFR parts), chunker (min 5 words), 903 chunks (435 device, 468 medicine), own BM25 and TF-IDF, dense retrieval (BAAI/bge-small-en-v1.5 and FAISS, cached by content hash), hybrid RRF, metrics, eval harness (--module, --no-dense, --section-level), qrels tooling (pool, to-qrels, kappa).
 - 62 queries (`data/eval/queries_t1.tsv`: qid, query, module, type; 44 device, 18 medicine, 5 no_answer) fully pooled in `data/eval/pool_t1.csv` (1269 rows: 908 device, 361 medicine). No qrels graded yet, so no real results table yet.
 - Step 10b done: eval leaves no_answer queries and corpus gaps (answerable, no doc graded >= 1) out of the main averages and reports them separately; table headers show the query count.
-- Step 11a done: LLM grading allowed in separate `_llm` files only; grader prompt and batch log in `docs/LLM_GRADER_PROMPT.md`. No grades of any kind exist yet.
+- Step 11a done: LLM grading allowed in separate `_llm` files only; grader prompt and batch log in `docs/LLM_GRADER_PROMPT.md`.
+- Step 11b done: `src/ir/llm_grade_tool.py` (sample, next-batch, record, to-qrels), rows identified as `qid:chunk_id`.
+- Step 11c done: human sample `data/eval/pool_t1_human_sample.csv`, 308 rows, 15 queries (seed 42; 4 direct, 4 field_req, 3 vocab_mismatch, 2 change_impact, 1 symbol, 1 no_answer; 11 device, 4 medicine). No grades of any kind exist yet.
 - Docs updated for the template-based workflow (README, PRODUCT_SPEC, GENERATION, WORKFLOW, EVALUATION, TEAM_PLAN, TASKS, API_CONTRACT, QRELS_GUIDE, CLAUDE_CODE_GUIDE).
 - Open issues: corpus lacks symbols and non-US sources.
 
 ## Next steps (see docs/TEAM_PLAN.md for the day plan)
-1. Step 11b: `src/ir/llm_grade_tool.py` (next-batch, record, to-qrels) with tests. Step 11c: 15-query stratified human sample (seed 42) in `data/eval/pool_t1_human_sample.csv`.
-2. Step 12: LLM grading in batches of about 40 (about 32 batches), human-sample queries first so they are fully graded. User grades the human sample.
-3. Step 13: compare LLM vs human grades (weighted kappa, binary agreement, side-by-side system ranking and nDCG@10, Kendall's tau, per-system grade distribution). Then first real results table.
-4. Ablations, corpus expansion, query expansion, LTR.
-5. Checker, data model, template spec, API contract, mock JSON, basic synthetic generator.
+1. Step 12: LLM grading in batches of about 40 (about 32 batches), human-sample queries first so they are fully graded. User grades the human sample.
+2. Step 13: compare LLM vs human grades (weighted kappa, binary agreement, side-by-side system ranking and nDCG@10, Kendall's tau, per-system grade distribution). Then first real results table.
+3. Ablations, corpus expansion, query expansion, LTR.
+4. Checker, data model, template spec, API contract, mock JSON, basic synthetic generator.

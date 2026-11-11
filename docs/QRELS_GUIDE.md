@@ -49,6 +49,14 @@ python -m src.ir.eval --corpus data/processed/regs.jsonl --queries data/eval/que
 python -m src.ir.qrels_tool kappa data/eval/pool_t1_a.csv data/eval/pool_t1_b.csv
 ```
 
+## Human validation sample (for checking the LLM grades)
+
+`data/eval/pool_t1_human_sample.csv` holds 308 rows for 15 queries (q04, q05, q11, q12, q21, q28, q30, q31, q36, q40, q44, q46, q51, q56, q60), chosen with seed 42 and stratified by query type and module. It was made with `python -m src.ir.llm_grade_tool sample`, which refuses to overwrite the file once it exists.
+
+- Fill its `grade` column with the rubric above. Only you write to this file.
+- Do not open `data/eval/pool_t1_llm.csv` until you have finished, so the LLM grades cannot influence yours.
+- The LLM grades are compared against this file in Step 13 (see `docs/LLM_GRADER_PROMPT.md`).
+
 ## Extra grading rules
 - Read the passage text and ignore the section number when deciding.
 - A passage that uses the right words but belongs to a different topic is 0.
