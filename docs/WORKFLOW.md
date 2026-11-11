@@ -4,93 +4,75 @@
 
 ```mermaid
 flowchart TD
-  A[Upload image / PDF] --> B[Preprocess: deskew, denoise, binarize]
-  B --> C1[OCR text + boxes]
-  B --> C2[Barcode decode + GS1 parse]
+  A[Upload or scan] --> B[Preprocess]
+  B --> C1[OCR]
+  B --> C2[Barcode decode]
   B --> C3[Symbol detection]
-  C1 --> D[Structured label JSON]
+  C1 --> D[LabelExtraction JSON]
   C2 --> D
   C3 --> D
   D --> E[T2 product match]
-  D --> F[T1 requirement retrieval per field]
+  D --> F[T1 requirement retrieval]
   E --> G[Product record]
-  F --> H[Regulatory passages]
+  F --> H[Evidence passages]
   G --> I[Checker]
   H --> I
   D --> I
-  P[Previous label version] --> J[Text diff + image diff]
-  D --> J
   I --> K[RAG explanation with citations]
-  J --> K
   K --> L[Reviewer UI]
-  L --> M[Decision log + version history]
-  M --> N[Inspection report PDF]
-  Q[Change request] --> R[T3 impact retrieval + rules]
-  R --> S[Draft barcode + artwork generation]
-  S --> T[Self-check: OCR, decode, symbols]
-  T --> U[Visual diff current vs draft]
-  U --> L
+  Q[Change request] --> P[Parse and confirm]
+  P --> R[T3 impact retrieval and rules]
+  R --> N[Checklist]
+  N --> S[Fill template, conditional barcode]
+  S --> T[Self-check]
+  T --> U[Side by side diff]
+  U --> V[Approve or return]
+  V --> W[PDF at physical size]
+  W --> X[Print photo verification]
 ```
 
-## B. Corpus pipeline (crawling and tracking)
+## B. Corpus pipeline
+1. Crawl eCFR (21 CFR 801, 803, 806, 807, 809, 812, 820, 830 for devices, 201, 208, 211 for medicine). Later openFDA, FDA guidance, EU MDR labeling annex.
+2. Chunk by section, about 200 words with 25 overlap, skip sections under 5 words, content hash per chunk.
+3. On re-crawl, a changed hash means a new version, store both and flag the diff.
+4. Index: own BM25 index and dense FAISS index (embedding cache keyed by chunk id and hash). Filter by `module` (device or medicine) before ranking.
 
-1. Crawl: openFDA device and drug label endpoints, DailyMed SPL, GUDID, FDA labeling guidance, EU MDR labeling annexes, ISO 15223-1 symbol list, GS1 UDI docs.
-2. Clean and chunk: split by section or clause, keep source URL, title, section id, fetch date.
-3. Hash each chunk. On re-crawl, a changed hash means a new version: store both and flag the diff.
-4. Index: BM25 inverted index and dense FAISS index, rebuilt incrementally.
-
-Chunk schema:
-
-```json
-{"chunk_id":"fda_21cfr801_s109_c3","source":"FDA","url":"...","title":"...","section":"801.109","text":"...","fetched":"2026-11-09","hash":"..."}
-```
-
-## C. Label extraction schema
-
-```json
-{"label_id":"...","version":2,
- "fields":{"product_name":"","model":"","manufacturer":"","udi_di":"","lot":"","expiry":"","storage":"","warnings":[],"rx_only":true},
- "barcodes":[{"type":"GS1-128","raw":"","parsed":{}}],
- "symbols":[{"name":"sterile","iso":"5.2.x","bbox":[0,0,0,0],"conf":0.0}],
- "ocr_blocks":[{"text":"","bbox":[0,0,0,0],"conf":0.0}]}
-```
+## C. Schemas
+Defined in `src/common/schemas.py` (locked): Chunk, Hit, OcrBlock, BarcodeResult, SymbolDetection, LabelExtraction, ProductRecord, Flag, ChangeRequest, IdentifierRequired. Template spec is in `docs/GENERATION.md` and is added to schemas on Day 5 by Pari.
 
 ## D. Checks the system runs
 
 | Check | Source of truth | Output |
 |---|---|---|
-| Field vs record | Product DB | mismatch with both values |
+| Field vs record | Product record | mismatch with both values |
 | Barcode vs printed text | GS1 parse | mismatch |
-| Required symbol present | Requirement retrieval + ISO list | missing symbol |
-| Required warning present | Requirement retrieval | missing or weak match |
-| Expiry or date format | Rules | format issue |
+| Required symbol present | Retrieval and symbol registry | missing symbol |
+| Required warning present | Retrieval | missing or weak match |
+| Date format | Rules | format issue |
 | Revision diff | Previous version | changed fields and regions |
+| Layout (generated) | Template spec | overflow, clipping, size |
+| Print vs approved | Approved revision | mismatch or unclear scan |
 
-Each flag carries: severity, evidence passages (with source link), confidence, suggested action. Weak evidence means the system says "needs human review" instead of guessing.
+Each flag carries severity, evidence passages with source link, confidence, suggested action.
 
-## E. Build plan
+## E. Plan
+Day plan, gates and ownership live in `docs/TEAM_PLAN.md`. Task checklist in `docs/TASKS.md`.
 
-The 10 day parallel plan, gates, version ladder and risks live in `docs/PLAN_10_DAYS.md`. Checklist in `docs/TASKS.md`.
+## F. Dev workflow
+1. One branch per task, named `feat/<area>-<short-name>`, pull request into `main`, Pari reviews.
+2. Claude Code with the repo `CLAUDE.md`. Plan mode first, approve, then build.
+3. A pull request touching IR, CV or RAG states the metric that changed and the command that produced it.
+4. Tests and lint must pass. CI must be green.
+5. Every number in the report comes from a rerunnable command.
 
-Rule: IR evaluation starts on Day 3 and never stops. Every later feature must show a number.
-
-## F. Day to day dev workflow
-
-1. One GitHub issue per task, labelled by phase and owner.
-2. Branch per task: `feat/<area>-<short-name>`.
-3. The Antigravity agent works from the prompt in `docs/ANTIGRAVITY_PROMPTS.md` and the rules in `AGENTS.md`.
-4. A human reviews the diff, runs tests, and runs the eval command if retrieval changed.
-5. A PR needs one teammate review and a metrics line in the description if it touches IR, CV or RAG.
-6. Merge to `main` only when tests pass. Tag a release at the end of each phase.
-7. Weekly 30 minute sync: show the results table, decide the next cut.
-
-## G. Risk and fallback
+## G. Risks and fallbacks
 
 | Risk | Fallback |
 |---|---|
-| Symbol detection weak | Template matching plus classifier on cropped candidates |
-| OCR poor on photos | Report scans and photos separately, be honest |
+| Template from arbitrary artwork | Semi-manual slot marking, one template family |
+| Symbol detection weak | Template matching on a handful of symbols |
+| OCR poor on photos | Report scan and photo separately |
 | No real labels | Synthetic labels plus public DailyMed labels |
-| Crawl blocked | Official APIs and cached snapshots in `data/raw` |
-| LLM hallucination | Citation check, abstain rule, show passages first |
-| Time | Drop patient interface, keep T1 to T3 plus eval |
+| Crawl blocked | Cached snapshots in `data/raw` |
+| LLM hallucination | Citation check, abstain rule |
+| Time | Shrink public mode, keep IR, change flow and generation |

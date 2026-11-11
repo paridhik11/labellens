@@ -1,88 +1,47 @@
 # Evaluation plan
 
-Principle: every claim in the report is backed by a number from a script anyone can rerun.
+Principle: every claim in the report is backed by a number from a command anyone can rerun.
 
 ## 1. Retrieval (main section)
-
-### Test collections
-| Set | Queries | Documents | Labeling |
+| Set | Queries | Documents | Labels |
 |---|---|---|---|
-| T1 requirement | 100 to 150 label fields or claims | regulatory chunks | graded 0 to 2, two annotators on 30% for agreement (Cohen's kappa) |
-| T2 product match | 50+ OCR strings from synthetic and public labels | product records | single correct record |
+| T1 requirement | 62 queries (44 device, 18 medicine) in `data/eval/queries_t1.tsv` | regulatory chunks | graded 0, 1, 2 by Pari, 30% re-graded by Parth |
+| T2 product match | 50+ OCR strings from synthetic and public labels | product records | one correct record |
 | T3 impact | 30+ product changes | label versions | set of affected labels |
 
-Build qrels by pooling: take the top 10 from each system, annotate the union. Store as TREC style `qrels_t1.tsv`.
+Pooling: top 10 from each of tfidf, bm25, dense, hybrid within the right module, shuffled, graded blind. Rubric in `docs/QRELS_GUIDE.md`. Queries of type `no_answer` are excluded from main averages and reported separately as an abstention test.
 
-### Systems compared
-1. TF-IDF (cosine)
-2. BM25 (own implementation, tuned k1 and b)
-3. Dense (bge or e5)
-4. Hybrid RRF
-5. Hybrid weighted
-6. Hybrid plus cross-encoder rerank
-7. Hybrid plus rerank plus query expansion
-
-### Metrics
-nDCG@10, Recall@20, MRR, MAP. Report means and a paired significance test (paired t-test or bootstrap) between systems.
-
-### Ablations
-- Chunk size (128, 256, 512 tokens) and overlap
-- Field-aware queries vs raw OCR text queries
-- OCR noise level (clean text vs real OCR output vs synthetic noise)
-- k1 and b sweeps for BM25
-- Fusion weight sweep
-
-Failure analysis: pick 10 queries where hybrid lost to BM25 and explain why.
+Systems: TF-IDF, BM25 (own), dense, hybrid RRF, then query expansion, LTR, relevance feedback.
+Metrics: nDCG@10, Recall@20, MRR, MAP at chunk level and section level, paired bootstrap against BM25.
+Ablations: RRF k, fusion weights, stemming, BGE query prefix, chunk size and overlap, module filter on and off, clean vs OCR-noisy queries, BM25 k1 and b.
+Failure analysis: 10 queries where hybrid lost to BM25, with reasons.
+Caveat: a system added after pooling can be penalised for unjudged results, so report unjudged rate.
 
 ## 2. Error detection
-
-Generate synthetic labels from product records, then inject errors:
-
-| Error type | Example |
-|---|---|
-| Wrong field | model number changed |
-| Missing symbol | sterile symbol removed |
-| Missing warning | warning block dropped |
-| Barcode mismatch | barcode encodes another GTIN |
-| Stale revision | old storage text left in |
-| Date format | wrong expiry format |
-
-Report precision, recall and F1 per type, plus false alarms per clean label. Add a small set (20 to 30) of real public labels checked by hand.
+Synthetic labels with injected errors (wrong field, missing symbol, missing warning, barcode mismatch, stale text, date format). Precision, recall, F1 per type, false alarms per clean label. Plus 20 to 30 real public labels checked by hand.
 
 ## 3. Computer vision
-- OCR: character error rate and word error rate on synthetic ground truth, split by clean, scanned, photographed (blur, skew, glare)
-- Barcode: decode success rate by condition
-- Symbols: mAP@0.5 and per-class recall on a held-out synthetic set and a small real set
-- Image diff: precision of flagged changed regions against known edits
+OCR character and word error rate, barcode decode rate, symbol recall and precision, all per condition (clean, scan, photo).
 
 ## 4. RAG
-- Citation precision: share of cited passages that truly support the claim
-- Faithfulness: share of statements supported by retrieved text (manual check on 50 outputs)
-- Abstention: does it refuse when evidence is weak (queries with no answer in the corpus)
+Citation precision, faithfulness (manual check on 50 outputs), abstention on unanswerable queries, refusal on medical-advice questions.
 
-## 5. Generation (draft barcode and artwork)
-- Self-check pass rate on 30+ synthetic change requests (zero critical flags after round trip)
-- Barcode round-trip success (decode equals intended payload)
-- Field fidelity: CER between intended text and OCR of rendered artwork
-- Symbol round-trip recall
-- Overflow and layout violation rate
-- Draft creation time
+## 5. Generation
+Self-check pass rate on 30+ synthetic change requests, barcode round-trip success, conditional barcode correctness (kept when unchanged, regenerated when changed), field fidelity (CER of rendered text), overflow and layout violation rate, draft creation time.
 
-## 5b. Public medicine module (separate tables)
-- Product match accuracy@1 and @3 on 50+ photos of packs
-- Summary faithfulness and chatbot citation precision (manual check on 50 answers)
-- Refusal rate on unanswerable questions and on questions asking for medical advice
-- Behaviour on blurry photos (does it ask for a clearer image)
+## 6. Print verification
+Detection of injected print errors, false alarm rate on correct prints, decode rate and field CER by condition (flat scan, phone photo, blur, glare, skew), rate of correctly asking for a clearer scan.
 
-## 6. Reviewer task study
-Small study, 3 to 5 classmates, 10 labels each, with and without LabelLens. Measure time per label, errors caught, errors missed. Be honest about the small sample.
+## 7. Public medicine module (separate tables)
+Product match accuracy at 1 and 3, summary faithfulness, chatbot citation precision, refusal rate, behavior on blurry photos.
 
-## 7. Results table template
+## 8. Reviewer task study (if time)
+3 to 5 classmates, 10 labels each, with and without LabelLens. Time per label, errors caught. State the small sample honestly.
 
-| System | nDCG@10 | Recall@20 | MRR | Latency (ms) |
-|---|---|---|---|---|
-| TF-IDF | | | | |
-| BM25 | | | | |
-| Dense | | | | |
-| Hybrid RRF | | | | |
-| Hybrid + rerank | | | | |
+## 9. Results table template
+| System | nDCG@10 | Recall@20 | MRR | MAP | Latency (ms) |
+|---|---|---|---|---|---|
+| TF-IDF | | | | | |
+| BM25 | | | | | |
+| Dense | | | | | |
+| Hybrid RRF | | | | | |

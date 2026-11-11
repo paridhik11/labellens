@@ -48,3 +48,11 @@ python -m src.ir.eval --corpus data/processed/regs.jsonl --queries data/eval/que
 ```powershell
 python -m src.ir.qrels_tool kappa data/eval/pool_t1_a.csv data/eval/pool_t1_b.csv
 ```
+
+## Extra grading rules
+- Read the passage text and ignore the section number when deciding.
+- A passage that uses the right words but belongs to a different topic is 0.
+- Queries of type `no_answer` should mostly get 0s. That is expected and is reported separately.
+- Grade device queries with device passages and medicine queries with medicine passages only.
+- If unsure between two grades, pick the lower one.
+- When re-grading the 30% sample for agreement, do not look at your old grades.
