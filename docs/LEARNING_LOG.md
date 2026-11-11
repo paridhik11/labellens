@@ -148,3 +148,14 @@ A sequential log of progress, implementation decisions, worked examples, and ver
 4. **How I verified it:** No code changed. Searched the changed docs for em dashes (none found) and ran the fast tests and lint (results in the Step Report).
 5. **Check yourself:** The grader prompt text in `docs/LLM_GRADER_PROMPT.md`, the two new grading rules in `CLAUDE.md`, and the restored report list in `AGENTS.md`.
 6. **Assumptions:** The grader output format (`chunk_id<TAB>grade`) is fixed now and Step 11b's `record` command will read it. The batch log is empty because nothing has been graded.
+
+---
+
+## Step 11b: LLM Grading Batch Tool
+
+1. **What I did:** Added `src/ir/llm_grade_tool.py` with `next-batch` (writes the next about-40-row batch of whole, ungraded queries, human-sample queries first, shuffled with seed `42:<batch>`), `record` (checks the grader output covers exactly that batch with grades 0/1/2, then appends it to `data/eval/pool_t1_llm.csv` with batch, model id and date) and `to-qrels`. The `sample` code is in the same file and is run in Step 11c.
+2. **Files created or changed:** `src/ir/llm_grade_tool.py` (new tool), `tests/test_llm_grade_tool.py` (12 tests), `docs/LLM_GRADER_PROMPT.md` (row id output format and commands).
+3. **How it works:** Rows are identified by `qid:chunk_id` because 253 passages appear under more than one query. The tool reads only qid, query, chunk_id and text from the pool, never the human grade or section.
+4. **How I verified it:** `python -m pytest -q -m "not slow"` (63 passed, 1 deselected), `ruff check src tests` (All checks passed).
+5. **Check yourself:** `build_next_batch` (whole queries, max rows), `check_batch_grades` (exact row match), `load_pool_rows` (which columns are read).
+6. **Assumptions:** `next-batch` refuses to run until the human sample exists, so sample queries are always graded first. `--model` has no default, so the model id is never guessed.

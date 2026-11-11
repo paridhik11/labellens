@@ -52,9 +52,27 @@ Rules:
 - If you are unsure between two grades, pick the lower one.
 - Grade each row on its own. Do not try to give every query at least one 2.
 
-Output: one line per row, in the form   <chunk_id><TAB><grade>
-with grade 0, 1 or 2, and nothing else.
+Output: one line per row, in the form   <row_id><TAB><grade>
+using the row_id exactly as shown, with grade 0, 1 or 2, and nothing else.
 ```
+
+The row id is `<qid>:<chunk_id>`, because 253 passages appear under more than one query in the pool, so a chunk id alone does not identify a row.
+
+## Commands
+
+```powershell
+# once: create the human sample (refuses to overwrite an existing file)
+python -m src.ir.llm_grade_tool sample
+
+# each batch: write the next batch, grade it, then record it
+python -m src.ir.llm_grade_tool next-batch --out <scratchpad>/batch.md
+python -m src.ir.llm_grade_tool record --grades <scratchpad>/grades.tsv --model "<model id as /model shows it>"
+
+# when done (or any time): build LLM qrels
+python -m src.ir.llm_grade_tool to-qrels
+```
+
+`record` rebuilds the same next batch and refuses grades that are missing rows, add rows from outside the batch, repeat a row or use a grade other than 0, 1 or 2.
 
 ## Batch log
 
