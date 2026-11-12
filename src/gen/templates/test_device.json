@@ -1,0 +1,125 @@
+{
+  "template_id": "test_device_v1",
+  "version": 1,
+  "size_mm": {
+    "w": 100,
+    "h": 60
+  },
+  "background": null,
+  "slots": [
+    {
+      "id": "name",
+      "type": "text",
+      "field": "product_name",
+      "bbox_mm": [
+        5,
+        12,
+        60,
+        6
+      ],
+      "size_pt": 12,
+      "max_lines": 1
+    },
+    {
+      "id": "manufacturer",
+      "type": "text",
+      "field": "manufacturer",
+      "bbox_mm": [
+        5,
+        20,
+        60,
+        5
+      ],
+      "size_pt": 9,
+      "max_lines": 1
+    },
+    {
+      "id": "address",
+      "type": "text",
+      "field": "manufacturer_address",
+      "bbox_mm": [
+        5,
+        26,
+        60,
+        5
+      ],
+      "size_pt": 8,
+      "max_lines": 1
+    },
+    {
+      "id": "model",
+      "type": "text",
+      "field": "model",
+      "bbox_mm": [
+        5,
+        33,
+        60,
+        5
+      ],
+      "size_pt": 9,
+      "max_lines": 1
+    },
+    {
+      "id": "lot",
+      "type": "text",
+      "field": "lot",
+      "bbox_mm": [
+        5,
+        40,
+        60,
+        5
+      ],
+      "size_pt": 9,
+      "max_lines": 1
+    },
+    {
+      "id": "expiry",
+      "type": "text",
+      "field": "expiry",
+      "bbox_mm": [
+        5,
+        47,
+        60,
+        5
+      ],
+      "size_pt": 9,
+      "max_lines": 1
+    },
+    {
+      "id": "barcode",
+      "type": "barcode",
+      "field": "udi",
+      "symbology": "GS1_DataMatrix",
+      "bbox_mm": [
+        70,
+        20,
+        25,
+        25
+      ]
+    },
+    {
+      "id": "manufacturer_symbol",
+      "type": "symbol",
+      "field": "manufacturer_symbol",
+      "symbol_name": "manufacturer",
+      "bbox_mm": [
+        71,
+        48,
+        8,
+        8
+      ]
+    },
+    {
+      "id": "expiry_symbol",
+      "type": "symbol",
+      "field": "expiry_symbol",
+      "symbol_name": "expiry",
+      "bbox_mm": [
+        85,
+        48,
+        8,
+        8
+      ]
+    }
+  ]
+}
