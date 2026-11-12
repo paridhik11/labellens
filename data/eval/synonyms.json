@@ -1,0 +1,25 @@
+{
+  "_readme": "General regulatory synonym groups for query expansion (Step 17b). Each group lists terms that mean the same thing in FDA labeling vocabulary. A group fires when ANY of its terms appears in a query, and the other terms are added. source = cfr_definition: the group comes from a defined term or abbreviation in the CFR text, and evidence lists sections where at least two of its terms co-occur (checked by python -m src.ir.expand --check). source = failure_derived: I thought of the group after reading results/step14_failures.md, so it is NOT independent of the queries; motivated_by lists the failure queries and is never read by the code, it only lets the report say which held-out queries could be influenced. No group names a query or a query phrase.",
+  "groups": [
+    {"id": "udi", "source": "cfr_definition", "evidence": ["830.3"], "terms": ["unique device identifier", "udi"]},
+    {"id": "gudid", "source": "cfr_definition", "evidence": ["830.3"], "terms": ["global unique device identification database", "gudid"]},
+    {"id": "aidc", "source": "cfr_definition", "evidence": ["830.3"], "terms": ["automatic identification and data capture", "aidc"]},
+    {"id": "mdr", "source": "cfr_definition", "evidence": ["803.3"], "terms": ["medical device report", "mdr"]},
+    {"id": "ide", "source": "cfr_definition", "evidence": ["812.1"], "terms": ["investigational device exemption", "ide"]},
+    {"id": "pma", "source": "cfr_definition", "evidence": ["807.3"], "terms": ["premarket approval", "pma"]},
+    {"id": "510k", "source": "cfr_definition", "evidence": ["807.3"], "terms": ["premarket notification", "510(k)"]},
+    {"id": "asr", "source": "cfr_definition", "evidence": ["809.10"], "terms": ["analyte specific reagent", "asr"]},
+    {"id": "cgmp", "source": "cfr_definition", "evidence": ["211.25", "820.1"], "terms": ["current good manufacturing practice", "cgmp"]},
+    {"id": "lot_batch", "source": "cfr_definition", "evidence": ["801.40", "211.204"], "terms": ["lot number", "batch number", "lot or batch"]},
+
+    {"id": "otc", "source": "failure_derived", "motivated_by": ["q24"], "evidence": ["201.25", "801.60"], "terms": ["over the counter", "over-the-counter", "otc"]},
+    {"id": "maker", "source": "failure_derived", "motivated_by": ["q12"], "evidence": ["201.1"], "terms": ["manufacturer", "maker", "labeler"]},
+    {"id": "container", "source": "failure_derived", "motivated_by": ["q12"], "evidence": ["201.10"], "terms": ["box", "package", "carton"]},
+    {"id": "barcode", "source": "failure_derived", "motivated_by": ["q03", "q55"], "evidence": ["201.25"], "terms": ["barcode", "bar code"]},
+    {"id": "expiry", "source": "failure_derived", "motivated_by": ["q59"], "evidence": ["801.3"], "terms": ["expiry date", "expiry", "expiration date"]},
+    {"id": "reconstitute", "source": "failure_derived", "motivated_by": ["q59"], "evidence": ["201.57"], "terms": ["reconstituted", "reconstitution", "mixed", "diluted"]},
+    {"id": "relabel", "source": "failure_derived", "motivated_by": ["q15"], "evidence": ["807.3", "201.25"], "terms": ["relabeling", "relabel", "repackaging", "repack"]},
+    {"id": "language", "source": "failure_derived", "motivated_by": ["q16"], "evidence": ["801.15", "201.15"], "terms": ["foreign language", "another language", "other language"]},
+    {"id": "rx_legend", "source": "failure_derived", "motivated_by": ["q01"], "evidence": ["801.109", "809.10"], "terms": ["rx only", "prescription only", "prescription use only"]}
+  ]
+}
