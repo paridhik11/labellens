@@ -88,3 +88,4 @@ python -m src.ir.llm_grade_tool to-qrels
 | 7 | 24 (rows 209 to 232) | q44 | claude-sonnet-5-5 | 2026-11-12 | Grades: 24 zero, 0 one, 0 two |
 | 8 | 37 (rows 233 to 269) | q46, q51 | claude-sonnet-5-5 | 2026-11-12 | Grades: 16 zero, 13 one, 8 two |
 | 9 | 39 (rows 270 to 308) | q56, q60 | claude-sonnet-5-5 | 2026-11-12 | Grades: 26 zero, 6 one, 7 two |
+| 10 | 23 (rows 309 to 331) | q01 | claude-sonnet-5-5 | 2026-11-12 | Grades: 16 zero, 4 one, 3 two |
