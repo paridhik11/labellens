@@ -1,7 +1,7 @@
 # Label preprocessing
 
-This first extraction step finds and straightens a single dominant label.
-It uses OpenCV and NumPy already installed in the CV environment. OCR, barcode
+Preprocessing finds and straightens a single dominant label using OpenCV and
+NumPy. OCR is available through the RapidOCR fallback described below. Barcode
 parsing, field mapping and `LabelExtraction` integration are later steps.
 
 ## Image interface
@@ -94,3 +94,108 @@ This measures boundary location, not text recognition or barcode decoding.
 The clean label's inset border produces a small crop and explains its nonzero
 corner error. The hard examples test only the generator's current effects;
 they do not include real glare, occlusion or curved packaging.
+
+## OCR installation and fallback decision
+
+The OCR wrapper uses `rapidocr-onnxruntime==1.4.4`, `onnxruntime==1.31.1` and
+`pydantic==2.14.3`. Pydantic is needed by the existing `OcrBlock` schema. The
+original NumPy 2.5.4 and opencv-python 5.0.0.93 pins remain unchanged.
+Install from the repository root in the CV environment:
+
+```bash
+python -m pip install -r src/gen/requirements-cv.txt
+python -m pip --no-cache-dir check
+```
+
+PaddleOCR was checked first with pip's dry-run resolver, without installing it.
+PaddleOCR 3.7.0 with PaddlePaddle 3.3.1 could not resolve against the existing
+pins. The actual resolver diagnosis included:
+
+```text
+paddlex 3.7.2 depends on numpy<2.4 and >=1.24
+paddlex 3.7.1 depends on numpy<2.4 and >=1.24
+paddlex 3.7.0 depends on numpy<2.4 and >=1.24
+The user requested (constraint) numpy==2.5.4
+```
+
+The unconstrained PaddleOCR check selected version 3.4.1 and
+opencv-contrib-python 4.10.0.84. Installing that beside the existing
+opencv-python package would introduce a second provider of `cv2`. The
+[OpenCV package instructions](https://pypi.org/project/opencv-python/) require
+choosing only one OpenCV distribution. No Paddle packages were installed.
+
+The modern `rapidocr` distribution also proposed a second OpenCV provider,
+opencv-python-headless. The older `rapidocr-onnxruntime` distribution resolved
+with the existing opencv-python package and was installed as the guide's
+RapidOCR fallback. See the [versioned RapidOCR API documentation](https://rapidai.github.io/RapidOCRDocs/v1.4.4/install_usage/api/RapidOCR/).
+This choice preserves the already-tested generator environment. It is not a
+claim that PaddleOCR cannot run on Apple Silicon in a different environment.
+
+## Reading text
+
+```bash
+python -m src.cv.ocr --image path/to/test_label.png --rectify
+```
+
+`--rectify` detects and straightens the label first. Without it, OCR runs on the
+supplied image directly. No boundary is an explicit error when rectification
+was requested. The command prints each actual `OcrBlock`, including text, box
+and engine confidence. It does not read the matching ground-truth JSON.
+
+For Python callers, `read_text(image)` accepts a uint8 RGB NumPy array and
+returns `list[OcrBlock]`. The wrapper converts RGB to the BGR array expected by
+this RapidOCR version. Models are cached in memory after the first call.
+Inference uses CPU with one thread per operator and the line orientation
+classifier disabled because this baseline assumes upright labels.
+
+`OcrBlock.bbox` uses x, y, width, height in the image passed to `read_text`.
+It is the smallest axis-aligned rectangle enclosing the OCR engine's four
+corners, not a template slot. CLI boxes with `--rectify` are in corrected-image
+coordinates; without it they are in input-image coordinates. They have not yet
+been mapped back to the original photo. The shared schema is unchanged.
+
+Text and confidence are preserved without ground-truth corrections. Empty
+results become an empty list; malformed engine geometry or scores raise an
+error. Empty text is omitted. Recognition filtering is set to zero to preserve
+low-confidence text for later warning handling; text detection still uses its
+bundled defaults. An inference failure propagates to the caller rather than
+being presented as successful empty output.
+
+The bundled detection and recognition models are PP-OCRv4 Chinese/English
+models. They can return non-English false positives. Confidence is an engine
+score, not a calibrated guarantee of correct text. Field mapping and warning
+generation have not been implemented yet.
+
+## OCR smoke-check observations
+
+One seed-42 image per condition was run through the real CLI with `--rectify`.
+Each returned eight blocks. These are smoke checks, not accuracy measurements:
+
+| Condition | Images checked | Intended product name | Actual recognized product name |
+| --- | ---: | --- | --- |
+| clean | 1 | TEST SENSOR 001 | TESTSENSORO01 |
+| moderate | 1 | TEST SENSOR 001 | TEST SENSOR 001 |
+| hard | 1 | TEST SENSOR 001 | TEST SENSOR O01 |
+
+The barcode region produced a low-confidence spurious text block in all three
+samples, including `2` in the clean sample with confidence
+`0.23578742146492004`. These results are retained. No character-error rate or
+field accuracy has been computed in this step.
+
+Tests include real bundled-model inference on a generated clean label and
+repeatability of its text, boxes and confidence. Unit tests separately verify
+RGB conversion, raw result conversion, invalid inputs, empty results and errors.
+Models are bundled in the wheel, so normal tests do not download model weights.
+
+The inspected model files had these SHA-256 hashes. SHA-256 is a content
+fingerprint that can identify a different model file:
+
+```text
+ch_PP-OCRv4_det_infer.onnx: d2a7720d45a54257208b1e13e36a8479894cb74155a5efe29462512d42f49da9
+ch_PP-OCRv4_rec_infer.onnx: 48fc40f24f6d2a207a2b1091d3437eb3cc3eb6b676dc3ef9c37384005483683b
+ch_ppocr_mobile_v2.0_cls_infer.onnx: e47acedf663230f8863ff1ab0e64dd2d82b838fceb5957146dab185a89d6215c
+```
+
+The classifier file is bundled and loaded by the package but disabled during
+inference. ONNX Runtime emitted a warning under the sandbox that its telemetry
+device ID could not be persisted; inference completed successfully.
