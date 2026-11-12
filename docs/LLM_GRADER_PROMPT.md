@@ -105,3 +105,11 @@ python -m src.ir.llm_grade_tool to-qrels
 | 24 | 28 (rows 693 to 720) | q24 | claude-sonnet-5-5 | 2026-11-12 | Grades: 26 zero, 2 one, 0 two |
 | 25 | 24 (rows 721 to 744) | q25 | claude-sonnet-5-5 | 2026-11-12 | Grades: 19 zero, 3 one, 2 two |
 | 26 | 37 (rows 745 to 781) | q27, q26 | claude-sonnet-5-5 | 2026-11-12 | Grades: 18 zero, 10 one, 9 two |
+| 27 | 32 (rows 782 to 813) | q32, q29 | claude-sonnet-5-5 | 2026-11-12 | Grades: 20 zero, 10 one, 2 two |
+| 28 | 35 (rows 814 to 848) | q34, q33 | claude-sonnet-5-5 | 2026-11-12 | Grades: 18 zero, 12 one, 5 two |
+| 29 | 29 (rows 849 to 877) | q35, q37 | claude-sonnet-5-5 | 2026-11-12 | Grades: 17 zero, 10 one, 2 two |
+| 30 | 24 (rows 878 to 901) | q38 | claude-sonnet-5-5 | 2026-11-12 | Grades: 18 zero, 5 one, 1 two |
+| 31 | 40 (rows 902 to 941) | q39, q41 | claude-sonnet-5-5 | 2026-11-12 | Grades: 30 zero, 10 one, 0 two |
+| 32 | 20 (rows 942 to 961) | q42 | claude-sonnet-5-5 | 2026-11-12 | Grades: 20 zero, 0 one, 0 two |
+| 33 | 38 (rows 962 to 999) | q45, q43 | claude-sonnet-5-5 | 2026-11-12 | Grades: 36 zero, 1 one, 1 two |
+| 34 | 21 (rows 1000 to 1020) | q47 | claude-sonnet-5-5 | 2026-11-12 | Grades: 12 zero, 8 one, 1 two |
