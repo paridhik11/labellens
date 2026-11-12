@@ -192,3 +192,14 @@ A sequential log of progress, implementation decisions, worked examples, and ver
 4. **How I verified it:** `record` accepted all 40 rows on the first run; tests and lint results in the Step Report.
 5. **Check yourself:** The batch log row, the model id column in `pool_t1_llm.csv`, and that `pool_t1.csv` and the sample files are unchanged.
 6. **Assumptions:** Passages that state the right requirement but only for a narrower product class were graded 1 (lower grade when unsure). Passages that only mention a UDI or a manufacturer name in passing (reports, registration, GUDID submission) were graded 0.
+
+---
+
+## Step 12, Batches 2 to 9: LLM Grades for 14 More Queries
+
+1. **What I did:** Ran `next-batch`, graded and `record`ed batches 2 to 9 (268 rows) with model `claude-sonnet-5-5` on 2026-11-12, always with only the prompt in `docs/LLM_GRADER_PROMPT.md`. The queries were q11, q12, q21, q28, q30, q31, q36, q40, q44, q46, q51, q56 and q60. With batch 1 and batch 10 (q01), all 15 human-sample queries are now fully LLM-graded. Grade counts for batches 2 to 9: 192 zero, 51 one, 25 two.
+2. **Files created or changed:** `data/eval/pool_t1_llm.csv` (268 rows added), `docs/LLM_GRADER_PROMPT.md` (8 batch log rows), `CLAUDE.md` (state).
+3. **How it works:** Each batch is whole queries (about 40 rows), shuffled with seed `42:<batch>` so row order does not reveal system rank. `record` rebuilds the same batch and rejects grades that are missing, extra, repeated or not 0/1/2. q44 is a no_answer query, so its 24 rows are all 0 (the prompt says not to raise a grade because nothing better exists).
+4. **How I verified it:** `python -m pytest -q -m "not slow"` gave `65 passed, 1 deselected in 0.65s`. `ruff check src tests` gave `All checks passed!`. Summing the pool file by batch gives 192/51/25 for batches 2 to 9, matching the batch log. `git diff` shows no change to `pool_t1.csv`, the human sample or the two annotator files.
+5. **Check yourself:** The 8 new rows in the batch log (the per-batch counts add up to 192/51/25), the `model` column in `pool_t1_llm.csv`, and the batch 8 and 9 grade mix (8 and 7 twos, much higher than batches 4 to 7).
+6. **Assumptions:** Grades follow "lower grade when unsure". I wrote no per-query rationale, so the reasons behind individual grades are not recorded. I did not write a Step Report at the time of these batches, so this entry was added afterwards. CI status was not checked: `gh` is not logged in on this machine.
