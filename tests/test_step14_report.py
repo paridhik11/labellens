@@ -91,3 +91,16 @@ def test_type_table_counts_flags_small_n_and_leaves_gaps_out() -> None:
     assert "| direct | 2 | 0 | 0.500 | 0.000 | n<5, descriptive only |" in text
     assert "| symbol | 1 | 1 | 0.500 | 0.500 | n<5, descriptive only |" in text
     assert "| vocab_mismatch | 0 | 0 | n/a | n/a | no queries |" in text
+
+
+def test_holm_adjust_known_values_and_order() -> None:
+    from src.ir.step14_report import holm_adjust
+
+    # sorted p: 0.01, 0.02, 0.04 -> 3*0.01, 2*0.02, 1*0.04 = 0.03, 0.04, 0.04
+    adj = holm_adjust([0.04, 0.01, 0.02])
+    assert adj == pytest.approx([0.04, 0.03, 0.04])
+    # never below raw, capped at 1, monotone in the sorted order
+    adj2 = holm_adjust([0.5, 0.6, 0.9])
+    assert adj2 == pytest.approx([1.0, 1.0, 1.0])
+    assert all(a >= p for a, p in zip(holm_adjust([0.001, 0.2]), [0.001, 0.2], strict=True))
+    assert holm_adjust([]) == []

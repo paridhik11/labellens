@@ -73,6 +73,65 @@ def paired_bootstrap_ci(
     return float(diffs.mean()), float(lo), float(hi), p
 
 
+def holm_adjust(pvals: list[float]) -> list[float]:
+    """Holm step-down adjusted p-values, returned in the input order.
+
+    Sort the m p-values ascending. The adjusted value for the j-th smallest
+    (j = 1..m) is (m - j + 1) * p, capped at 1, and never lower than the
+    adjusted value before it, so the adjusted p-values keep the same order.
+    Controls the chance of any false positive in the family at the stated level.
+    """
+    m = len(pvals)
+    order = sorted(range(m), key=lambda i: pvals[i])
+    adj = [0.0] * m
+    running = 0.0
+    for rank, i in enumerate(order):
+        running = max(running, min(1.0, (m - rank) * pvals[i]))
+        adj[i] = running
+    return adj
+
+
+def holm_family(data: dict[str, dict]) -> list[dict]:
+    """The nDCG@10 comparisons vs bm25 as one family (module x level x system).
+
+    Uses the main query set (corpus gaps excluded). With 2 modules, 2 levels
+    and 3 non-baseline systems the family has 12 members. Each row has the mean
+    difference, 95% interval, raw p and the Holm-adjusted p.
+    """
+    rows: list[dict] = []
+    for mod in sorted(data):
+        d = data[mod]
+        kept = [q for q in d["qids"] if q not in set(d["gaps"])]
+        for level in ("chunk", "section"):
+            sub = select(d[level], d["qids"], kept)
+            for s in sub:
+                if s == BASELINE:
+                    continue
+                diff, lo, hi, p = paired_bootstrap_ci(sub[s]["ndcg"], sub[BASELINE]["ndcg"])
+                rows.append(
+                    {"module": mod, "level": level, "system": s, "n": len(kept),
+                     "diff": diff, "lo": lo, "hi": hi, "p": p}
+                )
+    for r, adj in zip(rows, holm_adjust([r["p"] for r in rows]), strict=True):
+        r["p_holm"] = adj
+    return rows
+
+
+def holm_table(rows: list[dict]) -> list[str]:
+    """Markdown table for the Holm family, with the raw and adjusted p-values."""
+    lines = [
+        "| Module | Level | System vs bm25 | n | nDCG@10 diff [95% CI] | raw p | Holm-adjusted p |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    for r in rows:
+        lines.append(
+            f"| {r['module']} | {r['level']} | {r['system']} | {r['n']} "
+            f"| {r['diff']:+.3f} [{r['lo']:+.3f}, {r['hi']:+.3f}] "
+            f"| {fmt_p(r['p'])[2:]} | {fmt_p(r['p_holm'])[2:]} |"
+        )
+    return lines
+
+
 def fmt_p(p: float) -> str:
     """Formats a bootstrap p-value as 'p=0.123'; below the resolution it is 'p<0.0002'."""
     if p != p:
@@ -179,12 +238,20 @@ def results_report(data: dict[str, dict], qrels: dict[str, dict[str, int]]) -> s
         "",
         "## Multiple comparisons",
         "Each table has 12 comparisons against bm25 (3 systems x 4 metrics). With 2 modules x 2",
-        "levels that is 48 comparisons in this file. **None of the p-values is corrected for",
-        "multiple comparisons.** **nDCG@10 is the primary metric**; Recall@20, MRR and MAP are",
+        "levels that is 48 comparisons in this file. **The p-values in the module tables are not",
+        "corrected for multiple comparisons.** **nDCG@10 is the primary metric**; Recall@20, MRR and MAP are",
         "secondary and should be read as supporting detail. With only 17 to 40 queries per table,",
         "an uncorrected p just under 0.05 is weak evidence.",
         "",
+        "The module tables further down keep the raw p-values. The table below treats the 12",
+        "nDCG@10 comparisons vs bm25 (2 modules x 2 levels x 3 systems) as one family and adds a",
+        "Holm step-down adjusted p. Holm controls the chance of any false positive across those 12",
+        "and is never smaller than the raw p. The 36 secondary-metric comparisons stay uncorrected.",
+        "",
+        f"## nDCG@10 vs bm25, Holm-adjusted over 12 comparisons. {LABEL}",
+        "",
     ]
+    out += holm_table(holm_family(data)) + [""]
     for mod in sorted(data):
         d = data[mod]
         gaps = d["gaps"]

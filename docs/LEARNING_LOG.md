@@ -243,3 +243,11 @@ A sequential log of progress, implementation decisions, worked examples, and ver
 4. **Results (real, from the run):** Device (n): direct 10, vocab_mismatch 9, symbol 5, field_req 11, change_impact 5. Medicine: direct 7, vocab_mismatch 4, symbol 0, field_req 5, change_impact 1. Device vocab_mismatch nDCG@10: dense 0.543, hybrid 0.489, bm25 0.395, tfidf 0.371. Device direct: bm25 0.728, hybrid 0.659, tfidf 0.633, dense 0.518. Device symbol: tfidf 0.910, bm25 0.840, dense 0.524. Medicine vocab_mismatch (n=4, flagged): dense 0.601, hybrid 0.526, bm25 0.355. Medicine has no symbol queries and one change_impact query.
 5. **Check yourself:** That the n column adds up to 40 (device) and 17 (medicine), that medicine vocab_mismatch and change_impact are flagged, and that the "dense wins on vocab_mismatch" pattern appears in both modules but rests on 9 and 4 queries.
 6. **Assumptions:** Query types come from the 4th column of `queries_t1.tsv`. No gaps exist, so 'gaps left out' is 0 everywhere. CI not checked (gh not logged in).
+
+## Step 14a (addendum): Holm-adjusted p for nDCG@10
+1. **What I did:** Added a table to `results/step14_results.md` that treats the 12 nDCG@10 comparisons vs bm25 (2 modules x 2 levels x 3 systems) as one family and gives raw and Holm step-down adjusted p-values. Module tables keep raw p. The 36 secondary-metric comparisons stay uncorrected and the report says so.
+2. **Files changed:** `src/ir/step14_report.py` (`holm_adjust`, `holm_family`, `holm_table`), `tests/test_step14_report.py`, `results/step14_results.md`, this log.
+3. **How it works:** Holm sorts the p-values, multiplies the smallest by 12, the next by 11 and so on (cap 1, never decreasing). Example: p of 0.01, 0.02, 0.04 become 0.03, 0.04, 0.04.
+4. **Verified:** `pytest tests/test_step14_report.py`: 9 passed; ruff clean. Medicine chunk hybrid raw p 0.057 becomes 0.627 after Holm.
+5. **Check yourself:** Which comparison keeps the smallest adjusted p (medicine section hybrid: raw 0.008, Holm 0.091) and that only nDCG@10 is in the family.
+6. **Assumptions:** Family = main query set, gaps excluded (no gaps exist). CI not checked (gh not logged in).

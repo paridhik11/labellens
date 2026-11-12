@@ -22,10 +22,32 @@ from human-graded scores. Compare systems with each other, not with other papers
 
 ## Multiple comparisons
 Each table has 12 comparisons against bm25 (3 systems x 4 metrics). With 2 modules x 2
-levels that is 48 comparisons in this file. **None of the p-values is corrected for
-multiple comparisons.** **nDCG@10 is the primary metric**; Recall@20, MRR and MAP are
+levels that is 48 comparisons in this file. **The p-values in the module tables are not
+corrected for multiple comparisons.** **nDCG@10 is the primary metric**; Recall@20, MRR and MAP are
 secondary and should be read as supporting detail. With only 17 to 40 queries per table,
 an uncorrected p just under 0.05 is weak evidence.
+
+The module tables further down keep the raw p-values. The table below treats the 12
+nDCG@10 comparisons vs bm25 (2 modules x 2 levels x 3 systems) as one family and adds a
+Holm step-down adjusted p. Holm controls the chance of any false positive across those 12
+and is never smaller than the raw p. The 36 secondary-metric comparisons stay uncorrected.
+
+## nDCG@10 vs bm25, Holm-adjusted over 12 comparisons. LLM-assessed qrels (claude-sonnet-5-5), not human grades
+
+| Module | Level | System vs bm25 | n | nDCG@10 diff [95% CI] | raw p | Holm-adjusted p |
+|---|---|---|---|---|---|---|
+| device | chunk | tfidf | 40 | +0.002 [-0.048, +0.063] | 0.970 | 1.000 |
+| device | chunk | dense | 40 | -0.084 [-0.199, +0.039] | 0.175 | 1.000 |
+| device | chunk | hybrid | 40 | -0.001 [-0.067, +0.065] | 0.990 | 1.000 |
+| device | section | tfidf | 40 | -0.004 [-0.047, +0.044] | 0.841 | 1.000 |
+| device | section | dense | 40 | -0.033 [-0.136, +0.079] | 0.528 | 1.000 |
+| device | section | hybrid | 40 | +0.036 [-0.022, +0.095] | 0.219 | 1.000 |
+| medicine | chunk | tfidf | 17 | -0.003 [-0.059, +0.050] | 0.924 | 1.000 |
+| medicine | chunk | dense | 17 | -0.042 [-0.204, +0.133] | 0.614 | 1.000 |
+| medicine | chunk | hybrid | 17 | +0.085 [-0.002, +0.175] | 0.057 | 0.627 |
+| medicine | section | tfidf | 17 | -0.014 [-0.053, +0.025] | 0.483 | 1.000 |
+| medicine | section | dense | 17 | +0.062 [-0.055, +0.183] | 0.307 | 1.000 |
+| medicine | section | hybrid | 17 | +0.125 [+0.031, +0.222] | 0.008 | 0.091 |
 
 ## Device module
 
