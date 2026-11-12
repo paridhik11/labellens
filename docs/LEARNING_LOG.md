@@ -203,3 +203,11 @@ A sequential log of progress, implementation decisions, worked examples, and ver
 4. **How I verified it:** `python -m pytest -q -m "not slow"` gave `65 passed, 1 deselected in 0.65s`. `ruff check src tests` gave `All checks passed!`. Summing the pool file by batch gives 192/51/25 for batches 2 to 9, matching the batch log. `git diff` shows no change to `pool_t1.csv`, the human sample or the two annotator files.
 5. **Check yourself:** The 8 new rows in the batch log (the per-batch counts add up to 192/51/25), the `model` column in `pool_t1_llm.csv`, and the batch 8 and 9 grade mix (8 and 7 twos, much higher than batches 4 to 7).
 6. **Assumptions:** Grades follow "lower grade when unsure". I wrote no per-query rationale, so the reasons behind individual grades are not recorded. I did not write a Step Report at the time of these batches, so this entry was added afterwards. CI status was not checked: `gh` is not logged in on this machine.
+
+## Step 12 (batches 11 to 18): LLM grading, continued
+1. **What I did:** Graded batches 11 to 18 (q02, q03, q06, q07, q08, q09, q10, q13, q14, q15, q16, q17) with the grader prompt in `docs/LLM_GRADER_PROMPT.md`, one batch at a time through `next-batch` and `record`. I did not open any human sample file or human grade. Counts (0/1/2): b11 8/14/2, b12 22/14/4, b13 22/7/3, b14 15/14/7, b15 22/5/2, b16 17/8/3, b17 20/4/1, b18 24/13/3. 585 of 1269 rows are now LLM-graded.
+2. **Files changed:** `data/eval/pool_t1_llm.csv` (254 rows added), `docs/LLM_GRADER_PROMPT.md` (8 batch log rows), `CLAUDE.md` (state), this log.
+3. **How it works:** Same as before: whole queries per batch, seeded shuffle, `record` rejects missing, extra, repeated or invalid grades. Rule used: when unsure, lower grade; IVD-only or hearing-aid-only passages get 1 for general device queries.
+4. **Verified:** `pytest -q -m "not slow"`: 65 passed, 1 deselected. `ruff check src tests`: All checks passed. Per-batch counts recomputed from the CSV match the log.
+5. **Check yourself:** The 2s in batch 14 (7 of 36, mostly IVD labeling q09), and the 0-vs-1 calls on UDI definition passages repeated across queries.
+6. **Assumptions:** Grades are my judgment, no per-row rationale recorded. CI not checked (gh not logged in).
