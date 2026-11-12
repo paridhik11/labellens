@@ -251,3 +251,11 @@ A sequential log of progress, implementation decisions, worked examples, and ver
 4. **Verified:** `pytest tests/test_step14_report.py`: 9 passed; ruff clean. Medicine chunk hybrid raw p 0.057 becomes 0.627 after Holm.
 5. **Check yourself:** Which comparison keeps the smallest adjusted p (medicine section hybrid: raw 0.008, Holm 0.091) and that only nDCG@10 is in the family.
 6. **Assumptions:** Family = main query set, gaps excluded (no gaps exist). CI not checked (gh not logged in).
+
+## Step 14b (addendum): intervals on by-type cells with n of 8 or more
+1. **What I did:** In `results/step14_by_type.md`, cells in rows with 8 or more queries now show the mean nDCG@10 with a bootstrap 95% interval (resampling the queries in that row, 10000 times, seed 42). Only three rows qualify, all in device (direct 10, vocab_mismatch 9, field_req 11). Smaller rows stay as plain means.
+2. **Files changed:** `src/ir/step14_report.py` (`bootstrap_mean_interval`, `CI_MIN_N`), `tests/test_step14_report.py`, `results/step14_by_type.md`, this log.
+3. **How it works:** Each interval is for one system's own mean, not a difference between systems, so overlap is not a significance test (all systems see the same queries).
+4. **Verified:** `pytest tests/test_step14_report.py`: 10 passed; ruff clean. Device vocab_mismatch: dense 0.543 [0.377, 0.700] vs bm25 0.395 [0.209, 0.580], and the intervals overlap. Device direct: bm25 0.728 [0.626, 0.828] vs dense 0.518 [0.357, 0.679], also overlapping.
+5. **Check yourself:** That every interval is 0.15 to 0.35 wide, so the by-type pattern is weak evidence, and that medicine has no row with n>=8.
+6. **Assumptions:** Threshold of 8 as you set it. CI not checked (gh not logged in).

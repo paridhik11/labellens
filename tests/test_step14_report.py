@@ -104,3 +104,23 @@ def test_holm_adjust_known_values_and_order() -> None:
     assert adj2 == pytest.approx([1.0, 1.0, 1.0])
     assert all(a >= p for a, p in zip(holm_adjust([0.001, 0.2]), [0.001, 0.2], strict=True))
     assert holm_adjust([]) == []
+
+
+def test_bootstrap_mean_interval_and_by_type_interval_threshold() -> None:
+    from src.ir.step14_report import bootstrap_mean_interval
+
+    m, lo, hi = bootstrap_mean_interval([0.5] * 10)
+    assert m == lo == hi == 0.5
+    m, lo, hi = bootstrap_mean_interval([0.0, 1.0] * 5)
+    assert lo < m < hi and bootstrap_mean_interval([0.0, 1.0] * 5) == (m, lo, hi)
+    assert all(math.isnan(x) for x in bootstrap_mean_interval([]))
+
+    rows = [QueryRow(f"q{i}", "x", "device", "direct") for i in range(8)] + [
+        QueryRow(f"s{i}", "x", "device", "symbol") for i in range(7)
+    ]
+    qids = [r.qid for r in rows]
+    vals = [0.0, 1.0] * 4 + [0.5] * 7
+    pq = {"bm25": {"ndcg": vals, "recall": vals, "mrr": vals, "map": vals}}
+    text = "\n".join(type_table(rows, qids, pq, qids, []))
+    assert "| direct | 8 | 0 | 0.500 [" in text  # n=8 gets an interval
+    assert "| symbol | 7 | 0 | 0.500 |" in text  # n=7 does not

@@ -40,6 +40,7 @@ LABEL = "LLM-assessed qrels (claude-sonnet-5-5), not human grades"
 METRIC_TITLES = {"ndcg": "nDCG@10", "recall": "Recall@20", "mrr": "MRR", "map": "MAP"}
 QTYPES = ("direct", "vocab_mismatch", "symbol", "field_req", "change_impact")
 SMALL_N = 5
+CI_MIN_N = 8  # by-type cells with at least this many queries get a bootstrap interval
 
 PerQuery = dict[str, dict[str, list[float]]]  # system -> metric -> values aligned to qids
 
@@ -137,6 +138,24 @@ def fmt_p(p: float) -> str:
     if p != p:
         return "p n/a"
     return "p<0.0002" if p < 0.0002 else f"p={p:.3f}"
+
+
+def bootstrap_mean_interval(
+    values: list[float], n: int = 10000, seed: int = 42, level: float = 0.95
+) -> tuple[float, float, float]:
+    """Mean of per-query values with a percentile bootstrap interval over queries.
+
+    Returns (mean, low, high). NaNs when values is empty.
+    """
+    m = len(values)
+    if m == 0:
+        nan = float("nan")
+        return nan, nan, nan
+    arr = np.asarray(values, dtype=float)
+    rng = np.random.default_rng(seed)
+    means = arr[rng.integers(0, m, size=(n, m))].mean(axis=1)
+    lo, hi = np.quantile(means, [(1 - level) / 2, (1 + level) / 2])
+    return float(arr.mean()), float(lo), float(hi)
 
 
 def mean(values: list[float]) -> float:
@@ -341,7 +360,14 @@ def type_table(
             )
             continue
         sub = select(pq, qids, tq)
-        cells = " | ".join(f"{mean(sub[s]['ndcg']):.3f}" for s in names)
+        cell_list = []
+        for s in names:
+            if len(tq) >= CI_MIN_N:
+                m_, lo, hi = bootstrap_mean_interval(sub[s]["ndcg"])
+                cell_list.append(f"{m_:.3f} [{lo:.3f}, {hi:.3f}]")
+            else:
+                cell_list.append(f"{mean(sub[s]['ndcg']):.3f}")
+        cells = " | ".join(cell_list)
         note = f"n<{SMALL_N}, descriptive only" if len(tq) < SMALL_N else ""
         gl = gap_by_type.get(t, [])
         lines.append(f"| {t} | {len(tq)} | {len(gl)} | {cells} | {note} |")
@@ -362,7 +388,12 @@ def types_report(data: dict[str, dict], rows_by_module: dict[str, list]) -> str:
         "  'gaps left out' counts the gap queries removed from that row.",
         f"- Rows with n<{SMALL_N} are flagged. With so few queries one query moves the mean by up to",
         "  1/n (0.25 at n=4, 1.0 at n=1), so those rows are descriptive and say nothing about",
-        "  which system is better. Rows with n of 5 to 11 are also noisy.",
+        "  which system is better. Rows with n of 5 to 7 are also noisy and have no interval.",
+        f"- Rows with n>={CI_MIN_N} show the mean with a bootstrap 95% interval in brackets (10000",
+        "  resamples of the queries in that row, seed 42). The intervals are for each system's own",
+        "  mean, not for a difference between systems: overlapping intervals do not mean 'no",
+        "  difference' and non-overlapping ones are not a significance test, because all systems",
+        "  are scored on the same queries.",
         "- No significance tests are run per type: the cells are too small, and 4 systems x 5 types x",
         "  2 modules would add many more uncorrected comparisons.",
         "",

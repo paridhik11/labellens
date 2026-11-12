@@ -9,7 +9,12 @@
   'gaps left out' counts the gap queries removed from that row.
 - Rows with n<5 are flagged. With so few queries one query moves the mean by up to
   1/n (0.25 at n=4, 1.0 at n=1), so those rows are descriptive and say nothing about
-  which system is better. Rows with n of 5 to 11 are also noisy.
+  which system is better. Rows with n of 5 to 7 are also noisy and have no interval.
+- Rows with n>=8 show the mean with a bootstrap 95% interval in brackets (10000
+  resamples of the queries in that row, seed 42). The intervals are for each system's own
+  mean, not for a difference between systems: overlapping intervals do not mean 'no
+  difference' and non-overlapping ones are not a significance test, because all systems
+  are scored on the same queries.
 - No significance tests are run per type: the cells are too small, and 4 systems x 5 types x
   2 modules would add many more uncorrected comparisons.
 
@@ -17,10 +22,10 @@
 
 | Query type | n | gaps left out | tfidf | bm25 | dense | hybrid | note |
 |---|---|---|---|---|---|---|---|
-| direct | 10 | 0 | 0.633 | 0.728 | 0.518 | 0.659 |  |
-| vocab_mismatch | 9 | 0 | 0.371 | 0.395 | 0.543 | 0.489 |  |
+| direct | 10 | 0 | 0.633 [0.482, 0.779] | 0.728 [0.626, 0.828] | 0.518 [0.357, 0.679] | 0.659 [0.556, 0.759] |  |
+| vocab_mismatch | 9 | 0 | 0.371 [0.197, 0.556] | 0.395 [0.209, 0.580] | 0.543 [0.377, 0.700] | 0.489 [0.378, 0.605] |  |
 | symbol | 5 | 0 | 0.910 | 0.840 | 0.524 | 0.709 |  |
-| field_req | 11 | 0 | 0.735 | 0.692 | 0.579 | 0.754 |  |
+| field_req | 11 | 0 | 0.735 [0.607, 0.850] | 0.692 [0.538, 0.836] | 0.579 [0.384, 0.761] | 0.754 [0.573, 0.888] |  |
 | change_impact | 5 | 0 | 0.551 | 0.465 | 0.510 | 0.423 |  |
 
 ## Medicine module (17 queries after dropping 0 gap(s): none)
