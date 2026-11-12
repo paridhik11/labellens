@@ -3,7 +3,8 @@
 Preprocessing finds and straightens a single dominant label using OpenCV and
 NumPy. OCR is available through the RapidOCR fallback described below. Barcode
 decoding and GS1 parsing are also available. Field mapping and `LabelExtraction`
-integration are later steps.
+integration are available for this single synthetic template family, as
+described below. Dataset-wide extraction accuracy has not yet been measured.
 
 ## Image interface
 
@@ -164,8 +165,8 @@ being presented as successful empty output.
 
 The bundled detection and recognition models are PP-OCRv4 Chinese/English
 models. They can return non-English false positives. Confidence is an engine
-score, not a calibrated guarantee of correct text. Field mapping and warning
-generation have not been implemented yet.
+score, not a calibrated guarantee of correct text. The integrated extractor
+described below adds template-based field mapping and warning generation.
 
 ## OCR smoke-check observations
 
@@ -295,3 +296,109 @@ Perspective correction did not improve the hard set's aggregate decode count.
 Additional interpolation can degrade already-blurred barcode cells. These
 commands intentionally measure original and corrected inputs separately;
 automatic retries or merged decoding results are not implemented in this step.
+
+## Integrated extraction
+
+The single-family pipeline is available as:
+
+```python
+from src.cv.extract import extract_label
+
+result = extract_label("path/to/test_label.png")
+print(result.model_dump_json(indent=2))
+```
+
+Or run from the repository root:
+
+```bash
+python -m src.cv.extract --image path/to/test_label.png
+python -m pytest -q src/gen src/cv
+python -m ruff check src/gen src/cv
+```
+
+The function returns the existing `LabelExtraction` schema. Its label ID is
+the input filename stem. It reads the image and fixed layout at
+`src/gen/templates/test_device.json`, never the image's matching JSON or a
+dataset manifest. The template identity is assumed, not recognized, and a
+`TEMPLATE_ASSUMED` warning makes this explicit. Symbol detection is still a
+later task: `symbols` stays empty with `SYMBOL_DETECTION_NOT_RUN`.
+
+The pipeline detects the boundary and straightens the image for OCR. It scales
+each OCR block's centre into the template's millimetre coordinates and checks
+which text slot contains that point. One block in a slot becomes the field
+value, preserving text, punctuation, whitespace and recognition errors exactly.
+No blocks gives `FIELD_MISSING`. Multiple blocks in a slot, or a block matching
+overlapping slots, gives `FIELD_AMBIGUOUS`; the affected field is omitted.
+The six supported field names are `product_name`, `manufacturer`,
+`manufacturer_address`, `model`, `lot` and `expiry`.
+
+Header text, barcode noise and any other out-of-slot observations remain in
+`ocr_blocks` without becoming product fields. OCR lot and expiry strings are
+kept separate from the GS1 values in `barcodes[].parsed`. The pipeline does
+not silently replace recognized text with barcode values or ground truth.
+It does not yet compare printed values to barcode values or product records.
+
+### Original-image coordinates
+
+Every returned `ocr_blocks[].bbox` and `barcodes[].bbox` uses x, y, width, height
+in the original image's pixel array. The input-image coordinate convention
+also applies when OCR ran on a corrected image. The inverse correction matrix
+projects all four corners of each OCR rectangle back to the photo. The result
+is an axis-aligned enclosing rectangle clipped to the photo canvas. A rectangle
+around tilted text can therefore include additional background.
+
+Barcode decoding tries the original image first because another interpolation
+can damage blurred modules. If no symbol decodes, it retries the corrected
+image. A recovered barcode's box is mapped back with the same inverse matrix,
+and `BARCODE_DECODED_AFTER_RECTIFICATION` records recovery. Successful original
+decodes keep their original boxes and are not replaced. Multiple decoded
+symbols are preserved with `MULTIPLE_BARCODES`; none is selected automatically.
+The standalone barcode evaluator above still measures each input separately.
+
+Input EXIF orientation is not applied automatically. Coordinates refer to the
+stored pixel array, not an external viewer's automatically rotated display.
+
+### Warnings and failure behavior
+
+- No boundary: retain any original-image barcodes, skip OCR and field mapping,
+  and report `LABEL_NOT_FOUND`, `OCR_NOT_RUN` and `FIELD_MAPPING_SKIPPED`.
+- OCR inference failure: retain other results and report `OCR_FAILED`, including
+  the exception type and message. No text is fabricated.
+- No text observations: report `OCR_NO_TEXT` and missing template fields.
+- Barcode engine failure: report `BARCODE_ENGINE_FAILED` with the exception
+  reason. Both failed attempts or no decoded barcode remain explicit.
+- Low engine confidence: retain the observation with `LOW_OCR_CONFIDENCE`.
+- Low grayscale Laplacian variance: report `BLUR_SUSPECTED` with its measured
+  score and configured threshold. Laplacian variance measures edge variation;
+  noise can raise it and hide blur.
+
+Defaults are `min_confidence=0.8` and `blur_threshold=100.0`. These are provisional
+warning settings, not calibrated thresholds or guarantees of readability.
+Python keyword arguments or CLI `--min-confidence` and `--blur-threshold`
+override them. A zero blur threshold disables that warning. Unreadable files,
+invalid settings and unrecoverable geometry errors raise rather than returning
+a fabricated extraction.
+
+### Integrated smoke checks
+
+Actual extraction was run on base label 001 in all three seed-42 conditions.
+Each result validated against `LabelExtraction`. The observed counts were:
+
+| Condition | Images checked | Mapped fields | OCR blocks | Decoded barcodes |
+| --- | ---: | ---: | ---: | ---: |
+| clean | 1 | 6 | 8 | 1 |
+| moderate | 1 | 6 | 8 | 1 |
+| hard | 1 | 6 | 8 | 0 |
+
+The hard sample's barcode failure remains a warning; its OCR fields are still
+available. The previously observed product-name errors remain uncorrected.
+These are integration smoke checks, not dataset-wide extraction accuracy.
+The real-engine tests also copy each image into a directory without its truth
+JSON, then check schema validity and original-space positions against truth
+held separately by the test. Deterministic unit cases cover field ambiguity,
+known coordinate transforms, original-first barcode selection, corrected-image
+recovery, engine failures, blank images and warning settings.
+
+Task 3 remains: run the assembled extractor over the full set and produce
+per-condition OCR error, barcode and GS1 accuracy, and detection measurements
+from a single reproducible evaluation command.
