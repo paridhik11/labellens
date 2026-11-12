@@ -66,7 +66,7 @@ Rules:
 - Human sample graded: `data/eval/sample_pari.csv` (182 rows) and `data/eval/sample_parth.csv` (195 rows, Parth confirmed human), 308 unique rows, 69 shared. Parth's branch merged into main.
 - Step 13 done: `src/ir/grade_compare.py`, tracked report `results/step13_llm_vs_human.md`. Pari-only LLM vs human weighted kappa 0.746 linear / 0.823 quadratic, binary agreement 0.879 (all 308 rows: 0.675 / 0.768 / 0.825). The LLM is stricter than humans (52 of 103 human-1 rows got LLM 0). Hybrid ranks first under both graders; dense is the only system that falls in nDCG@10 pooled and for device, but all four fall for medicine (4 queries), and no pooled bootstrap interval excludes 0.
 - Step 14a done: `src/ir/step14_report.py` (`--part results|types|all`), tracked `results/step14_results.md` on the LLM-assessed qrels, paired bootstrap vs bm25 (two-sided), no corpus gaps in either module.
-- Step 14b done: `results/step14_by_type.md`, nDCG@10 by query type, chunk level, per module, n in every cell (rows with n<5 flagged). Steps 14c (failure analysis) and 14d (kappa intervals) not done yet.
+- Step 14b done: `results/step14_by_type.md`, nDCG@10 by query type, chunk level, per module, n in every cell (rows with n<5 flagged). Step 14a2 adds Holm-adjusted nDCG@10 p over the 12-comparison family, 14b2 adds bootstrap intervals on by-type cells with n>=8. Step 14c done: `results/step14_failures.md` (zero ties: tfidf 1, bm25 2, dense 3, hybrid 2; no query is 0 for all four). Step 14d (kappa intervals) not done yet.
 - Docs updated for the template-based workflow (README, PRODUCT_SPEC, GENERATION, WORKFLOW, EVALUATION, TEAM_PLAN, TASKS, API_CONTRACT, QRELS_GUIDE, CLAUDE_CODE_GUIDE).
 - Open issues: corpus lacks symbols and non-US sources.
 

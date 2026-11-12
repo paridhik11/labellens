@@ -124,3 +124,46 @@ def test_bootstrap_mean_interval_and_by_type_interval_threshold() -> None:
     text = "\n".join(type_table(rows, qids, pq, qids, []))
     assert "| direct | 8 | 0 | 0.500 [" in text  # n=8 gets an interval
     assert "| symbol | 7 | 0 | 0.500 |" in text  # n=7 does not
+
+
+def test_part_section_and_overlap_helpers() -> None:
+    from src.ir.step14_report import first_relevant_rank, part_of, section_of, term_overlap
+
+    assert part_of("fda_21cfr801_s801.1_c1") == "21cfr801"
+    assert section_of("fda_21cfr801_s801.1_c1") == "s801.1"
+    assert first_relevant_rank(["a", "b", "c"], {"c": 1, "b": 0}) == 3
+    assert first_relevant_rank(["a"], {"a": 0}) is None
+    assert term_overlap("label of the device", "the device label text") == pytest.approx(1.0)
+    assert term_overlap("", "anything") == 0.0
+
+
+def test_hypotheses_flags_wrong_part_boundary_rank_and_vocabulary() -> None:
+    from src.ir.step14_report import hypotheses
+
+    text_of = {"fda_21cfr801_s801.1_c2": "name and place of business"}
+    rels = {"fda_21cfr801_s801.1_c2": 2, "fda_21cfr801_s801.1_c1": 0, "fda_21cfr803_s803.1": 0}
+    ranked = ["fda_21cfr803_s803.1", "fda_21cfr803_s803.2", "fda_21cfr803_s803.3",
+              "fda_21cfr801_s801.1_c2"]
+    out = " ".join(hypotheses("maker address on box", ranked, rels, text_of))
+    assert "rank 4" in out and "wrong part" in out and "vocabulary" in out
+    ranked2 = ["fda_21cfr801_s801.1_c1", "fda_21cfr801_s801.1_c2"]
+    out2 = " ".join(hypotheses("name and place of business", ranked2, rels, text_of))
+    assert "chunk boundary" in out2 and "wrong part" not in out2
+    assert hypotheses("q", ["x"], {"x": 0}, {}) == ["no chunk graded >= 1 for this query (corpus gap)"]
+
+
+def test_zero_ties_counts_per_system_and_all_zero() -> None:
+    from src.ir.step14_report import zero_ties
+
+    fd = {
+        "names": ["a", "b"],
+        "rows": [
+            {"module": "device", "ndcg": {"a": 0.0, "b": 0.0}},
+            {"module": "device", "ndcg": {"a": 0.0, "b": 0.4}},
+            {"module": "medicine", "ndcg": {"a": 0.2, "b": 0.0}},
+        ],
+    }
+    text = "\n".join(zero_ties(fd))
+    assert "| device | 2 | 2 | 1 | 1 |" in text
+    assert "| medicine | 1 | 0 | 1 | 0 |" in text
+    assert "| both | 3 | 2 | 2 | 1 |" in text

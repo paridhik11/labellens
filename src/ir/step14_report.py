@@ -3,6 +3,7 @@
 Usage (repo root):
   python -m src.ir.step14_report --part results   # results/step14_results.md
   python -m src.ir.step14_report --part types     # results/step14_by_type.md
+  python -m src.ir.step14_report --part failures  # results/step14_failures.md
   python -m src.ir.step14_report --part all
 
 Every table is built from LLM grades, not human grades. Systems are built per
@@ -34,6 +35,7 @@ from src.ir.eval import (
     no_answer_to_markdown,
     split_no_answer,
 )
+from src.ir.tokenizer import tokenize
 
 BASELINE = "bm25"
 LABEL = "LLM-assessed qrels (claude-sonnet-5-5), not human grades"
@@ -227,6 +229,7 @@ def module_data(
         "section": sec_pq,
         "na_queries": na_queries,
         "systems": systems,
+        "chunks": chunks,
     }
 
 
@@ -411,6 +414,226 @@ def types_report(data: dict[str, dict], rows_by_module: dict[str, list]) -> str:
     return "\n".join(out)
 
 
+DEEP_K = 100  # depth used to find the first relevant chunk of a failed query
+SNIPPET = 110
+
+
+def part_of(chunk_id: str) -> str:
+    """CFR part of a chunk id such as fda_21cfr801_s801.1_c1 -> '21cfr801'."""
+    bits = chunk_id.split("_")
+    return bits[1] if len(bits) > 1 else chunk_id
+
+
+def section_of(chunk_id: str) -> str:
+    """Section token of a chunk id such as fda_21cfr801_s801.1_c1 -> 's801.1'."""
+    bits = chunk_id.split("_")
+    return bits[2] if len(bits) > 2 else chunk_id
+
+
+def term_overlap(query: str, text: str) -> float:
+    """Share of the unique query terms (stopwords removed, light stemming) found in text."""
+    q = set(tokenize(query, stem=True))
+    if not q:
+        return 0.0
+    return len(q & set(tokenize(text, stem=True))) / len(q)
+
+
+def first_relevant_rank(ranked: list[str], rels: dict[str, int]) -> int | None:
+    """1-based rank of the first chunk with grade >= 1, or None if absent."""
+    for i, d in enumerate(ranked, start=1):
+        if rels.get(d, 0) >= 1:
+            return i
+    return None
+
+
+def hypotheses(
+    query: str,
+    ranked: list[str],
+    rels: dict[str, int],
+    text_of: dict[str, str],
+) -> list[str]:
+    """Likely causes of a poor ranking, derived only from checks on the data.
+
+    These are hypotheses, not verified causes. Checks, each reported with its numbers:
+      not retrieved / ranked low: where the first chunk graded >= 1 sits in the top DEEP_K.
+      wrong part: the top 3 chunks all come from CFR parts that hold no relevant chunk.
+      chunk boundary: a top-3 chunk graded 0 shares a section with a relevant chunk.
+      vocabulary: share of query terms present in the best-matching top-grade chunk.
+    """
+    out: list[str] = []
+    top = max(rels.values(), default=0)
+    best = [d for d, g in rels.items() if g == top and top >= 1]
+    rel_all = [d for d, g in rels.items() if g >= 1]
+    if not rel_all:
+        return ["no chunk graded >= 1 for this query (corpus gap)"]
+    r = first_relevant_rank(ranked[:DEEP_K], rels)
+    top3 = ranked[:3]
+    if r is None:
+        out.append(f"relevant chunks not retrieved in the top {DEEP_K}")
+    elif r > 3:
+        out.append(f"first relevant chunk is at rank {r}, below the top 3 shown")
+    rel_parts = {part_of(d) for d in rel_all}
+    top_parts = {part_of(d) for d in top3}
+    if top3 and not (top_parts & rel_parts):
+        out.append(
+            f"wrong part: top 3 come from {', '.join(sorted(top_parts))}; relevant chunks are in "
+            f"{', '.join(sorted(rel_parts))}"
+        )
+    rel_secs = {(part_of(d), section_of(d)) for d in rel_all}
+    near = [d for d in top3 if rels.get(d, 0) == 0 and (part_of(d), section_of(d)) in rel_secs]
+    if near:
+        out.append(
+            f"chunk boundary: {', '.join(near)} is graded 0 but shares a section with a relevant chunk"
+        )
+    if best:
+        ov = max(term_overlap(query, text_of[d]) for d in best if d in text_of)
+        if ov < 0.5:
+            out.append(
+                f"vocabulary: only {ov:.0%} of the query terms occur in the best relevant chunk"
+            )
+    return out or ["no cause identified by these checks (query terms and sections look compatible)"]
+
+
+def failure_data(data: dict[str, dict], qrels: dict[str, dict[str, int]], rows_by_module: dict[str, list]) -> dict:
+    """Per-system per-query nDCG@10 (chunk level, gaps excluded) with module and type labels.
+
+    Returns {'rows': list of dicts (qid, module, qtype, query, ndcg {system: value})},
+    and the system names in order.
+    """
+    rows: list[dict] = []
+    names: list[str] = []
+    for mod in sorted(data):
+        d = data[mod]
+        qtype = {r.qid: r.qtype for r in rows_by_module[mod]}
+        names = list(d["chunk"])
+        for i, qid in enumerate(d["qids"]):
+            if qid in set(d["gaps"]):
+                continue
+            rows.append(
+                {
+                    "qid": qid,
+                    "module": mod,
+                    "qtype": qtype.get(qid, ""),
+                    "query": d["queries"][qid],
+                    "ndcg": {s: d["chunk"][s]["ndcg"][i] for s in names},
+                }
+            )
+    return {"rows": rows, "names": names}
+
+
+def zero_ties(fd: dict) -> list[str]:
+    """Table of how many answerable queries score exactly 0 nDCG@10 per system."""
+    names = fd["names"]
+    lines = [
+        "| Scope | queries | " + " | ".join(names) + " | all four 0 |",
+        "|---|---|" + "---|" * len(names) + "---|",
+    ]
+    for scope in ("device", "medicine", "both"):
+        rows = [r for r in fd["rows"] if scope == "both" or r["module"] == scope]
+        counts = [sum(1 for r in rows if r["ndcg"][s] == 0) for s in names]
+        all_zero = sum(1 for r in rows if all(r["ndcg"][s] == 0 for s in names))
+        lines.append(
+            f"| {scope} | {len(rows)} | " + " | ".join(str(c) for c in counts) + f" | {all_zero} |"
+        )
+    return lines
+
+
+def failures_report(
+    data: dict[str, dict], qrels: dict[str, dict[str, int]], rows_by_module: dict[str, list]
+) -> str:
+    """Builds the 14c markdown: ties at 0, all-four-zero queries, worst 5 per system."""
+    fd = failure_data(data, qrels, rows_by_module)
+    names = fd["names"]
+    sys_by_mod = {m: {s.name: s for s in data[m]["systems"]} for m in data}
+    text_of: dict[str, str] = {}
+    for m in data:
+        text_of.update({c.chunk_id: c.text for c in data[m]["chunks"]})
+
+    def ranked(system: str, mod: str, qid: str, k: int) -> list[str]:
+        hits = sys_by_mod[mod][system].search(data[mod]["queries"][qid], k=k)
+        return [h.doc_id for h in hits]
+
+    out = [
+        "# Step 14c: failure analysis",
+        "",
+        f"**All tables use {LABEL}.** Chunk level, nDCG@10, answerable queries only (no_answer",
+        "queries and corpus gaps left out; there are no gaps). Device and medicine systems are built",
+        "per module, so each query is searched in its own module's chunks.",
+        "",
+        "## How to read this",
+        "- Worst queries are ranked by nDCG@10 ascending, ties broken by qid. The tie table below",
+        "  gives the number of queries at exactly 0 per system. When a system has fewer than 5 such",
+        "  queries, the list continues with the lowest non-zero scores, so some entries are poor",
+        "  rather than failed. If a system had 5 or more zeros, the 5 shown would be the first 5 in",
+        "  qid order and would not rank how badly they failed.",
+        "- Grades come from the LLM qrels. 'unjudged' means the chunk is not in the pool and is",
+        "  treated as grade 0 by the metrics.",
+        "- **Every cause is a hypothesis**, produced by simple checks on the ranked list and the",
+        "  qrels (rank of the first relevant chunk, CFR part, section, query-term overlap), not a",
+        "  verified explanation. The vocabulary check counts query words in a passage, so it",
+        "  says little about the dense system, which matches meaning, not words. A hypothesis can be",
+        "  wrong, and the LLM grade behind it can be wrong too (the LLM is stricter than humans).",
+        "",
+        "## Queries tied at 0 nDCG@10",
+        "",
+    ]
+    out += zero_ties(fd) + [""]
+    zero_counts = {s: sum(1 for r in fd["rows"] if r["ndcg"][s] == 0) for s in names}
+    out += [
+        "Each system column counts queries where that system scored exactly 0 (no chunk graded >= 1",
+        "in its top 10). 'all four 0' counts queries where every system scored 0.",
+        "",
+        "## Queries where all four systems score 0",
+        "",
+    ]
+    allz = [r for r in fd["rows"] if all(r["ndcg"][s] == 0 for s in names)]
+    if allz:
+        out += [
+            f"| qid | module | type | query | chunks graded >=1 (of which 2) | first relevant rank (max {DEEP_K}) |",
+            "|---|---|---|---|---|---|",
+        ]
+        for r in allz:
+            rels = qrels[r["qid"]]
+            n1 = sum(1 for g in rels.values() if g >= 1)
+            n2 = sum(1 for g in rels.values() if g >= 2)
+            ranks = []
+            for s in names:
+                rk = first_relevant_rank(ranked(s, r["module"], r["qid"], DEEP_K), rels)
+                ranks.append(f"{s} {rk if rk else f'>{DEEP_K}'}")
+            out.append(
+                f"| {r['qid']} | {r['module']} | {r['qtype']} | {r['query']} | {n1} ({n2}) "
+                f"| {', '.join(ranks)} |"
+            )
+        out.append("")
+    else:
+        out += ["No query scores 0 under all four systems.", ""]
+
+    out += ["## Five lowest queries per system, with top 3 results", ""]
+    for s in names:
+        worst = sorted(fd["rows"], key=lambda r: (r["ndcg"][s], r["qid"]))[:5]
+        out += [
+            f"### {s} ({zero_counts[s]} of {len(fd['rows'])} queries score 0; showing 5 by "
+            f"nDCG@10 then qid)",
+            "",
+        ]
+        for r in worst:
+            rels = qrels[r["qid"]]
+            rk = ranked(s, r["module"], r["qid"], DEEP_K)
+            out.append(
+                f"- **{r['qid']}** ({r['module']}, {r['qtype']}), nDCG@10 {r['ndcg'][s]:.3f}: "
+                f"\"{r['query']}\""
+            )
+            for i, d in enumerate(rk[:3], start=1):
+                g = rels.get(d)
+                grade = "unjudged" if g is None else f"grade {g}"
+                snip = text_of[d][:SNIPPET].replace("|", "/").replace("\n", " ")
+                out.append(f"  - {i}. `{d}` ({grade}): {snip}...")
+            hyps = hypotheses(r["query"], rk, rels, text_of)
+            out.append("  - Hypothesis: " + "; ".join(hyps))
+        out.append("")
+    return "\n".join(out)
+
+
 def build_all(
     corpus: str, queries: str, qrels_path: str, with_dense: bool
 ) -> tuple[dict[str, dict], dict[str, list], dict[str, dict[str, int]]]:
@@ -435,7 +658,7 @@ def main() -> None:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     ap = argparse.ArgumentParser(description="Step 14 reports on LLM-assessed qrels.")
-    ap.add_argument("--part", choices=["results", "types", "all"], default="all")
+    ap.add_argument("--part", choices=["results", "types", "failures", "all"], default="all")
     ap.add_argument("--corpus", default="data/processed/regs.jsonl")
     ap.add_argument("--queries", default="data/eval/queries_t1.tsv")
     ap.add_argument("--qrels", default="data/eval/qrels_t1_llm.tsv")
@@ -453,6 +676,10 @@ def main() -> None:
     if a.part in ("types", "all"):
         text = types_report(data, rows_by_module)
         (out_dir / "step14_by_type.md").write_text(text + "\n", encoding="utf-8")
+        print(text)
+    if a.part in ("failures", "all"):
+        text = failures_report(data, qrels, rows_by_module)
+        (out_dir / "step14_failures.md").write_text(text + "\n", encoding="utf-8")
         print(text)
 
 
