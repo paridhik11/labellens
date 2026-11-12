@@ -9,4 +9,6 @@ data/processed/dense_cache_*
 *.pt
 runs/
 .ipynb_checkpoints/
-results/
+results/*
+!results/step13_llm_vs_human.md
+.DS_Store

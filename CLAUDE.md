@@ -62,12 +62,14 @@ Rules:
 - Step 11b done: `src/ir/llm_grade_tool.py` (sample, next-batch, record, to-qrels), rows identified as `qid:chunk_id`.
 - Step 11c done: human sample `data/eval/pool_t1_human_sample.csv`, 308 rows, 15 queries (seed 42; 4 direct, 4 field_req, 3 vocab_mismatch, 2 change_impact, 1 symbol, 1 no_answer; 11 device, 4 medicine).
 - Sample split for two annotators (`llm_grade_tool split`, seed 42): `data/eval/sample_pari.csv` (9 queries, 182 rows) and `data/eval/sample_parth.csv` (9 queries, 195 rows), shared q05, q44, q46 (69 rows) for human kappa. Parth grades his file from Day 6.
-- Step 12 in progress: LLM batches 1 to 18 done (model claude-sonnet-5-5). 585/1269 rows LLM-graded, 15/15 human-sample queries fully covered. No human grades exist yet.
+- Step 12 done: all 43 LLM batches graded (model claude-sonnet-5-5), 1269/1269 rows in `data/eval/pool_t1_llm.csv` (0/1/2 = 864/280/125; device 627/208/73, medicine 237/72/52).
+- Human sample graded: `data/eval/sample_pari.csv` (182 rows) and `data/eval/sample_parth.csv` (195 rows, Parth confirmed human), 308 unique rows, 69 shared. Parth's branch merged into main.
+- Step 13 done: `src/ir/grade_compare.py`, tracked report `results/step13_llm_vs_human.md`. Pari-only LLM vs human weighted kappa 0.746 linear / 0.823 quadratic, binary agreement 0.879 (all 308 rows: 0.675 / 0.768 / 0.825). The LLM is stricter than humans (52 of 103 human-1 rows got LLM 0). Hybrid ranks first under both graders; dense is the only system that falls in nDCG@10 pooled and for device, but all four fall for medicine (4 queries), and no pooled bootstrap interval excludes 0.
 - Docs updated for the template-based workflow (README, PRODUCT_SPEC, GENERATION, WORKFLOW, EVALUATION, TEAM_PLAN, TASKS, API_CONTRACT, QRELS_GUIDE, CLAUDE_CODE_GUIDE).
 - Open issues: corpus lacks symbols and non-US sources.
 
 ## Next steps (see docs/TEAM_PLAN.md for the day plan)
-1. Step 12: LLM grading in batches of about 40 (about 32 batches), human-sample queries first so they are fully graded. User grades the human sample.
-2. Step 13: compare LLM vs human grades (weighted kappa, binary agreement, side-by-side system ranking and nDCG@10, Kendall's tau, per-system grade distribution). Then first real results table.
+1. Decide how to use the LLM grades for the 47 queries without human grades (they are stricter than humans at the 0/1 boundary).
+2. First real results table on the full qrels, with the caveat from Step 13.
 3. Ablations, corpus expansion, query expansion, LTR.
 4. Checker, data model, template spec, API contract, mock JSON, basic synthetic generator.
