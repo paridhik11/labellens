@@ -10,6 +10,9 @@ Subcommands:
   next-batch  write the next batch of ungraded rows to a file for the grader
   record      check the grader output for that batch and append it
   to-qrels    turn data/eval/pool_t1_llm.csv into TREC qrels
+  make-extra  build data/eval/pool_t1_extra.csv from the Step 15 unjudged listing
+  (next-batch and record take --extra to grade that extra pool; the grades are appended
+   to data/eval/pool_t1_llm.csv and batch numbers continue after the last recorded batch)
 
 Row ids: a passage can appear under several queries, so every row is
 identified by "<qid>:<chunk_id>", for example "q01:fda_21cfr801_s801.109_c1".
@@ -24,6 +27,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 import random
 import sys
 from collections import Counter, defaultdict
@@ -38,6 +42,10 @@ LLM_PATH = Path("data/eval/pool_t1_llm.csv")
 SAMPLE_PATH = Path("data/eval/pool_t1_human_sample.csv")
 QUERIES_PATH = Path("data/eval/queries_t1.tsv")
 QRELS_LLM_PATH = Path("data/eval/qrels_t1_llm.tsv")
+EXTRA_PATH = Path("data/eval/pool_t1_extra.csv")
+CORPUS_PATH = Path("data/processed/regs.jsonl")
+UNJUDGED_PATH = Path("results/step15_unjudged.csv")
+EXTRA_FIELDS = ["qid", "query", "chunk_id", "text"]
 
 LLM_FIELDS = ["qid", "chunk_id", "llm_grade", "batch", "model", "date"]
 VALID_GRADES = {0, 1, 2}
@@ -238,6 +246,77 @@ def llm_csv_to_qrels(csv_path: str | Path, out_path: str | Path) -> int:
     return len(rows)
 
 
+# ---------- extra pool (Step 15) ----------
+
+def _qid_key(qid: str) -> tuple[int, str]:
+    """Sort key so q2 comes before q10: numeric part first, then the full id."""
+    digits = "".join(ch for ch in qid if ch.isdigit())
+    return (int(digits) if digits else 0, qid)
+
+
+def build_extra_pool(
+    unjudged_path: str | Path,
+    queries_path: str | Path,
+    corpus_path: str | Path,
+    qrels_path: str | Path,
+    out_path: str | Path = EXTRA_PATH,
+    force: bool = False,
+) -> int:
+    """Builds the extra pool CSV (qid, query, chunk_id, text) for unjudged pairs.
+
+    Reads unique (qid, chunk_id) pairs from the Step 15 listing (the variant column is
+    dropped, so the grader never sees which system retrieved a chunk), looks up the query
+    text and chunk text, and writes the rows sorted by qid then chunk_id. Raises ValueError
+    if a qid or chunk is unknown, or if a pair already has an LLM grade in qrels_path.
+    Refuses to write over the main pool, the LLM grades file or the human sample, and
+    refuses to replace an existing extra pool unless force is set. Returns rows written.
+    """
+    dest = Path(out_path)
+    protected = {p.resolve() for p in (POOL_PATH, LLM_PATH, SAMPLE_PATH, QRELS_LLM_PATH)}
+    if dest.resolve() in protected:
+        raise ValueError(f"{dest} is a protected pool or grade file and is never written here")
+    if dest.exists() and not force:
+        raise FileExistsError(f"{dest} exists; use --force to replace it")
+
+    with Path(unjudged_path).open(encoding="utf-8", newline="") as f:
+        pairs = {(r["qid"], r["chunk_id"]) for r in csv.DictReader(f)}
+    queries = {r.qid: r.query for r in load_query_rows(queries_path)}
+    texts: dict[str, str] = {}
+    for line in Path(corpus_path).read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            d = json.loads(line)
+            texts[d["chunk_id"]] = d["text"]
+    judged = {
+        (parts[0], parts[2])
+        for parts in (ln.split() for ln in Path(qrels_path).read_text(encoding="utf-8").splitlines())
+        if len(parts) >= 4
+    }
+    unknown_q = sorted({q for q, _ in pairs if q not in queries})
+    unknown_c = sorted({c for _, c in pairs if c not in texts})
+    already = sorted(pairs & judged)
+    if unknown_q or unknown_c or already:
+        raise ValueError(
+            f"cannot build extra pool: unknown qids {unknown_q[:5]}, unknown chunks "
+            f"{unknown_c[:5]}, already graded {already[:5]} ({len(already)} total)"
+        )
+
+    rows = sorted(pairs, key=lambda p: (_qid_key(p[0]), p[1]))
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    with dest.open("w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=EXTRA_FIELDS, lineterminator="\n")
+        w.writeheader()
+        for qid, cid in rows:
+            w.writerow({"qid": qid, "query": queries[qid], "chunk_id": cid, "text": texts[cid]})
+    return len(rows)
+
+
+def extra_progress_line(pool: list[PoolRow], graded_ids: set[str]) -> str:
+    """Progress of the extra pool: rows graded so far and queries still open."""
+    graded = sum(1 for r in pool if r.row_id in graded_ids)
+    open_q = {r.qid for r in pool if r.row_id not in graded_ids}
+    return f"extra pool: graded {graded}/{len(pool)} rows; queries still open: {len(open_q)}"
+
+
 # ---------- human sample ----------
 
 def allocate(counts: dict[str, int], n: int, min_each: int = 0) -> dict[str, int]:
@@ -365,16 +444,34 @@ def split_between_annotators(
 
 # ---------- CLI ----------
 
-def _current_batch(args: argparse.Namespace) -> tuple[list[PoolRow], list[PoolRow], set[str], list[str], int]:
-    pool = load_pool_rows(args.pool)
+def _current_batch(
+    args: argparse.Namespace,
+) -> tuple[list[PoolRow], list[PoolRow], set[str], list[str], int]:
+    """Loads the pool and grades and builds the next batch.
+
+    With --extra the pool is data/eval/pool_t1_extra.csv (unless --pool is given), no
+    human sample is needed, and the batch number continues after the last recorded batch
+    in the LLM grades file, so numbering carries on after batch 43.
+    """
+    extra = getattr(args, "extra", False)
+    pool = load_pool_rows(args.pool or (EXTRA_PATH if extra else POOL_PATH))
     llm_rows = load_llm_rows(args.llm)
     graded = {f"{r['qid']}:{r['chunk_id']}" for r in llm_rows}
-    sample_qids = load_sample_qids(args.sample)
-    if not sample_qids:
+    sample_qids = [] if extra else load_sample_qids(args.sample)
+    if not extra and not sample_qids:
         raise SystemExit(f"No human sample at {args.sample}. Run the 'sample' subcommand first.")
     batch_no = next_batch_number(llm_rows)
     batch = build_next_batch(pool, graded, sample_qids, batch_no, args.max_rows, args.seed)
     return pool, batch, graded, sample_qids, batch_no
+
+
+def _progress(
+    args: argparse.Namespace, pool: list[PoolRow], graded: set[str], sample: list[str]
+) -> str:
+    """Progress line for the main pool, or for the extra pool with --extra."""
+    if getattr(args, "extra", False):
+        return extra_progress_line(pool, graded)
+    return progress_line(pool, graded, sample)
 
 
 def main() -> None:
@@ -386,7 +483,9 @@ def main() -> None:
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     def batch_args(p: argparse.ArgumentParser) -> None:
-        p.add_argument("--pool", default=str(POOL_PATH))
+        p.add_argument("--pool", default=None, help="Pool CSV (default: pool_t1.csv)")
+        p.add_argument("--extra", action="store_true",
+                       help="Grade data/eval/pool_t1_extra.csv; grades go to the same LLM file")
         p.add_argument("--llm", default=str(LLM_PATH))
         p.add_argument("--sample", default=str(SAMPLE_PATH))
         p.add_argument("--max-rows", type=int, default=40)
@@ -416,6 +515,14 @@ def main() -> None:
     p_r.add_argument("--grades", required=True, help="File with '<row_id><TAB><grade>' lines")
     p_r.add_argument("--model", required=True, help="Model id exactly as /model shows it")
     p_r.add_argument("--date", default=date.today().isoformat())
+
+    p_x = sub.add_parser("make-extra", help="Build pool_t1_extra.csv from the Step 15 listing.")
+    p_x.add_argument("--unjudged", default=str(UNJUDGED_PATH))
+    p_x.add_argument("--queries", default=str(QUERIES_PATH))
+    p_x.add_argument("--corpus", default=str(CORPUS_PATH))
+    p_x.add_argument("--qrels", default=str(QRELS_LLM_PATH))
+    p_x.add_argument("--out", default=str(EXTRA_PATH))
+    p_x.add_argument("--force", action="store_true", help="Replace an existing extra pool")
 
     p_q = sub.add_parser("to-qrels", help="Build TREC qrels from the LLM grades CSV.")
     p_q.add_argument("--llm", default=str(LLM_PATH))
@@ -456,7 +563,7 @@ def main() -> None:
             print(f"  by module: {mods}")
     elif a.cmd == "next-batch":
         pool, batch, graded, sample_qids, batch_no = _current_batch(a)
-        print(progress_line(pool, graded, sample_qids))
+        print(_progress(a, pool, graded, sample_qids))
         if not batch:
             print("Nothing left to grade.")
             return
@@ -474,7 +581,13 @@ def main() -> None:
         graded |= {r.row_id for r in batch}
         print(f"Recorded batch {batch_no}: {n} rows -> {a.llm}")
         print("grade counts:", dict(sorted(Counter(grades.values()).items())))
-        print(progress_line(pool, graded, sample_qids))
+        print(_progress(a, pool, graded, sample_qids))
+    elif a.cmd == "make-extra":
+        n = build_extra_pool(a.unjudged, a.queries, a.corpus, a.qrels, a.out, a.force)
+        with Path(a.out).open(encoding="utf-8", newline="") as f:
+            qids = sorted({r["qid"] for r in csv.DictReader(f)}, key=_qid_key)
+        print(f"Wrote {n} rows for {len(qids)} queries to {a.out}")
+        print("qids:", ", ".join(qids))
     elif a.cmd == "to-qrels":
         n = llm_csv_to_qrels(a.llm, a.out)
         print(f"Wrote {n} LLM qrels rows to {a.out}")

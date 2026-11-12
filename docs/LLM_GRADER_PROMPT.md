@@ -75,6 +75,24 @@ python -m src.ir.llm_grade_tool to-qrels
 
 `record` rebuilds the same next batch and refuses grades that are missing rows, add rows from outside the batch, repeat a row or use a grade other than 0, 1 or 2.
 
+### Extra pool (Step 15 ablations)
+
+`data/eval/pool_t1_extra.csv` holds 285 (qid, chunk) pairs, 60 queries, that the Step 15 ablation variants retrieve in their top 10 but that the LLM qrels did not judge. It has the columns qid, query, chunk_id and text only, so the grader never sees which variant retrieved a chunk. `pool_t1.csv` is never written. Same prompt, same 0/1/2 scale, same rules as above.
+
+```powershell
+# build it once (refuses to overwrite; never touches pool_t1.csv)
+python -m src.ir.llm_grade_tool make-extra
+
+# each batch: same flow with --extra. Use the SAME --max-rows for next-batch and record.
+python -m src.ir.llm_grade_tool next-batch --extra --out <scratchpad>/batch.md
+python -m src.ir.llm_grade_tool record --extra --grades <scratchpad>/grades.tsv --model "<model id as /model shows it>"
+
+# afterwards: rebuild the LLM qrels
+python -m src.ir.llm_grade_tool to-qrels
+```
+
+With `--extra` the grades are appended to `data/eval/pool_t1_llm.csv` (same columns, same model column), and the batch number continues after the last recorded batch, so the first extra batch is 44. Log every batch in the table below as before. The sample queries have no priority here: whole queries are batched in qid order.
+
 ## Batch log
 
 | Batch | Rows | Queries | Model id (as `/model` shows) | Date | Notes |

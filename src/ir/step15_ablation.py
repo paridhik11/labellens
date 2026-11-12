@@ -1,6 +1,8 @@
 """Step 15 ablations: build the retrieval variants and list their unjudged top-10 results.
 
 Usage (repo root):
+  python -m src.ir.step15_ablation --part ranks11_20
+    -> results/step15_unjudged_ranks11_20.csv and .md (ranks 11 to 20, not in the pool)
   python -m src.ir.step15_ablation --part unjudged
     -> results/step15_unjudged.csv          (qid, chunk_id, variant)
     -> results/step15_unjudged_summary.md   (counts per variant)
@@ -127,8 +129,12 @@ def collect_unjudged(
     queries_by_module: dict[str, dict[str, str]],
     qrels: dict[str, dict[str, int]],
     k: int = TOP_K,
+    start: int = 0,
 ) -> tuple[list[tuple[str, str, str]], dict[str, dict[str, int]]]:
-    """Lists unjudged top-k chunks per variant, and counts section-level gaps.
+    """Lists unjudged chunks at ranks start+1..k per variant, and counts section-level gaps.
+
+    The default (start=0, k=10) is the top 10. start=10, k=20 gives ranks 11 to 20, which
+    feed Recall@20, MRR and MAP; the section-level count is only computed for start=0.
 
     Returns (rows, stats). rows is a list of (qid, chunk_id, variant) in variant order,
     then qid, then rank. The chunk list is search(k=CHUNK_FETCH_K)[:k]. stats[variant]
@@ -147,17 +153,61 @@ def collect_unjudged(
             q_rels = qrels.get(qid, {})
             judged_secs = {c2s.get(d, d) for d in q_rels}
             for name, system in variants.items():
-                top = [h.doc_id for h in system.search(query, k=CHUNK_FETCH_K)[:k]]
-                stats[name]["slots"] += k
+                top = [h.doc_id for h in system.search(query, k=CHUNK_FETCH_K)[start:k]]
+                stats[name]["slots"] += k - start
                 for d in unjudged_chunks(top, q_rels):
                     per_variant[name].append((qid, d, name))
                     stats[name]["chunk_rows"] += 1
+                if start:
+                    continue
                 sec_hits = system.search(query, k=SECTION_FETCH_K)
                 secs = aggregate_hits_by_section(sec_hits, c2s)[:k]
                 stats[name]["section_rows"] += len(unjudged_sections(secs, judged_secs))
     for name in variant_names():
         rows.extend(per_variant.get(name, []))
     return rows, dict(stats)
+
+
+def ranks_markdown(
+    rows: list[tuple[str, str, str]],
+    stats: dict[str, dict[str, int]],
+    already_listed: set[tuple[str, str]],
+) -> str:
+    """Counts of unjudged chunks at ranks 11 to 20 and the pairs not yet in the top-10 listing."""
+    unique = {(q, c) for q, c, _ in rows}
+    extra = unique - already_listed
+    out = [
+        "# Step 15a (addendum): unjudged chunks at ranks 11 to 20",
+        "",
+        "**Judged means present in the LLM qrels (claude-sonnet-5-5).** Ranks 11 to 20 of the",
+        "chunk-level ranking feed Recall@20, MRR and MAP (nDCG@10 does not use them). Nothing was",
+        "graded and these pairs are **not** in `data/eval/pool_t1_extra.csv`.",
+        "",
+        "| Variant | Unjudged chunks at ranks 11-20 | Share of those slots |",
+        "|---|---|---|",
+    ]
+    for name in variant_names():
+        s = stats.get(name, {"chunk_rows": 0, "slots": 0})
+        share = s["chunk_rows"] / s["slots"] if s["slots"] else 0.0
+        out.append(f"| {name} | {s['chunk_rows']} | {share:.1%} |")
+    out += [
+        "",
+        f"- Rows in `results/step15_unjudged_ranks11_20.csv` (one per qid, chunk, variant): {len(rows)}",
+        f"- Unique (qid, chunk) pairs at ranks 11 to 20: {len(unique)}",
+        f"- Of those, already in the top-10 listing ({len(already_listed)} pairs): "
+        f"{len(unique & already_listed)}",
+        f"- **Extra pairs not in the top-10 listing: {len(extra)}**",
+        f"- Pool size if added: {len(already_listed)} + {len(extra)} = "
+        f"{len(already_listed) + len(extra)}",
+        "",
+    ]
+    return "\n".join(out)
+
+
+def read_pairs(path: str | Path) -> set[tuple[str, str]]:
+    """Unique (qid, chunk_id) pairs of a CSV with qid and chunk_id columns."""
+    with Path(path).open(encoding="utf-8", newline="") as f:
+        return {(r["qid"], r["chunk_id"]) for r in csv.DictReader(f)}
 
 
 def write_csv(rows: list[tuple[str, str, str]], path: str | Path) -> None:
@@ -231,7 +281,7 @@ def main() -> None:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     ap = argparse.ArgumentParser(description="Step 15 ablation variants.")
-    ap.add_argument("--part", choices=["unjudged"], default="unjudged")
+    ap.add_argument("--part", choices=["unjudged", "ranks11_20"], default="unjudged")
     ap.add_argument("--corpus", default="data/processed/regs.jsonl")
     ap.add_argument("--queries", default="data/eval/queries_t1.tsv")
     ap.add_argument("--qrels", default="data/eval/qrels_t1_llm.tsv")
@@ -249,8 +299,18 @@ def main() -> None:
         chunks_by_module[mod] = chunks
         variants[mod] = build_variants(chunks)
         queries_by_module[mod] = {r.qid: r.query for r in rows_q if r.module == mod}
-    rows, stats = collect_unjudged(variants, chunks_by_module, queries_by_module, qrels)
     out_dir = Path(a.out_dir)
+    if a.part == "ranks11_20":
+        rows, stats = collect_unjudged(
+            variants, chunks_by_module, queries_by_module, qrels, k=2 * TOP_K, start=TOP_K
+        )
+        write_csv(rows, out_dir / "step15_unjudged_ranks11_20.csv")
+        listed = read_pairs(out_dir / "step15_unjudged.csv")
+        text = ranks_markdown(rows, stats, listed)
+        (out_dir / "step15_unjudged_ranks11_20.md").write_text(text + "\n", encoding="utf-8")
+        print(text)
+        return
+    rows, stats = collect_unjudged(variants, chunks_by_module, queries_by_module, qrels)
     write_csv(rows, out_dir / "step15_unjudged.csv")
     text = summary_markdown(rows, stats)
     (out_dir / "step15_unjudged_summary.md").write_text(text + "\n", encoding="utf-8")
