@@ -157,3 +157,30 @@ def test_dense_retriever_real_model_returns_hits(tmp_path: Path) -> None:
     for h in hits:
         assert isinstance(h, Hit)
         assert 0.0 <= h.score <= 1.01
+
+
+def test_query_prefix_is_applied_to_queries_only() -> None:
+    from src.ir.dense import BGE_QUERY_PREFIX
+
+    class Recording(FakeTransformer):
+        def __init__(self) -> None:
+            self.seen: list[str] = []
+
+        def encode(self, texts, *args, **kwargs):  # type: ignore[no-untyped-def]
+            self.seen.extend(texts)
+            return super().encode(texts, *args, **kwargs)
+
+    chunks = _make_chunks(3)
+    plain_model, pref_model = Recording(), Recording()
+    plain = DenseRetriever.from_chunks(chunks, cache_dir=None, model=plain_model)
+    pref = DenseRetriever.from_chunks(
+        chunks, cache_dir=None, model=pref_model, query_prefix=BGE_QUERY_PREFIX
+    )
+    plain_model.seen.clear()
+    pref_model.seen.clear()
+    plain.search("net weight", k=2)
+    pref.search("net weight", k=2)
+    assert plain_model.seen == ["net weight"]  # default: no prefix
+    assert pref_model.seen == [BGE_QUERY_PREFIX + "net weight"]
+    # passages are encoded without the prefix in both, so the cache is shared
+    assert BGE_QUERY_PREFIX not in " ".join(chunk.text for chunk in chunks)

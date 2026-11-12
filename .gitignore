@@ -12,4 +12,5 @@ runs/
 results/*
 !results/step13_llm_vs_human.md
 !results/step14_*.md
+!results/step15_*
 .DS_Store
