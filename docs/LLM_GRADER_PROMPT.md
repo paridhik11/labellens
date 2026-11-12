@@ -79,4 +79,4 @@ python -m src.ir.llm_grade_tool to-qrels
 
 | Batch | Rows | Queries | Model id (as `/model` shows) | Date | Notes |
 |---|---|---|---|---|---|
-| | | | | | No batches graded yet |
+| 1 | 40 (rows 1 to 40) | q04, q05 | claude-sonnet-5-5 | 2026-11-12 | Grades: 26 zero, 11 one, 3 two |

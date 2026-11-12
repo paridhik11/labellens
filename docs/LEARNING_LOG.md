@@ -181,3 +181,14 @@ A sequential log of progress, implementation decisions, worked examples, and ver
 4. **How I verified it:** `python -m pytest -q -m "not slow"` (65 passed, 1 deselected), `ruff check src tests` (All checks passed), and checked both files have the pool columns and 0 filled grades.
 5. **Check yourself:** The two qid lists, the overlap queries, and the overwrite check in the `split` branch of `main()`.
 6. **Assumptions:** The sample has only one symbol query (q31), so only Pari's file has it. Which grade to use for the 3 shared queries in Step 13 is still to be decided.
+
+---
+
+## Step 12, Batch 1: LLM Grades for q04 and q05
+
+1. **What I did:** Ran `next-batch` for batch 1 (40 rows, queries q04 and q05, both in the human sample), graded every row 0, 1 or 2 using only the prompt in `docs/LLM_GRADER_PROMPT.md`, and stored them with `record` in `data/eval/pool_t1_llm.csv`. Model id `claude-sonnet-5-5`, date 2026-11-12. Grade counts: 26 zero, 11 one, 3 two.
+2. **Files created or changed:** `data/eval/pool_t1_llm.csv` (new, 40 rows), `docs/LLM_GRADER_PROMPT.md` (batch log), `docs/LEARNING_LOG.md`, `CLAUDE.md` (state).
+3. **How it works:** For q05 (manufacturer name and place of business), only 801.1 chunks state the general rule (2). Passages from 809.10 and 812.5 name the same requirement for narrower product classes (in vitro diagnostics, investigational devices), so they got 1. For q04 (where the UDI must appear), 801.20 states that the label and every package must bear a UDI (2); 801.40, 801.45, 801.30, 801.35 and 801.57 discuss UDI form, direct marking, exceptions and related rules (1).
+4. **How I verified it:** `record` accepted all 40 rows on the first run; tests and lint results in the Step Report.
+5. **Check yourself:** The batch log row, the model id column in `pool_t1_llm.csv`, and that `pool_t1.csv` and the sample files are unchanged.
+6. **Assumptions:** Passages that state the right requirement but only for a narrower product class were graded 1 (lower grade when unsure). Passages that only mention a UDI or a manufacturer name in passing (reports, registration, GUDID submission) were graded 0.
