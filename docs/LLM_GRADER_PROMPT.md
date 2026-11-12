@@ -80,3 +80,11 @@ python -m src.ir.llm_grade_tool to-qrels
 | Batch | Rows | Queries | Model id (as `/model` shows) | Date | Notes |
 |---|---|---|---|---|---|
 | 1 | 40 (rows 1 to 40) | q04, q05 | claude-sonnet-5-5 | 2026-11-12 | Grades: 26 zero, 11 one, 3 two |
+| 2 | 40 (rows 41 to 80) | q11, q12 | claude-sonnet-5-5 | 2026-11-12 | Grades: 28 zero, 9 one, 3 two |
+| 3 | 39 (rows 81 to 119) | q21, q28 | claude-sonnet-5-5 | 2026-11-12 | Grades: 29 zero, 4 one, 6 two |
+| 4 | 38 (rows 120 to 157) | q30, q31 | claude-sonnet-5-5 | 2026-11-12 | Grades: 28 zero, 9 one, 1 two |
+| 5 | 22 (rows 158 to 179) | q36 | claude-sonnet-5-5 | 2026-11-12 | Grades: 16 zero, 6 one, 0 two |
+| 6 | 29 (rows 180 to 208) | q40 | claude-sonnet-5-5 | 2026-11-12 | Grades: 25 zero, 4 one, 0 two |
+| 7 | 24 (rows 209 to 232) | q44 | claude-sonnet-5-5 | 2026-11-12 | Grades: 24 zero, 0 one, 0 two |
+| 8 | 37 (rows 233 to 269) | q46, q51 | claude-sonnet-5-5 | 2026-11-12 | Grades: 16 zero, 13 one, 8 two |
+| 9 | 39 (rows 270 to 308) | q56, q60 | claude-sonnet-5-5 | 2026-11-12 | Grades: 26 zero, 6 one, 7 two |
