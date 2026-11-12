@@ -4,6 +4,7 @@ Usage (repo root):
   python -m src.ir.step14_report --part results   # results/step14_results.md
   python -m src.ir.step14_report --part types     # results/step14_by_type.md
   python -m src.ir.step14_report --part failures  # results/step14_failures.md
+  python -m src.ir.step14_report --part kappa     # results/step14_kappa_ci.md
   python -m src.ir.step14_report --part all
 
 Every table is built from LLM grades, not human grades. Systems are built per
@@ -14,6 +15,7 @@ times, seed 42.
 from __future__ import annotations
 
 import argparse
+import random
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -24,6 +26,7 @@ from src.common.schemas import Chunk
 from src.ir.base import Retriever
 from src.ir.eval import (
     METRIC_NAMES,
+    NO_ANSWER,
     build_systems,
     evaluate,
     evaluate_no_answer,
@@ -34,6 +37,14 @@ from src.ir.eval import (
     mean_top1_score,
     no_answer_to_markdown,
     split_no_answer,
+)
+from src.ir.grade_compare import (
+    HUMAN_PATHS,
+    LLM_PATH,
+    agreement_report,
+    load_human_grades,
+    load_llm_grades,
+    merge_human,
 )
 from src.ir.tokenizer import tokenize
 
@@ -634,6 +645,126 @@ def failures_report(
     return "\n".join(out)
 
 
+KAPPA_METRICS = (
+    ("exact", "exact agreement"),
+    ("kappa_linear", "weighted kappa (linear)"),
+    ("kappa_quadratic", "weighted kappa (quadratic)"),
+    ("binary_agreement", "binary agreement"),
+    ("binary_kappa", "binary kappa"),
+)
+
+
+def cluster_bootstrap_agreement(
+    human: dict[tuple[str, str], int],
+    llm: dict[tuple[str, str], int],
+    n: int = 10000,
+    seed: int = 42,
+    level: float = 0.95,
+) -> dict:
+    """Percentile bootstrap intervals for LLM-vs-human agreement, resampling queries.
+
+    Rows of one query are not independent (same query, same pool), so the unit of
+    resampling is the query: draw the queries with replacement, keep all graded rows of
+    each drawn query (a query drawn twice counts twice), and recompute agreement_report
+    on the rows of the resample. Only rows graded by both are used.
+    Returns {'n_rows', 'n_queries', 'point': {metric: value}, 'ci': {metric: (lo, hi)},
+    'constant_resamples': resamples where one rater gave one grade to every row}.
+    """
+    keys = sorted(set(human) & set(llm))
+    if not keys:
+        raise ValueError("no overlapping rows")
+    by_q: dict[str, list[tuple[str, str]]] = defaultdict(list)
+    for k in keys:
+        by_q[k[0]].append(k)
+    qids = sorted(by_q)
+    point = agreement_report({k: human[k] for k in keys}, {k: llm[k] for k in keys})
+    rng = random.Random(seed)
+    samples: dict[str, list[float]] = {m: [] for m, _ in KAPPA_METRICS}
+    constant = 0
+    for _ in range(n):
+        h: dict[tuple[str, str], int] = {}
+        g: dict[tuple[str, str], int] = {}
+        for j in range(len(qids)):
+            q = qids[rng.randrange(len(qids))]
+            for k in by_q[q]:
+                key = (f"{q}#{j}", k[1])
+                h[key], g[key] = human[k], llm[k]
+        if len(set(h.values())) == 1 or len(set(g.values())) == 1:
+            constant += 1
+        rep = agreement_report(h, g)
+        for m, _ in KAPPA_METRICS:
+            samples[m].append(rep[m])
+    lo_q, hi_q = (1 - level) / 2, (1 + level) / 2
+    ci = {
+        m: tuple(float(x) for x in np.quantile(np.asarray(v), [lo_q, hi_q]))
+        for m, v in samples.items()
+    }
+    return {
+        "n_rows": len(keys),
+        "n_queries": len(qids),
+        "point": {m: float(point[m]) for m, _ in KAPPA_METRICS},
+        "ci": ci,
+        "constant_resamples": constant,
+    }
+
+
+def kappa_report(
+    human_files: dict[str, dict[tuple[str, str], int]],
+    llm: dict[tuple[str, str], int],
+    no_answer_qids: set[str],
+) -> str:
+    """Builds the 14d markdown: Step 13 agreement numbers with query-level bootstrap intervals."""
+    names = list(human_files)
+    merged = merge_human(list(human_files.values()))
+    slices = {f"{names[0]} only (headline)": human_files[names[0]], "all human rows (merged)": merged}
+    out = [
+        "# Step 14d: bootstrap intervals on LLM-vs-human agreement",
+        "",
+        "**Agreement of the LLM grades (claude-sonnet-5-5) with human grades on the human sample.**",
+        "This part compares the LLM-assessed qrels with human grades, so the human sample is the",
+        "only reference and it is small: 15 queries in total.",
+        "",
+        "## Method",
+        "- Same agreement numbers as Step 13 (`agreement_report`), here with 95% percentile bootstrap",
+        "  intervals, 10000 resamples, seed 42.",
+        "- **The queries are resampled, not the rows.** Rows from one query share the query and the",
+        "  pool, so they are not independent, and resampling rows would give intervals that are too",
+        "  narrow. A resample draws as many queries as the slice has, with replacement, and keeps all",
+        "  graded rows of each drawn query.",
+        "- With 8 to 15 queries per slice, a percentile bootstrap is itself rough: the intervals may be",
+        "  too narrow, and a few queries with unusual grade mixes dominate them.",
+        "- 'Excluding no_answer' removes q44, whose rows are nearly all 0 and easy to agree on.",
+        "- Pari only (9 queries) is the cleanest single-annotator set. The merged set uses Pari's",
+        "  grade where both humans graded a row (Parth's file adds 6 queries of his own).",
+        "",
+    ]
+    for title, drop in (("All rows", False), ("Excluding no_answer queries", True)):
+        out += [f"## {title}", ""]
+        out += [
+            "| Slice | rows | queries | "
+            + " | ".join(label for _, label in KAPPA_METRICS)
+            + " |",
+            "|---|---|---|" + "---|" * len(KAPPA_METRICS),
+        ]
+        notes = []
+        for name, grades in slices.items():
+            h = {k: v for k, v in grades.items() if not (drop and k[0] in no_answer_qids)}
+            res = cluster_bootstrap_agreement(h, llm)
+            cells = " | ".join(
+                f"{res['point'][m]:.3f} [{res['ci'][m][0]:.3f}, {res['ci'][m][1]:.3f}]"
+                for m, _ in KAPPA_METRICS
+            )
+            out.append(f"| {name} | {res['n_rows']} | {res['n_queries']} | {cells} |")
+            notes.append(f"{name}: {res['constant_resamples']}")
+        out += [
+            "",
+            "Format: point estimate [95% interval]. Resamples where one rater gave a single grade to",
+            "every row (kappa is then degenerate): " + "; ".join(notes) + ".",
+            "",
+        ]
+    return "\n".join(out)
+
+
 def build_all(
     corpus: str, queries: str, qrels_path: str, with_dense: bool
 ) -> tuple[dict[str, dict], dict[str, list], dict[str, dict[str, int]]]:
@@ -658,17 +789,29 @@ def main() -> None:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     ap = argparse.ArgumentParser(description="Step 14 reports on LLM-assessed qrels.")
-    ap.add_argument("--part", choices=["results", "types", "failures", "all"], default="all")
+    ap.add_argument("--part", choices=["results", "types", "failures", "kappa", "all"], default="all")
     ap.add_argument("--corpus", default="data/processed/regs.jsonl")
     ap.add_argument("--queries", default="data/eval/queries_t1.tsv")
     ap.add_argument("--qrels", default="data/eval/qrels_t1_llm.tsv")
     ap.add_argument("--out-dir", default="results")
     ap.add_argument("--no-dense", action="store_true")
+    ap.add_argument("--llm", default=str(LLM_PATH))
+    ap.add_argument("--human", nargs="+", default=list(HUMAN_PATHS))
     a = ap.parse_args()
 
-    data, rows_by_module, qrels = build_all(a.corpus, a.queries, a.qrels, not a.no_dense)
     out_dir = Path(a.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+    if a.part in ("kappa", "all"):
+        human_files = {
+            Path(p).stem.replace("sample_", ""): load_human_grades(p) for p in a.human
+        }
+        na = {r.qid for r in load_query_rows(a.queries) if r.qtype == NO_ANSWER}
+        text = kappa_report(human_files, load_llm_grades(a.llm), na)
+        (out_dir / "step14_kappa_ci.md").write_text(text + "\n", encoding="utf-8")
+        print(text)
+    if a.part == "kappa":
+        return
+    data, rows_by_module, qrels = build_all(a.corpus, a.queries, a.qrels, not a.no_dense)
     if a.part in ("results", "all"):
         text = results_report(data, qrels)
         (out_dir / "step14_results.md").write_text(text + "\n", encoding="utf-8")

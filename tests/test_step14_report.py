@@ -167,3 +167,25 @@ def test_zero_ties_counts_per_system_and_all_zero() -> None:
     assert "| device | 2 | 2 | 1 | 1 |" in text
     assert "| medicine | 1 | 0 | 1 | 0 |" in text
     assert "| both | 3 | 2 | 2 | 1 |" in text
+
+
+def test_cluster_bootstrap_agreement_resamples_queries() -> None:
+    from src.ir.step14_report import cluster_bootstrap_agreement
+
+    # perfect agreement everywhere -> every interval collapses on 1.0
+    h = {("q1", "a"): 0, ("q1", "b"): 2, ("q2", "a"): 1, ("q2", "b"): 0, ("q3", "a"): 2}
+    res = cluster_bootstrap_agreement(h, dict(h), n=200)
+    assert res["n_rows"] == 5 and res["n_queries"] == 3
+    assert res["point"]["exact"] == 1.0
+    assert res["ci"]["exact"] == (1.0, 1.0)
+    # one query disagrees fully: exact agreement can only be 1, 2/3-ish or lower, and
+    # the interval must include values below the point estimate but stay in [0, 1]
+    llm = dict(h)
+    llm[("q3", "a")] = 0
+    res2 = cluster_bootstrap_agreement(h, llm, n=500)
+    lo, hi = res2["ci"]["exact"]
+    assert 0.0 <= lo < res2["point"]["exact"] <= hi <= 1.0
+    # reproducible with the fixed seed
+    assert cluster_bootstrap_agreement(h, llm, n=500) == res2
+    with pytest.raises(ValueError):
+        cluster_bootstrap_agreement({}, {})
