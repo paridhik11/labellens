@@ -4,7 +4,8 @@ Preprocessing finds and straightens a single dominant label using OpenCV and
 NumPy. OCR is available through the RapidOCR fallback described below. Barcode
 decoding and GS1 parsing are also available. Field mapping and `LabelExtraction`
 integration are available for this single synthetic template family, as
-described below. Dataset-wide extraction accuracy has not yet been measured.
+described below. Dataset-wide results are generated with the evaluation command
+at the end of this file.
 
 ## Image interface
 
@@ -399,6 +400,54 @@ held separately by the test. Deterministic unit cases cover field ambiguity,
 known coordinate transforms, original-first barcode selection, corrected-image
 recovery, engine failures, blank images and warning settings.
 
-Task 3 remains: run the assembled extractor over the full set and produce
-per-condition OCR error, barcode and GS1 accuracy, and detection measurements
-from a single reproducible evaluation command.
+## Dataset-wide extraction evaluation
+
+Prepare the reproducible input set once, then run the evaluator from the
+repository root with the CV environment's Python:
+
+```bash
+python -m src.gen.generate_dataset --output-dir data/synthetic/task1 --seed 42
+python -m src.cv.eval_extract --dataset data/synthetic/task1 --output results/cv_extract.md
+```
+
+The second line is the single evaluation command. It runs the unchanged
+`extract_label` on every image listed in the generated manifest and writes
+[the computed report](../../results/cv_extract.md). The first full measurement
+used the existing temporary seed-42 set; the commands above recreate those
+inputs in a persistent local folder. Generated images are not committed.
+
+The evaluator reports every metric separately for clean, moderate and hard,
+with image counts and numerator/denominator values:
+
+- OCR character error rate per field is total edit distance divided by total
+  reference characters. Insertions, deletions and substitutions each cost one.
+  It preserves case, spaces, punctuation and printed prefixes. Missing or
+  ambiguous fields count as deletions, not excluded examples. Reference
+  character counts and numbers of present fields are printed beside the rates.
+- Barcode decode rate uses all images as denominator, including failures.
+- GS1 accuracy gives exact matches for each AI and all four together, using
+  all images as denominator. Exactly one barcode is required to avoid choosing
+  among multiple symbols. A conditional all-four rate among decoded images is
+  also shown so decode failures are distinguishable from parsing errors.
+- Detection/correction success uses the existing fixed 10-pixel corner
+  tolerance. The evaluator repeats the deterministic image-only detector and
+  rectifier because the locked extraction schema does not expose their internal
+  corners. This measures geometry separately from OCR success.
+
+An extraction exception remains a failed sample: missing text incurs deletion
+errors and barcode matches fail. Engine failures already captured by the
+extractor remain visible through warning counts. Missing or malformed ground
+truth aborts evaluation because no correct score can be computed. Manifest
+counts, unique paths, supported conditions and the required references are
+validated before any scoring.
+
+The evaluator only reads dataset files and refuses a report path inside that
+dataset. Reports include warning counts by image, representative largest text
+errors, exception details, Python and package versions, extraction defaults,
+and SHA-256 fingerprints for dataset contents, source, template and models.
+There are no timestamps in the generated report. Source fingerprints make
+changes distinguishable even when no new Git commit has been created yet.
+
+No extraction behavior or warning thresholds were changed for this measurement.
+Results are a synthetic baseline for the existing template, not real-label
+validation, identifier authentication or a measurement of symbol detection.
