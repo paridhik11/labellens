@@ -283,3 +283,11 @@ A sequential log of progress, implementation decisions, worked examples, and ver
 4. **Verified:** `pytest -m "not slow"`: 105 passed; `ruff check src tests`: clean; `python -m src.ir.expand --check`: PASS (every cfr_definition group has a CFR section containing at least two of its terms). Nothing was run for retrieval quality yet.
 5. **Check yourself:** The failure_derived groups, which are not independent of the queries; terms that occur in no chunk (maker, barcode, expiry date, repack); the split file against the type counts.
 6. **Assumptions:** No stemming, so word forms are listed explicitly. Source tags reflect how I came to write each group.
+
+## Step 17c + 17d: part-aware boost and cross-encoder reranker
+1. **What I did:** Built `PartBoostRetriever` (each CFR part becomes one pseudo-document, BM25 picks the query's top parts, chunks from those parts get their rank score multiplied by 1 + beta) and `CrossEncoderReranker` (re-orders hybrid's top 50 with the cached MiniLM-L6 cross-encoder, either by its score alone or fused with the base rank by RRF). Neither is tuned yet.
+2. **Files changed:** `src/ir/partboost.py`, `src/ir/rerank.py`, `tests/test_partboost.py`, `tests/test_rerank.py`, this log.
+3. **How it works:** Part boost with beta 0.25: a topic-part chunk at rank 6 (1/66 x 1.25 = 0.0189) overtakes an other-part chunk at rank 1 (1/61 = 0.0164); beta 0 changes nothing. The reranker reads the query and one chunk together, so it sees how they match, unlike dense retrieval.
+4. **Verified:** `pytest -m "not slow"`: 116 passed; ruff clean; real model run offline (HF_HUB_OFFLINE=1, no download), 5 dev device queries only: 200 pairs in 16.7 s = 12 pairs/s; model load plus first query 28 s.
+5. **Check yourself:** The part rankings printed for dev queries (801 often wins even when 830 is the topic, e.g. q03), and that the reranker never downloads (offline flag set).
+6. **Assumptions:** Top part chosen by plain BM25 on pseudo-documents, no length tuning; chunks truncated to 512 tokens; no quality claim made yet.
