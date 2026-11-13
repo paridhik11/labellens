@@ -304,7 +304,7 @@ def test_cli(
     assert eval_extract.main(["--dataset", str(dataset), "--output", str(report)]) == 0
     assert report.read_text(encoding="utf-8") == eval_extract.render_report(eval_extract.evaluate_dataset(dataset))
     output = capsys.readouterr().out
-    assert "Evaluated 3 images; extraction defaults unchanged" in output
+    assert "Evaluated 3 images; OCR and blur warning thresholds unchanged" in output
     for condition in eval_extract.CONDITIONS:
         assert f"{condition}: decoded=1/1, all_ais_match=1/1" in output
 

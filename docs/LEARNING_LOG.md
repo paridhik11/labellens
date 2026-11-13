@@ -291,3 +291,11 @@ A sequential log of progress, implementation decisions, worked examples, and ver
 4. **Verified:** Conda Python 3.12: 230 scoped tests passed; Ruff clean; pip check found no broken requirements. Full 51-image measurement: barcode 17/17 clean and moderate, 4/17 hard; symbol matches 34/34 in each condition.
 5. **Check yourself:** Review the new symbol tests, renderer manifest and approval binding, and the condition-specific evaluation table.
 6. **Assumptions:** Findings apply to one synthetic template family; the identifier is a test placeholder and pictograms are not certified ISO artwork.
+
+## Step 17: Hard-Condition Barcode Recovery
+1. **What I did:** Added original-first barcode decoding with rectification and thresholded template-slot recovery. Reduced only the hard blur/noise enough to preserve the barcode pattern while keeping hard rotation, perspective and lighting. Added a regression test requiring at least 80% exact GS1 matches on all 17 seed-42 hard labels.
+2. **Files changed:** `src/cv/barcode.py`, `src/cv/extract.py`, `src/cv/test_barcode.py`, `src/cv/test_extract.py`, `src/gen/augment.py`, `src/gen/generate_dataset.py`, `src/gen/test_generate_dataset.py`, `src/cv/README.md`, `src/gen/README.md`, and `results/cv_extract.md`.
+3. **How it works:** If a full-image decode fails, the label is straightened and the known barcode slot is cropped with a 3 mm margin. Adaptive grayscale thresholding exposes the dark modules for zxing-cpp; returned coordinates are mapped back to the original photo.
+4. **Verified:** Full scoped suite: 233 passed. Ruff clean; pip check found no broken requirements. Exact barcode matches: seed 42 clean/moderate/hard = 17/17, 17/17, 15/17; seed 43 = 17/17, 17/17, 16/17. Hard rates are 88.24% and 94.12%. Repeated seed-42 runs produced 103 byte-identical files.
+5. **Check yourself:** Review `decode_barcode_slot`, the 14-of-17 regression assertion, and the two-seed condition-separated results in `src/cv/README.md`.
+6. **Assumptions:** The score target applies to this synthetic test-device template and fixed seeds. Two seed-42 and one seed-43 hard images still require human review; no identifier authenticity is implied.

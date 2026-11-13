@@ -7,7 +7,9 @@ import json
 import string
 from datetime import date
 from pathlib import Path
+from typing import Any
 
+import cv2
 import numpy as np
 import zxingcpp
 from PIL import Image
@@ -17,6 +19,7 @@ from src.cv.preprocess import _validate_image, find_label_corners, rectify_label
 
 GROUP_SEPARATOR = "\x1d"
 VARIABLE_CHARACTERS = frozenset(string.ascii_letters + string.digits + "!\"%&'()*+,-./:;<=>?_")
+TEMPLATE_PATH = Path(__file__).resolve().parents[1] / "gen" / "templates" / "test_device.json"
 
 
 def _validate_field(ai: str, value: str) -> None:
@@ -72,20 +75,15 @@ def parse_gs1(payload: str) -> dict[str, str]:
     return fields
 
 
-def decode_barcodes(image: np.ndarray) -> tuple[list[BarcodeResult], list[str]]:
-    """Decode an RGB image into shared schema objects and explicit warnings.
-
-    Raw bytes are preserved with a reversible Latin-1 string mapping. Parse
-    only symbols marked GS1 by zxing-cpp. Boxes use x, y, width, height in the
-    supplied image's coordinate space. Decode engine exceptions propagate.
-    """
-    _validate_image(image)
-    decoded = zxingcpp.read_barcodes(image)
-    if not decoded:
-        return [], ["BARCODE_NOT_DECODED: no barcode could be decoded"]
+def _format_results(
+    decoded: list[Any],
+    image_size: tuple[int, int],
+    origin: tuple[int, int] = (0, 0),
+) -> tuple[list[BarcodeResult], list[str]]:
+    """Convert decoder output to shared results with optional crop offset."""
     results = []
     warnings = []
-    height, width = image.shape[:2]
+    width, height = image_size
     for item in decoded:
         raw = item.bytes.decode("latin-1")
         parsed = {}
@@ -101,6 +99,7 @@ def decode_barcodes(image: np.ndarray) -> tuple[list[BarcodeResult], list[str]]:
             item.position.bottom_right, item.position.bottom_left,
         ]
         points = np.array([[point.x, point.y] for point in corners], dtype=float)
+        points += np.asarray(origin, dtype=float)
         left, top = points.min(axis=0)
         right, bottom = points.max(axis=0)
         bbox = None
@@ -112,10 +111,76 @@ def decode_barcodes(image: np.ndarray) -> tuple[list[BarcodeResult], list[str]]:
     return results, warnings
 
 
+def decode_barcodes(image: np.ndarray) -> tuple[list[BarcodeResult], list[str]]:
+    """Decode an RGB image into shared schema objects and explicit warnings.
+
+    Convert RGB pixels to grayscale before zxing-cpp, whose NumPy colour-array
+    interface expects BGR. Raw bytes use a reversible Latin-1 mapping. Parse
+    only symbols marked GS1; boxes use the supplied image's coordinates.
+    Decoder exceptions propagate.
+    """
+    _validate_image(image)
+    gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+    decoded = zxingcpp.read_barcodes(gray)
+    if not decoded:
+        return [], ["BARCODE_NOT_DECODED: no barcode could be decoded"]
+    return _format_results(decoded, (image.shape[1], image.shape[0]))
+
+
+def decode_barcode_slot(image: np.ndarray) -> tuple[list[BarcodeResult], list[str]]:
+    """Use the fixed template slot and local thresholding on an upright label.
+
+    The slot crop includes a 3 mm margin, is converted to grayscale and is
+    adaptively thresholded. Boxes are returned in the full corrected-image
+    coordinates. This fallback supports only the current GS1 DataMatrix slot.
+    """
+    _validate_image(image)
+    template = json.loads(TEMPLATE_PATH.read_text(encoding="utf-8"))
+    slots = [slot for slot in template["slots"] if slot["type"] == "barcode"]
+    if len(slots) != 1 or slots[0].get("symbology") != "GS1_DataMatrix":
+        raise ValueError("Slot recovery supports one GS1 DataMatrix in the test-device template")
+    height, width = image.shape[:2]
+    scale_x = (width - 1) / template["size_mm"]["w"]
+    scale_y = (height - 1) / template["size_mm"]["h"]
+    x, y, slot_width, slot_height = slots[0]["bbox_mm"]
+    padding = 3.0
+    left = max(0, round((x - padding) * scale_x))
+    top = max(0, round((y - padding) * scale_y))
+    right = min(width, round((x + slot_width + padding) * scale_x))
+    bottom = min(height, round((y + slot_height + padding) * scale_y))
+    if right - left < 15 or bottom - top < 15:
+        return [], ["BARCODE_SLOT_TOO_SMALL: corrected image cannot resolve the template slot"]
+    crop = cv2.cvtColor(image[top:bottom, left:right], cv2.COLOR_RGB2GRAY)
+    binary = cv2.adaptiveThreshold(
+        crop, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 15, 2
+    )
+    for binarizer in (zxingcpp.Binarizer.LocalAverage, zxingcpp.Binarizer.FixedThreshold):
+        for is_pure in (False, True):
+            decoded = zxingcpp.read_barcodes(
+                binary,
+                formats=zxingcpp.BarcodeFormat.DataMatrix,
+                binarizer=binarizer,
+                is_pure=is_pure,
+            )
+            decoded = [
+                item for item in decoded
+                if item.format == zxingcpp.BarcodeFormat.DataMatrix
+                and item.content_type == zxingcpp.ContentType.GS1
+                and item.bytes
+            ]
+            if decoded:
+                results, warnings = _format_results(
+                    decoded, (width, height), origin=(left, top)
+                )
+                return results, warnings
+    return [], ["BARCODE_NOT_DECODED: template-slot threshold recovery found no barcode"]
+
+
 def evaluate_dataset(dataset_dir: Path, rectify: bool = False) -> dict[str, dict[str, int]]:
     """Measure decode and exact four-AI matches per generated condition.
 
-    The decoder receives only pixels. Ground truth is used only to compare
+    Recovery tries the original image, the rectified label and a thresholded
+    crop of the template barcode slot. Ground truth is only used to score the
     results. Every image stays in its denominator, including decode failures.
     """
     manifest = json.loads((dataset_dir / "manifest.json").read_text(encoding="utf-8"))
@@ -132,6 +197,7 @@ def evaluate_dataset(dataset_dir: Path, rectify: bool = False) -> dict[str, dict
         counts["images"] += 1
         with Image.open(dataset_dir / entry["image"]) as photo:
             image = np.asarray(photo.convert("RGB"))
+        corrected_label = rectify
         if rectify:
             corners = find_label_corners(image)
             if corners is None:
@@ -139,6 +205,21 @@ def evaluate_dataset(dataset_dir: Path, rectify: bool = False) -> dict[str, dict
                 continue
             image, _ = rectify_label(image, corners)
         barcodes, warnings = decode_barcodes(image)
+        if not barcodes and not rectify:
+            corners = find_label_corners(image)
+            if corners is None:
+                counts["correction_failures"] += 1
+            else:
+                image, _ = rectify_label(image, corners)
+                corrected_label = True
+                barcodes, retry_warnings = decode_barcodes(image)
+                warnings.extend(retry_warnings)
+        if not barcodes and corrected_label:
+            slot_results, slot_warnings = decode_barcode_slot(image)
+            if slot_results:
+                barcodes = slot_results
+                warnings = [warning for warning in warnings if not warning.startswith("BARCODE_NOT_DECODED:")]
+            warnings.extend(slot_warnings)
         counts["decoded_images"] += int(bool(barcodes))
         counts["matching_ai_images"] += int(len(barcodes) == 1 and barcodes[0].parsed == truth["barcode_ais"])
         counts["parse_warning_images"] += int(any(warning.startswith("GS1_PARSE_FAILED:") for warning in warnings))
@@ -156,7 +237,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.dataset is not None:
             results = evaluate_dataset(args.dataset, rectify=args.rectify)
-            print(f"Barcode evaluation: {'corrected images' if args.rectify else 'original images'}")
+            mode = "corrected-image-first" if args.rectify else "original-image-first with correction fallback"
+            print(f"Barcode evaluation: {mode}, including template-slot recovery")
             for condition, counts in results.items():
                 total = counts["images"]
                 print(
@@ -174,6 +256,12 @@ def main(argv: list[str] | None = None) -> int:
                 parser.error("NEEDS_HUMAN_REVIEW: no suitable label boundary")
             image, _ = rectify_label(image, corners)
         barcodes, warnings = decode_barcodes(image)
+        if args.rectify and not barcodes:
+            barcodes, slot_warnings = decode_barcode_slot(image)
+            if barcodes:
+                warnings = [warning for warning in warnings if not warning.startswith("BARCODE_NOT_DECODED:")]
+                warnings.append("BARCODE_DECODED_FROM_TEMPLATE_SLOT")
+            warnings.extend(slot_warnings)
     except (OSError, ValueError) as error:
         parser.error(str(error))
     coordinate_space = "corrected_image" if args.rectify else "input_image"

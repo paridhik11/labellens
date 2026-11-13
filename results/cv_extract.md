@@ -31,7 +31,7 @@ The extractor and its warning thresholds were not tuned during this measurement 
 | --- | ---: | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | clean | 17 | 17/17 (100.00%) | 17/17 (100.00%) | 17/17 (100.00%) | 17/17 (100.00%) | 17/17 (100.00%) | 34/34 (100.00%) | 17/17 (100.00%) | 0.988 | 0/17 (0.00%) |
 | moderate | 17 | 17/17 (100.00%) | 17/17 (100.00%) | 17/17 (100.00%) | 17/17 (100.00%) | 17/17 (100.00%) | 34/34 (100.00%) | 17/17 (100.00%) | 0.988 | 0/17 (0.00%) |
-| hard | 17 | 4/17 (23.53%) | 4/17 (23.53%) | 4/4 (100.00%) | 17/17 (100.00%) | 17/17 (100.00%) | 34/34 (100.00%) | 17/17 (100.00%) | 0.990 | 0/17 (0.00%) |
+| hard | 17 | 15/17 (88.24%) | 15/17 (88.24%) | 15/15 (100.00%) | 17/17 (100.00%) | 17/17 (100.00%) | 34/34 (100.00%) | 17/17 (100.00%) | 0.990 | 0/17 (0.00%) |
 
 ## OCR character error by field
 
@@ -49,12 +49,12 @@ The extractor and its warning thresholds were not tuned during this measurement 
 | moderate | model | 6.30% | 15/238 | 17 | 17/17 |
 | moderate | lot | 2.48% | 8/323 | 17 | 17/17 |
 | moderate | expiry | 0.00% | 0/255 | 17 | 17/17 |
-| hard | product_name | 0.87% | 2/231 | 17 | 17/17 |
+| hard | product_name | 0.00% | 0/231 | 17 | 17/17 |
 | hard | manufacturer | 0.00% | 0/272 | 17 | 17/17 |
 | hard | manufacturer_address | 0.00% | 0/272 | 17 | 17/17 |
-| hard | model | 4.20% | 10/238 | 17 | 17/17 |
+| hard | model | 0.42% | 1/238 | 17 | 17/17 |
 | hard | lot | 0.00% | 0/323 | 17 | 17/17 |
-| hard | expiry | 1.57% | 4/255 | 17 | 17/17 |
+| hard | expiry | 0.00% | 0/255 | 17 | 17/17 |
 
 ## Exact GS1 matches per AI
 
@@ -62,7 +62,7 @@ The extractor and its warning thresholds were not tuned during this measurement 
 | --- | --- | --- | --- | --- |
 | clean | 17/17 (100.00%) | 17/17 (100.00%) | 17/17 (100.00%) | 17/17 (100.00%) |
 | moderate | 17/17 (100.00%) | 17/17 (100.00%) | 17/17 (100.00%) | 17/17 (100.00%) |
-| hard | 4/17 (23.53%) | 4/17 (23.53%) | 4/17 (23.53%) | 4/17 (23.53%) |
+| hard | 15/17 (88.24%) | 15/17 (88.24%) | 15/17 (88.24%) | 15/17 (88.24%) |
 
 ## Warning counts
 
@@ -74,7 +74,8 @@ Counts are images with each warning code, not individual occurrences. Informatio
 | clean | TEMPLATE_ASSUMED | 17/17 |
 | moderate | LOW_OCR_CONFIDENCE | 13/17 |
 | moderate | TEMPLATE_ASSUMED | 17/17 |
-| hard | BARCODE_NOT_DECODED | 13/17 |
+| hard | BARCODE_DECODED_FROM_TEMPLATE_SLOT | 10/17 |
+| hard | BARCODE_NOT_DECODED | 2/17 |
 | hard | LOW_OCR_CONFIDENCE | 13/17 |
 | hard | TEMPLATE_ASSUMED | 17/17 |
 
@@ -90,9 +91,7 @@ Up to three field errors per condition, sorted by edit count, filename and field
 | moderate | moderate/test_label_009_moderate.png | product_name | "TEST DEVICE 009" | "TESTDEVICE009" | 2 |
 | moderate | moderate/test_label_001_moderate.png | lot | "LOT: TESTLOT0016232" | "LOT:TESTLOT0016232" | 1 |
 | moderate | moderate/test_label_001_moderate.png | model | "REF: TEST-M001" | "REF:TEST-M001" | 1 |
-| hard | hard/test_label_001_hard.png | product_name | "TEST SENSOR 001" | "TEST SENSOR O01" | 1 |
-| hard | hard/test_label_002_hard.png | model | "REF: TEST-M002" | "REF TEST-M002" | 1 |
-| hard | hard/test_label_003_hard.png | model | "REF: TEST-M003" | "REF TEST-M003" | 1 |
+| hard | hard/test_label_016_hard.png | model | "REF: TEST-M016" | "REF TEST-M016" | 1 |
 
 ## Evaluation failures
 
@@ -123,21 +122,21 @@ Install recorded dependencies from `src/gen/requirements-cv.txt`. Models are bun
 
 ### SHA-256 fingerprints
 
-Dataset contents: `9051431585118afc8c649665c947fb632616148c1f43e4242ce9e617f2194cca`.
+Dataset contents: `f3e9486354858bd479759677e9d741035b91a984d16f6ebabc062e6578cb11bc`.
 Template: `1a0b096f89eecfb0edcbb716468335cde54036984d6b0893c9ab19bbb0ab9a2a`.
 
 | File | SHA-256 |
 | --- | --- |
-| src/cv/eval_extract.py | e8ed372e033bfcfc55966ba78f032ec0a2cc332d3cc174cc9372ed505d3fe3d4 |
-| src/cv/extract.py | f2dac669da083ec04074e874df136f09eaa7b4eafa659156d3f37b6766b78536 |
+| src/cv/eval_extract.py | e57ad3e960aa3db4a9409a0d786d00b9077ab26dbcf3cde991e04403ee4f748d |
+| src/cv/extract.py | f7c388ca1650cb239315a0e6563cbc468a4aa2606f4b07df1971278d6eb9a9a0 |
 | src/cv/preprocess.py | 8c92d6810f723528483a364b2a32c1c9274ce40e341d94c6213e3eb0cabfe02f |
 | src/cv/symbols.py | d47726be2a47bb296b0612eba4ba15188b0e6e2a8824f9ef25838d28f1dbd6de |
 | src/cv/verify.py | 6eaa3e7e452db2f09d89a8b1733e332e1474e2c7ed69058befd74aa16e49572e |
 | src/cv/ocr.py | 734345b4eaa610931a9ef1621daefdec9a846bb419fe1223e95fc530fa0e9696 |
-| src/cv/barcode.py | e716823548cb9ef0fdf94d2274026e0ab142fce33a82a91fd3bfe8c39b848605 |
-| src/gen/generate_dataset.py | 2bb3a4d820a5a2a3552b20da9a296527812ddb2bc44f0fef3512809704ba55c7 |
+| src/cv/barcode.py | 756c24d91b51496674f63647702c303d89fcf136ceff9fab3dd8673f93f5276e |
+| src/gen/generate_dataset.py | dba5e08a126ce7805182513cee71626d0bbc5c02b156aceb5a2aa5fe97fa8187 |
 | src/gen/smoke_label.py | 22158f6401499dd6fbc935900847418df1bb6bda52bf3827bde5716500026289 |
-| src/gen/augment.py | 5c769f58a0a691090113b4f0a96a5ed32fe4ddf38985f4094a313a0fc9cd6205 |
+| src/gen/augment.py | f3f0e9556b5ccf2d839fe0d4a250032471338b49ff83287caf35710b49133198 |
 | src/gen/symbols.py | 14d141d85db61ed59e15552ebe76f41d081e39ea1e0b377cc6230655fd27ee38 |
 | src/gen/render.py | 6b3df664627f1ad3d369f27a197749cdb382834c91e1be2e02fad9147798a6d5 |
 | ch_PP-OCRv4_det_infer.onnx | d2a7720d45a54257208b1e13e36a8479894cb74155a5efe29462512d42f49da9 |

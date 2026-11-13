@@ -199,6 +199,21 @@ def test_corrected_barcode_retry(pipeline_image: Path, monkeypatch: pytest.Monke
     assert not any(warning.startswith("BARCODE_NOT_DECODED:") for warning in result.warnings)
 
 
+def test_template_slot_decode_maps_back_to_original(pipeline_image: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Map a barcode recovered from the thresholded slot back through rectification."""
+    monkeypatch.setattr(extract, "decode_barcodes", lambda image: ([], ["BARCODE_NOT_DECODED: test"]))
+    monkeypatch.setattr(
+        extract,
+        "decode_barcode_slot",
+        lambda image: ([BarcodeResult(type="Data Matrix", raw="slot", bbox=(750, 220, 200, 20))], []),
+    )
+    result = extract.extract_label(pipeline_image)
+    assert result.barcodes[0].raw == "slot"
+    assert np.allclose(result.barcodes[0].bbox, (800, 290, 200, 20))
+    assert "BARCODE_DECODED_FROM_TEMPLATE_SLOT" in result.warnings
+    assert not any(warning.startswith("BARCODE_NOT_DECODED:") for warning in result.warnings)
+
+
 def test_missing_barcode(pipeline_image: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """Retain OCR fields when both barcode attempts fail, with one final warning."""
     monkeypatch.setattr(extract, "decode_barcodes", lambda image: ([], ["BARCODE_NOT_DECODED: test"]))

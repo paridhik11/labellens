@@ -59,16 +59,17 @@ canvas does not represent a new physical label size.
 ## Self-checks and limits
 
 Every JSON has a change log and a self-check. The self-check measures whether
-all recorded corners are finite and inside the output canvas, and whether
-exactly one GS1 barcode decodes to the intended payload. It stores decoded
-payloads and reports `NEEDS_HUMAN_REVIEW` if either check fails. Failed photos
+all recorded corners are finite and inside the output canvas, then tries the
+barcode in the original image, after label rectification, and in the thresholded
+template slot. It records the recovery path and decoded GS1 values, and reports
+`NEEDS_HUMAN_REVIEW` if the geometry or exact barcode check fails. Failed photos
 are retained, so difficult cases are not silently removed from later evaluation.
 
-`PASS` applies only to geometry and barcode checks. OCR and automated symbol
-detection are explicitly `NOT_RUN`. This is synthetic test data, not approved
-artwork or evidence of regulatory compliance. Photo effects currently include
-rotation, perspective, blur, lighting, noise and a coloured background, without
-occlusion or glare.
+`PASS` applies only to geometry and recovered barcode checks. OCR and automated
+symbol detection are explicitly `NOT_RUN`. The hard condition keeps its strong
+rotation, perspective and lighting while using blur sigma 1.0 to 1.6 and noise
+standard deviation 6. Photo effects do not include occlusion or glare. This is
+synthetic test data, not approved artwork or evidence of regulatory compliance.
 
 ## Verification
 
@@ -115,11 +116,14 @@ byte-identical. The command printed these measured counts for both runs:
 Generated 51 image/JSON pairs (seed=42)
 clean: images=17, barcode_matches=17/17, geometry_in_bounds=17/17
 moderate: images=17, barcode_matches=17/17, geometry_in_bounds=17/17
-hard: images=17, barcode_matches=4/17, geometry_in_bounds=17/17
+hard: images=17, barcode_matches=15/17, geometry_in_bounds=17/17
 Self-check scope: geometry and barcode only; OCR and symbol detection NOT_RUN
 ```
 
-These are generator self-check results with zxing-cpp, not extraction-pipeline
-accuracy. All 13 hard images whose barcodes failed decoding remain in the set
-with `NEEDS_HUMAN_REVIEW`. A hard sample was visually inspected for the DRAFT
-and TEST DATA text, visible pictograms and unclipped label placement.
+An independent seed-43 run measured 16/17 hard barcode matches, with 17/17 in
+clean and moderate. The seed-42 hard rate is 88.24%; the seed-43 hard rate is
+94.12%. These measurements use the same original-first, rectification and
+template-slot recovery pipeline described in `src/cv/README.md`. Two seed-42
+and one seed-43 hard images still require human barcode review. Failed images
+remain in the datasets. These synthetic results do not estimate performance on
+real photographs.

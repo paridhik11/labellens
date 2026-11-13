@@ -487,7 +487,7 @@ def main(argv: list[str] | None = None) -> int:
         args.output.write_text(report, encoding="utf-8")
     except (OSError, ValueError, KeyError, TypeError) as error:
         parser.error(str(error))
-    print(f"Evaluated {evaluation['provenance']['total_images']} images; extraction defaults unchanged")
+    print(f"Evaluated {evaluation['provenance']['total_images']} images; OCR and blur warning thresholds unchanged")
     for condition, counts in evaluation["conditions"].items():
         total = counts["images"]
         print(

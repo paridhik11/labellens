@@ -12,7 +12,7 @@ import numpy as np
 from PIL import Image
 
 from src.common.schemas import BarcodeResult, LabelExtraction, OcrBlock
-from src.cv.barcode import decode_barcodes
+from src.cv.barcode import decode_barcode_slot, decode_barcodes
 from src.cv.ocr import read_text
 from src.cv.preprocess import _validate_image, find_label_corners, rectify_label
 from src.cv.symbols import NAMES, detect_symbols
@@ -178,7 +178,27 @@ def extract_label(
             barcode_warnings.extend(retry_warnings)
             barcode_warnings.append("BARCODE_DECODED_AFTER_RECTIFICATION")
         else:
-            barcode_warnings.extend(retry_warnings)
+            try:
+                slot_results, slot_warnings = decode_barcode_slot(corrected)
+            except Exception as error:
+                slot_results = []
+                slot_warnings = [f"BARCODE_SLOT_ENGINE_FAILED: {type(error).__name__}: {error}"]
+            if slot_results:
+                barcodes = [
+                    result.model_copy(update={
+                        "bbox": project_box(result.bbox, inverse, image_size) if result.bbox is not None else None,
+                    })
+                    for result in slot_results
+                ]
+                barcode_warnings = [
+                    warning
+                    for warning in [*barcode_warnings, *retry_warnings, *slot_warnings]
+                    if not warning.startswith("BARCODE_NOT_DECODED:")
+                ]
+                barcode_warnings.append("BARCODE_DECODED_FROM_TEMPLATE_SLOT")
+            else:
+                barcode_warnings.extend(retry_warnings)
+                barcode_warnings.extend(slot_warnings)
     output.barcodes = barcodes
     output.warnings.extend(barcode_warnings)
     if len(barcodes) > 1:

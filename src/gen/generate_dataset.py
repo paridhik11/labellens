@@ -10,9 +10,10 @@ from tempfile import TemporaryDirectory
 from typing import Any
 
 import numpy as np
-import zxingcpp
 from PIL import Image
 
+from src.cv.barcode import decode_barcode_slot, decode_barcodes
+from src.cv.preprocess import find_label_corners, rectify_label
 from src.gen.augment import Condition, augment_label, transform_box
 from src.gen.smoke_label import DPI, build_label
 
@@ -58,12 +59,22 @@ def _save_condition(
         and (points[..., 1] >= 0).all()
         and (points[..., 1] < photo.height).all()
     )
-    decoded = zxingcpp.read_barcodes(np.asarray(photo))
-    barcode_ok = (
-        len(decoded) == 1
-        and decoded[0].content_type == zxingcpp.ContentType.GS1
-        and decoded[0].text == source_truth["barcode_payload"]
-    )
+    rgb = np.asarray(photo.convert("RGB"))
+    decoded, decode_warnings = decode_barcodes(rgb)
+    recovery_method = "original_image"
+    if not decoded:
+        corners = find_label_corners(rgb)
+        if corners is not None:
+            corrected, _ = rectify_label(rgb, corners)
+            decoded, decode_warnings = decode_barcodes(corrected)
+            recovery_method = "rectified_image"
+            if not decoded:
+                decoded, decode_warnings = decode_barcode_slot(corrected)
+                if decoded:
+                    recovery_method = "thresholded_template_slot"
+        else:
+            recovery_method = "label_boundary_not_found"
+    barcode_ok = len(decoded) == 1 and decoded[0].parsed == source_truth["barcode_ais"]
     label_id = f"{source_truth['label_id']}_{condition}"
     truth = {
         key: value for key, value in source_truth.items()
@@ -95,12 +106,14 @@ def _save_condition(
             {"action": "augment", "condition": condition, "seed": seed},
         ],
         self_check={
-            "scope": "geometry_and_barcode_only",
+            "scope": "geometry_and_recovered_barcode_only",
             "status": "PASS" if geometry_ok and barcode_ok else "NEEDS_HUMAN_REVIEW",
             "geometry_in_bounds": geometry_ok,
             "barcode_matches": barcode_ok,
+            "barcode_recovery_method": recovery_method,
+            "barcode_warnings": decode_warnings,
             "decoded_barcodes": [
-                {"text": item.text, "is_gs1": item.content_type == zxingcpp.ContentType.GS1}
+                {"type": item.type, "raw": item.raw, "parsed": item.parsed}
                 for item in decoded
             ],
             "ocr": "NOT_RUN",
@@ -111,7 +124,7 @@ def _save_condition(
             "Simplified pictograms, not certified ISO artwork",
             "Positions describe template slots, not tight text or barcode ink bounds",
             "OCR and automated symbol detection were not run",
-            "Distorted barcodes may be undecodable; failed self-checks are retained",
+            "Some distorted barcodes may still need human review; failed self-checks are retained",
         ],
     )
     condition_dir = output_dir / condition

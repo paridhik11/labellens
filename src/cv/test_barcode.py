@@ -33,6 +33,14 @@ def dataset(tmp_path_factory: pytest.TempPathFactory) -> Path:
     return output
 
 
+@pytest.fixture(scope="module")
+def recovery_dataset(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """Generate the fixed 17-per-condition set used to guard the hard-barcode target."""
+    output = tmp_path_factory.mktemp("barcode_recovery")
+    generate_dataset(output, seed=42, labels_per_condition=17)
+    return output
+
+
 @pytest.mark.parametrize(
     "payload, expected",
     [
@@ -85,6 +93,21 @@ def test_decode_generated_label(tmp_path: Path) -> None:
     assert sy <= y < y + height <= sy + sh
     assert np.array_equal(image, before)
     assert barcode.decode_barcodes(image) == (results, warnings)
+
+
+def test_thresholded_template_slot_recovers_barcode(tmp_path: Path) -> None:
+    """Decode the fixed slot after local thresholding while preserving full-image coordinates."""
+    paths = build_label(tmp_path)
+    truth = json.loads(Path(paths["ground_truth"]).read_text(encoding="utf-8"))
+    with Image.open(paths["image"]) as photo:
+        image = np.asarray(photo.convert("RGB"))
+    results, warnings = barcode.decode_barcode_slot(image)
+    assert len(results) == 1 and results[0].parsed == truth["barcode_ais"]
+    assert warnings == []
+    x, y, width, height = results[0].bbox
+    sx, sy, sw, sh = truth["slot_boxes_px_xywh"]["udi"]
+    assert sx <= x < x + width <= sx + sw
+    assert sy <= y < y + height <= sy + sh
 
 
 def test_real_variable_value_parentheses() -> None:
@@ -178,15 +201,21 @@ def test_dataset_evaluation(dataset: Path, rectify: bool, capsys: pytest.Capture
         assert 0 <= counts["matching_ai_images"] <= counts["decoded_images"] <= 1
         if condition == "clean":
             assert counts["matching_ai_images"] == 1
-        if not rectify:
-            truth_path = dataset / condition / f"test_label_001_{condition}.json"
-            truth = json.loads(truth_path.read_text(encoding="utf-8"))
-            assert counts["matching_ai_images"] == int(truth["self_check"]["barcode_matches"])
     arguments = ["--dataset", str(dataset)] + (["--rectify"] if rectify else [])
     assert barcode.main(arguments) == 0
     output = capsys.readouterr().out
-    assert f"Barcode evaluation: {'corrected images' if rectify else 'original images'}" in output
+    mode = "corrected-image-first" if rectify else "original-image-first with correction fallback"
+    assert f"Barcode evaluation: {mode}, including template-slot recovery" in output
     assert "clean: decoded=1/1, all_ais_match=1/1" in output
+
+
+def test_hard_barcode_recovery_stays_at_least_80_percent(recovery_dataset: Path) -> None:
+    """Keep the complete seed-42 hard-condition exact GS1 match rate above 80%."""
+    results = barcode.evaluate_dataset(recovery_dataset)
+    assert results["clean"]["matching_ai_images"] == 17
+    assert results["moderate"]["matching_ai_images"] == 17
+    assert results["hard"]["images"] == 17
+    assert results["hard"]["matching_ai_images"] >= 14
 
 
 def test_evaluation_correction_failure(dataset: Path, monkeypatch: pytest.MonkeyPatch) -> None:

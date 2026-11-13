@@ -39,14 +39,13 @@ def test_paired_conditions(dataset: tuple[Path, dict[str, Any]]) -> None:
         assert truth["change_log"][-1]["seed"] == truth["augmentation_seed"]
         check = truth["self_check"]
         assert check["ocr"] == check["symbol_detection"] == "NOT_RUN"
+        assert check["barcode_recovery_method"] in {
+            "original_image", "rectified_image", "thresholded_template_slot", "label_boundary_not_found"
+        }
         with Image.open(output / entry["image"]) as image:
             assert list(image.size) == truth["image_size_px"]
-            decoded = zxingcpp.read_barcodes(np.asarray(image.convert("RGB")))
-        matches = (
-            len(decoded) == 1
-            and decoded[0].content_type == zxingcpp.ContentType.GS1
-            and decoded[0].text == truth["barcode_payload"]
-        )
+        decoded = check["decoded_barcodes"]
+        matches = len(decoded) == 1 and decoded[0]["parsed"] == truth["barcode_ais"]
         assert check["barcode_matches"] == matches
         expected_status = "PASS" if matches and check["geometry_in_bounds"] else "NEEDS_HUMAN_REVIEW"
         assert check["status"] == expected_status
@@ -127,7 +126,7 @@ def test_failed_barcode_is_retained(tmp_path: Path, monkeypatch: pytest.MonkeyPa
     """Retain image and truth when the photo barcode cannot be decoded."""
     paths = build_label(tmp_path / "source")
     source_truth = json.loads(Path(paths["ground_truth"]).read_text(encoding="utf-8"))
-    monkeypatch.setattr(zxingcpp, "read_barcodes", lambda image: [])
+    monkeypatch.setattr(zxingcpp, "read_barcodes", lambda image, **kwargs: [])
     output = tmp_path / "photos"
     with Image.open(paths["image"]) as source:
         truth = _save_condition(source, source_truth, output, "hard", seed=42)

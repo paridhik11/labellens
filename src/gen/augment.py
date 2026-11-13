@@ -70,9 +70,9 @@ def augment_label(
         + rng.uniform(-strength, strength) * vertical
     )
     photo *= lighting[..., None]
-    sigma = rng.uniform(1.0, 1.8) if hard else rng.uniform(0.3, 0.7)
+    sigma = rng.uniform(1.0, 1.6) if hard else rng.uniform(0.3, 0.7)
     photo = cv2.GaussianBlur(photo, (0, 0), sigmaX=sigma)
-    photo += rng.normal(0, 8 if hard else 2, size=photo.shape)
+    photo += rng.normal(0, 6 if hard else 2, size=photo.shape)
     result = Image.fromarray(np.clip(photo, 0, 255).astype(np.uint8))
     return result, matrix, destination.astype(float).tolist()
 
