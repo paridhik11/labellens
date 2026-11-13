@@ -1,5 +1,14 @@
 # Step 13: LLM grades vs human grades
 
+> **Note added after Step 15a4 (this report is frozen and was not re-run).** Every number below
+> was computed on the original 308-row human sample pool and the original 1269-row LLM grades.
+> The LLM qrels have since grown to 1554 rows (285 extra pairs graded in batches 44 to 51), so the
+> system ranking and nDCG@10 tables in sections 3 and 4 use the old qrels and will differ from
+> `results/step14_results.md` and `results/step15_ablations.md`. The agreement statistics
+> (sections 1 and 2) compare grades on the 308 human rows only and do not depend on the extra pool.
+> The generator (`src/ir/grade_compare.py`) does not write this note, so regenerating the file
+> would drop it.
+
 ## Data
 - Human-graded rows (merged, first file wins on shared rows): 308
 - Human queries: 15
