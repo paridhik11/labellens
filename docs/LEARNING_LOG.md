@@ -299,3 +299,11 @@ A sequential log of progress, implementation decisions, worked examples, and ver
 4. **Verified:** Full scoped suite: 233 passed. Ruff clean; pip check found no broken requirements. Exact barcode matches: seed 42 clean/moderate/hard = 17/17, 17/17, 15/17; seed 43 = 17/17, 17/17, 16/17. Hard rates are 88.24% and 94.12%. Repeated seed-42 runs produced 103 byte-identical files.
 5. **Check yourself:** Review `decode_barcode_slot`, the 14-of-17 regression assertion, and the two-seed condition-separated results in `src/cv/README.md`.
 6. **Assumptions:** The score target applies to this synthetic test-device template and fixed seeds. Two seed-42 and one seed-43 hard images still require human review; no identifier authenticity is implied.
+
+## Step 18: Parth's Shareable CV Work README
+1. **What I did:** Wrote a concise handoff document describing the assigned work, implementation, measured results, reproduction steps, limits and remaining review items.
+2. **Files changed:** `docs/PARTH_WORK_SUMMARY.md` (shareable report for Paridhi) and this learning log (step record).
+3. **How it works:** The report links the relevant code and evaluation report, gives seed-separated barcode results and field-level OCR error rates, and includes commands to reproduce the 51-image run.
+4. **Verified:** Documentation was checked against the committed `parth-cv` branch, `results/cv_extract.md`, and the recorded Conda test and lint outputs.
+5. **Check yourself:** Review the measured-results tables, reproduction commands, and remaining-work section before sharing.
+6. **Assumptions:** The report is a project handoff, not a regulatory claim; temporary evaluation datasets are not committed.
