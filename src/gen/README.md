@@ -83,6 +83,27 @@ bytes, changed seeds, retained barcode failures, invalid arguments and CLI outpu
 Printed per-condition totals are measured for the generated set. OCR accuracy
 and extraction metrics belong to later tasks and are not measured here.
 
+## Deterministic draft rendering
+
+`src.gen.render.render_label(template, record, output_dir, actor=..., reason=...)`
+creates an immutable SVG, physical-size PDF, 300-DPI PNG preview and JSON
+manifest for the supported test-device template. It requires ReportLab and
+Poppler's `pdftoppm`; `pypdf` is used by the PDF tests. These dependencies are
+recorded in `requirements-cv.txt`.
+
+The renderer accepts only an identifier supplied in `ProductRecord`. The
+existing all-zero identifier is accepted only with explicit `test_data=True`
+and the output is marked `TEST DATA | DRAFT`. It validates the GS1 barcode
+against the supplied values, checks slot bounds, text fit, fonts, overlaps,
+symbol size and quiet zones, and refuses unsafe layout results. Every package
+contains a change log, SHA-256 hashes and an OCR/barcode/symbol self-check.
+Revisions write into a new empty directory. A matching encoded payload reuses
+its exact barcode matrix; changing it requires `confirmed_encoded_change=True`.
+
+The renderer does not create approval records or publish artwork. A separate
+review system must bind an authorized review decision to the exact manifest
+and artifact hashes. These checks are lab baselines, not compliance claims.
+
 ## Measured generation check
 
 Two full runs with seed 42 and 17 labels per condition were generated using

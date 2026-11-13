@@ -321,8 +321,10 @@ The function returns the existing `LabelExtraction` schema. Its label ID is
 the input filename stem. It reads the image and fixed layout at
 `src/gen/templates/test_device.json`, never the image's matching JSON or a
 dataset manifest. The template identity is assumed, not recognized, and a
-`TEMPLATE_ASSUMED` warning makes this explicit. Symbol detection is still a
-later task: `symbols` stays empty with `SYMBOL_DETECTION_NOT_RUN`.
+`TEMPLATE_ASSUMED` warning makes this explicit. It also searches near the two
+known pictogram slots after rectification and maps matches to original-image
+coordinates. Missing a match produces `SYMBOL_NOT_DETECTED`; it does not prove
+that a physical symbol is absent.
 
 The pipeline detects the boundary and straightens the image for OCR. It scales
 each OCR block's centre into the template's millimetre coordinates and checks
@@ -338,6 +340,29 @@ Header text, barcode noise and any other out-of-slot observations remain in
 kept separate from the GS1 values in `barcodes[].parsed`. The pipeline does
 not silently replace recognized text with barcode values or ground truth.
 It does not yet compare printed values to barcode values or product records.
+
+### Synthetic pictogram detection
+
+`src.cv.symbols.build_templates()` deterministically rebuilds the two grayscale
+reference images from `src.gen.symbols.draw_symbol`. `detect_symbols(image)`
+checks multiple sizes inside the manufacturer and expiry slots of an upright,
+corrected RGB image. Its confidence is normalized image correlation, not a
+probability. `SymbolDetection.bbox` uses x, y, width, height in the image passed
+to the detector; the integrated extractor projects those boxes back to the
+original input image. `iso_ref` remains empty because these are simplified test
+drawings, not certified ISO artwork. The matcher is for this one template
+family and does not search for unknown symbols elsewhere in a label.
+
+Rebuild references with:
+
+```bash
+python -c 'from src.cv.symbols import build_templates; print(build_templates())'
+```
+
+Positive, blank-slot, scale and invalid-reference cases are covered by
+`src/cv/test_symbol_detection.py`. The dataset evaluator also checks expected
+symbol names and axis-aligned box intersection over union (IoU), the overlap
+area divided by the combined area of predicted and expected boxes.
 
 ### Original-image coordinates
 
@@ -385,15 +410,16 @@ a fabricated extraction.
 Actual extraction was run on base label 001 in all three seed-42 conditions.
 Each result validated against `LabelExtraction`. The observed counts were:
 
-| Condition | Images checked | Mapped fields | OCR blocks | Decoded barcodes |
-| --- | ---: | ---: | ---: | ---: |
-| clean | 1 | 6 | 8 | 1 |
-| moderate | 1 | 6 | 8 | 1 |
-| hard | 1 | 6 | 8 | 0 |
+| Condition | Images checked | Mapped fields | OCR blocks | Decoded barcodes | Symbols |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| clean | 1 | 6 | 8 | 1 | 2 |
+| moderate | 1 | 6 | 8 | 1 | 2 |
+| hard | 1 | 6 | 8 | 0 | 2 |
 
-The hard sample's barcode failure remains a warning; its OCR fields are still
-available. The previously observed product-name errors remain uncorrected.
-These are integration smoke checks, not dataset-wide extraction accuracy.
+The hard sample's barcode failure remains a warning; its OCR fields and symbol
+matches are still available. The previously observed product-name errors
+remain uncorrected. These are integration smoke checks, not dataset-wide
+extraction accuracy.
 The real-engine tests also copy each image into a directory without its truth
 JSON, then check schema validity and original-space positions against truth
 held separately by the test. Deterministic unit cases cover field ambiguity,
@@ -433,6 +459,11 @@ with image counts and numerator/denominator values:
   tolerance. The evaluator repeats the deterministic image-only detector and
   rectifier because the locked extraction schema does not expose their internal
   corners. This measures geometry separately from OCR success.
+- Symbol localization counts a prediction only when its name matches and its
+  original-image box IoU with the ground-truth transformed quad's enclosing
+  box is at least 0.50. The report also gives exact name sets and mean IoU for
+  same-name predictions. Both symbols occur on every image, so this does not
+  measure broad false-positive behavior on absent symbols.
 
 An extraction exception remains a failed sample: missing text incurs deletion
 errors and barcode matches fail. Engine failures already captured by the
@@ -448,6 +479,24 @@ and SHA-256 fingerprints for dataset contents, source, template and models.
 There are no timestamps in the generated report. Source fingerprints make
 changes distinguishable even when no new Git commit has been created yet.
 
-No extraction behavior or warning thresholds were changed for this measurement.
+OCR, barcode and boundary-warning defaults were not changed for this measurement.
 Results are a synthetic baseline for the existing template, not real-label
-validation, identifier authentication or a measurement of symbol detection.
+validation, identifier authentication, or evidence that pictograms meet ISO or
+regulatory requirements.
+
+## Draft comparison and print verification
+
+`src.cv.verify.compare_extraction` compares observed OCR fields, decoded GS1
+values and expected synthetic symbol names against an explicit manifest.
+Differences include their OCR or barcode boxes where available. A low-confidence
+or missing observation returns `NEEDS_HUMAN_REVIEW`; a confirmed high-confidence
+text difference or a decoded GS1 mismatch returns `MISMATCH`. A comparison
+result is never publication approval.
+
+`verify_print(photo_path, approved_label, approval_record=..., authorized_reviewers=...)`
+requires a decision of `approve`, a reviewer contained in the trusted
+authorized-reviewer set supplied by the caller, and a SHA-256 match to the
+exact manifest bytes. It then checks every referenced artifact hash before
+extracting the photo. The function cannot mint approval records or publish.
+The caller must obtain reviewer identity and authorization from a trusted
+application service, not from the uploaded manifest or photograph.

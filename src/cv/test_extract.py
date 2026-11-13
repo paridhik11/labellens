@@ -159,7 +159,7 @@ def test_pipeline_coordinates_and_fields(pipeline_image: Path, blocks: list[OcrB
         assert np.allclose(projected.bbox, (x + 50, y + 70, width, height))
         assert projected.text == original.text and projected.conf == original.conf
     assert sum(warning.startswith("LOW_OCR_CONFIDENCE:") for warning in result.warnings) == 2
-    assert "SYMBOL_DETECTION_NOT_RUN" in result.warnings
+    assert any(warning.startswith("SYMBOL_NOT_DETECTED:") for warning in result.warnings)
     assert not any(warning.startswith("BLUR_SUSPECTED:") for warning in result.warnings)
     assert LabelExtraction.model_validate_json(result.model_dump_json()) == result
 
@@ -288,7 +288,7 @@ def test_real_extraction_without_sidecar(dataset: Path, tmp_path: Path, conditio
     truth = json.loads(original.with_suffix(".json").read_text(encoding="utf-8"))
     assert set(result.fields) == set(truth["fields"])
     assert result.fields["manufacturer"] == "Example Labs 001"
-    assert result.symbols == []
+    assert {symbol.name for symbol in result.symbols} == {"manufacturer", "expiry"}
     width, height = truth["image_size_px"]
     for block in [*result.ocr_blocks, *result.barcodes]:
         if block.bbox is not None:

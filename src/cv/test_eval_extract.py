@@ -8,7 +8,7 @@ from typing import Any
 import numpy as np
 import pytest
 
-from src.common.schemas import BarcodeResult, LabelExtraction
+from src.common.schemas import BarcodeResult, LabelExtraction, SymbolDetection
 from src.cv import eval_extract
 from src.gen.generate_dataset import generate_dataset
 
@@ -34,6 +34,14 @@ def test_edit_distance(reference: str, observed: str, expected: int) -> None:
     assert eval_extract.edit_distance(observed, reference) == expected
 
 
+def test_box_iou() -> None:
+    """Measure matching boxes and reject invalid extents."""
+    assert eval_extract._box_iou((0, 0, 10, 10), (0, 0, 10, 10)) == 1.0
+    assert eval_extract._box_iou((0, 0, 10, 10), (10, 0, 10, 10)) == 0.0
+    with pytest.raises(ValueError, match="positive"):
+        eval_extract._box_iou((0, 0, 0, 10), (0, 0, 10, 10))
+
+
 @pytest.fixture(scope="module")
 def dataset(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Generate a small real synthetic set with one label per condition."""
@@ -55,10 +63,19 @@ def perfect_engine(dataset: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, 
         if not path.exists():
             raise FileNotFoundError("test missing image")
         truth = truths[path.parent.name]
+        symbols = []
+        for item in truth["symbols"]:
+            quad = np.asarray(item["quad_px"], dtype=float)
+            left, top = quad.min(axis=0)
+            right, bottom = quad.max(axis=0)
+            symbols.append(SymbolDetection(
+                name=item["name"], bbox=(left, top, right - left, bottom - top), conf=1.0
+            ))
         return LabelExtraction(
             label_id=path.stem,
             fields=dict(truth["fields"]),
             barcodes=[BarcodeResult(type="Data Matrix", raw="unit-test prediction", parsed=truth["barcode_ais"])],
+            symbols=symbols,
             warnings=["LOW_OCR_CONFIDENCE: first", "LOW_OCR_CONFIDENCE: second"],
         )
 
@@ -73,6 +90,8 @@ def test_perfect_scores(dataset: Path, perfect_engine: dict[str, dict[str, Any]]
     for condition, counts in evaluation["conditions"].items():
         assert counts["images"] == counts["decoded"] == counts["gs1_exact"] == 1
         assert counts["detected"] == counts["corrected_within_10px"] == 1
+        assert counts["expected_symbols"] == counts["matched_symbols"] == 2
+        assert counts["exact_symbol_sets"] == 1 and counts["symbol_false_positives"] == 0
         assert counts["extraction_failures"] == counts["geometry_failures"] == 0
         assert counts["gs1_per_ai"] == {ai: 1 for ai in eval_extract.AIS}
         assert counts["warning_images"]["LOW_OCR_CONFIDENCE"] == 1
@@ -194,6 +213,7 @@ def test_geometry_failure_count(
         "not_test_data",
         "corners",
         "ais",
+        "symbols",
         "counts",
     ],
 )
@@ -224,6 +244,8 @@ def test_invalid_dataset(dataset: Path, tmp_path: Path, problem: str) -> None:
         truth["label_quad_px"] = [[0, 0]]
     elif problem == "ais":
         del truth["barcode_ais"]["21"]
+    elif problem == "symbols":
+        del truth["symbols"]
     else:
         manifest["conditions"]["clean"]["images"] = 2
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
@@ -258,6 +280,7 @@ def test_report_and_read_only_inputs(dataset: Path, perfect_engine: dict[str, di
     assert "0/1 (0.00%)" in first
     assert "Edits / reference characters" in first
     assert "All four exact given decode" in first
+    assert "Symbols IoU >= 0.50" in first
     assert "No extraction or geometry-probe exceptions occurred" in first
     assert "src/cv/extract.py" in first
     after = {path.relative_to(dataset): path.read_bytes() for path in dataset.rglob("*") if path.is_file()}
@@ -307,6 +330,8 @@ def test_real_evaluation(dataset: Path) -> None:
     for counts in evaluation["conditions"].values():
         assert counts["images"] == 1 and counts["extraction_failures"] == 0
         assert counts["corrected_within_10px"] == 1
+        assert counts["expected_symbols"] == 2
+        assert 0 <= counts["matched_symbols"] <= 2
         assert 0 <= counts["gs1_exact"] <= counts["decoded"] <= 1
         for score in counts["ocr"].values():
             assert score["reference_characters"] > 0 and score["edits"] >= 0

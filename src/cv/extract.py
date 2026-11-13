@@ -15,6 +15,7 @@ from src.common.schemas import BarcodeResult, LabelExtraction, OcrBlock
 from src.cv.barcode import decode_barcodes
 from src.cv.ocr import read_text
 from src.cv.preprocess import _validate_image, find_label_corners, rectify_label
+from src.cv.symbols import NAMES, detect_symbols
 
 TEMPLATE_PATH = Path(__file__).resolve().parents[1] / "gen" / "templates" / "test_device.json"
 
@@ -136,13 +137,13 @@ def extract_label(
     _validate_image(image)
     output = LabelExtraction(label_id=path.stem)
     output.warnings.append("TEMPLATE_ASSUMED: test_device_v1; template identity has not been verified")
-    output.warnings.append("SYMBOL_DETECTION_NOT_RUN")
     barcodes, barcode_warnings = _decode_safely(image)
     corners = find_label_corners(image)
     if corners is None:
         output.barcodes = barcodes
         output.warnings.extend(barcode_warnings)
         output.warnings.extend([
+            "SYMBOL_DETECTION_NOT_RUN",
             "LABEL_NOT_FOUND: no suitable boundary; needs human review",
             "OCR_NOT_RUN: no corrected label geometry",
             "FIELD_MAPPING_SKIPPED: no corrected label geometry",
@@ -151,6 +152,17 @@ def extract_label(
     corrected, forward = rectify_label(image, corners)
     inverse = np.linalg.inv(forward)
     image_size = (image.shape[1], image.shape[0])
+    try:
+        detected_symbols = detect_symbols(corrected)
+        output.symbols = [
+            symbol.model_copy(update={"bbox": project_box(symbol.bbox, inverse, image_size)})
+            for symbol in detected_symbols
+        ]
+        for name in NAMES:
+            if not any(symbol.name == name for symbol in detected_symbols):
+                output.warnings.append(f"SYMBOL_NOT_DETECTED: {name}")
+    except Exception as error:
+        output.warnings.append(f"SYMBOL_DETECTION_FAILED: {type(error).__name__}: {error}")
     if not barcodes:
         retried, retry_warnings = _decode_safely(corrected)
         if retried:

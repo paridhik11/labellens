@@ -283,3 +283,11 @@ A sequential log of progress, implementation decisions, worked examples, and ver
 4. **Results (real, from the run):** 433 rows, 285 unique (qid, chunk) pairs (device 206, medicine 79). Per variant: default bm25 0, default dense 0, default hybrid 10, rrf_k10 0, rrf_k30 13, rrf_k100 14, weights 27/34/21/25, bm25_stem 95, hybrid_stem 61, dense_prefix 92, hybrid_prefix 41. 10 of the 285 pairs are unjudged under the default hybrid itself.
 5. **Check yourself:** That the default hybrid has 10 unjudged top-10 chunks at evaluation depth (q10, q14, q15, q30 x2, q40, q50, q55 x2, q61), which means the Step 13 and 14 hybrid numbers treated them as 0. Also that the earlier estimate (376 rows, 272 pairs) was computed at search depth 10, not at the evaluation depth.
 6. **Assumptions:** Chunk level only in the CSV. Ranks 11 to 20 feed Recall@20, MRR and MAP and are not listed. The section-level column in the summary is informational (judged section = any chunk of it in the qrels). CI not checked (gh not logged in).
+
+## Step 16: Synthetic Label Generation and CV Draft Workflow
+1. **What I did:** Finished seeded three-condition label generation, original-image field and symbol coordinates, template pictogram detection, draft SVG/PDF rendering and evidence-based print verification.
+2. **Files changed:** Scoped `src/gen` and `src/cv` modules/tests/READMEs, two deterministic `data/symbols/device` references, and the generated `results/cv_extract.md` report. Shared schemas and retrieval code were not changed.
+3. **How it works:** Homographies map label slots into distorted images; the extractor maps detections back. Draft manifests contain watermark status, change history, artifact hashes and self-check. Print verification requires an external authorized approval bound to exact manifest bytes.
+4. **Verified:** Conda Python 3.12: 230 scoped tests passed; Ruff clean; pip check found no broken requirements. Full 51-image measurement: barcode 17/17 clean and moderate, 4/17 hard; symbol matches 34/34 in each condition.
+5. **Check yourself:** Review the new symbol tests, renderer manifest and approval binding, and the condition-specific evaluation table.
+6. **Assumptions:** Findings apply to one synthetic template family; the identifier is a test placeholder and pictograms are not certified ISO artwork.

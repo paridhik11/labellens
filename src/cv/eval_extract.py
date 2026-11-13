@@ -18,6 +18,7 @@ from PIL import Image
 from src.common.schemas import LabelExtraction
 from src.cv.extract import TEMPLATE_PATH, extract_label
 from src.cv.preprocess import find_label_corners, rectify_label
+from src.cv.symbols import NAMES
 
 CONDITIONS = ("clean", "moderate", "hard")
 FIELDS = ("product_name", "manufacturer", "manufacturer_address", "model", "lot", "expiry")
@@ -81,6 +82,18 @@ def _load_dataset(dataset_dir: Path) -> tuple[dict[str, Any], list[tuple[Path, d
         corners = np.asarray(truth.get("label_quad_px"), dtype=float)
         if corners.shape != (4, 2) or not np.isfinite(corners).all():
             raise ValueError("Ground truth must contain four finite label corners")
+        symbols = truth.get("symbols")
+        if (
+            not isinstance(symbols, list)
+            or len(symbols) != len(NAMES)
+            or any(not isinstance(symbol, dict) for symbol in symbols)
+            or {symbol.get("name") for symbol in symbols} != set(NAMES)
+        ):
+            raise ValueError("Ground truth must contain exactly the supported symbol names")
+        for symbol in symbols:
+            quad = np.asarray(symbol.get("quad_px"), dtype=float)
+            if quad.shape != (4, 2) or not np.isfinite(quad).all():
+                raise ValueError("Each symbol must contain four finite ground-truth corners")
         counts[condition] += 1
         samples.append((image_path, truth))
     for condition in CONDITIONS:
@@ -92,6 +105,20 @@ def _load_dataset(dataset_dir: Path) -> tuple[dict[str, Any], list[tuple[Path, d
         ):
             raise ValueError("Manifest condition counts must match all ground-truth samples")
     return manifest, samples
+
+
+def _box_iou(
+    first: tuple[float, float, float, float], second: tuple[float, float, float, float]
+) -> float:
+    """Return intersection over union for two positive x, y, width, height boxes."""
+    boxes = np.asarray([first, second], dtype=float)
+    if not np.isfinite(boxes).all() or (boxes[:, 2:] <= 0).any():
+        raise ValueError("Boxes must be finite with positive width and height")
+    (x1, y1, w1, h1), (x2, y2, w2, h2) = boxes
+    intersection = max(0.0, min(x1 + w1, x2 + w2) - max(x1, x2)) * max(
+        0.0, min(y1 + h1, y2 + h2) - max(y1, y2)
+    )
+    return float(intersection / (w1 * h1 + w2 * h2 - intersection))
 
 
 def _probe_geometry(image_path: Path, expected: list[list[float]]) -> tuple[bool, bool, str | None]:
@@ -133,12 +160,15 @@ def _provenance(dataset_dir: Path, manifest: dict[str, Any]) -> dict[str, Any]:
         "cv/eval_extract.py",
         "cv/extract.py",
         "cv/preprocess.py",
+        "cv/symbols.py",
+        "cv/verify.py",
         "cv/ocr.py",
         "cv/barcode.py",
         "gen/generate_dataset.py",
         "gen/smoke_label.py",
         "gen/augment.py",
         "gen/symbols.py",
+        "gen/render.py",
     ]
     model_root = Path(rapidocr_onnxruntime.__file__).parent / "models"
     return {
@@ -178,6 +208,12 @@ def evaluate_dataset(dataset_dir: Path) -> dict[str, Any]:
             "images": 0,
             "decoded": 0,
             "gs1_exact": 0,
+            "expected_symbols": 0,
+            "matched_symbols": 0,
+            "exact_symbol_sets": 0,
+            "symbol_iou_sum": 0.0,
+            "symbol_iou_pairs": 0,
+            "symbol_false_positives": 0,
             "detected": 0,
             "corrected_within_10px": 0,
             "extraction_failures": 0,
@@ -195,9 +231,12 @@ def evaluate_dataset(dataset_dir: Path) -> dict[str, Any]:
         failure = None
         fields = {}
         barcodes = []
+        symbols = []
         try:
             extraction = LabelExtraction.model_validate(extract_label(image_path))
-            fields, barcodes, warnings = extraction.fields, extraction.barcodes, extraction.warnings
+            fields, barcodes, symbols, warnings = (
+                extraction.fields, extraction.barcodes, extraction.symbols, extraction.warnings
+            )
         except Exception as error:
             failure = f"{type(error).__name__}: {error}"
             counts["extraction_failures"] += 1
@@ -207,6 +246,25 @@ def evaluate_dataset(dataset_dir: Path) -> dict[str, Any]:
         counts["corrected_within_10px"] += int(accurate)
         counts["geometry_failures"] += int(geometry_failure is not None)
         counts["decoded"] += int(bool(barcodes))
+        expected_symbols = {}
+        for item in truth["symbols"]:
+            quad = np.asarray(item["quad_px"], dtype=float)
+            left, top = quad.min(axis=0)
+            right, bottom = quad.max(axis=0)
+            expected_symbols[item["name"]] = (float(left), float(top), float(right - left), float(bottom - top))
+        observed_names = [symbol.name for symbol in symbols]
+        counts["expected_symbols"] += len(expected_symbols)
+        counts["exact_symbol_sets"] += int(
+            len(observed_names) == len(expected_symbols) and set(observed_names) == set(expected_symbols)
+        )
+        for symbol in symbols:
+            if symbol.name not in expected_symbols:
+                counts["symbol_false_positives"] += 1
+                continue
+            iou = _box_iou(symbol.bbox, expected_symbols[symbol.name])
+            counts["symbol_iou_sum"] += iou
+            counts["symbol_iou_pairs"] += 1
+            counts["matched_symbols"] += int(iou >= 0.5)
         parsed = barcodes[0].parsed if len(barcodes) == 1 else {}
         for ai in AIS:
             counts["gs1_per_ai"][ai] += int(parsed.get(ai) == truth["barcode_ais"][ai])
@@ -273,25 +331,29 @@ def render_report(evaluation: dict[str, Any]) -> str:
         "- Detection/correction success requires four detected corners, successful rectification, and every corner",
         "  within 10 original-image pixels of known corners. A deterministic geometry probe reruns the unchanged",
         "  detector because the shared schema does not expose internal corners. It is independent of OCR success.",
+        "- A symbol match needs the expected synthetic name and axis-aligned box intersection over union (IoU)",
+        "  of at least 0.50. Mean same-name IoU is also reported. The two pictograms are not certified ISO artwork.",
         "- Extraction exceptions stay in denominators, with empty text hypotheses and failed barcode results.",
         "  Missing or malformed ground truth aborts evaluation rather than inventing references.",
         "",
         "## Per-condition summary",
         "",
         "| Condition | Images | Barcode decoded | All four AIs exact | All four exact given decode | "
-        "Boundary detected | Corrected within 10 px | Extraction exceptions |",
-        "| --- | ---: | --- | --- | --- | --- | --- | --- |",
+        "Boundary detected | Corrected within 10 px | Symbols IoU >= 0.50 | Exact symbol sets | Mean symbol IoU | "
+        "Extraction exceptions |",
+        "| --- | ---: | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     for condition, counts in evaluation["conditions"].items():
         total = counts["images"]
-        values = [
+        decoded, gs1, detected, corrected, failures = (
             counts[key] for key in ("decoded", "gs1_exact", "detected", "corrected_within_10px", "extraction_failures")
-        ]
-        decoded, gs1, detected, corrected, failures = values
+        )
+        mean_iou = counts["symbol_iou_sum"] / counts["symbol_iou_pairs"] if counts["symbol_iou_pairs"] else 0.0
         lines.append(
             f"| {condition} | {total} | {_fraction(decoded, total)} | {_fraction(gs1, total)} | "
             f"{_fraction(gs1, decoded)} | {_fraction(detected, total)} | "
-            f"{_fraction(corrected, total)} | {_fraction(failures, total)} |"
+            f"{_fraction(corrected, total)} | {_fraction(counts['matched_symbols'], counts['expected_symbols'])} | "
+            f"{_fraction(counts['exact_symbol_sets'], total)} | {mean_iou:.3f} | {_fraction(failures, total)} |"
         )
     lines += [
         "",
@@ -402,7 +464,8 @@ def render_report(evaluation: dict[str, Any]) -> str:
         "- GS1 values include an all-zero test identifier. Syntax matches do not prove allocation or authenticity.",
         "- Fields preserve printed prefixes and OCR whitespace errors. Barcode values never replace text hypotheses.",
         "- Confidence and blur warnings are provisional. High-confidence errors and noise-masked blur remain possible.",
-        "- Symbol detection is not implemented. This evaluation does not claim symbol accuracy.",
+        "- Symbols are two simplified synthetic pictograms in one template family, not certified ISO artwork.",
+        "  The measured set has no symbol-absent examples and cannot measure false-positive behavior broadly.",
         "- All dataset files were read only; this report is generated from the computed results.",
         "",
     ]
@@ -430,6 +493,8 @@ def main(argv: list[str] | None = None) -> int:
         print(
             f"{condition}: decoded={counts['decoded']}/{total}, all_ais_match={counts['gs1_exact']}/{total}, "
             f"corrected_within_10px={counts['corrected_within_10px']}/{total}, "
+            f"symbols_iou_050={counts['matched_symbols']}/{counts['expected_symbols']}, "
+            f"exact_symbol_sets={counts['exact_symbol_sets']}/{total}, "
             f"extraction_exceptions={counts['extraction_failures']}"
         )
         print(
