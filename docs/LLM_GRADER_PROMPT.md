@@ -140,3 +140,11 @@ With `--extra` the grades are appended to `data/eval/pool_t1_llm.csv` (same colu
 | 41 | 21 (rows 1202 to 1222) | q59 | claude-sonnet-5-5 | 2026-11-12 | Grades: 16 zero, 4 one, 1 two |
 | 42 | 26 (rows 1223 to 1248) | q61 | claude-sonnet-5-5 | 2026-11-12 | Grades: 22 zero, 4 one, 0 two |
 | 43 | 21 (rows 1249 to 1269) | q62 | claude-sonnet-5-5 | 2026-11-12 | Grades: 21 zero, 0 one, 0 two |
+| 44 | 38 (extra rows 1 to 38) | q01, q02, q03, q04, q05, q06, q07, q08, q09, q10, q11 | claude-sonnet-5-5 | 2026-11-13 | Grades: 32 zero, 5 one, 1 two |
+| 45 | 39 (extra rows 39 to 77) | q12, q13, q14, q15, q16, q17 | claude-sonnet-5-5 | 2026-11-13 | Grades: 32 zero, 7 one, 0 two |
+| 46 | 35 (extra rows 78 to 112) | q18, q19, q20, q21, q22, q23 | claude-sonnet-5-5 | 2026-11-13 | Grades: 31 zero, 2 one, 2 two |
+| 47 | 32 (extra rows 113 to 144) | q24, q25, q26, q27, q28, q29 | claude-sonnet-5-5 | 2026-11-13 | Grades: 28 zero, 3 one, 1 two |
+| 48 | 33 (extra rows 145 to 177) | q30, q31, q32, q33, q35, q36, q37, q38, q39 | claude-sonnet-5-5 | 2026-11-13 | Grades: 30 zero, 3 one, 0 two |
+| 49 | 39 (extra rows 178 to 216) | q40, q41, q42, q43, q44, q45, q46, q47 | claude-sonnet-5-5 | 2026-11-13 | Grades: 33 zero, 6 one, 0 two |
+| 50 | 40 (extra rows 217 to 256) | q48, q49, q50, q51, q52, q54, q55, q56 | claude-sonnet-5-5 | 2026-11-13 | Grades: 34 zero, 4 one, 2 two |
+| 51 | 29 (extra rows 257 to 285) | q57, q58, q59, q60, q61, q62 | claude-sonnet-5-5 | 2026-11-13 | Grades: 24 zero, 4 one, 1 two |
