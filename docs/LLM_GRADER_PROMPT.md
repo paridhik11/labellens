@@ -75,6 +75,37 @@ python -m src.ir.llm_grade_tool to-qrels
 
 `record` rebuilds the same next batch and refuses grades that are missing rows, add rows from outside the batch, repeat a row or use a grade other than 0, 1 or 2.
 
+### Extra pool (Step 15 ablations)
+
+`data/eval/pool_t1_extra.csv` holds 285 (qid, chunk) pairs, 60 queries, that the Step 15 ablation variants retrieve in their top 10 but that the LLM qrels did not judge. It has the columns qid, query, chunk_id and text only, so the grader never sees which variant retrieved a chunk. `pool_t1.csv` is never written. Same prompt, same 0/1/2 scale, same rules as above.
+
+```powershell
+# build it once (refuses to overwrite; never touches pool_t1.csv)
+python -m src.ir.llm_grade_tool make-extra
+
+# each batch: same flow with --extra. Use the SAME --max-rows for next-batch and record.
+python -m src.ir.llm_grade_tool next-batch --extra --out <scratchpad>/batch.md
+python -m src.ir.llm_grade_tool record --extra --grades <scratchpad>/grades.tsv --model "<model id as /model shows it>"
+
+# afterwards: rebuild the LLM qrels
+python -m src.ir.llm_grade_tool to-qrels
+```
+
+With `--extra` the grades are appended to `data/eval/pool_t1_llm.csv` (same columns, same model column), and the batch number continues after the last recorded batch, so the first extra batch is 44. Log every batch in the table below as before. The sample queries have no priority here: whole queries are batched in qid order.
+
+### Second extra pool (ranks 11 to 20, built, NOT graded yet)
+
+`data/eval/pool_t1_extra2.csv` holds 1247 pairs (62 queries): the unique (qid, chunk) pairs of `results/step15_unjudged_ranks11_20.csv` (1476) minus the 229 that already have an LLM grade. Same columns and rules as the first extra pool. It was built with:
+
+```
+python -m src.ir.llm_grade_tool make-extra --unjudged results/step15_unjudged_ranks11_20.csv --skip-graded --out data/eval/pool_t1_extra2.csv
+# when grading: pass --pool so the tool reads this file, and use the SAME --max-rows for both calls
+python -m src.ir.llm_grade_tool next-batch --extra --pool data/eval/pool_t1_extra2.csv --out <scratchpad>/batch.md
+python -m src.ir.llm_grade_tool record --extra --pool data/eval/pool_t1_extra2.csv --grades <scratchpad>/grades.tsv --model "<model id as /model shows it>"
+```
+
+A dry run of `next-batch` gives batch 52 (the first batch of this pool).
+
 ## Batch log
 
 | Batch | Rows | Queries | Model id (as `/model` shows) | Date | Notes |
@@ -122,3 +153,43 @@ python -m src.ir.llm_grade_tool to-qrels
 | 41 | 21 (rows 1202 to 1222) | q59 | claude-sonnet-5-5 | 2026-11-12 | Grades: 16 zero, 4 one, 1 two |
 | 42 | 26 (rows 1223 to 1248) | q61 | claude-sonnet-5-5 | 2026-11-12 | Grades: 22 zero, 4 one, 0 two |
 | 43 | 21 (rows 1249 to 1269) | q62 | claude-sonnet-5-5 | 2026-11-12 | Grades: 21 zero, 0 one, 0 two |
+| 44 | 38 (extra rows 1 to 38) | q01, q02, q03, q04, q05, q06, q07, q08, q09, q10, q11 | claude-sonnet-5-5 | 2026-11-13 | Grades: 32 zero, 5 one, 1 two |
+| 45 | 39 (extra rows 39 to 77) | q12, q13, q14, q15, q16, q17 | claude-sonnet-5-5 | 2026-11-13 | Grades: 32 zero, 7 one, 0 two |
+| 46 | 35 (extra rows 78 to 112) | q18, q19, q20, q21, q22, q23 | claude-sonnet-5-5 | 2026-11-13 | Grades: 31 zero, 2 one, 2 two |
+| 47 | 32 (extra rows 113 to 144) | q24, q25, q26, q27, q28, q29 | claude-sonnet-5-5 | 2026-11-13 | Grades: 28 zero, 3 one, 1 two |
+| 48 | 33 (extra rows 145 to 177) | q30, q31, q32, q33, q35, q36, q37, q38, q39 | claude-sonnet-5-5 | 2026-11-13 | Grades: 30 zero, 3 one, 0 two |
+| 49 | 39 (extra rows 178 to 216) | q40, q41, q42, q43, q44, q45, q46, q47 | claude-sonnet-5-5 | 2026-11-13 | Grades: 33 zero, 6 one, 0 two |
+| 50 | 40 (extra rows 217 to 256) | q48, q49, q50, q51, q52, q54, q55, q56 | claude-sonnet-5-5 | 2026-11-13 | Grades: 34 zero, 4 one, 2 two |
+| 51 | 29 (extra rows 257 to 285) | q57, q58, q59, q60, q61, q62 | claude-sonnet-5-5 | 2026-11-13 | Grades: 24 zero, 4 one, 1 two |
+| 52 | 27 (extra2 rows 1 to 27) | q01 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 26 zero, 1 one, 0 two |
+| 53 | 38 (extra2 rows 28 to 65) | q02, q03 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 35 zero, 3 one, 0 two |
+| 54 | 22 (extra2 rows 66 to 87) | q04 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 21 zero, 1 one, 0 two |
+| 55 | 19 (extra2 rows 88 to 106) | q05 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 19 zero, 0 one, 0 two |
+| 56 | 39 (extra2 rows 107 to 145) | q06, q07 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 32 zero, 7 one, 0 two |
+| 57 | 24 (extra2 rows 146 to 169) | q08 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 23 zero, 1 one, 0 two |
+| 58 | 36 (extra2 rows 170 to 205) | q09, q10 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 31 zero, 4 one, 1 two |
+| 59 | 39 (extra2 rows 206 to 244) | q11, q12 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 38 zero, 1 one, 0 two |
+| 60 | 22 (extra2 rows 245 to 266) | q13 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 21 zero, 1 one, 0 two |
+| 61 | 37 (extra2 rows 267 to 303) | q14, q15 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 28 zero, 9 one, 0 two |
+| 62 | 35 (extra2 rows 304 to 338) | q16, q17 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 31 zero, 4 one, 0 two |
+| 63 | 38 (extra2 rows 339 to 376) | q18, q19 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 35 zero, 2 one, 1 two |
+| 64 | 36 (extra2 rows 377 to 412) | q20, q21 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 35 zero, 1 one, 0 two |
+| 65 | 28 (extra2 rows 413 to 440) | q22 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 28 zero, 0 one, 0 two |
+| 66 | 39 (extra2 rows 441 to 479) | q23, q24 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 38 zero, 1 one, 0 two |
+| 67 | 29 (extra2 rows 480 to 508) | q25 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 24 zero, 5 one, 0 two |
+| 68 | 40 (extra2 rows 509 to 548) | q26, q27 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 32 zero, 6 one, 2 two |
+| 69 | 25 (extra2 rows 549 to 573) | q28, q29 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 24 zero, 1 one, 0 two |
+| 70 | 26 (extra2 rows 574 to 599) | q30 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 26 zero, 0 one, 0 two |
+| 71 | 33 (extra2 rows 600 to 632) | q31, q32 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 33 zero, 0 one, 0 two |
+| 72 | 19 (extra2 rows 633 to 651) | q33 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 18 zero, 1 one, 0 two |
+| 73 | 30 (extra2 rows 652 to 681) | q34 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 28 zero, 2 one, 0 two |
+| 74 | 30 (extra2 rows 682 to 711) | q35, q36 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 28 zero, 2 one, 0 two |
+| 75 | 31 (extra2 rows 712 to 742) | q37, q38 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 29 zero, 2 one, 0 two |
+| 76 | 23 (extra2 rows 743 to 765) | q39 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 22 zero, 1 one, 0 two |
+| 77 | 31 (extra2 rows 766 to 796) | q40, q41 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 31 zero, 0 one, 0 two |
+| 78 | 38 (extra2 rows 797 to 834) | q42, q43 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 38 zero, 0 one, 0 two |
+| 79 | 22 (extra2 rows 835 to 856) | q44 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 22 zero, 0 one, 0 two |
+| 80 | 24 (extra2 rows 857 to 880) | q45 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 24 zero, 0 one, 0 two |
+| 81 | 20 (extra2 rows 881 to 900) | q46 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 12 zero, 8 one, 0 two |
+| 82 | 37 (extra2 rows 901 to 937) | q47, q48 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 32 zero, 4 one, 1 two |
+| 83 | 40 (extra2 rows 938 to 977) | q49, q50 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 34 zero, 3 one, 3 two |

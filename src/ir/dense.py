@@ -39,6 +39,9 @@ from src.common.schemas import Chunk, Hit
 
 MODEL_NAME = "BAAI/bge-small-en-v1.5"
 CACHE_DIR = Path("data/processed")
+# BGE's documented retrieval instruction. It is meant for the query side only, so
+# passages are encoded without it and the embedding cache is shared with the default.
+BGE_QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
 
 
 def _corpus_fingerprint(chunk_keys: list[str]) -> str:
@@ -72,8 +75,13 @@ class DenseRetriever:
         texts: list[str],
         model_name: str = MODEL_NAME,
         model: object | None = None,
+        query_prefix: str = "",
     ) -> None:
-        """Stores normalised embeddings and builds a FAISS flat inner-product index."""
+        """Stores normalised embeddings and builds a FAISS flat inner-product index.
+
+        query_prefix is prepended to every query before encoding (default: none).
+        """
+        self._query_prefix = query_prefix
         self._model_name = model_name
         self._chunk_ids = chunk_ids
         self._texts = texts
@@ -94,7 +102,9 @@ class DenseRetriever:
             from sentence_transformers import SentenceTransformer  # lazy import
 
             self._model = SentenceTransformer(self._model_name)
-        vec = self._model.encode([query], normalize_embeddings=True, show_progress_bar=False)
+        vec = self._model.encode(
+            [self._query_prefix + query], normalize_embeddings=True, show_progress_bar=False
+        )
         return vec.astype(np.float32)
 
     def search(self, query: str, k: int = 10) -> list[Hit]:
@@ -121,8 +131,11 @@ class DenseRetriever:
         cache_dir: Path | None = CACHE_DIR,
         force_recompute: bool = False,
         model: object | None = None,
+        query_prefix: str = "",
     ) -> "DenseRetriever":
         """Builds a DenseRetriever from a list of Chunk objects, using disk cache if available.
+
+        query_prefix only affects queries, never the cached passage embeddings.
 
         Args:
             chunks: Corpus chunks to encode.
@@ -147,7 +160,10 @@ class DenseRetriever:
                 embeddings = np.load(str(emb_path))
                 cached_ids = json.loads(meta_path.read_text(encoding="utf-8"))
                 if cached_ids == chunk_ids:
-                    return cls(embeddings, chunk_ids, texts, model_name=model_name, model=model)
+                    return cls(
+                        embeddings, chunk_ids, texts, model_name=model_name, model=model,
+                        query_prefix=query_prefix,
+                    )
                 print("[DenseRetriever] Cache mismatch -- recomputing.")
 
         print(f"[DenseRetriever] Encoding {len(chunks)} chunks with {model_name} ...")
@@ -168,7 +184,10 @@ class DenseRetriever:
             meta_path.write_text(json.dumps(chunk_ids), encoding="utf-8")
             print(f"[DenseRetriever] Embeddings cached to {emb_path}")
 
-        return cls(embeddings, chunk_ids, texts, model_name=model_name, model=model)
+        return cls(
+            embeddings, chunk_ids, texts, model_name=model_name, model=model,
+            query_prefix=query_prefix,
+        )
 
     @classmethod
     def from_jsonl(

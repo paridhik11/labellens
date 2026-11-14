@@ -227,3 +227,115 @@ def test_cli_next_batch_and_record(tmp_path: Path, monkeypatch, capsys) -> None:
     # The human sample file was not touched.
     with sample.open(encoding="utf-8", newline="") as f:
         assert all(r["grade"] == "" for r in csv.DictReader(f))
+
+
+# ---------- extra pool (Step 15) ----------
+
+def _extra_inputs(tmp_path: Path) -> dict[str, Path]:
+    """Tiny unjudged listing, queries, corpus and qrels for build_extra_pool."""
+    unj = tmp_path / "unjudged.csv"
+    unj.write_text(
+        "qid,chunk_id,variant\n"
+        "q10,c_b,rrf_k30\nq2,c_a,rrf_k30\nq2,c_a,bm25_stem\nq2,c_b,bm25_stem\n",
+        encoding="utf-8",
+    )
+    qs = tmp_path / "queries.tsv"
+    qs.write_text("q2\tquery two\tdevice\tdirect\nq10\tquery ten\tdevice\tdirect\n", encoding="utf-8")
+    corpus = tmp_path / "regs.jsonl"
+    corpus.write_text(
+        '{"chunk_id": "c_a", "text": "text a"}\n{"chunk_id": "c_b", "text": "text b"}\n',
+        encoding="utf-8",
+    )
+    qrels = tmp_path / "qrels.tsv"
+    qrels.write_text("q2 0 c_z 1\n", encoding="utf-8")
+    return {"unj": unj, "qs": qs, "corpus": corpus, "qrels": qrels}
+
+
+def test_build_extra_pool_dedupes_sorts_and_keeps_four_columns(tmp_path: Path) -> None:
+    f = _extra_inputs(tmp_path)
+    out = tmp_path / "extra.csv"
+    n = tool.build_extra_pool(f["unj"], f["qs"], f["corpus"], f["qrels"], out)
+    assert n == 3  # (q2,c_a) appears under two variants but is one pair
+    with out.open(encoding="utf-8", newline="") as fh:
+        rows = list(csv.DictReader(fh))
+    assert list(rows[0]) == ["qid", "query", "chunk_id", "text"]  # no variant column
+    assert [(r["qid"], r["chunk_id"]) for r in rows] == [("q2", "c_a"), ("q2", "c_b"), ("q10", "c_b")]
+    assert rows[0]["query"] == "query two" and rows[0]["text"] == "text a"
+    # the existing loader can read it (it ignores any extra columns anyway)
+    assert load_pool_rows(out)[0] == PoolRow("q2", "query two", "c_a", "text a")
+    with pytest.raises(FileExistsError):
+        tool.build_extra_pool(f["unj"], f["qs"], f["corpus"], f["qrels"], out)
+    assert tool.build_extra_pool(f["unj"], f["qs"], f["corpus"], f["qrels"], out, force=True) == 3
+
+
+def test_build_extra_pool_refuses_protected_paths_and_bad_inputs(tmp_path: Path) -> None:
+    f = _extra_inputs(tmp_path)
+    for protected in (tool.POOL_PATH, tool.LLM_PATH, tool.SAMPLE_PATH, tool.QRELS_LLM_PATH):
+        with pytest.raises(ValueError, match="protected"):
+            tool.build_extra_pool(f["unj"], f["qs"], f["corpus"], f["qrels"], protected, force=True)
+    # a pair that already has an LLM grade must not be graded again
+    f["qrels"].write_text("q2 0 c_a 1\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="already graded"):
+        tool.build_extra_pool(f["unj"], f["qs"], f["corpus"], f["qrels"], tmp_path / "e.csv")
+    f["qrels"].write_text("", encoding="utf-8")
+    f["corpus"].write_text('{"chunk_id": "c_a", "text": "text a"}\n', encoding="utf-8")
+    with pytest.raises(ValueError, match="unknown chunks"):
+        tool.build_extra_pool(f["unj"], f["qs"], f["corpus"], f["qrels"], tmp_path / "e.csv")
+    assert not (tmp_path / "e.csv").exists()
+
+
+def test_build_extra_pool_skip_graded_leaves_out_graded_pairs(tmp_path: Path) -> None:
+    f = _extra_inputs(tmp_path)
+    f["qrels"].write_text("q2 0 c_a 1\n", encoding="utf-8")  # (q2, c_a) already graded
+    out = tmp_path / "extra2.csv"
+    n = tool.build_extra_pool(f["unj"], f["qs"], f["corpus"], f["qrels"], out, skip_graded=True)
+    assert n == 2
+    with out.open(encoding="utf-8", newline="") as fh:
+        got = [(r["qid"], r["chunk_id"]) for r in csv.DictReader(fh)]
+    assert got == [("q2", "c_b"), ("q10", "c_b")]
+
+
+def test_extra_flow_continues_batch_numbers_and_never_touches_main_pool(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    main_pool = tmp_path / "pool_t1.csv"
+    _write_pool_csv(main_pool, _pool({"q1": 2}), grade="2")
+    before = main_pool.read_bytes()
+    extra = tmp_path / "pool_t1_extra.csv"
+    extra.write_text(
+        "qid,query,chunk_id,text\nq2,query two,c_a,text a\nq2,query two,c_b,text b\n"
+        "q10,query ten,c_b,text b\n",
+        encoding="utf-8",
+    )
+    llm = tmp_path / "pool_t1_llm.csv"
+    llm.write_text(
+        "qid,chunk_id,llm_grade,batch,model,date\nq1,c0,0,43,claude-sonnet-5-5,2026-11-12\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(tool, "POOL_PATH", main_pool)
+    monkeypatch.setattr(tool, "EXTRA_PATH", extra)
+
+    def run(*argv: str) -> None:
+        monkeypatch.setattr(sys, "argv", ["llm_grade_tool", *argv])
+        tool.main()
+
+    batch_file = tmp_path / "batch.txt"
+    run("next-batch", "--extra", "--max-rows", "2", "--llm", str(llm), "--out", str(batch_file))
+    text = batch_file.read_text(encoding="utf-8")
+    assert "# Batch 44 (2 rows)" in text  # continues after batch 43, whole query q2 first
+    assert "q2:c_a" in text and "q10:c_b" not in text
+    assert "extra pool: graded 0/3 rows" in capsys.readouterr().out
+
+    grades = tmp_path / "grades.tsv"
+    grades.write_text("q2:c_a\t1\nq2:c_b\t0\n", encoding="utf-8")
+    run("record", "--extra", "--max-rows", "2", "--llm", str(llm), "--grades", str(grades),
+        "--model", "claude-sonnet-5-5", "--date", "2026-11-13")
+    rows = load_llm_rows(llm)
+    assert [(r["qid"], r["chunk_id"], r["batch"], r["model"]) for r in rows[1:]] == [
+        ("q2", "c_a", "44", "claude-sonnet-5-5"),
+        ("q2", "c_b", "44", "claude-sonnet-5-5"),
+    ]
+    assert main_pool.read_bytes() == before  # the main pool is never written
+    assert "extra pool: graded 2/3 rows; queries still open: 1" in capsys.readouterr().out
+    run("next-batch", "--extra", "--max-rows", "2", "--llm", str(llm), "--out", str(batch_file))
+    assert "# Batch 45 (1 rows)" in batch_file.read_text(encoding="utf-8")
