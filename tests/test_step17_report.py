@@ -66,3 +66,24 @@ def test_unjudged_rows_lists_only_ungraded_top10_and_csv_round_trips(tmp_path):
     write_unjudged(path, out)
     back = list(csv.DictReader(path.open(encoding="utf-8")))
     assert [r["chunk_id"] for r in back] == ["x", "y"] and back[0]["split"] == "dev"
+
+
+def test_stem_and_prefix_specs_have_names_and_families():
+    assert Spec("bm25", stem=True).name == "bm25+stem"
+    assert Spec("hybrid", stem=True, prefix=True).name == "hybrid+stem+prefix"
+    assert Spec("dense", prefix=True).name == "dense+prefix"
+    assert Spec("hybrid", prefix=True).family == "basemod"
+    assert Spec("dense").family == "baseline"
+    assert Spec("hybrid", stem=True, rr="rrf").family == "combo"
+
+
+def test_combination_specs_use_only_the_chosen_components():
+    from src.ir.step17_report import combo_spec
+
+    comps = {"basemod": Spec("hybrid", stem=True), "exp": Spec("hybrid", exp=(0.3, "all", True)),
+             "pb": Spec("hybrid", pb=(1, 0.1, "bm25")), "rr": Spec("hybrid", rr="replace")}
+    only_exp_pb = combo_spec("hybrid", comps, ["exp", "pb"])
+    assert only_exp_pb == Spec("hybrid", exp=(0.3, "all", True), pb=(1, 0.1, "bm25"))
+    boosted_rerank = combo_spec("hybrid", comps, ["pb", "rr"])
+    assert boosted_rerank.rr == "rrf" and boosted_rerank.stem is False
+    assert combo_spec("hybrid", comps, ["basemod", "rr"]) == Spec("hybrid", stem=True, rr="replace")

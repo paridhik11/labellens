@@ -41,6 +41,7 @@ from src.ir.base import Retriever
 from src.ir.bm25 import BM25Retriever, InvertedIndex
 from src.ir.eval import load_chunks, load_qrels, load_query_rows
 from src.ir.expand import AppendExpansionRetriever, ExpandedBM25Retriever, SynonymExpander
+from src.ir.grade_compare import load_llm_grades
 from src.ir.metrics import ndcg_at_k
 from src.ir.partboost import PartBoostRetriever, build_part_index
 from src.ir.rerank import DEFAULT_MODEL, CrossEncoderReranker
@@ -61,14 +62,16 @@ LABEL = "LLM-assessed qrels (claude-sonnet-5-5), not human grades"
 class Spec:
     """One retrieval variant. Fields left None switch that stage off."""
 
-    base: str  # 'bm25' or 'hybrid'
+    base: str  # 'bm25', 'hybrid' or 'dense'
     exp: tuple[float, str, bool] | None = None  # (weight, 'all' | 'cfr', also dense query)
     pb: tuple[int, float, str] | None = None  # (top_parts, beta, 'bm25' | 'rrf_top3')
     rr: str | None = None  # 'replace' | 'rrf' (hybrid base only)
+    stem: bool = False  # BM25 half uses the light-stemmed index (bm25 and hybrid bases)
+    prefix: bool = False  # dense half uses the BGE query instruction (dense and hybrid bases)
 
     @property
     def name(self) -> str:
-        parts = [self.base]
+        parts = [self.base + ("+stem" if self.stem else "") + ("+prefix" if self.prefix else "")]
         if self.exp:
             w, src, both = self.exp
             side = "" if self.base == "bm25" else (",dense" if both else ",bm25side")
@@ -83,22 +86,27 @@ class Spec:
     @property
     def family(self) -> str:
         stages = [s for s, on in (("exp", self.exp), ("pb", self.pb), ("rr", self.rr)) if on]
+        basemod = self.stem or self.prefix
         if not stages:
-            return "baseline"
-        return stages[0] if len(stages) == 1 else "combo"
+            return "basemod" if basemod else "baseline"
+        return stages[0] if len(stages) == 1 and not basemod else "combo"
 
 
 class ModuleContext:
     """Everything one module needs to build any variant (indexes, dense, caches)."""
 
     def __init__(self, chunks: list[Chunk], ce_model: object | None, ce_cache: dict) -> None:
-        from src.ir.dense import DenseRetriever
+        from src.ir.dense import BGE_QUERY_PREFIX, DenseRetriever
         from src.ir.hybrid import HybridRetriever
 
         self.docs = [(c.chunk_id, c.text) for c in chunks]
         self.ix = InvertedIndex().build(self.docs)
+        self.ix_stem = InvertedIndex(stem=True).build(self.docs)
         self.bm25 = BM25Retriever(self.ix)
+        self.bm25_stem = BM25Retriever(self.ix_stem)
         self.dense = DenseRetriever.from_chunks(chunks)
+        # passages are encoded without the prefix, so this shares the cached vectors
+        self.dense_prefix = DenseRetriever.from_chunks(chunks, query_prefix=BGE_QUERY_PREFIX)
         self.hybrid = HybridRetriever(bm25=self.bm25, dense=self.dense)
         self.part_index = build_part_index(self.docs)
         self.ce_model = ce_model
@@ -111,17 +119,28 @@ class ModuleContext:
             return self._built[spec]
         from src.ir.hybrid import HybridRetriever
 
+        ix = self.ix_stem if spec.stem else self.ix
+        lex_plain = self.bm25_stem if spec.stem else self.bm25
+        dense_plain = self.dense_prefix if spec.prefix else self.dense
+        if spec.base == "dense":
+            assert not (spec.exp or spec.pb or spec.rr or spec.stem), "dense only takes the prefix"
+            self._built[spec] = dense_plain
+            return dense_plain
+        assert not (spec.base == "bm25" and spec.prefix), "the prefix needs a dense half"
         if spec.exp:
             w, src, both = spec.exp
             expander = SynonymExpander.from_file(sources=None if src == "all" else {"cfr_definition"})
-            lex = ExpandedBM25Retriever(self.ix, expander, weight=w)
+            lex = ExpandedBM25Retriever(ix, expander, weight=w)
             if spec.base == "bm25":
                 r: Retriever = lex
             else:
-                dense = AppendExpansionRetriever(self.dense, expander, "dense_exp") if both else self.dense
+                dense = AppendExpansionRetriever(dense_plain, expander, "dense_exp") if both else dense_plain
                 r = HybridRetriever(bm25=lex, dense=dense)
+        elif spec.base == "bm25":
+            r = lex_plain
         else:
-            r = self.bm25 if spec.base == "bm25" else self.hybrid
+            r = self.hybrid if not (spec.stem or spec.prefix) else HybridRetriever(
+                bm25=lex_plain, dense=dense_plain)
         if spec.pb:
             t, b, sc = spec.pb
             r = PartBoostRetriever(r, self.part_index, top_parts=t, beta=b, fetch_k=DEPTH,
@@ -239,7 +258,9 @@ def write_unjudged(path: str | Path, rows: list[dict]) -> None:
 
 def stage1_specs() -> list[Spec]:
     """Baselines plus the full grid of single-stage variants."""
-    specs = [Spec("bm25"), Spec("hybrid")]
+    specs = [Spec("bm25"), Spec("hybrid"), Spec("dense")]
+    specs += [Spec("bm25", stem=True), Spec("dense", prefix=True), Spec("hybrid", stem=True),
+              Spec("hybrid", prefix=True), Spec("hybrid", stem=True, prefix=True)]
     for src in ("all", "cfr"):
         for w in WEIGHTS:
             specs.append(Spec("bm25", exp=(w, src, False)))
@@ -251,6 +272,17 @@ def stage1_specs() -> list[Spec]:
                 specs.append(Spec(base, pb=(t, b, "bm25")))
     specs += [Spec("hybrid", rr="replace"), Spec("hybrid", rr="rrf")]
     return specs
+
+
+def combo_spec(base: str, comps: dict[str, Spec], chosen: list[str]) -> Spec:
+    """Combines the chosen components (keys basemod, exp, pb, rr) into one spec.
+
+    A boosted rerank uses rrf fusion, because replace mode would erase the boost.
+    """
+    m, e, p, c = (comps[k] if k in chosen else None for k in ("basemod", "exp", "pb", "rr"))
+    mode = None if c is None else ("rrf" if p else c.rr)
+    return Spec(base, exp=e.exp if e else None, pb=p.pb if p else None, rr=mode,
+                stem=bool(m and m.stem), prefix=bool(m and m.prefix))
 
 
 def votes_specs(base: str) -> list[Spec]:
@@ -300,7 +332,10 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="Step 17e: tune on the dev half only.")
     ap.add_argument("--corpus", default="data/processed/regs.jsonl")
     ap.add_argument("--queries", default="data/eval/queries_t1.tsv")
-    ap.add_argument("--qrels", default="data/eval/qrels_t1_llm.tsv")
+    ap.add_argument("--qrels", default=None,
+                    help="TREC qrels file; if omitted, qrels are built in memory from --llm-grades")
+    ap.add_argument("--llm-grades", default="data/eval/pool_t1_llm.csv",
+                    help="LLM grades CSV, read only; same content to-qrels would write")
     ap.add_argument("--split", default="data/eval/split_t1.json")
     ap.add_argument("--out", default="results/step17_dev.md")
     ap.add_argument("--unjudged", default="results/step17_unjudged.csv")
@@ -310,7 +345,15 @@ def main() -> None:
     split = load_split(a.split)
     dev = set(split["dev"])
     rows = [r for r in load_query_rows(a.queries) if r.qid in dev]
-    qrels = load_qrels(a.qrels)
+    if a.qrels:
+        qrels = load_qrels(a.qrels)
+        qsrc = f"{a.qrels} ({sum(len(v) for v in qrels.values())} graded pairs)"
+    else:
+        qrels = {}
+        for (qid, cid), g in load_llm_grades(a.llm_grades).items():
+            qrels.setdefault(qid, {})[cid] = g
+        qsrc = (f"{a.llm_grades} read in memory ({sum(len(v) for v in qrels.values())} graded pairs); "
+                "no qrels file was written")
     qids = [r.qid for r in rows]
     mod_qids = {m: [r.qid for r in rows if r.module == m] for m in ("device", "medicine")}
 
@@ -328,13 +371,15 @@ def main() -> None:
                 runs[s] = run_spec(s, rows, ctxs, qrels)
 
     go(stage1_specs())
-    bases = {"bm25": runs[Spec("bm25")], "hybrid": runs[Spec("hybrid")]}
+    bases = {b: runs[Spec(b)] for b in ("bm25", "hybrid", "dense")}
 
     def fam(family: str, base: str) -> list[Run]:
         return [r for r in runs.values() if r.spec.family == family and r.spec.base == base]
 
     notes: list[str] = []
     gains: dict[tuple[str, str], tuple[Run | None, bool]] = {}
+    for base in ("bm25", "hybrid", "dense"):
+        gains[("basemod", base)] = family_gain(fam("basemod", base), bases[base])
     for base in ("bm25", "hybrid"):
         gains[("exp", base)] = family_gain(fam("exp", base), bases[base])
         gains[("pb", base)] = family_gain(fam("pb", base), bases[base])
@@ -351,21 +396,20 @@ def main() -> None:
         return run.spec if run is not None and ok else None
 
     for base in ("bm25", "hybrid"):
-        e, p = passed("exp", base), passed("pb", base)
-        if e and p:
-            go([Spec(base, exp=e.exp, pb=p.pb)])
-        elif e or p:
-            notes.append(f"No A+B combo on {base}: one of the two components showed no gain on dev.")
-    e, p, c = passed("exp", "hybrid"), passed("pb", "hybrid"), passed("rr", "hybrid")
-    if c:
-        if e:
-            go([Spec("hybrid", exp=e.exp, rr=c.rr)])
-        if p:
-            go([Spec("hybrid", pb=p.pb, rr="rrf")])
-        if e and p:
-            go([Spec("hybrid", exp=e.exp, pb=p.pb, rr="rrf")])
-    else:
-        notes.append("Reranker showed no gain over hybrid on dev: no combination with it was run.")
+        comps: dict[str, Spec] = {}
+        for key in ("basemod", "exp", "pb") + (("rr",) if base == "hybrid" else ()):
+            sp = passed(key, base)
+            if sp:
+                comps[key] = sp
+            else:
+                notes.append(f"{key} on {base}: no gain on dev under the gain rule, so it is left out of "
+                             "the combinations.")
+        keys = list(comps)
+        for mask in range(1, 2 ** len(keys)):
+            chosen = [k for i, k in enumerate(keys) if mask >> i & 1]
+            if len(chosen) < 2:
+                continue
+            go([combo_spec(base, comps, chosen)])
 
     # Finalists: baselines, and per family the best by each number (plus best per source set).
     finalists: list[Run] = [bases["bm25"], bases["hybrid"]]
@@ -374,8 +418,8 @@ def main() -> None:
         if run is not None and run not in finalists:
             finalists.append(run)
 
-    for fam_name in ("exp", "pb", "rr", "combo"):
-        for base in ("bm25", "hybrid"):
+    for fam_name in ("basemod", "exp", "pb", "rr", "combo"):
+        for base in ("bm25", "hybrid", "dense"):
             rs = fam(fam_name, base)
             if rs:
                 add(best_of(rs, "ndcg"))
@@ -394,8 +438,8 @@ def main() -> None:
 
     md = [f"# Step 17e: tuning on the development half ({len(qids)} queries)", "",
           f"**{LABEL}.** Dev half only (seed 42 split, {len(mod_qids['device'])} device and "
-          f"{len(mod_qids['medicine'])} medicine queries). The held-out half is untouched. Settings were "
-          "chosen on these same queries, so differences here are optimistic and the intervals are "
+          f"{len(mod_qids['medicine'])} medicine queries). Qrels: {qsrc}. The held-out half is untouched. "
+          "Settings were chosen on these same queries, so differences here are optimistic and the intervals are "
           "descriptive, not tests. Depth 50, nDCG@10, chunk level; queries are searched in their own module.",
           "", "Unjudged chunks are not in the pooled qrels (the pool came from the old systems). "
           "'condensed' removes them from the list first. Gain rule: best config beats its base by "
@@ -407,7 +451,8 @@ def main() -> None:
            f"{', '.join(q for q in mot if q in dev) or 'none'} in dev; "
            f"{', '.join(q for q in mot if q not in dev) or 'none'} in held-out). The last column of each "
            "table repeats the difference to the base without the motivating queries that are in dev."]
-    titles = {"baseline": "Baselines", "exp": "A. Query expansion", "pb": "B. Part boost",
+    titles = {"baseline": "Baselines", "basemod": "D. Light stemming and BGE query prefix",
+              "exp": "A. Query expansion", "pb": "B. Part boost",
               "rr": "C. Cross-encoder rerank (hybrid top 50)", "combo": "Combinations"}
     for fam_name, title in titles.items():
         rs = [r for r in runs.values() if r.spec.family == fam_name]
