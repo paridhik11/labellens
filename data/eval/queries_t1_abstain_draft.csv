@@ -1,21 +1,21 @@
-qid,text,label,rationale
-ab01,tamper-evident packaging for over the counter drugs,answerable,21 CFR 211.132 sets tamper-evident packaging requirements for OTC human drug products. Short noun phrase style like q45 to q50.
-ab02,what is the National Drug Code number and where must it appear,answerable,21 CFR 201.2 covers NDC numbers on drug and device labeling. Question style.
-ab03,required warning for prescription drugs that contain sulfites,answerable,21 CFR 201.22 gives the sulfite warning statement. Field-requirement style like q52.
-ab04,sunscreen labeling based on effectiveness testing,answerable,21 CFR 201.327 gives required labeling for OTC sunscreens by test results. Keyword style.
-ab05,do drug labels need a Spanish version,answerable,21 CFR 201.16 covers Spanish-language versions of required statements. Plain yes/no question.
-ab06,when must the pharmacy give the patient a Medication Guide at dispensing,answerable,21 CFR 208.24 covers distributing and dispensing a Medication Guide. Different from q51 which asks about the requirement itself.
-ab07,aluminum content warning on intravenous feeding products,answerable,21 CFR 201.323 (aluminum in parenterals used in TPN). Vocabulary mismatch: lay words for parenteral nutrition.
-ab08,why do aspirin products carry a warning about children and flu symptoms,answerable,"21 CFR 201.314 and 201.326 carry the Reye's syndrome warning. Vocabulary mismatch: the query never says Reye's syndrome, salicylate or analgesic."
-ab09,how are oxygen and other medical gas cylinders labeled,answerable,21 CFR 201.328 labeling of medical gas containers (and 201.161). Vocabulary mismatch: cylinders for containers.
-ab10,label statement for a yellow food dye that can cause allergic reactions in some people,answerable,21 CFR 201.20 declaration of FD&C Yellow No. 5 and No. 6. Vocabulary mismatch: dye not named.
-ab11,dietary supplement label requirements,no_answer,"Supplements fall under 21 CFR 101 and 111, not in the corpus. Corpus only mentions supplements in passing (201.306, 201.57). Same shape as the answerable keyword queries."
-ab12,child resistant packaging for prescription drugs,no_answer,Governed by the Poison Prevention Packaging Act and 16 CFR 1700. The word child-resistant occurs nowhere in the corpus. Plausible because it concerns drug packaging.
-ab13,Health Canada bilingual drug label rules,no_answer,A different regulator and country. The corpus is US federal only. Same pattern as q62 (EMA SmPC) but with a different regulator.
-ab14,labeling requirements for blood and blood components,no_answer,Biologics rules are in 21 CFR 606 and 610 which are not in the corpus. Plausible next to drug labeling.
-ab15,deadline for reporting serious adverse drug events to FDA,no_answer,"Postmarket reporting is 21 CFR 314.80, not in the corpus. Hard case: 211.198 (complaint files) and 208.3 mention adverse events, so lower graded chunks are expected, but no chunk should state the deadline."
-ab16,how to apply for orphan drug designation,no_answer,21 CFR 316 is not in the corpus. The word orphan occurs nowhere in the corpus.
-ab17,drug establishment registration and listing with FDA,no_answer,21 CFR 207 is not in the corpus. Plausible because 201.2 and 201.1 mention manufacturers and NDC numbers.
-ab18,what must a clinical trial informed consent form contain,no_answer,21 CFR 50 is not in the corpus. Question style. Informed consent appears only incidentally in 201.327.
-ab19,USP beyond use dating for compounded sterile preparations,no_answer,USP chapters are not federal regulations and not in the corpus. Plausible because expiration dating is covered (211.137) but beyond-use dating of compounded drugs is not.
-ab20,what the patient information leaflet in the UK must contain,no_answer,A different country and regulator (MHRA). Plausible because it resembles patient labeling and Medication Guides (208.20).
+qid,text,label,difficulty,rationale
+ab01,tamper-evident packaging for over the counter drugs,answerable,,21 CFR 211.132 sets tamper-evident packaging requirements for OTC human drug products. Short noun phrase style like q45 to q50.
+ab02,what is the National Drug Code number and where must it appear,answerable,,21 CFR 201.2 covers NDC numbers on drug and device labeling. Question style.
+ab03,required warning for prescription drugs that contain sulfites,answerable,,21 CFR 201.22 gives the sulfite warning statement. Field-requirement style like q52.
+ab04,sunscreen labeling based on effectiveness testing,answerable,,21 CFR 201.327 gives required labeling for OTC sunscreens by test results. Keyword style.
+ab05,do drug labels need a Spanish version,answerable,,21 CFR 201.16 covers Spanish-language versions of required statements. Plain yes/no question.
+ab06,when must the pharmacy give the patient a Medication Guide at dispensing,answerable,,21 CFR 208.24 covers distributing and dispensing a Medication Guide. Different from q51 which asks about the requirement itself.
+ab07,aluminum content warning on intravenous feeding products,answerable,,21 CFR 201.323 (aluminum in parenterals used in TPN). Vocabulary mismatch: lay words for parenteral nutrition.
+ab08,why do aspirin products carry a warning about children and flu symptoms,answerable,,"21 CFR 201.314 and 201.326 carry the Reye's syndrome warning. Vocabulary mismatch: the query never says Reye's syndrome, salicylate or analgesic."
+ab09,how are oxygen and other medical gas cylinders labeled,answerable,,21 CFR 201.328 labeling of medical gas containers (and 201.161). Vocabulary mismatch: cylinders for containers.
+ab10,label statement for a yellow food dye that can cause allergic reactions in some people,answerable,,21 CFR 201.20 declaration of FD&C Yellow No. 5 and No. 6. Vocabulary mismatch: dye not named.
+ab11,dietary supplement label requirements,no_answer,hard,"Supplements fall under 21 CFR 101 and 111, not in the corpus. Corpus only mentions supplements in passing (201.306, 201.57). Same shape as the answerable keyword queries."
+ab12,child resistant packaging for prescription drugs,no_answer,hard,Governed by the Poison Prevention Packaging Act and 16 CFR 1700. The word child-resistant occurs nowhere in the corpus. Plausible because it concerns drug packaging.
+ab13,Health Canada bilingual drug label rules,no_answer,easy,A different regulator and country. The corpus is US federal only. Same pattern as q62 (EMA SmPC) but with a different regulator.
+ab14,labeling requirements for blood and blood components,no_answer,hard,Biologics rules are in 21 CFR 606 and 610 which are not in the corpus. Plausible next to drug labeling.
+ab15,what are the rules for handing out free drug samples to physicians,no_answer,hard,"Drug sample distribution is 21 CFR 203, not in the corpus. Scan: the corpus mentions samples only in 201.25 (prescription drug samples are exempt from the bar code requirement), which does not answer the question. No chunk has 'free samples', 'prescription drug marketing' or 'sample distribution'. Adjacent: a label team member would plausibly ask it."
+ab16,how to apply for orphan drug designation,no_answer,easy,21 CFR 316 is not in the corpus. The word orphan occurs nowhere in the corpus.
+ab17,drug establishment registration and listing with FDA,no_answer,hard,21 CFR 207 is not in the corpus. Plausible because 201.2 and 201.1 mention manufacturers and NDC numbers.
+ab18,what must a clinical trial informed consent form contain,no_answer,easy,21 CFR 50 is not in the corpus. Question style. Informed consent appears only incidentally in 201.327.
+ab19,USP beyond use dating for compounded sterile preparations,no_answer,hard,USP chapters are not federal regulations and not in the corpus. Plausible because expiration dating is covered (211.137) but beyond-use dating of compounded drugs is not.
+ab20,does a tablet need an imprint code so it can be identified,no_answer,hard,"Imprint codes are 21 CFR 206, not in the corpus. Scan: 'imprint' appears in 5 chunks (201.57 c14 and c53 list imprinting as a way to describe the dosage form, 211.122 on printing devices, 211.132), none of which requires an imprint code. Expect some grade 1 chunks. Part 202 (prescription drug advertising) was not used because 201.200 partly covers it (brief summary, qualifying information in ads)."
