@@ -362,6 +362,9 @@ def cmd_eval(args: argparse.Namespace) -> None:
     max_grade = {q.qid: max(qrels.get(q.qid, {}).values(), default=0) for q in queries}
     predecl = Path(args.predecl).read_text(encoding="utf-8")
     text = report_markdown(queries, scores, results, predecl, flips, max_grade)
+    notes = Path(args.notes)
+    if notes.exists():
+        text += "\n" + notes.read_text(encoding="utf-8").strip() + "\n"
     Path(args.out).write_text(text, encoding="utf-8")
     print(text)
 
@@ -416,6 +419,8 @@ def main() -> None:
     se.add_argument("--queries", default=str(DRAFT_PATH))
     se.add_argument("--qrels", default=str(LLM_QRELS_PATH))
     se.add_argument("--predecl", default="results/step16_predeclaration.md")
+    se.add_argument("--notes", default="results/step16_notes.md",
+                    help="Optional post-hoc notes appended to the report")
     se.add_argument("--out", default="results/step16_abstention.md")
     se.set_defaults(func=cmd_eval)
     args = p.parse_args()
