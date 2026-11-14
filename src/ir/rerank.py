@@ -11,9 +11,11 @@ Model: cross-encoder/ms-marco-MiniLM-L-6-v2 (22M parameters, 87 MB, already in t
 local Hugging Face cache). It was trained on web search questions, not on
 regulations, so it may not transfer; that is what the dev half will tell us.
 
-Two ways to use its scores (`mode`):
-  replace  sort the 50 by cross-encoder score alone
+Three ways to use its scores (`mode`):
+  replace  sort the candidates by cross-encoder score alone
   rrf      fuse the base rank and the cross-encoder rank with 1/(rrf_k + rank)
+  blend    alpha * minmax(cross-encoder score) + (1 - alpha) * minmax(first-stage score); each
+           list is scaled to 0..1 over the candidates first, alpha defaults to 0.5
 
 Scores are cached per (query, chunk) so trying both modes costs one model pass.
 """
@@ -34,6 +36,22 @@ class PairScorer(Protocol):
         ...
 
 
+def _minmax(values: list[float]) -> list[float]:
+    """Scales values to [0, 1]; all-equal values become 0.5 so neither list dominates."""
+    lo, hi = min(values), max(values)
+    if hi - lo < 1e-12:
+        return [0.5] * len(values)
+    return [(v - lo) / (hi - lo) for v in values]
+
+
+def _blend(ce: list[float], head: list[Hit], alpha: float) -> list[tuple[float, Hit]]:
+    """Orders hits by alpha * minmax(cross-encoder) + (1 - alpha) * minmax(first-stage score)."""
+    ce_n, base_n = _minmax(ce), _minmax([h.score for h in head])
+    out = [(alpha * c + (1 - alpha) * b, h) for c, b, h in zip(ce_n, base_n, head, strict=True)]
+    out.sort(key=lambda t: (-t[0], t[1].rank))
+    return out
+
+
 class CrossEncoderReranker:
     """Reranks the top_n hits of a base retriever with a cross-encoder."""
 
@@ -49,22 +67,25 @@ class CrossEncoderReranker:
         batch_size: int = 32,
         name: str = "rerank",
         score_cache: dict[tuple[str, str], float] | None = None,
+        alpha: float = 0.5,
     ) -> None:
         """Args:
             base: retriever supplying the candidates (for example hybrid).
             model: a loaded scorer; if None, model_name is loaded on first use.
             model_name: Hugging Face id, loaded from the local cache only.
             top_n: how many base results are reranked.
-            mode: 'replace' or 'rrf' (see module docstring).
+            mode: 'replace', 'rrf' or 'blend' (see module docstring).
             rrf_k: smoothing constant for mode 'rrf'.
             max_length: tokens kept per (query, chunk) pair.
             batch_size: pairs per model call.
             name: system name shown in tables.
             score_cache: optional dict shared between rerankers so the same
                 (query, chunk) pair is never scored twice.
+            alpha: weight of the cross-encoder in mode 'blend' (the first-stage score gets 1 - alpha).
         """
-        if mode not in {"replace", "rrf"}:
-            raise ValueError(f"mode must be 'replace' or 'rrf', got {mode!r}")
+        if mode not in {"replace", "rrf", "blend"}:
+            raise ValueError(f"mode must be 'replace', 'rrf' or 'blend', got {mode!r}")
+        self.alpha = alpha
         self.base = base
         self._model = model
         self.model_name = model_name
@@ -106,6 +127,8 @@ class CrossEncoderReranker:
         if self.mode == "replace":
             ordered = list(zip(ce, head, strict=True))
             ordered.sort(key=lambda t: (-t[0], t[1].rank))
+        elif self.mode == "blend":
+            ordered = _blend(ce, head, self.alpha)
         else:
             ce_rank = {
                 h.doc_id: r + 1

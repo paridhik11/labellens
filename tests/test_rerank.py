@@ -65,3 +65,25 @@ def test_scores_are_cached_across_modes_and_calls():
 def test_bad_mode_is_rejected():
     with pytest.raises(ValueError):
         CrossEncoderReranker(FixedBase(1), model=FakeScorer(TABLE), mode="x")
+
+
+def test_blend_mixes_minmax_scaled_scores():
+    class ScoredBase(FixedBase):
+        def search(self, query, k=10):
+            hits = super().search(query, k)
+            return [Hit(doc_id=h.doc_id, score=1.0 - 0.1 * i, rank=h.rank, text=h.text)
+                    for i, h in enumerate(hits)]
+
+    # first-stage order d1 d2 d3 d4; cross-encoder prefers d2 (0.9) then d3 (0.5), d1 (0.1), d4 (0.0)
+    hi_ce = CrossEncoderReranker(ScoredBase(4), model=FakeScorer(TABLE), top_n=4, mode="blend", alpha=1.0)
+    assert [h.doc_id for h in hi_ce.search("q", k=4)] == ["d2", "d3", "d1", "d4"]  # pure cross-encoder
+    lo_ce = CrossEncoderReranker(ScoredBase(4), model=FakeScorer(TABLE), top_n=4, mode="blend", alpha=0.0)
+    assert [h.doc_id for h in lo_ce.search("q", k=4)] == ["d1", "d2", "d3", "d4"]  # pure first stage
+    mid = CrossEncoderReranker(ScoredBase(4), model=FakeScorer(TABLE), top_n=4, mode="blend", alpha=0.5)
+    assert [h.doc_id for h in mid.search("q", k=4)][0] == "d2"  # d2 is strong in both lists
+
+
+def test_blend_handles_equal_scores_without_dividing_by_zero():
+    r = CrossEncoderReranker(FixedBase(3), model=FakeScorer({"d1": 1.0, "d2": 1.0, "d3": 1.0}),
+                             top_n=3, mode="blend")
+    assert [h.doc_id for h in r.search("q", k=3)] == ["d1", "d2", "d3"]  # ties keep first-stage order

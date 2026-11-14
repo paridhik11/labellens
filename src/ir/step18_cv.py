@@ -48,6 +48,7 @@ PENDING_UNJ = 0.05
 FOLDS_PATH = Path("data/eval/cv_folds.json")
 EXPERIMENTS_MD = Path("results/step18_experiments.md")
 UNJUDGED_CSV = Path("results/step18_unjudged.csv")
+SUMMARY_JSON = Path("results/step18_summary.json")
 LLM_QRELS_NOTE = "LLM-assessed qrels (claude-sonnet-5-5), not human grades"
 
 
@@ -157,7 +158,9 @@ def decide(res: ExperimentResult) -> tuple[str, str]:
         tops = ", ".join(f"{q} {d:+.3f}" for q, d in res.top_gainers())
         return "DROPPED", (f"driven by 1 to 2 queries ({tops}); without them the gain is "
                            f"{t_n:+.3f} / {t_c:+.3f}")
-    return "KEPT", f"gain {gn:+.3f} / {gc:+.3f}, wins {won} of {res.k} folds, survives leave-top-2-out"
+    return "CANDIDATE", (f"gain {gn:+.3f} / {gc:+.3f}, wins {won} of {res.k} folds, survives "
+                         "leave-top-2-out; a candidate only, since passing CV is not evidence of a real gain "
+                         "(E0 passed CV and failed held-out in Step 17)")
 
 
 def evaluate_experiment(
@@ -182,28 +185,27 @@ def evaluate_experiment(
 
 # ---------------------------------------------------------------- log
 
-def experiment_markdown(res: ExperimentResult, what: str, params: dict | None = None,
-                        notes: str = "") -> str:
-    """One experiment section for results/step18_experiments.md."""
+def _gain_ci(res: ExperimentResult) -> tuple[float, float]:
+    """Bootstrap 95% interval of the pooled unjudged=0 nDCG@10 gain (information only)."""
+    _, lo, hi, _ = paired_bootstrap_ci([res.var[q]["ndcg"] for q in res.qids],
+                                       [res.base[q]["ndcg"] for q in res.qids])
+    return lo, hi
+
+
+def _base_block(res: ExperimentResult, base_name: str) -> list[str]:
+    """The per-base part of an experiment section: numbers, leave-top-2 and the fold table."""
     decision, reason = decide(res)
-    lo_hi = paired_bootstrap_ci([res.var[q]["ndcg"] for q in res.qids],
-                                [res.base[q]["ndcg"] for q in res.qids])
-    lines = [f"## {res.exp_id}: {res.title}", "",
-             f"**Decision: {decision}.** {reason}.", "",
-             f"- What changed: {what}"]
-    if params:
-        lines.append("- Parameters: " + ", ".join(f"{k}={v}" for k, v in params.items()))
-    lines += [
-        f"- Pooled over {len(res.qids)} queries: nDCG@10 unjudged=0 {res.gain('ndcg'):+.3f}, "
-        f"condensed {res.gain('cond'):+.3f}, Recall@20 {res.gain('recall20'):+.3f}.",
-        f"- Bootstrap 95% interval of the unjudged=0 gain (information only): "
-        f"[{lo_hi[1]:+.3f}, {lo_hi[2]:+.3f}].",
-        f"- Leave-top-2-out gain: {res.without_top2('ndcg'):+.3f} / {res.without_top2('cond'):+.3f}; "
-        "top gainers: " + ", ".join(f"{q} {d:+.3f}" for q, d in res.top_gainers()) + ".",
-        f"- unjudged@10: variant {res.unjudged10():.3f}, base {res.unjudged10('base'):.3f}.",
-        "", "| fold | n | base nDCG | variant nDCG | gain | base cond | variant cond | gain | won |",
-        "|---|---|---|---|---|---|---|---|---|",
-    ]
+    lo, hi = _gain_ci(res)
+    lines = [f"### vs {base_name}", "", f"**{decision}.** {reason}.", "",
+             f"- Pooled over {len(res.qids)} queries: nDCG@10 unjudged=0 {res.gain('ndcg'):+.3f}, "
+             f"condensed {res.gain('cond'):+.3f}, Recall@20 {res.gain('recall20'):+.3f}.",
+             f"- Bootstrap 95% interval of the unjudged=0 gain (information only): [{lo:+.3f}, {hi:+.3f}].",
+             f"- Folds won: {res.folds_won()} of {res.k}.",
+             f"- Leave-top-2-out gain: {res.without_top2('ndcg'):+.3f} / {res.without_top2('cond'):+.3f}; "
+             "top gainers: " + ", ".join(f"{q} {d:+.3f}" for q, d in res.top_gainers()) + ".",
+             f"- unjudged@10: variant {res.unjudged10():.3f}, base {res.unjudged10('base'):.3f}.",
+             "", "| fold | n | base nDCG | variant nDCG | gain | base cond | variant cond | gain | won |",
+             "|---|---|---|---|---|---|---|---|---|"]
     for f in range(res.k):
         ids = res.fold_qids(f)
         bn = sum(res.base[q]["ndcg"] for q in ids) / len(ids)
@@ -215,35 +217,113 @@ def experiment_markdown(res: ExperimentResult, what: str, params: dict | None = 
                      f"| {bc:.3f} | {vc:.3f} | {vc - bc:+.3f} | {won} |")
     pooled_bn = sum(res.base[q]["ndcg"] for q in res.qids) / len(res.qids)
     pooled_vn = sum(res.var[q]["ndcg"] for q in res.qids) / len(res.qids)
-    lines += ["", f"Pooled base nDCG@10 {pooled_bn:.3f}, variant {pooled_vn:.3f}; folds won "
-              f"{res.folds_won()} of {res.k}."]
+    lines += ["", f"Pooled base nDCG@10 {pooled_bn:.3f}, variant {pooled_vn:.3f}."]
+    return lines
+
+
+def experiment_markdown(results: "ExperimentResult | dict[str, ExperimentResult]", what: str,
+                        params: dict | None = None, notes: str = "") -> str:
+    """One experiment section for results/step18_experiments.md.
+
+    results is one ExperimentResult, or a dict base name -> ExperimentResult so the same
+    variant is reported against several bases (plain hybrid and hybrid+stem+prefix).
+    """
+    if isinstance(results, ExperimentResult):
+        results = {"base": results}
+    first = next(iter(results.values()))
+    lines = [f"## {first.exp_id}: {first.title}", "",
+             "**Decisions:** " + "; ".join(f"vs {b}: {decide(r)[0]}" for b, r in results.items()) + ".", "",
+             f"- What changed: {what}"]
+    if params:
+        lines.append("- Parameters: " + ", ".join(f"{k}={v}" for k, v in params.items()))
+    for base_name, res in results.items():
+        lines += [""] + _base_block(res, base_name)
     if notes:
         lines += ["", notes]
     return "\n".join(lines) + "\n"
 
 
+def summary_rows(results: dict[str, ExperimentResult]) -> list[dict]:
+    """One summary row per (experiment, base) with the numbers every row must show."""
+    rows = []
+    for base_name, r in results.items():
+        decision, _ = decide(r)
+        lo, hi = _gain_ci(r)
+        rows.append({"exp_id": r.exp_id, "title": r.title, "base": base_name, "decision": decision,
+                     "gain_ndcg": r.gain("ndcg"), "gain_cond": r.gain("cond"),
+                     "gain_recall20": r.gain("recall20"), "ci_lo": lo, "ci_hi": hi,
+                     "folds_won": r.folds_won(), "k": r.k, "top2_ndcg": r.without_top2("ndcg"),
+                     "top2_cond": r.without_top2("cond"), "unj10": r.unjudged10()})
+    return rows
+
+
+def summary_markdown(rows: list[dict]) -> str:
+    """The summary table that sits at the top of the experiments log."""
+    lines = ["| experiment | vs | decision | gain unjudged=0 [95% CI] | gain condensed | Recall@20 gain "
+             "| folds won | leave-top-2 gain | unjudged@10 |", "|---|---|---|---|---|---|---|---|---|"]
+    for r in sorted(rows, key=lambda x: (x["exp_id"], x["base"])):
+        lines.append(f"| {r['exp_id']}: {r['title']} | {r['base']} | {r['decision']} "
+                     f"| {r['gain_ndcg']:+.3f} [{r['ci_lo']:+.3f}, {r['ci_hi']:+.3f}] "
+                     f"| {r['gain_cond']:+.3f} | {r['gain_recall20']:+.3f} | {r['folds_won']} of {r['k']} "
+                     f"| {r['top2_ndcg']:+.3f} / {r['top2_cond']:+.3f} | {r['unj10']:.3f} |")
+    return "\n".join(lines)
+
+
+SUMMARY_START, SUMMARY_END = "<!-- summary:start -->", "<!-- summary:end -->"
 HEADER = ("# Step 18 experiments\n\n"
           f"**{LLM_QRELS_NOTE}.** 5-fold stratified cross-validation over the 57 answerable queries "
-          "(`data/eval/cv_folds.json`, seed 42). Gains are over the stated base, pooled over all queries. "
-          "Keep rule: gain above 0.01 on both nDCG@10 lists (unjudged=0 and condensed), at least 3 of 5 "
-          "folds won, survives leaving out the two biggest-gaining queries. unjudged@10 above 0.05 "
-          "means PENDING_GRADING. This file is written by the harness; each section is replaced when its "
-          "experiment is re-run.\n")
+          "(`data/eval/cv_folds.json`, seed 42). Every variant is reported against plain hybrid AND "
+          "hybrid+stem+prefix; gains are pooled over all queries. Rule: gain above 0.01 on both nDCG@10 "
+          "lists (unjudged=0 and condensed), at least 3 of 5 folds won, survives leaving out the two "
+          "biggest-gaining queries. unjudged@10 above 0.05 means PENDING_GRADING. CANDIDATE means only "
+          "that the rule is passed: E0 passed it and then failed the Step 17 held-out check. This file is "
+          "written by the harness; each section is replaced when its experiment is re-run.\n\n"
+          f"{SUMMARY_START}\n{SUMMARY_END}\n")
 
 
-def upsert_section(path: str | Path, exp_id: str, section: str) -> None:
-    """Writes section into the log, replacing an existing section with the same exp_id."""
+def upsert_section(path: str | Path, exp_id: str, section: str, rows: list[dict] | None = None,
+                   summary_json: str | Path | None = None) -> None:
+    """Writes section into the log, replacing an existing section with the same exp_id.
+
+    If rows and summary_json are given, the rows for exp_id are stored in the JSON sidecar and the
+    summary table at the top of the log is rebuilt from all stored rows.
+    """
     p = Path(path)
     text = p.read_text(encoding="utf-8") if p.exists() else HEADER
     parts = text.split("\n## ")
     head, rest = parts[0], parts[1:]
     kept = [s for s in rest if not s.startswith(f"{exp_id}:")]
-    new = section.removeprefix("## ")
-    allp = kept + [new]
+    allp = kept + [section.removeprefix("## ")]
     allp.sort(key=lambda s: s.split(":")[0])
+    if rows is not None and summary_json is not None:
+        sj = Path(summary_json)
+        stored = json.loads(sj.read_text(encoding="utf-8")) if sj.exists() else []
+        stored = [r for r in stored if r["exp_id"] != exp_id] + rows
+        sj.write_text(json.dumps(stored, indent=1) + "\n", encoding="utf-8")
+        table = summary_markdown(stored)
+        if SUMMARY_START not in head:
+            head = head.rstrip("\n") + f"\n\n{SUMMARY_START}\n{SUMMARY_END}\n"
+        pre, rest_head = head.split(SUMMARY_START, 1)
+        post = rest_head.split(SUMMARY_END, 1)[1]
+        head = f"{pre}{SUMMARY_START}\n{table}\n{SUMMARY_END}{post}"
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(head.rstrip("\n") + "\n\n" + "\n".join("## " + s.rstrip("\n") + "\n" for s in allp),
                  encoding="utf-8")
+
+
+def log_experiment(exp_id: str, title: str, what: str, params: dict | None,
+                   variant_name: str, var_ranked: dict[str, list[str]],
+                   base_rankeds: dict[str, dict[str, list[str]]], rows: list[QueryRow],
+                   qrels: dict[str, dict[str, int]], folds: dict, texts: dict[str, str],
+                   notes: str = "") -> dict[str, ExperimentResult]:
+    """Evaluates a variant against every base, writes the log section and summary, and adds the
+    variant's unjudged top-10 pairs to results/step18_unjudged.csv. Returns the results."""
+    results = {name: evaluate_experiment(exp_id, title, br, var_ranked, qrels, folds)
+               for name, br in base_rankeds.items()}
+    md = experiment_markdown(results, what, params, notes)
+    upsert_section(EXPERIMENTS_MD, exp_id, md, summary_rows(results), SUMMARY_JSON)
+    update_unjudged_csv(UNJUDGED_CSV, variant_name, exp_id, rows, var_ranked, qrels, texts)
+    return results
 
 
 # ---------------------------------------------------------------- unjudged pairs
@@ -327,14 +407,13 @@ def main() -> None:
     base = rank_with_spec(Spec("hybrid"), answer, ctxs)
     var_spec = Spec("hybrid", stem=True, prefix=True)
     var = rank_with_spec(var_spec, answer, ctxs)
-    res = evaluate_experiment("E0", "hybrid+stem+prefix vs hybrid (carried over from Step 17)", base, var,
-                              qrels, folds)
     what = ("BM25 half uses the light-stemmed index and the dense half adds the BGE query instruction. "
-            "Base is plain hybrid. Run first to check the harness; Step 17 already saw these queries.")
-    upsert_section(EXPERIMENTS_MD, "E0", experiment_markdown(res, what, {"base": "hybrid",
-                                                                         "variant": var_spec.name}))
-    n = update_unjudged_csv(UNJUDGED_CSV, var_spec.name, "E0", answer, var, qrels, texts)
-    print(decide(res), f"| unjudged pairs in {UNJUDGED_CSV}: {n}")
+            "Base is plain hybrid. Run first to check the harness; Step 17 already saw these queries and its "
+            "held-out check did not confirm the gain. It is also the second base of every later experiment.")
+    results = log_experiment("E0", "hybrid+stem+prefix vs hybrid (carried over from Step 17)", what,
+                             {"variant": var_spec.name}, var_spec.name, var, {"hybrid": base}, answer, qrels,
+                             folds, texts)
+    print({b: decide(r) for b, r in results.items()})
 
 
 if __name__ == "__main__":

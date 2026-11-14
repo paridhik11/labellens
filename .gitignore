@@ -16,3 +16,4 @@ results/*
 .DS_Store
 !results/step17_*
 !results/step18_*
+data/processed/ce_cache_*

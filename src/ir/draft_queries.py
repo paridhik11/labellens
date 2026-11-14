@@ -49,6 +49,9 @@ SEED = 42
 MIN_WORDS = 40
 GENERIC_DF = 0.05
 MAX_COPIED = 2
+OVERLAP_MAX_COPIED = 4  # copied content words, common ones included
+OVERLAP_MAX_JACCARD = 0.15
+N_WEB_ANSWERABLE = 30
 N_MODULE = {"device": 21, "medicine": 9}
 TYPE_QUOTA = {"symbol": 3, "change_impact": 4, "vocab_mismatch": 7, "field_req": 8, "direct": 8}
 TYPES = frozenset(TYPE_QUOTA)
@@ -56,6 +59,7 @@ WORKSHEET = Path("data/eval/fresh_chunk_worksheet.tsv")
 CHUNK_QUERIES = Path("data/eval/fresh_chunk_queries.tsv")
 WEB_FAQ = Path("data/eval/fresh_web_faq.tsv")
 CANDIDATES = Path("data/eval/fresh_candidates.csv")
+NO_ANSWER_CANDIDATES = Path("data/eval/fresh_no_answer_candidates.csv")
 EXCLUSIONS = Path("data/eval/finetune_exclusions.json")
 SYMBOL_RE = re.compile(
     r"\b(symbols?|bar codes?|barcodes?|pictograms?|graphics?|abbreviations?|icons?|logos?|asterisk)\b", re.I)
@@ -91,6 +95,26 @@ def copied_words(query: str, chunk_text: str, generic: set[str]) -> list[str]:
     in_chunk = set(tokenize(chunk_text))
     words = {t for t in tokenize(query) if len(t) >= 3 and not t.isdigit()}
     return sorted(t for t in words if t in in_chunk and t not in generic)
+
+
+def overlap_stats(query: str, chunk_text: str) -> dict:
+    """Overlap of a query with its source chunk, common words included (no retrieval).
+
+    Content tokens are the project tokenizer's tokens (stopwords removed, no stemming) of
+    length 3 or more that are not numbers. jaccard is |Q & C| / |Q | C| on the token sets.
+    """
+    q = {t for t in tokenize(query) if len(t) >= 3 and not t.isdigit()}
+    c = set(tokenize(chunk_text))
+    inter = sorted(q & c)
+    union = q | c
+    return {"copied_all_words": inter, "copied_all_count": len(inter),
+            "jaccard": len(q & c) / len(union) if union else 0.0}
+
+
+def corpus_index(chunks: list[Chunk]) -> tuple[set[str], set[str]]:
+    """The CFR part numbers ('801') and section numbers ('801.109') that the corpus really has."""
+    parts = {part_of(c.chunk_id).removeprefix("21cfr") for c in chunks}
+    return parts, {c.section for c in chunks if c.section}
 
 
 def sample_worksheet(chunks: list[Chunk], seed: int = SEED, n_module: dict[str, int] | None = None,
@@ -168,16 +192,30 @@ def read_tsv(path: str | Path) -> list[dict[str, str]]:
 def build_candidates(worksheet: list[dict[str, str]], queries: dict[str, str],
                      web_rows: list[dict[str, str]], chunks: list[Chunk],
                      existing: set[str]) -> tuple[list[dict[str, str]], list[str]]:
-    """Merges both groups into candidate rows and returns (rows, problems)."""
+    """Merges both groups into candidate rows and returns (rows, problems).
+
+    Every row gets target_cfr_part and part_in_corpus (checked against the parts the corpus
+    really has), plus the target section and whether that section is in the corpus.
+    chunk_derived rows also get overlap statistics with their source chunk; a row that copies
+    more than OVERLAP_MAX_COPIED content words (common ones included) or has a Jaccard above
+    OVERLAP_MAX_JACCARD is reported as a problem so it can be rewritten.
+    """
     problems: list[str] = []
     text_of = {c.chunk_id: c.text for c in chunks}
+    section_of = {c.chunk_id: c.section for c in chunks}
     generic = generic_words(chunks)
+    parts, sections = corpus_index(chunks)
     rows: list[dict[str, str]] = []
     seen: dict[str, str] = {}
     for w in web_rows:
+        part, sec = w["target_cfr_part"], w.get("target_section", "")
         rows.append({"qid": w["qid"], "text": w["text"], "type": w["type"], "source_chunk": "",
                      "source_group": "web_faq", "source_url": w["source_url"], "module": w["module"],
-                     "part": "", "original_question": w["original_question"], "copied_words": "",
+                     "target_cfr_part": part, "part_in_corpus": "yes" if part in parts else "no",
+                     "target_section": sec,
+                     "section_in_corpus": ("yes" if sec in sections else "no") if sec else "",
+                     "target_evidence": w["target_evidence"], "original_question": w["original_question"],
+                     "copied_words": "", "copied_all_words": "", "copied_all_count": "", "jaccard": "",
                      "verification": w["extraction"]})
     for w in worksheet:
         q = queries.get(w["qid"], "").strip()
@@ -185,12 +223,25 @@ def build_candidates(worksheet: list[dict[str, str]], queries: dict[str, str],
             problems.append(f"{w['qid']}: no query written")
             continue
         cw = copied_words(q, text_of[w["source_chunk"]], generic)
+        ov = overlap_stats(q, text_of[w["source_chunk"]])
         if len(cw) > MAX_COPIED:
             problems.append(f"{w['qid']}: copies {len(cw)} content words {cw} (max {MAX_COPIED})")
+        if ov["copied_all_count"] > OVERLAP_MAX_COPIED:
+            problems.append(f"{w['qid']}: copies {ov['copied_all_count']} content words incl. common "
+                            f"{ov['copied_all_words']} (max {OVERLAP_MAX_COPIED})")
+        if ov["jaccard"] > OVERLAP_MAX_JACCARD:
+            problems.append(f"{w['qid']}: Jaccard {ov['jaccard']:.3f} with its source chunk "
+                            f"(max {OVERLAP_MAX_JACCARD})")
+        part = part_of(w["source_chunk"]).removeprefix("21cfr")
         rows.append({"qid": w["qid"], "text": q, "type": w["type"], "source_chunk": w["source_chunk"],
                      "source_group": "chunk_derived", "source_url": "", "module": w["module"],
-                     "part": w["part"], "original_question": "", "copied_words": " ".join(cw),
-                     "verification": ""})
+                     "target_cfr_part": part, "part_in_corpus": "yes" if part in parts else "no",
+                     "target_section": section_of[w["source_chunk"]],
+                     "section_in_corpus": "yes", "target_evidence": "source chunk",
+                     "original_question": "", "copied_words": " ".join(cw),
+                     "copied_all_words": " ".join(ov["copied_all_words"]),
+                     "copied_all_count": str(ov["copied_all_count"]),
+                     "jaccard": f"{ov['jaccard']:.3f}", "verification": ""})
     for r in rows:
         key = re.sub(r"\s+", " ", r["text"].lower()).strip()
         if r["type"] not in TYPES:
@@ -203,6 +254,13 @@ def build_candidates(worksheet: list[dict[str, str]], queries: dict[str, str],
         if r["source_group"] == "web_faq" and not r["source_url"].startswith("https://"):
             problems.append(f"{r['qid']}: web_faq row without a source URL")
     return rows, problems
+
+
+def split_no_answer(rows: list[dict[str, str]]) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
+    """Separates web_faq rows whose answer part is not in the corpus (abstention pool candidates)."""
+    moved = [r for r in rows if r["part_in_corpus"] == "no"]
+    keep = [r for r in rows if r["part_in_corpus"] != "no"]
+    return keep, moved
 
 
 def exclusion_lists(chunks: list[Chunk], source_chunks: list[str]) -> dict:
@@ -219,8 +277,10 @@ def exclusion_lists(chunks: list[Chunk], source_chunks: list[str]) -> dict:
 
 def write_candidates(path: str | Path, rows: list[dict[str, str]]) -> None:
     """Writes fresh_candidates.csv (columns: qid, text, type, source_chunk first)."""
-    cols = ["qid", "text", "type", "source_chunk", "source_group", "source_url", "module", "part",
-            "original_question", "copied_words", "verification"]
+    cols = ["qid", "text", "type", "source_chunk", "source_group", "source_url", "module",
+            "target_cfr_part", "part_in_corpus", "target_section", "section_in_corpus", "target_evidence",
+            "original_question", "copied_words", "copied_all_words", "copied_all_count", "jaccard",
+            "verification"]
     with Path(path).open("w", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(f, fieldnames=cols)
         w.writeheader()
@@ -257,11 +317,22 @@ def main() -> None:
         print("PROBLEMS (nothing written):")
         print("\n".join("  " + p for p in problems))
         raise SystemExit(1)
+    rows, moved = split_no_answer(rows)
+    n_web = sum(1 for r in rows if r["source_group"] == "web_faq")
+    if n_web != N_WEB_ANSWERABLE:
+        print(f"PROBLEMS (nothing written): {n_web} answerable web_faq rows, need {N_WEB_ANSWERABLE}; "
+              f"{len(moved)} moved to the no-answer pool, draft replacements from the same Q&A documents")
+        raise SystemExit(1)
     write_candidates(CANDIDATES, rows)
+    write_candidates(NO_ANSWER_CANDIDATES, moved)
     EXCLUSIONS.write_text(json.dumps(exclusion_lists(chunks, [w["source_chunk"] for w in worksheet]),
                                      indent=1) + "\n", encoding="utf-8")
     g = Counter(r["source_group"] for r in rows)
-    print(f"wrote {CANDIDATES}: {len(rows)} rows {dict(g)}")
+    print(f"wrote {CANDIDATES}: {len(rows)} rows {dict(g)}; moved to {NO_ANSWER_CANDIDATES}: {len(moved)}")
+    web = [r for r in rows if r["source_group"] == "web_faq"]
+    print("web_faq part_in_corpus:", dict(Counter(r["part_in_corpus"] for r in web)),
+          "| section_in_corpus:", dict(Counter(r["section_in_corpus"] or "no section cited" for r in web)))
+    print("web_faq target parts:", dict(sorted(Counter(r["target_cfr_part"] for r in web).items())))
     print("type by group:", {k: dict(Counter(r["type"] for r in rows if r["source_group"] == k)) for k in g})
     print("module by group:", {k: dict(Counter(r["module"] for r in rows if r["source_group"] == k)) for k in g})
     ex = json.loads(EXCLUSIONS.read_text(encoding="utf-8"))

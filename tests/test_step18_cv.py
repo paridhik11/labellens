@@ -57,7 +57,7 @@ def test_kept_when_gain_is_broad():
     qids, qrels, base, var = _setup({q: 1 for q in [f"q{i:02d}" for i in range(25)]})
     res = evaluate_experiment("T1", "broad", base, var, qrels, _folds(qids))
     decision, _ = decide(res)
-    assert decision == "KEPT" and res.folds_won() == 5 and res.unjudged10() == 0.0
+    assert decision == "CANDIDATE" and res.folds_won() == 5 and res.unjudged10() == 0.0
 
 
 def test_dropped_when_driven_by_two_queries():
@@ -91,7 +91,7 @@ def test_markdown_section_is_replaced_not_duplicated(tmp_path):
     qids, qrels, base, var = _setup({q: 1 for q in [f"q{i:02d}" for i in range(25)]})
     res = evaluate_experiment("E7", "demo", base, var, qrels, _folds(qids))
     md = experiment_markdown(res, "demo change", {"w": 1})
-    assert "Decision: KEPT" in md and md.count("| 1 |") >= 1
+    assert "CANDIDATE" in md and md.count("| 1 |") >= 1
     path = tmp_path / "log.md"
     upsert_section(path, "E7", md)
     upsert_section(path, "E7", md.replace("demo change", "second run"))
@@ -114,3 +114,29 @@ def test_unjudged_csv_accumulates_merges_variants_and_drops_graded(tmp_path):
     assert got["x"]["text"] == "text x" and "a" not in got
     n3 = update_unjudged_csv(path, "v3", "E3", rows, {"q01": []}, {"q01": {"a": 1, "x": 0}}, texts)
     assert n3 == 1  # x has been graded in the meantime
+
+
+def test_two_bases_report_and_summary_table(tmp_path):
+    import json
+
+    from src.ir.step18_cv import summary_markdown, summary_rows
+
+    qids, qrels, base, var = _setup({q: 1 for q in [f"q{i:02d}" for i in range(25)]})
+    folds = _folds(qids)
+    weak_base = {q: ["a", "d1", "d2", "d3", "d4", "d5"] for q in qids}  # already ranks 'a' first
+    results = {"hybrid": evaluate_experiment("E9", "demo", base, var, qrels, folds),
+               "hybrid+stem+prefix": evaluate_experiment("E9", "demo", weak_base, var, qrels, folds)}
+    md = experiment_markdown(results, "demo change", {"w": 1})
+    assert "### vs hybrid" in md and "### vs hybrid+stem+prefix" in md
+    assert "vs hybrid: CANDIDATE" in md and "vs hybrid+stem+prefix: DROPPED" in md
+    assert md.count("Folds won:") == 2 and md.count("Leave-top-2-out gain:") == 2
+    rows = summary_rows(results)
+    assert {r["base"] for r in rows} == {"hybrid", "hybrid+stem+prefix"}
+    table = summary_markdown(rows)
+    assert "[+" in table and "5 of 5" in table and table.count("| E9: demo |") == 2
+    path, sj = tmp_path / "log.md", tmp_path / "s.json"
+    upsert_section(path, "E9", md, rows, sj)
+    upsert_section(path, "E9", md, rows, sj)  # rerun replaces rows, not appends
+    text = path.read_text(encoding="utf-8")
+    assert text.count("<!-- summary:start -->") == 1 and text.count("| E9: demo |") == 2
+    assert len(json.loads(sj.read_text(encoding="utf-8"))) == 2
