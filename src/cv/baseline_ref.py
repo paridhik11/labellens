@@ -90,13 +90,13 @@ def run_ref(
         if conditions is None or entry["image"].split("/")[0] in conditions
     ]
     key = hashlib.sha256(
-        manifest_bytes + json.dumps([ref, full, images]).encode("utf-8")
+        manifest_bytes + json.dumps([ref, full, images, "archive: src + data/symbols"]).encode("utf-8")
     ).hexdigest()[:16]
     cache_path = dataset_dir / ".ref_cache" / f"{ref}_{key}.json"
     if cache_path.is_file():
         return json.loads(cache_path.read_text(encoding="utf-8"))
     archive = subprocess.run(
-        ["git", "archive", "--format=zip", ref, "src"], cwd=ROOT, check=True, capture_output=True
+        ["git", "archive", "--format=zip", ref, "src", "data/symbols"], cwd=ROOT, check=True, capture_output=True
     ).stdout
     with TemporaryDirectory(prefix="labellens_ref_") as temporary:
         zipfile.ZipFile(io.BytesIO(archive)).extractall(temporary)

@@ -100,6 +100,16 @@ def barcode_2x2(datasets: list[Path], workers: int) -> list[str]:
         f"setting that existed before the commit, the new decoder reaches {new_orig}/{images}"
         f" ({100 * new_orig / images:.1f}%).",
         "",
+        "### Why modest blur breaks this barcode",
+        "",
+        "The generator asks zxing-cpp for the smallest DataMatrix that holds the payload and gets an 8 by 96 module",
+        "rectangular symbol (a DMRE size), not a square one. To fit the 25 mm slot width it is drawn at 3 pixels",
+        "per module, a strip of about 294 by 30 pixels. Blur with sigma 1.8 pixels leaves roughly 17 percent of the",
+        "contrast of a 3 pixel alternating pattern, so the modules nearly vanish. A square 24 by 24 symbol in the same",
+        "slot would have about 11 pixels per module. The benchmark is left as it is (changing the symbol would make",
+        "it easier), but any barcode number here is about a small-module rectangular symbol, checked with",
+        "`zxingcpp.create_barcode` on a test payload: image size 98 by 10 modules including the quiet zone.",
+        "",
     ]
     return lines
 
@@ -213,8 +223,10 @@ def _ocr_variant_worker(job: tuple[str, str]) -> dict[str, Any]:
     noise = np.random.default_rng(0).normal(0, 4, rectified.shape)
     noisy = np.clip(rectified.astype(np.float32) + noise, 0, 255).astype(np.uint8)
 
-    def score(rows: list[list[Any]] | None) -> int:
+    def score(rows: list[list[Any]] | None, strip: bool = False) -> int:
         fields, _ = map_fields(ocr_blocks_from_results(rows, size), size, template)
+        if strip:
+            fields = {field: text.strip() for field, text in fields.items()}
         return sum(edit_distance(truth["fields"][field], fields.get(field, "")) for field in FIELDS)
 
     out = {"condition": truth["condition"], "characters": sum(len(truth["fields"][field]) for field in FIELDS)}
@@ -225,15 +237,21 @@ def _ocr_variant_worker(job: tuple[str, str]) -> dict[str, Any]:
     boxes = [] if boxes is None else list(boxes)
     heights = [float(np.linalg.norm(np.asarray(box)[3] - np.asarray(box)[0])) for box in boxes]
     out["median_box_height"] = float(np.median(heights)) if heights else 0.0
-    for name, ratio in (("pad_0", 0.0), ("pad_15", 0.15), ("pad_30", 0.30), ("pad_50", 0.50)):
+    noisy_bgr = cv2.cvtColor(noisy, cv2.COLOR_RGB2BGR)
+    variants = (
+        ("pad_0", 0.0, bgr), ("pad_15", 0.15, bgr), ("pad_30", 0.30, bgr), ("pad_50", 0.50, bgr),
+        ("noise_4_pad_15", 0.15, noisy_bgr),
+    )
+    for name, ratio, pixels in variants:
         rows = []
         if boxes:
-            recognised, _ = engine.text_rec(_padded_crops(bgr, boxes, ratio))
+            recognised, _ = engine.text_rec(_padded_crops(pixels, boxes, ratio))
             rows = [
                 [np.asarray(box).tolist(), text, confidence]
                 for box, (text, confidence) in zip(boxes, recognised, strict=True)
             ]
         out[name] = score(rows)
+        out[name + "_strip"] = score(rows, strip=True)
     return out
 
 
@@ -246,7 +264,10 @@ def ocr_root_cause(dataset: Path, workers: int) -> list[str]:
     ]
     with ProcessPoolExecutor(max_workers=workers) as pool:
         results = list(pool.map(_ocr_variant_worker, jobs))
-    names = ("as_is", "noise_4", "pad_0", "pad_15", "pad_30", "pad_50")
+    names = (
+        "as_is", "noise_4", "pad_0", "pad_15", "pad_30", "pad_50",
+        "pad_15_strip", "pad_30_strip", "pad_50_strip", "noise_4_pad_15_strip",
+    )
     lines = [
         "### Controlled experiment: what removes the clean-image errors",
         "",
@@ -255,7 +276,8 @@ def ocr_root_cause(dataset: Path, workers: int) -> list[str]:
         "edits over all six fields and 17 labels (lower is better). \"as is\" is the baseline. \"noise 4\" adds",
         "Gaussian noise with sigma 4 to the rectified label before OCR. \"pad N\" keeps the detector boxes but",
         "re-crops each one with a margin of N percent of the box height before recognition (pad 0 re-crops with",
-        "no margin and is the control for the re-cropping itself).",
+        "no margin and is the control for the re-cropping itself). \"strip\" removes leading and trailing",
+        "whitespace from each recognised line before scoring. The last column pads the noisy pixels.",
         "",
         "| Condition | Reference characters | Median detector box height (px) | "
         + " | ".join(name.replace("_", " ") for name in names) + " |",
@@ -447,15 +469,20 @@ def render(datasets: list[Path], workers: int) -> str:
         "- The cause is the recogniser. PP-OCRv4 recognition receives each text line cropped almost exactly at",
         "  the ink, and on such tight crops it is at a tipping point for two decisions: whether a gap is a space,",
         "  and whether a round glyph is 0 or O. Pixel-perfect rendered text (flat white background, no noise)",
-        "  falls on the wrong side. Evidence: adding sigma 4 noise to the same clean labels removes almost all",
-        "  errors (column \"noise 4\"), and re-cropping the same detector boxes with a margin of 30 percent of the",
-        "  box height removes them without touching the pixels (column \"pad 30\"), in every condition.",
+        "  falls on the wrong side. Evidence, all in the table above: (1) adding sigma 4 noise to the same clean",
+        "  labels removes almost all errors (column \"noise 4\") without any other change; (2) re-cropping the",
+        "  same detector boxes with no margin changes almost nothing (\"pad 0\" equals \"as is\"), so the re-cropping",
+        "  code is not the cause; (3) re-cropping with a margin removes most clean errors, and removes nearly all",
+        "  of them in every condition once leading and trailing whitespace is stripped (the \"strip\" columns).",
+        "- Padding has a side effect that the unstripped columns show: with a wide margin the recogniser starts",
+        "  to emit a space at the start or end of the line, which costs one edit per line. That is why \"pad 30\"",
+        "  and \"pad 50\" look worse than the baseline on moderate and hard until the text is stripped.",
         "- Why hard reaches 0%: the text is large (9 to 12 pt at 300 DPI, glyphs 30 to 45 px tall) and black on",
         "  white in one font. Blur sigma up to 1.6 px is small against stroke widths of 4 to 5 px, and the hard",
         "  noise (sigma 6) happens to act like the noise in the experiment above. So \"hard\" is hard for the",
         "  barcode but not for OCR, and the 0% is an artefact of the same sensitivity, not proof of robust OCR.",
-        "- Consequence: the published CER numbers mostly measure this crop sensitivity. The fix is to pad the",
-        "  crops before recognition (general, no template knowledge), not to add noise.",
+        "- Consequence: the published CER numbers mostly measure this crop sensitivity. Fix 1 pads the crops",
+        "  before recognition and strips the result. Both are general and use no template knowledge.",
         "",
         TEMPLATE_AUDIT,
         *schema_check(datasets[0], workers),
