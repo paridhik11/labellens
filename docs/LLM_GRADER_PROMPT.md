@@ -203,3 +203,4 @@ A dry run of `next-batch` gives batch 52 (the first batch of this pool).
 | 91 | 19 (extra2 rows 1182 to 1200) | q60 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 17 zero, 1 one, 1 two |
 | 92 | 27 (extra2 rows 1201 to 1227) | q61 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 25 zero, 1 one, 1 two |
 | 93 | 20 (extra2 rows 1228 to 1247) | q62 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool, last batch. Grades: 20 zero, 0 one, 0 two. Pool total 1247 rows: 1142 zero, 90 one, 15 two |
+| 94 | 10 (extra3 rows 1 to 10) | q15, q24, q55 | claude-sonnet-5-5 | 2026-11-14 | Third extra pool (Step 17 held-out unjudged top-10 pairs, `data/eval/pool_t1_extra3.csv`). Grades: 7 zero, 3 one, 0 two |
