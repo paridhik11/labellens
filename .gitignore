@@ -14,3 +14,6 @@ results/*
 !results/step14_*.md
 !results/step15_*
 .DS_Store
+.venv-cv/
+data/synthetic/
+!results/cv_*.md

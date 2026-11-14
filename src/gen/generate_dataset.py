@@ -14,10 +14,13 @@ from PIL import Image
 
 from src.cv.barcode import decode_barcode_slot, decode_barcodes
 from src.cv.preprocess import find_label_corners, rectify_label
-from src.gen.augment import Condition, augment_label, transform_box
+from src.gen.augment import ALL_CONDITIONS, Condition, augment_label_detailed, transform_box
 from src.gen.smoke_label import DPI, build_label
 
 CONDITIONS: tuple[Condition, ...] = ("clean", "moderate", "hard")
+# Extra conditions reuse the "hard" augmentation seed, so each one differs from the
+# paired "hard" photo only by its own effect (stronger blur and noise, or glare and occlusion).
+EXTRA_CONDITIONS: tuple[Condition, ...] = ("hard_original", "very_hard")
 
 
 def _variant_values(index: int, rng: np.random.Generator) -> tuple[dict[str, str], dict[str, str]]:
@@ -46,7 +49,7 @@ def _save_condition(
     seed: int,
 ) -> dict[str, Any]:
     """Save a photo and its transformed ground truth with measured self-checks."""
-    photo, matrix, label_corners = augment_label(source, condition, seed)
+    photo, matrix, label_corners, details = augment_label_detailed(source, condition, seed)
     slot_quads = {
         field: transform_box(box, matrix)
         for field, box in source_truth["slot_boxes_px_xywh"].items()
@@ -127,6 +130,8 @@ def _save_condition(
             "Some distorted barcodes may still need human review; failed self-checks are retained",
         ],
     )
+    if condition in EXTRA_CONDITIONS:
+        truth["augmentation_details"] = details
     condition_dir = output_dir / condition
     condition_dir.mkdir(parents=True, exist_ok=True)
     photo.save(condition_dir / f"{label_id}.png", dpi=(DPI, DPI))
@@ -134,8 +139,17 @@ def _save_condition(
     return truth
 
 
-def generate_dataset(output_dir: Path, seed: int = 42, labels_per_condition: int = 17) -> dict[str, Any]:
-    """Generate three conditions per base label and return the saved manifest.
+def generate_dataset(
+    output_dir: Path,
+    seed: int = 42,
+    labels_per_condition: int = 17,
+    conditions: tuple[Condition, ...] = CONDITIONS,
+) -> dict[str, Any]:
+    """Generate the requested conditions per base label and return the saved manifest.
+
+    The default three conditions give output identical to earlier versions.
+    Augmentation seeds for clean, moderate and hard are always drawn in that
+    order, so adding extra conditions never changes the default photos.
 
     An existing dataset may be regenerated with the same seed and count.
     Other nonempty output directories are rejected to avoid mixing datasets.
@@ -146,12 +160,17 @@ def generate_dataset(output_dir: Path, seed: int = 42, labels_per_condition: int
         raise ValueError("labels_per_condition must be an integer from 1 to 999")
     if not 1 <= labels_per_condition <= 999:
         raise ValueError("labels_per_condition must be an integer from 1 to 999")
+    conditions = tuple(conditions)
+    if not conditions or len(set(conditions)) != len(conditions) or set(conditions) - set(ALL_CONDITIONS):
+        raise ValueError(f"conditions must be distinct values from {ALL_CONDITIONS}")
     config = {
         "generator": "src.gen.generate_dataset",
         "format_version": 1,
         "seed": seed,
         "labels_per_condition": labels_per_condition,
     }
+    if conditions != CONDITIONS:
+        config["condition_names"] = list(conditions)
     manifest_path = output_dir / "manifest.json"
     if output_dir.exists() and any(output_dir.iterdir()):
         if not manifest_path.is_file():
@@ -161,15 +180,15 @@ def generate_dataset(output_dir: Path, seed: int = 42, labels_per_condition: int
             raise ValueError("Output dataset uses different settings; use a new directory")
         expected = {"manifest.json"} | {
             f"{condition}/test_label_{index:03d}_{condition}.{suffix}"
-            for condition in CONDITIONS
+            for condition in conditions
             for index in range(1, labels_per_condition + 1)
             for suffix in ("png", "json")
         }
         actual = {path.relative_to(output_dir).as_posix() for path in output_dir.rglob("*") if path.is_file()}
         if actual - expected:
             raise ValueError("Output directory contains unrelated files; use a new directory")
-    counts = {condition: {"images": 0, "barcode_passes": 0, "geometry_passes": 0} for condition in CONDITIONS}
-    manifest = {**config, "total_images": labels_per_condition * len(CONDITIONS), "conditions": counts, "files": []}
+    counts = {condition: {"images": 0, "barcode_passes": 0, "geometry_passes": 0} for condition in conditions}
+    manifest = {**config, "total_images": labels_per_condition * len(conditions), "conditions": counts, "files": []}
     sequences = np.random.SeedSequence(seed).spawn(labels_per_condition)
     with TemporaryDirectory(prefix="labellens_source_") as temporary:
         for index, sequence in enumerate(sequences, start=1):
@@ -180,8 +199,9 @@ def generate_dataset(output_dir: Path, seed: int = 42, labels_per_condition: int
             )
             source_truth = json.loads(Path(paths["ground_truth"]).read_text(encoding="utf-8"))
             with Image.open(paths["image"]) as source:
-                for condition in CONDITIONS:
-                    augmentation_seed = int(rng.integers(0, 2**32))
+                base_seeds = {condition: int(rng.integers(0, 2**32)) for condition in CONDITIONS}
+                for condition in conditions:
+                    augmentation_seed = base_seeds.get(condition, base_seeds["hard"])
                     truth = _save_condition(source, source_truth, output_dir, condition, augmentation_seed)
                     counts[condition]["images"] += 1
                     counts[condition]["barcode_passes"] += int(truth["self_check"]["barcode_matches"])
@@ -200,9 +220,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output-dir", type=Path, default=Path("data/synthetic/task1"))
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--labels-per-condition", type=int, default=17)
+    parser.add_argument(
+        "--conditions", nargs="+", default=list(CONDITIONS), choices=list(ALL_CONDITIONS),
+        help="Conditions to render; hard_original and very_hard reuse the hard seed",
+    )
     args = parser.parse_args(argv)
     try:
-        manifest = generate_dataset(args.output_dir, args.seed, args.labels_per_condition)
+        manifest = generate_dataset(
+            args.output_dir, args.seed, args.labels_per_condition, tuple(args.conditions)
+        )
     except ValueError as error:
         parser.error(str(error))
     print(f"Generated {manifest['total_images']} image/JSON pairs (seed={args.seed})")
