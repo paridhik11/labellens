@@ -63,6 +63,7 @@ class PartBoostRetriever:
         beta: float = 0.25,
         fetch_k: int = 50,
         rrf_k: int = 60,
+        part_scoring: str = "bm25",
         name: str = "partboost",
     ) -> None:
         """Args:
@@ -72,8 +73,15 @@ class PartBoostRetriever:
             beta: boost factor; topic-part scores are multiplied by 1 + beta.
             fetch_k: how deep into the base ranking the boost can reach.
             rrf_k: smoothing constant of the rank score 1 / (rrf_k + rank).
+            part_scoring: how topic parts are chosen. 'bm25' scores the query
+                against part pseudo-documents (B1). 'rrf_top3' lets the base
+                ranking vote: a part's score is the sum of 1 / (rrf_k + rank)
+                over its 3 best-ranked chunks in the base top fetch_k.
             name: system name shown in tables.
         """
+        if part_scoring not in {"bm25", "rrf_top3"}:
+            raise ValueError(f"part_scoring must be 'bm25' or 'rrf_top3', got {part_scoring!r}")
+        self.part_scoring = part_scoring
         self.base = base
         self.part_search = BM25Retriever(part_index)
         self.top_parts = top_parts
@@ -87,14 +95,34 @@ class PartBoostRetriever:
         hits = self.part_search.search(query, k=self.part_search.ix.n_docs)
         return [(h.doc_id, h.score) for h in hits]
 
-    def topic_parts(self, query: str) -> list[str]:
-        """The top_parts best-matching parts (empty if no part matches any query word)."""
-        return [p for p, _ in self.rank_parts(query)[: self.top_parts]]
+    def vote_parts(self, hits: list[Hit]) -> list[tuple[str, float]]:
+        """Parts ranked by the summed rank score of their 3 best chunks in hits."""
+        seen: dict[str, int] = defaultdict(int)
+        total: dict[str, float] = defaultdict(float)
+        for h in hits:
+            part = part_of(h.doc_id)
+            if seen[part] < 3:
+                seen[part] += 1
+                total[part] += 1.0 / (self.rrf_k + h.rank)
+        return sorted(total.items(), key=lambda kv: (-kv[1], kv[0]))
+
+    def topic_parts(self, query: str, hits: list[Hit] | None = None) -> list[str]:
+        """The top_parts chosen parts (empty if nothing matches).
+
+        Args:
+            query: the query text.
+            hits: base ranking, needed only for part_scoring 'rrf_top3'.
+        """
+        if self.part_scoring == "rrf_top3":
+            ranked = self.vote_parts(hits or self.base.search(query, k=self.fetch_k))
+        else:
+            ranked = self.rank_parts(query)
+        return [p for p, _ in ranked[: self.top_parts]]
 
     def search(self, query: str, k: int = 10) -> list[Hit]:
         """Top-k chunks of the base ranking after the topic-part boost."""
         hits = self.base.search(query, k=max(k, self.fetch_k))
-        topics = set(self.topic_parts(query))
+        topics = set(self.topic_parts(query, hits))
         scored = []
         for h in hits:
             s = 1.0 / (self.rrf_k + h.rank)

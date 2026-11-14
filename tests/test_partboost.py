@@ -65,3 +65,20 @@ def test_no_matching_part_means_no_change_and_ranks_are_renumbered():
     hits = r.search("zzz qqq", k=3)
     assert [h.doc_id for h in hits] == ORDER[:3]
     assert [h.rank for h in hits] == [1, 2, 3]
+
+
+def test_rrf_top3_scoring_lets_the_base_ranking_vote():
+    # base order puts the two 830 chunks first, so 830 wins the vote whatever the query says
+    order = ["fda_21cfr830_s830.1_c1", "fda_21cfr830_s830.2_c1", "fda_21cfr801_s801.1_c1",
+             "fda_21cfr803_s803.1_c1"]
+    r = PartBoostRetriever(FixedBase(order), build_part_index(DOCS), part_scoring="rrf_top3")
+    assert r.topic_parts("adverse event") == ["21cfr830"]
+    hits = FixedBase(order).search("x", k=4)
+    assert [p for p, _ in r.vote_parts(hits)] == ["21cfr830", "21cfr801", "21cfr803"]
+
+
+def test_rrf_top3_counts_only_three_chunks_per_part():
+    ids = [f"fda_21cfr801_s801.{i}_c1" for i in range(5)] + ["fda_21cfr830_s830.1_c1"]
+    r = PartBoostRetriever(FixedBase(ids), build_part_index(DOCS), part_scoring="rrf_top3")
+    votes = dict(r.vote_parts(FixedBase(ids).search("x", k=6)))
+    assert abs(votes["21cfr801"] - (1 / 61 + 1 / 62 + 1 / 63)) < 1e-12

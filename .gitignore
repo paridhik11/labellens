@@ -13,3 +13,4 @@ results/*
 !results/step13_llm_vs_human.md
 !results/step14_*.md
 .DS_Store
+!results/step17_*

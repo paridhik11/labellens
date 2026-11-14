@@ -48,6 +48,7 @@ class CrossEncoderReranker:
         max_length: int = 512,
         batch_size: int = 32,
         name: str = "rerank",
+        score_cache: dict[tuple[str, str], float] | None = None,
     ) -> None:
         """Args:
             base: retriever supplying the candidates (for example hybrid).
@@ -59,6 +60,8 @@ class CrossEncoderReranker:
             max_length: tokens kept per (query, chunk) pair.
             batch_size: pairs per model call.
             name: system name shown in tables.
+            score_cache: optional dict shared between rerankers so the same
+                (query, chunk) pair is never scored twice.
         """
         if mode not in {"replace", "rrf"}:
             raise ValueError(f"mode must be 'replace' or 'rrf', got {mode!r}")
@@ -71,7 +74,7 @@ class CrossEncoderReranker:
         self.max_length = max_length
         self.batch_size = batch_size
         self.name = name
-        self._cache: dict[tuple[str, str], float] = {}
+        self._cache: dict[tuple[str, str], float] = {} if score_cache is None else score_cache
 
     def _scorer(self) -> PairScorer:
         if self._model is None:
