@@ -193,3 +193,13 @@ A dry run of `next-batch` gives batch 52 (the first batch of this pool).
 | 81 | 20 (extra2 rows 881 to 900) | q46 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 12 zero, 8 one, 0 two |
 | 82 | 37 (extra2 rows 901 to 937) | q47, q48 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 32 zero, 4 one, 1 two |
 | 83 | 40 (extra2 rows 938 to 977) | q49, q50 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 34 zero, 3 one, 3 two |
+| 84 | 24 (extra2 rows 978 to 1001) | q51 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 20 zero, 4 one, 0 two |
+| 85 | 25 (extra2 rows 1002 to 1026) | q52 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 18 zero, 5 one, 2 two |
+| 86 | 37 (extra2 rows 1027 to 1063) | q53, q54 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 30 zero, 5 one, 2 two |
+| 87 | 27 (extra2 rows 1064 to 1090) | q55 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 27 zero, 0 one, 0 two |
+| 88 | 40 (extra2 rows 1091 to 1130) | q56, q57 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 37 zero, 2 one, 1 two |
+| 89 | 25 (extra2 rows 1131 to 1155) | q58 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 25 zero, 0 one, 0 two |
+| 90 | 26 (extra2 rows 1156 to 1181) | q59 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 25 zero, 1 one, 0 two |
+| 91 | 19 (extra2 rows 1182 to 1200) | q60 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 17 zero, 1 one, 1 two |
+| 92 | 27 (extra2 rows 1201 to 1227) | q61 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 25 zero, 1 one, 1 two |
+| 93 | 20 (extra2 rows 1228 to 1247) | q62 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool, last batch. Grades: 20 zero, 0 one, 0 two. Pool total 1247 rows: 1142 zero, 90 one, 15 two |
