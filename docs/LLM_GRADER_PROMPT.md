@@ -204,3 +204,23 @@ A dry run of `next-batch` gives batch 52 (the first batch of this pool).
 | 92 | 27 (extra2 rows 1201 to 1227) | q61 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool. Grades: 25 zero, 1 one, 1 two |
 | 93 | 20 (extra2 rows 1228 to 1247) | q62 | claude-sonnet-5-5 | 2026-11-14 | Second extra pool, last batch. Grades: 20 zero, 0 one, 0 two. Pool total 1247 rows: 1142 zero, 90 one, 15 two |
 | 94 | 10 (extra3 rows 1 to 10) | q15, q24, q55 | claude-sonnet-5-5 | 2026-11-14 | Third extra pool (Step 17 held-out unjudged top-10 pairs, `data/eval/pool_t1_extra3.csv`). Grades: 7 zero, 3 one, 0 two |
+| 95 | 40 (abstain rows 1 to 40) | ab01 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 35 zero, 2 one, 3 two |
+| 96 | 43 (abstain rows 41 to 83) | ab02 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 37 zero, 5 one, 1 two |
+| 97 | 36 (abstain rows 84 to 119) | ab03 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 34 zero, 0 one, 2 two |
+| 98 | 35 (abstain rows 120 to 154) | ab04 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 18 zero, 15 one, 2 two |
+| 99 | 44 (abstain rows 155 to 198) | ab05 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 42 zero, 1 one, 1 two |
+| 100 | 36 (abstain rows 199 to 234) | ab06 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 31 zero, 4 one, 1 two |
+| 101 | 35 (abstain rows 235 to 269) | ab07 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 32 zero, 1 one, 2 two |
+| 102 | 29 (abstain rows 270 to 298) | ab08 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 26 zero, 2 one, 1 two |
+| 103 | 33 (abstain rows 299 to 331) | ab09 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 24 zero, 4 one, 5 two |
+| 104 | 43 (abstain rows 332 to 374) | ab10 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 41 zero, 0 one, 2 two |
+| 105 | 43 (abstain rows 375 to 417) | ab11 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 43 zero, 0 one, 0 two |
+| 106 | 39 (abstain rows 418 to 456) | ab12 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 38 zero, 1 one, 0 two |
+| 107 | 43 (abstain rows 457 to 499) | ab13 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 42 zero, 1 one, 0 two |
+| 108 | 44 (abstain rows 500 to 543) | ab14 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 44 zero, 0 one, 0 two |
+| 109 | 40 (abstain rows 544 to 583) | ab15 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 38 zero, 2 one, 0 two |
+| 110 | 45 (abstain rows 584 to 628) | ab16 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 45 zero, 0 one, 0 two |
+| 111 | 45 (abstain rows 629 to 673) | ab17 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 42 zero, 3 one, 0 two |
+| 112 | 33 (abstain rows 674 to 706) | ab18 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 32 zero, 1 one, 0 two |
+| 113 | 40 (abstain rows 707 to 746) | ab19 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 38 zero, 2 one, 0 two |
+| 114 | 42 (abstain rows 747 to 788) | ab20 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 40 zero, 2 one, 0 two. Pool total 788 rows: 722 zero, 46 one, 20 two |
