@@ -284,6 +284,17 @@ def test_build_extra_pool_refuses_protected_paths_and_bad_inputs(tmp_path: Path)
     assert not (tmp_path / "e.csv").exists()
 
 
+def test_build_extra_pool_skip_graded_leaves_out_graded_pairs(tmp_path: Path) -> None:
+    f = _extra_inputs(tmp_path)
+    f["qrels"].write_text("q2 0 c_a 1\n", encoding="utf-8")  # (q2, c_a) already graded
+    out = tmp_path / "extra2.csv"
+    n = tool.build_extra_pool(f["unj"], f["qs"], f["corpus"], f["qrels"], out, skip_graded=True)
+    assert n == 2
+    with out.open(encoding="utf-8", newline="") as fh:
+        got = [(r["qid"], r["chunk_id"]) for r in csv.DictReader(fh)]
+    assert got == [("q2", "c_b"), ("q10", "c_b")]
+
+
 def test_extra_flow_continues_batch_numbers_and_never_touches_main_pool(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:

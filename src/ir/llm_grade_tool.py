@@ -10,9 +10,12 @@ Subcommands:
   next-batch  write the next batch of ungraded rows to a file for the grader
   record      check the grader output for that batch and append it
   to-qrels    turn data/eval/pool_t1_llm.csv into TREC qrels
-  make-extra  build data/eval/pool_t1_extra.csv from the Step 15 unjudged listing
-  (next-batch and record take --extra to grade that extra pool; the grades are appended
-   to data/eval/pool_t1_llm.csv and batch numbers continue after the last recorded batch)
+  make-extra  build an extra pool (default data/eval/pool_t1_extra.csv) from any CSV with
+              qid and chunk_id columns (default the Step 15 top-10 listing); --skip-graded
+              leaves out pairs that already have an LLM grade, --out picks another file
+  (next-batch and record take --extra to grade an extra pool, --pool picks a file other than
+   pool_t1_extra.csv; the grades are appended to data/eval/pool_t1_llm.csv and batch numbers
+   continue after the last recorded batch)
 
 Row ids: a passage can appear under several queries, so every row is
 identified by "<qid>:<chunk_id>", for example "q01:fda_21cfr801_s801.109_c1".
@@ -261,13 +264,16 @@ def build_extra_pool(
     qrels_path: str | Path,
     out_path: str | Path = EXTRA_PATH,
     force: bool = False,
+    skip_graded: bool = False,
 ) -> int:
-    """Builds the extra pool CSV (qid, query, chunk_id, text) for unjudged pairs.
+    """Builds an extra pool CSV (qid, query, chunk_id, text) for unjudged pairs.
 
-    Reads unique (qid, chunk_id) pairs from the Step 15 listing (the variant column is
-    dropped, so the grader never sees which system retrieved a chunk), looks up the query
-    text and chunk text, and writes the rows sorted by qid then chunk_id. Raises ValueError
-    if a qid or chunk is unknown, or if a pair already has an LLM grade in qrels_path.
+    Works for any CSV with qid and chunk_id columns (the Step 15 top-10 listing, the ranks
+    11 to 20 listing, ...). Reads unique (qid, chunk_id) pairs (a variant column, if any,
+    is dropped, so the grader never sees which system retrieved a chunk), looks up the
+    query text and chunk text, and writes the rows sorted by qid then chunk_id. Raises
+    ValueError if a qid or chunk is unknown, or if a pair already has an LLM grade in
+    qrels_path, unless skip_graded is set: then already graded pairs are left out instead.
     Refuses to write over the main pool, the LLM grades file or the human sample, and
     refuses to replace an existing extra pool unless force is set. Returns rows written.
     """
@@ -291,6 +297,8 @@ def build_extra_pool(
         for parts in (ln.split() for ln in Path(qrels_path).read_text(encoding="utf-8").splitlines())
         if len(parts) >= 4
     }
+    if skip_graded:
+        pairs = pairs - judged
     unknown_q = sorted({q for q, _ in pairs if q not in queries})
     unknown_c = sorted({c for _, c in pairs if c not in texts})
     already = sorted(pairs & judged)
@@ -523,6 +531,8 @@ def main() -> None:
     p_x.add_argument("--qrels", default=str(QRELS_LLM_PATH))
     p_x.add_argument("--out", default=str(EXTRA_PATH))
     p_x.add_argument("--force", action="store_true", help="Replace an existing extra pool")
+    p_x.add_argument("--skip-graded", action="store_true",
+                     help="Leave out pairs that already have an LLM grade instead of refusing")
 
     p_q = sub.add_parser("to-qrels", help="Build TREC qrels from the LLM grades CSV.")
     p_q.add_argument("--llm", default=str(LLM_PATH))
@@ -583,9 +593,12 @@ def main() -> None:
         print("grade counts:", dict(sorted(Counter(grades.values()).items())))
         print(_progress(a, pool, graded, sample_qids))
     elif a.cmd == "make-extra":
-        n = build_extra_pool(a.unjudged, a.queries, a.corpus, a.qrels, a.out, a.force)
+        with Path(a.unjudged).open(encoding="utf-8", newline="") as f:
+            n_listed = len({(r["qid"], r["chunk_id"]) for r in csv.DictReader(f)})
+        n = build_extra_pool(a.unjudged, a.queries, a.corpus, a.qrels, a.out, a.force, a.skip_graded)
         with Path(a.out).open(encoding="utf-8", newline="") as f:
             qids = sorted({r["qid"] for r in csv.DictReader(f)}, key=_qid_key)
+        print(f"Unique pairs in {a.unjudged}: {n_listed}; left out as already graded: {n_listed - n}")
         print(f"Wrote {n} rows for {len(qids)} queries to {a.out}")
         print("qids:", ", ".join(qids))
     elif a.cmd == "to-qrels":

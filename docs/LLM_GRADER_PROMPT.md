@@ -93,6 +93,19 @@ python -m src.ir.llm_grade_tool to-qrels
 
 With `--extra` the grades are appended to `data/eval/pool_t1_llm.csv` (same columns, same model column), and the batch number continues after the last recorded batch, so the first extra batch is 44. Log every batch in the table below as before. The sample queries have no priority here: whole queries are batched in qid order.
 
+### Second extra pool (ranks 11 to 20, built, NOT graded yet)
+
+`data/eval/pool_t1_extra2.csv` holds 1247 pairs (62 queries): the unique (qid, chunk) pairs of `results/step15_unjudged_ranks11_20.csv` (1476) minus the 229 that already have an LLM grade. Same columns and rules as the first extra pool. It was built with:
+
+```
+python -m src.ir.llm_grade_tool make-extra --unjudged results/step15_unjudged_ranks11_20.csv --skip-graded --out data/eval/pool_t1_extra2.csv
+# when grading: pass --pool so the tool reads this file, and use the SAME --max-rows for both calls
+python -m src.ir.llm_grade_tool next-batch --extra --pool data/eval/pool_t1_extra2.csv --out <scratchpad>/batch.md
+python -m src.ir.llm_grade_tool record --extra --pool data/eval/pool_t1_extra2.csv --grades <scratchpad>/grades.tsv --model "<model id as /model shows it>"
+```
+
+A dry run of `next-batch` gives batch 52 (the first batch of this pool).
+
 ## Batch log
 
 | Batch | Rows | Queries | Model id (as `/model` shows) | Date | Notes |
