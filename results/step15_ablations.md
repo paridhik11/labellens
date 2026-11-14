@@ -28,165 +28,163 @@ here is tuned. Device and medicine are separate tables.
 - Scored queries are the answerable graded queries (no_answer queries and corpus gaps
   excluded), as in the Step 14 main tables.
 
-> **Recall@20, MAP and MRR are provisional until the depth-20 pool is graded.** They reach past rank 10, and the qrels only cover the top 10 of each variant plus the original pool. The chunk-level tables show how many ranks 11 to 20 are still unjudged (counted as 0). nDCG@10 is the primary metric and uses only the top 10.
-> The columns marked * (Recall@20, MRR, MAP) are those provisional metrics and carry no
-> p-values.
+> **Recall@20, MAP and MRR use the depth-20 pool.** The qrels now cover the top 20 of every variant at chunk level (the unjudged ranks 11-20 column should be 0 there). Sections can still contain unjudged chunks, because grading followed chunk rankings, not the sections they aggregate into. nDCG@10 stays the primary metric and the only one with p-values.
 
 ## Ablation: RRF smoothing constant k (default 60) (`rrf_k`)
 
 ### Device, chunk level, 40 queries. LLM-assessed qrels (claude-sonnet-5-5), not human grades
 
-| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | unjudged ranks 11-20 | Recall@20* | MRR* | MAP* |
+| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | unjudged ranks 11-20 | Recall@20 | MRR | MAP |
 |---|---|---|---|---|---|---|---|---|---|---|
-| default_hybrid (default) | 0.604 [0.527, 0.679] | reference |  |  |  | 0 | 180 | 0.800 | 0.786 | 0.561 |
-| rrf_k10 (vs default_hybrid) | 0.626 [0.550, 0.696] | +0.021 [+0.001, +0.043] | 0.038 | 0.189 | 0.680 | 0 | 76 | 0.883 | 0.799 | 0.616 |
-| rrf_k30 (vs default_hybrid) | 0.619 [0.544, 0.689] | +0.015 [+0.004, +0.028] | 0.0002 | 0.001 | 0.004 | 0 | 147 | 0.839 | 0.786 | 0.579 |
-| rrf_k100 (vs default_hybrid) | 0.605 [0.526, 0.680] | +0.001 [-0.003, +0.006] | 0.879 | 1.000 | 1.000 | 0 | 179 | 0.800 | 0.786 | 0.558 |
+| default_hybrid (default) | 0.579 [0.505, 0.651] | reference |  |  |  | 0 | 0 | 0.731 | 0.786 | 0.502 |
+| rrf_k10 (vs default_hybrid) | 0.600 [0.527, 0.668] | +0.021 [+0.001, +0.041] | 0.037 | 0.183 | 0.659 | 0 | 0 | 0.780 | 0.799 | 0.539 |
+| rrf_k30 (vs default_hybrid) | 0.593 [0.521, 0.661] | +0.014 [+0.004, +0.026] | 0.0006 | 0.004 | 0.013 | 0 | 0 | 0.755 | 0.786 | 0.514 |
+| rrf_k100 (vs default_hybrid) | 0.580 [0.505, 0.652] | +0.001 [-0.003, +0.006] | 0.885 | 1.000 | 1.000 | 0 | 0 | 0.731 | 0.786 | 0.500 |
 
 ### Device, section level, 40 queries. LLM-assessed qrels (claude-sonnet-5-5), not human grades
 
-| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | Recall@20* | MRR* | MAP* |
+| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | Recall@20 | MRR | MAP |
 |---|---|---|---|---|---|---|---|---|---|
-| default_hybrid (default) | 0.720 [0.640, 0.794] | reference |  |  |  | 31 | 0.922 | 0.808 | 0.689 |
-| rrf_k10 (vs default_hybrid) | 0.749 [0.677, 0.816] | +0.030 [+0.012, +0.049] | 0.0008 | 0.005 | 0.018 | 16 | 0.951 | 0.812 | 0.715 |
-| rrf_k30 (vs default_hybrid) | 0.735 [0.659, 0.806] | +0.015 [+0.004, +0.027] | 0.004 | 0.022 | 0.084 | 20 | 0.962 | 0.808 | 0.704 |
-| rrf_k100 (vs default_hybrid) | 0.716 [0.635, 0.791] | -0.004 [-0.015, +0.005] | 0.402 | 1.000 | 1.000 | 37 | 0.878 | 0.807 | 0.681 |
+| default_hybrid (default) | 0.695 [0.616, 0.767] | reference |  |  |  | 1 | 0.862 | 0.820 | 0.649 |
+| rrf_k10 (vs default_hybrid) | 0.721 [0.650, 0.786] | +0.026 [+0.009, +0.044] | 0.001 | 0.008 | 0.029 | 0 | 0.907 | 0.824 | 0.665 |
+| rrf_k30 (vs default_hybrid) | 0.708 [0.633, 0.778] | +0.012 [+0.002, +0.024] | 0.014 | 0.070 | 0.258 | 0 | 0.899 | 0.820 | 0.660 |
+| rrf_k100 (vs default_hybrid) | 0.692 [0.612, 0.767] | -0.003 [-0.013, +0.005] | 0.529 | 1.000 | 1.000 | 1 | 0.823 | 0.820 | 0.642 |
 
 ### Medicine, chunk level, 17 queries. LLM-assessed qrels (claude-sonnet-5-5), not human grades
 
-| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | unjudged ranks 11-20 | Recall@20* | MRR* | MAP* |
+| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | unjudged ranks 11-20 | Recall@20 | MRR | MAP |
 |---|---|---|---|---|---|---|---|---|---|---|
-| default_hybrid (default) | 0.689 [0.578, 0.789] | reference |  |  |  | 0 | 88 | 0.824 | 0.918 | 0.652 |
-| rrf_k10 (vs default_hybrid) | 0.703 [0.591, 0.800] | +0.013 [-0.007, +0.042] | 0.278 | 1.000 | 1.000 | 0 | 37 | 0.916 | 0.909 | 0.678 |
-| rrf_k30 (vs default_hybrid) | 0.691 [0.580, 0.790] | +0.002 [-0.002, +0.007] | 0.399 | 1.000 | 1.000 | 0 | 69 | 0.845 | 0.918 | 0.657 |
-| rrf_k100 (vs default_hybrid) | 0.684 [0.571, 0.786] | -0.005 [-0.020, +0.003] | 0.667 | 1.000 | 1.000 | 0 | 88 | 0.824 | 0.918 | 0.654 |
+| default_hybrid (default) | 0.633 [0.525, 0.735] | reference |  |  |  | 0 | 0 | 0.724 | 0.918 | 0.559 |
+| rrf_k10 (vs default_hybrid) | 0.647 [0.537, 0.749] | +0.014 [-0.006, +0.042] | 0.258 | 1.000 | 1.000 | 0 | 0 | 0.767 | 0.909 | 0.564 |
+| rrf_k30 (vs default_hybrid) | 0.636 [0.526, 0.737] | +0.002 [-0.002, +0.007] | 0.353 | 1.000 | 1.000 | 0 | 0 | 0.728 | 0.918 | 0.556 |
+| rrf_k100 (vs default_hybrid) | 0.628 [0.518, 0.731] | -0.005 [-0.020, +0.003] | 0.685 | 1.000 | 1.000 | 0 | 0 | 0.724 | 0.918 | 0.561 |
 
 ### Medicine, section level, 17 queries. LLM-assessed qrels (claude-sonnet-5-5), not human grades
 
-| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | Recall@20* | MRR* | MAP* |
+| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | Recall@20 | MRR | MAP |
 |---|---|---|---|---|---|---|---|---|---|
-| default_hybrid (default) | 0.806 [0.695, 0.891] | reference |  |  |  | 25 | 0.973 | 0.949 | 0.765 |
-| rrf_k10 (vs default_hybrid) | 0.815 [0.730, 0.884] | +0.008 [-0.025, +0.046] | 0.691 | 1.000 | 1.000 | 20 | 0.973 | 0.950 | 0.743 |
-| rrf_k30 (vs default_hybrid) | 0.820 [0.708, 0.901] | +0.013 [-0.007, +0.040] | 0.284 | 1.000 | 1.000 | 23 | 0.973 | 0.949 | 0.763 |
-| rrf_k100 (vs default_hybrid) | 0.806 [0.695, 0.891] | -0.001 [-0.006, +0.003] | 0.830 | 1.000 | 1.000 | 27 | 0.973 | 0.949 | 0.768 |
+| default_hybrid (default) | 0.749 [0.636, 0.842] | reference |  |  |  | 2 | 0.945 | 0.949 | 0.713 |
+| rrf_k10 (vs default_hybrid) | 0.760 [0.670, 0.840] | +0.011 [-0.022, +0.049] | 0.578 | 1.000 | 1.000 | 1 | 0.918 | 0.950 | 0.695 |
+| rrf_k30 (vs default_hybrid) | 0.761 [0.651, 0.850] | +0.012 [-0.006, +0.037] | 0.306 | 1.000 | 1.000 | 1 | 0.918 | 0.949 | 0.709 |
+| rrf_k100 (vs default_hybrid) | 0.748 [0.636, 0.842] | -0.001 [-0.005, +0.002] | 0.691 | 1.000 | 1.000 | 2 | 0.949 | 0.949 | 0.712 |
 
 ## Ablation: RRF weights bm25:dense (default 1:1) (`weights`)
 
 ### Device, chunk level, 40 queries. LLM-assessed qrels (claude-sonnet-5-5), not human grades
 
-| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | unjudged ranks 11-20 | Recall@20* | MRR* | MAP* |
+| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | unjudged ranks 11-20 | Recall@20 | MRR | MAP |
 |---|---|---|---|---|---|---|---|---|---|---|
-| default_hybrid (default) | 0.604 [0.527, 0.679] | reference |  |  |  | 0 | 180 | 0.800 | 0.786 | 0.561 |
-| w_bm25_2_dense_1 (vs default_hybrid) | 0.618 [0.540, 0.694] | +0.014 [-0.007, +0.036] | 0.213 | 1.000 | 1.000 | 0 | 169 | 0.824 | 0.818 | 0.586 |
-| w_bm25_3_dense_1 (vs default_hybrid) | 0.632 [0.554, 0.706] | +0.028 [-0.000, +0.058] | 0.051 | 0.411 | 0.874 | 0 | 150 | 0.842 | 0.838 | 0.613 |
-| w_bm25_1_dense_2 (vs default_hybrid) | 0.594 [0.519, 0.665] | -0.010 [-0.035, +0.013] | 0.371 | 1.000 | 1.000 | 0 | 161 | 0.788 | 0.798 | 0.525 |
-| w_bm25_1_dense_3 (vs default_hybrid) | 0.583 [0.505, 0.658] | -0.022 [-0.055, +0.011] | 0.190 | 1.000 | 1.000 | 0 | 151 | 0.777 | 0.813 | 0.514 |
+| default_hybrid (default) | 0.579 [0.505, 0.651] | reference |  |  |  | 0 | 0 | 0.731 | 0.786 | 0.502 |
+| w_bm25_2_dense_1 (vs default_hybrid) | 0.591 [0.516, 0.664] | +0.012 [-0.007, +0.033] | 0.223 | 1.000 | 1.000 | 0 | 0 | 0.763 | 0.818 | 0.528 |
+| w_bm25_3_dense_1 (vs default_hybrid) | 0.605 [0.530, 0.676] | +0.026 [-0.000, +0.055] | 0.053 | 0.424 | 0.901 | 0 | 0 | 0.770 | 0.838 | 0.548 |
+| w_bm25_1_dense_2 (vs default_hybrid) | 0.568 [0.497, 0.637] | -0.011 [-0.034, +0.012] | 0.346 | 1.000 | 1.000 | 0 | 0 | 0.707 | 0.798 | 0.463 |
+| w_bm25_1_dense_3 (vs default_hybrid) | 0.557 [0.482, 0.629] | -0.022 [-0.054, +0.010] | 0.174 | 1.000 | 1.000 | 0 | 0 | 0.702 | 0.813 | 0.454 |
 
 ### Device, section level, 40 queries. LLM-assessed qrels (claude-sonnet-5-5), not human grades
 
-| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | Recall@20* | MRR* | MAP* |
+| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | Recall@20 | MRR | MAP |
 |---|---|---|---|---|---|---|---|---|---|
-| default_hybrid (default) | 0.720 [0.640, 0.794] | reference |  |  |  | 31 | 0.922 | 0.808 | 0.689 |
-| w_bm25_2_dense_1 (vs default_hybrid) | 0.730 [0.648, 0.806] | +0.010 [-0.014, +0.037] | 0.428 | 1.000 | 1.000 | 37 | 0.917 | 0.848 | 0.714 |
-| w_bm25_3_dense_1 (vs default_hybrid) | 0.729 [0.647, 0.804] | +0.009 [-0.019, +0.039] | 0.534 | 1.000 | 1.000 | 37 | 0.912 | 0.868 | 0.719 |
-| w_bm25_1_dense_2 (vs default_hybrid) | 0.709 [0.631, 0.782] | -0.010 [-0.032, +0.012] | 0.340 | 1.000 | 1.000 | 28 | 0.890 | 0.822 | 0.658 |
-| w_bm25_1_dense_3 (vs default_hybrid) | 0.704 [0.624, 0.778] | -0.016 [-0.040, +0.008] | 0.202 | 1.000 | 1.000 | 29 | 0.877 | 0.827 | 0.650 |
+| default_hybrid (default) | 0.695 [0.616, 0.767] | reference |  |  |  | 1 | 0.862 | 0.820 | 0.649 |
+| w_bm25_2_dense_1 (vs default_hybrid) | 0.703 [0.624, 0.776] | +0.008 [-0.013, +0.030] | 0.477 | 1.000 | 1.000 | 0 | 0.861 | 0.848 | 0.666 |
+| w_bm25_3_dense_1 (vs default_hybrid) | 0.700 [0.621, 0.773] | +0.004 [-0.021, +0.031] | 0.744 | 1.000 | 1.000 | 2 | 0.858 | 0.868 | 0.668 |
+| w_bm25_1_dense_2 (vs default_hybrid) | 0.683 [0.608, 0.753] | -0.012 [-0.033, +0.008] | 0.230 | 1.000 | 1.000 | 0 | 0.843 | 0.839 | 0.616 |
+| w_bm25_1_dense_3 (vs default_hybrid) | 0.675 [0.600, 0.746] | -0.020 [-0.043, +0.002] | 0.081 | 0.651 | 1.000 | 0 | 0.842 | 0.839 | 0.607 |
 
 ### Medicine, chunk level, 17 queries. LLM-assessed qrels (claude-sonnet-5-5), not human grades
 
-| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | unjudged ranks 11-20 | Recall@20* | MRR* | MAP* |
+| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | unjudged ranks 11-20 | Recall@20 | MRR | MAP |
 |---|---|---|---|---|---|---|---|---|---|---|
-| default_hybrid (default) | 0.689 [0.578, 0.789] | reference |  |  |  | 0 | 88 | 0.824 | 0.918 | 0.652 |
-| w_bm25_2_dense_1 (vs default_hybrid) | 0.683 [0.568, 0.784] | -0.006 [-0.031, +0.018] | 0.619 | 1.000 | 1.000 | 0 | 73 | 0.841 | 0.855 | 0.634 |
-| w_bm25_3_dense_1 (vs default_hybrid) | 0.693 [0.580, 0.793] | +0.004 [-0.023, +0.030] | 0.771 | 1.000 | 1.000 | 0 | 61 | 0.858 | 0.858 | 0.645 |
-| w_bm25_1_dense_2 (vs default_hybrid) | 0.664 [0.531, 0.783] | -0.025 [-0.074, +0.011] | 0.258 | 1.000 | 1.000 | 0 | 78 | 0.847 | 0.870 | 0.626 |
-| w_bm25_1_dense_3 (vs default_hybrid) | 0.662 [0.531, 0.782] | -0.027 [-0.091, +0.028] | 0.401 | 1.000 | 1.000 | 0 | 70 | 0.800 | 0.838 | 0.601 |
+| default_hybrid (default) | 0.633 [0.525, 0.735] | reference |  |  |  | 0 | 0 | 0.724 | 0.918 | 0.559 |
+| w_bm25_2_dense_1 (vs default_hybrid) | 0.628 [0.516, 0.731] | -0.006 [-0.030, +0.017] | 0.636 | 1.000 | 1.000 | 0 | 0 | 0.735 | 0.855 | 0.540 |
+| w_bm25_3_dense_1 (vs default_hybrid) | 0.637 [0.526, 0.738] | +0.003 [-0.023, +0.028] | 0.799 | 1.000 | 1.000 | 0 | 0 | 0.749 | 0.858 | 0.551 |
+| w_bm25_1_dense_2 (vs default_hybrid) | 0.609 [0.481, 0.729] | -0.024 [-0.073, +0.011] | 0.279 | 1.000 | 1.000 | 0 | 0 | 0.732 | 0.870 | 0.532 |
+| w_bm25_1_dense_3 (vs default_hybrid) | 0.609 [0.482, 0.731] | -0.024 [-0.086, +0.029] | 0.438 | 1.000 | 1.000 | 0 | 0 | 0.687 | 0.838 | 0.509 |
 
 ### Medicine, section level, 17 queries. LLM-assessed qrels (claude-sonnet-5-5), not human grades
 
-| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | Recall@20* | MRR* | MAP* |
+| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | Recall@20 | MRR | MAP |
 |---|---|---|---|---|---|---|---|---|---|
-| default_hybrid (default) | 0.806 [0.695, 0.891] | reference |  |  |  | 25 | 0.973 | 0.949 | 0.765 |
-| w_bm25_2_dense_1 (vs default_hybrid) | 0.790 [0.674, 0.881] | -0.016 [-0.073, +0.037] | 0.570 | 1.000 | 1.000 | 27 | 0.958 | 0.894 | 0.723 |
-| w_bm25_3_dense_1 (vs default_hybrid) | 0.792 [0.679, 0.881] | -0.014 [-0.071, +0.040] | 0.624 | 1.000 | 1.000 | 25 | 0.943 | 0.897 | 0.705 |
-| w_bm25_1_dense_2 (vs default_hybrid) | 0.806 [0.709, 0.891] | -0.000 [-0.044, +0.046] | 0.974 | 1.000 | 1.000 | 23 | 0.940 | 0.901 | 0.725 |
-| w_bm25_1_dense_3 (vs default_hybrid) | 0.772 [0.670, 0.865] | -0.034 [-0.094, +0.020] | 0.232 | 1.000 | 1.000 | 28 | 0.932 | 0.870 | 0.707 |
+| default_hybrid (default) | 0.749 [0.636, 0.842] | reference |  |  |  | 2 | 0.945 | 0.949 | 0.713 |
+| w_bm25_2_dense_1 (vs default_hybrid) | 0.747 [0.638, 0.837] | -0.002 [-0.060, +0.052] | 0.956 | 1.000 | 1.000 | 1 | 0.931 | 0.894 | 0.674 |
+| w_bm25_3_dense_1 (vs default_hybrid) | 0.740 [0.626, 0.836] | -0.009 [-0.064, +0.042] | 0.738 | 1.000 | 1.000 | 1 | 0.916 | 0.897 | 0.658 |
+| w_bm25_1_dense_2 (vs default_hybrid) | 0.743 [0.650, 0.828] | -0.006 [-0.048, +0.039] | 0.756 | 1.000 | 1.000 | 3 | 0.901 | 0.901 | 0.667 |
+| w_bm25_1_dense_3 (vs default_hybrid) | 0.715 [0.613, 0.813] | -0.034 [-0.088, +0.019] | 0.215 | 1.000 | 1.000 | 3 | 0.871 | 0.870 | 0.653 |
 
 ## Ablation: Light stemming in BM25 (`stemming`)
 
 ### Device, chunk level, 40 queries. LLM-assessed qrels (claude-sonnet-5-5), not human grades
 
-| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | unjudged ranks 11-20 | Recall@20* | MRR* | MAP* |
+| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | unjudged ranks 11-20 | Recall@20 | MRR | MAP |
 |---|---|---|---|---|---|---|---|---|---|---|
-| default_bm25 (default) | 0.603 [0.516, 0.685] | reference |  |  |  | 0 | 222 | 0.795 | 0.818 | 0.580 |
-| default_hybrid (default) | 0.604 [0.527, 0.679] | reference |  |  |  | 0 | 180 | 0.800 | 0.786 | 0.561 |
-| bm25_stem (vs default_bm25) | 0.643 [0.562, 0.719] | +0.040 [-0.004, +0.087] | 0.079 | 0.238 | 1.000 | 0 | 209 | 0.838 | 0.832 | 0.619 |
-| hybrid_stem (vs default_hybrid) | 0.657 [0.589, 0.720] | +0.053 [+0.020, +0.090] | 0.001 | 0.004 | 0.021 | 0 | 174 | 0.829 | 0.840 | 0.602 |
+| default_bm25 (default) | 0.580 [0.495, 0.660] | reference |  |  |  | 0 | 0 | 0.737 | 0.818 | 0.528 |
+| default_hybrid (default) | 0.579 [0.505, 0.651] | reference |  |  |  | 0 | 0 | 0.731 | 0.786 | 0.502 |
+| bm25_stem (vs default_bm25) | 0.618 [0.540, 0.693] | +0.038 [-0.004, +0.084] | 0.082 | 0.245 | 1.000 | 0 | 0 | 0.783 | 0.832 | 0.569 |
+| hybrid_stem (vs default_hybrid) | 0.628 [0.564, 0.687] | +0.049 [+0.018, +0.083] | 0.001 | 0.004 | 0.021 | 0 | 0 | 0.748 | 0.840 | 0.534 |
 
 ### Device, section level, 40 queries. LLM-assessed qrels (claude-sonnet-5-5), not human grades
 
-| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | Recall@20* | MRR* | MAP* |
+| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | Recall@20 | MRR | MAP |
 |---|---|---|---|---|---|---|---|---|---|
-| default_bm25 (default) | 0.683 [0.593, 0.768] | reference |  |  |  | 48 | 0.876 | 0.845 | 0.680 |
-| default_hybrid (default) | 0.720 [0.640, 0.794] | reference |  |  |  | 31 | 0.922 | 0.808 | 0.689 |
-| bm25_stem (vs default_bm25) | 0.730 [0.650, 0.805] | +0.047 [+0.007, +0.090] | 0.022 | 0.067 | 0.403 | 51 | 0.922 | 0.865 | 0.723 |
-| hybrid_stem (vs default_hybrid) | 0.764 [0.689, 0.830] | +0.044 [+0.013, +0.078] | 0.002 | 0.009 | 0.046 | 37 | 0.936 | 0.866 | 0.725 |
+| default_bm25 (default) | 0.660 [0.572, 0.743] | reference |  |  |  | 4 | 0.836 | 0.845 | 0.634 |
+| default_hybrid (default) | 0.695 [0.616, 0.767] | reference |  |  |  | 1 | 0.862 | 0.820 | 0.649 |
+| bm25_stem (vs default_bm25) | 0.708 [0.630, 0.782] | +0.048 [+0.009, +0.090] | 0.014 | 0.041 | 0.258 | 3 | 0.875 | 0.865 | 0.681 |
+| hybrid_stem (vs default_hybrid) | 0.731 [0.659, 0.796] | +0.036 [+0.008, +0.067] | 0.009 | 0.038 | 0.188 | 2 | 0.879 | 0.878 | 0.674 |
 
 ### Medicine, chunk level, 17 queries. LLM-assessed qrels (claude-sonnet-5-5), not human grades
 
-| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | unjudged ranks 11-20 | Recall@20* | MRR* | MAP* |
+| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | unjudged ranks 11-20 | Recall@20 | MRR | MAP |
 |---|---|---|---|---|---|---|---|---|---|---|
-| default_bm25 (default) | 0.606 [0.474, 0.726] | reference |  |  |  | 0 | 89 | 0.805 | 0.774 | 0.551 |
-| default_hybrid (default) | 0.689 [0.578, 0.789] | reference |  |  |  | 0 | 88 | 0.824 | 0.918 | 0.652 |
-| bm25_stem (vs default_bm25) | 0.611 [0.471, 0.739] | +0.005 [-0.036, +0.042] | 0.799 | 0.876 | 1.000 | 0 | 91 | 0.801 | 0.826 | 0.581 |
-| hybrid_stem (vs default_hybrid) | 0.663 [0.520, 0.788] | -0.026 [-0.094, +0.019] | 0.438 | 0.876 | 1.000 | 0 | 93 | 0.754 | 0.859 | 0.599 |
+| default_bm25 (default) | 0.567 [0.428, 0.696] | reference |  |  |  | 0 | 0 | 0.738 | 0.774 | 0.490 |
+| default_hybrid (default) | 0.633 [0.525, 0.735] | reference |  |  |  | 0 | 0 | 0.724 | 0.918 | 0.559 |
+| bm25_stem (vs default_bm25) | 0.573 [0.429, 0.711] | +0.006 [-0.031, +0.041] | 0.738 | 0.918 | 1.000 | 0 | 0 | 0.724 | 0.826 | 0.526 |
+| hybrid_stem (vs default_hybrid) | 0.608 [0.469, 0.732] | -0.026 [-0.093, +0.019] | 0.459 | 0.918 | 1.000 | 0 | 0 | 0.649 | 0.859 | 0.512 |
 
 ### Medicine, section level, 17 queries. LLM-assessed qrels (claude-sonnet-5-5), not human grades
 
-| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | Recall@20* | MRR* | MAP* |
+| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | Recall@20 | MRR | MAP |
 |---|---|---|---|---|---|---|---|---|---|
-| default_bm25 (default) | 0.678 [0.563, 0.786] | reference |  |  |  | 33 | 0.896 | 0.780 | 0.607 |
-| default_hybrid (default) | 0.806 [0.695, 0.891] | reference |  |  |  | 25 | 0.973 | 0.949 | 0.765 |
-| bm25_stem (vs default_bm25) | 0.693 [0.549, 0.824] | +0.015 [-0.037, +0.066] | 0.575 | 1.000 | 1.000 | 34 | 0.899 | 0.843 | 0.660 |
-| hybrid_stem (vs default_hybrid) | 0.785 [0.661, 0.889] | -0.021 [-0.088, +0.028] | 0.504 | 1.000 | 1.000 | 24 | 0.963 | 0.900 | 0.741 |
+| default_bm25 (default) | 0.628 [0.511, 0.743] | reference |  |  |  | 3 | 0.881 | 0.780 | 0.580 |
+| default_hybrid (default) | 0.749 [0.636, 0.842] | reference |  |  |  | 2 | 0.945 | 0.949 | 0.713 |
+| bm25_stem (vs default_bm25) | 0.651 [0.502, 0.791] | +0.023 [-0.029, +0.077] | 0.383 | 0.766 | 1.000 | 1 | 0.870 | 0.843 | 0.635 |
+| hybrid_stem (vs default_hybrid) | 0.727 [0.602, 0.838] | -0.022 [-0.092, +0.035] | 0.507 | 0.766 | 1.000 | 1 | 0.935 | 0.900 | 0.696 |
 
 ## Ablation: BGE retrieval instruction prefix on queries (`query_prefix`)
 
 ### Device, chunk level, 40 queries. LLM-assessed qrels (claude-sonnet-5-5), not human grades
 
-| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | unjudged ranks 11-20 | Recall@20* | MRR* | MAP* |
+| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | unjudged ranks 11-20 | Recall@20 | MRR | MAP |
 |---|---|---|---|---|---|---|---|---|---|---|
-| default_dense (default) | 0.523 [0.433, 0.613] | reference |  |  |  | 0 | 240 | 0.642 | 0.748 | 0.426 |
-| default_hybrid (default) | 0.604 [0.527, 0.679] | reference |  |  |  | 0 | 180 | 0.800 | 0.786 | 0.561 |
-| dense_prefix (vs default_dense) | 0.572 [0.482, 0.660] | +0.049 [+0.017, +0.083] | 0.001 | 0.006 | 0.028 | 0 | 226 | 0.712 | 0.821 | 0.492 |
-| hybrid_prefix (vs default_hybrid) | 0.625 [0.547, 0.699] | +0.021 [-0.004, +0.047] | 0.098 | 0.196 | 1.000 | 0 | 186 | 0.818 | 0.828 | 0.598 |
+| default_dense (default) | 0.498 [0.412, 0.582] | reference |  |  |  | 0 | 0 | 0.591 | 0.748 | 0.376 |
+| default_hybrid (default) | 0.579 [0.505, 0.651] | reference |  |  |  | 0 | 0 | 0.731 | 0.786 | 0.502 |
+| dense_prefix (vs default_dense) | 0.545 [0.460, 0.628] | +0.047 [+0.016, +0.079] | 0.001 | 0.004 | 0.021 | 0 | 0 | 0.658 | 0.821 | 0.437 |
+| hybrid_prefix (vs default_hybrid) | 0.599 [0.524, 0.670] | +0.020 [-0.004, +0.046] | 0.100 | 0.200 | 1.000 | 0 | 0 | 0.764 | 0.828 | 0.539 |
 
 ### Device, section level, 40 queries. LLM-assessed qrels (claude-sonnet-5-5), not human grades
 
-| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | Recall@20* | MRR* | MAP* |
+| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | Recall@20 | MRR | MAP |
 |---|---|---|---|---|---|---|---|---|---|
-| default_dense (default) | 0.653 [0.572, 0.735] | reference |  |  |  | 43 | 0.839 | 0.779 | 0.573 |
-| default_hybrid (default) | 0.720 [0.640, 0.794] | reference |  |  |  | 31 | 0.922 | 0.808 | 0.689 |
-| dense_prefix (vs default_dense) | 0.705 [0.634, 0.775] | +0.052 [+0.016, +0.087] | 0.003 | 0.010 | 0.052 | 45 | 0.861 | 0.833 | 0.622 |
-| hybrid_prefix (vs default_hybrid) | 0.729 [0.648, 0.803] | +0.009 [-0.017, +0.034] | 0.463 | 1.000 | 1.000 | 35 | 0.912 | 0.853 | 0.717 |
+| default_dense (default) | 0.629 [0.550, 0.706] | reference |  |  |  | 2 | 0.788 | 0.791 | 0.531 |
+| default_hybrid (default) | 0.695 [0.616, 0.767] | reference |  |  |  | 1 | 0.862 | 0.820 | 0.649 |
+| dense_prefix (vs default_dense) | 0.682 [0.615, 0.747] | +0.053 [+0.020, +0.087] | 0.0006 | 0.002 | 0.013 | 1 | 0.814 | 0.852 | 0.578 |
+| hybrid_prefix (vs default_hybrid) | 0.706 [0.628, 0.779] | +0.011 [-0.013, +0.035] | 0.353 | 1.000 | 1.000 | 0 | 0.874 | 0.866 | 0.677 |
 
 ### Medicine, chunk level, 17 queries. LLM-assessed qrels (claude-sonnet-5-5), not human grades
 
-| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | unjudged ranks 11-20 | Recall@20* | MRR* | MAP* |
+| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | unjudged ranks 11-20 | Recall@20 | MRR | MAP |
 |---|---|---|---|---|---|---|---|---|---|---|
-| default_dense (default) | 0.565 [0.421, 0.702] | reference |  |  |  | 0 | 116 | 0.681 | 0.682 | 0.478 |
-| default_hybrid (default) | 0.689 [0.578, 0.789] | reference |  |  |  | 0 | 88 | 0.824 | 0.918 | 0.652 |
-| dense_prefix (vs default_dense) | 0.621 [0.485, 0.747] | +0.056 [+0.013, +0.108] | 0.004 | 0.011 | 0.072 | 0 | 107 | 0.682 | 0.804 | 0.518 |
-| hybrid_prefix (vs default_hybrid) | 0.705 [0.588, 0.807] | +0.016 [-0.021, +0.053] | 0.382 | 0.382 | 1.000 | 0 | 90 | 0.832 | 0.945 | 0.654 |
+| default_dense (default) | 0.527 [0.383, 0.668] | reference |  |  |  | 0 | 0 | 0.604 | 0.682 | 0.419 |
+| default_hybrid (default) | 0.633 [0.525, 0.735] | reference |  |  |  | 0 | 0 | 0.724 | 0.918 | 0.559 |
+| dense_prefix (vs default_dense) | 0.576 [0.438, 0.711] | +0.049 [+0.012, +0.095] | 0.004 | 0.013 | 0.084 | 0 | 0 | 0.597 | 0.804 | 0.447 |
+| hybrid_prefix (vs default_hybrid) | 0.648 [0.534, 0.753] | +0.014 [-0.019, +0.048] | 0.378 | 0.378 | 1.000 | 0 | 0 | 0.730 | 0.945 | 0.563 |
 
 ### Medicine, section level, 17 queries. LLM-assessed qrels (claude-sonnet-5-5), not human grades
 
-| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | Recall@20* | MRR* | MAP* |
+| Variant | nDCG@10 [95% CI] | diff vs default [95% CI] | raw p | Holm (this ablation) | Holm (all 22) | unjudged@10 | Recall@20 | MRR | MAP |
 |---|---|---|---|---|---|---|---|---|---|
-| default_dense (default) | 0.735 [0.640, 0.829] | reference |  |  |  | 41 | 0.852 | 0.804 | 0.636 |
-| default_hybrid (default) | 0.806 [0.695, 0.891] | reference |  |  |  | 25 | 0.973 | 0.949 | 0.765 |
-| dense_prefix (vs default_dense) | 0.742 [0.623, 0.851] | +0.007 [-0.056, +0.064] | 0.771 | 1.000 | 1.000 | 32 | 0.874 | 0.870 | 0.665 |
-| hybrid_prefix (vs default_hybrid) | 0.821 [0.708, 0.904] | +0.014 [-0.025, +0.052] | 0.458 | 1.000 | 1.000 | 26 | 0.958 | 0.949 | 0.753 |
+| default_dense (default) | 0.678 [0.579, 0.776] | reference |  |  |  | 4 | 0.793 | 0.804 | 0.593 |
+| default_hybrid (default) | 0.749 [0.636, 0.842] | reference |  |  |  | 2 | 0.945 | 0.949 | 0.713 |
+| dense_prefix (vs default_dense) | 0.679 [0.562, 0.790] | +0.001 [-0.060, +0.055] | 0.940 | 1.000 | 1.000 | 3 | 0.838 | 0.870 | 0.613 |
+| hybrid_prefix (vs default_hybrid) | 0.759 [0.649, 0.850] | +0.010 [-0.026, +0.046] | 0.586 | 1.000 | 1.000 | 1 | 0.918 | 0.949 | 0.709 |
 
 ## Caveats
 - Grades are the LLM's. In Step 13 the LLM was stricter than the humans at the 0/1

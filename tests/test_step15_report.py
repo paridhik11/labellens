@@ -42,7 +42,8 @@ def test_report_and_holm_families(tmp_path) -> None:  # type: ignore[no-untyped-
         assert r["p"] <= r["p_holm_abl"] <= 1.0
         assert r["p"] <= r["p_holm_all"] <= 1.0
     text = ablations_report(data)
-    assert "provisional until the depth-20 pool is graded" in text
+    assert "provisional" not in text
+    assert "use the depth-20 pool" in text
     assert "Holm (all 22)" in text
     assert "unjudged@10" in text
     assert text.count("## Ablation:") == 4

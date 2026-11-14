@@ -64,11 +64,11 @@ ABLATIONS: dict[str, tuple[str, list[tuple[str, str]]]] = {
         [("dense_prefix", "default_dense"), ("hybrid_prefix", "default_hybrid")],
     ),
 }
-PROVISIONAL = (
-    "**Recall@20, MAP and MRR are provisional until the depth-20 pool is graded.** They reach "
-    "past rank 10, and the qrels only cover the top 10 of each variant plus the original pool. "
-    "The chunk-level tables show how many ranks 11 to 20 are still unjudged (counted as 0). "
-    "nDCG@10 is the primary metric and uses only the top 10."
+DEPTH_NOTE = (
+    "**Recall@20, MAP and MRR use the depth-20 pool.** The qrels now cover the top 20 of every "
+    "variant at chunk level (the unjudged ranks 11-20 column should be 0 there). Sections can "
+    "still contain unjudged chunks, because grading followed chunk rankings, not the sections "
+    "they aggregate into. nDCG@10 stays the primary metric and the only one with p-values."
 )
 
 
@@ -185,7 +185,7 @@ def ablation_table(
     )
     if show_r11:
         head += " unjudged ranks 11-20 |"
-    head += " " + " | ".join(f"{METRIC_TITLES[m]}*" for m in METRIC_NAMES[1:]) + " |"
+    head += " " + " | ".join(f"{METRIC_TITLES[m]}" for m in METRIC_NAMES[1:]) + " |"
     cols = head.count("|") - 1
     lines = [head, "|" + "---|" * cols]
     order = [(r, None) for r in refs] + [(v, ref) for v, ref in pairs]
@@ -247,9 +247,7 @@ def ablations_report(data: dict[str, dict]) -> str:
         "- Scored queries are the answerable graded queries (no_answer queries and corpus gaps",
         "  excluded), as in the Step 14 main tables.",
         "",
-        f"> {PROVISIONAL}",
-        "> The columns marked * (Recall@20, MRR, MAP) are those provisional metrics and carry no",
-        "> p-values.",
+        f"> {DEPTH_NOTE}",
         "",
     ]
     for abl, (title, _) in ABLATIONS.items():
