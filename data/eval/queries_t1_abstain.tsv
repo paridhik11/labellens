@@ -1,0 +1,21 @@
+qid	query	module	type
+ab01	tamper-evident packaging for over the counter drugs	medicine	answerable
+ab02	what is the National Drug Code number and where must it appear	medicine	answerable
+ab03	required warning for prescription drugs that contain sulfites	medicine	answerable
+ab04	sunscreen labeling based on effectiveness testing	medicine	answerable
+ab05	do drug labels need a Spanish version	medicine	answerable
+ab06	when must the pharmacy give the patient a Medication Guide at dispensing	medicine	answerable
+ab07	aluminum content warning on intravenous feeding products	medicine	answerable
+ab08	why do aspirin products carry a warning about children and flu symptoms	medicine	answerable
+ab09	how are oxygen and other medical gas cylinders labeled	medicine	answerable
+ab10	label statement for a yellow food dye that can cause allergic reactions in some people	medicine	answerable
+ab11	dietary supplement label requirements	medicine	no_answer
+ab12	child resistant packaging for prescription drugs	medicine	no_answer
+ab13	Health Canada bilingual drug label rules	medicine	no_answer
+ab14	labeling requirements for blood and blood components	medicine	no_answer
+ab15	what are the rules for handing out free drug samples to physicians	medicine	no_answer
+ab16	how to apply for orphan drug designation	medicine	no_answer
+ab17	drug establishment registration and listing with FDA	medicine	no_answer
+ab18	what must a clinical trial informed consent form contain	medicine	no_answer
+ab19	USP beyond use dating for compounded sterile preparations	medicine	no_answer
+ab20	does a tablet need an imprint code so it can be identified	medicine	no_answer
