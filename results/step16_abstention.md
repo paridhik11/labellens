@@ -94,6 +94,37 @@ no_answer is the positive class. Threshold picked on the other 19 queries (max b
 - **Easy-only 1.000 [1.000, 1.000]** is degenerate: with perfect separation every bootstrap resample scores 1.0. It says nothing about uncertainty (3 negatives only).
 - **Margin scores run backwards.** Hybrid margin has AUROC 0.26: answerable queries tend to have several near-equal top chunks (rankers agree on a section's chunks), so a small rank-1 minus rank-2 gap goes with answerable. The pre-declared rule "low score means abstain" does not suit margin, so its precision and recall rows (abstains on 15 to 18 of 20) are not meaningful.
 - **bm25 top is not comparable across queries** (it grows with query length and term rarity). Hybrid top takes few discrete values (RRF of rank positions), so it mostly measures whether both rankers put the same chunk first.
-- **Possible optimism.** I drafted the answerable queries from corpus section titles, so they are probably closer to the corpus wording than real user queries. The existing medicine queries q45 to q62 would be a less biased answerable set; that check was not run. The hard no_answer queries were also written by the same person who built the pool.
+- **Possible optimism (confirmed in the secondary section).** I drafted ab01 to ab10 from corpus section titles, so they are closer to the corpus wording than real queries. On the fairer set (q45 to q61 answerable vs the same 10 no_answer) hybrid top RRF falls from 0.985 to 0.797 [0.612, 0.941] and dense top cosine is best at 0.876 [0.729, 0.976]. The pre-declared primary is unchanged, but its 0.985 should not be quoted as the expected accuracy on real queries. Distinct hybrid top values: 13 over the 20 queries, 20 over the 27.
 - **Labels:** all relevance grades are LLM grades (claude-sonnet-5-5), not human. No no_answer query had a grade 2 chunk, so no relabelling happened; grade 1 chunks exist for 7 of the 10 no_answer queries (see "Highest grade seen").
-- Not computed: cross-encoder score (none in the repo).
+- Not computed: cross-encoder score (none in the repo). It will be added after Step 18b downloads bge-reranker-base; nothing was downloaded in Step 16.
+
+## Secondary, post-hoc
+
+Written after the primary results were seen. SECONDARY and exploratory: it does not change the pre-declared primary (hybrid top RRF, ab01 to ab20). Same method as above (stratified bootstrap, 10,000 resamples, seed 42; leave-one-out threshold, no_answer is the positive class). z-scores use the mean and std of the evaluated set itself (no labels). Set B uses q45 to q61 (17 answerable; q62 is no_answer, so it is not a positive). Both sets use the same 10 no_answer queries. Intervals are wide.
+
+### Set A (ab01 to ab10): 10 answerable vs 10 no_answer
+
+| Score | AUROC [95% CI] | vs hard only | vs easy only | LOO abstained | Precision | Recall |
+|---|---|---|---|---|---|---|
+| hybrid top RRF | 0.985 [0.930, 1.000] | 0.979 [0.900, 1.000] | 1.000 [1.000, 1.000] | 11 | 0.909 | 1.000 |
+| bm25 top | 0.940 [0.820, 1.000] | 0.943 [0.800, 1.000] | 0.933 [0.733, 1.000] | 10 | 0.700 | 0.700 |
+| bm25 top / query length | 0.910 [0.750, 1.000] | 0.886 [0.686, 1.000] | 0.967 [0.867, 1.000] | 10 | 0.800 | 0.800 |
+| dense top cosine | 0.900 [0.740, 1.000] | 0.900 [0.714, 1.000] | 0.900 [0.667, 1.000] | 12 | 0.750 | 0.900 |
+| dense gap rank1-rank5 | 0.900 [0.730, 1.000] | 0.957 [0.829, 1.000] | 0.767 [0.400, 1.000] | 10 | 0.900 | 0.900 |
+| z-avg(bm25 top, dense top) | 0.980 [0.910, 1.000] | 0.971 [0.871, 1.000] | 1.000 [1.000, 1.000] | 11 | 0.909 | 1.000 |
+
+Distinct hybrid top RRF values across these 20 queries: 13.
+
+### Set B (q45 to q61): 17 answerable vs 10 no_answer
+
+| Score | AUROC [95% CI] | vs hard only | vs easy only | LOO abstained | Precision | Recall |
+|---|---|---|---|---|---|---|
+| hybrid top RRF | 0.797 [0.612, 0.941] | 0.727 [0.504, 0.908] | 0.961 [0.843, 1.000] | 16 | 0.500 | 0.800 |
+| bm25 top | 0.694 [0.459, 0.900] | 0.697 [0.445, 0.924] | 0.686 [0.294, 1.000] | 10 | 0.600 | 0.600 |
+| bm25 top / query length | 0.771 [0.571, 0.929] | 0.739 [0.496, 0.933] | 0.843 [0.608, 1.000] | 11 | 0.545 | 0.600 |
+| dense top cosine | 0.876 [0.729, 0.976] | 0.891 [0.739, 0.983] | 0.843 [0.588, 1.000] | 14 | 0.571 | 0.800 |
+| dense gap rank1-rank5 | 0.594 [0.365, 0.806] | 0.630 [0.387, 0.840] | 0.510 [0.118, 0.882] | 17 | 0.529 | 0.900 |
+| z-avg(bm25 top, dense top) | 0.853 [0.688, 0.982] | 0.857 [0.681, 0.983] | 0.843 [0.647, 1.000] | 13 | 0.538 | 0.700 |
+
+Distinct hybrid top RRF values across these 27 queries: 20.
+
