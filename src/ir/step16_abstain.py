@@ -156,15 +156,15 @@ def best_threshold(scores: list[float], labels: list[int]) -> float:
     """
     distinct = sorted(set(scores))
     cands = [distinct[0] - 1.0]
-    cands += [(a + b) / 2 for a, b in zip(distinct, distinct[1:])]
+    cands += [(a + b) / 2 for a, b in zip(distinct, distinct[1:], strict=False)]
     cands.append(distinct[-1] + 1.0)
     n_pos = sum(labels)
     n_neg = len(labels) - n_pos
     best: list[float] = []
     best_ba = -1.0
     for t in cands:
-        tpr = sum(1 for s, y in zip(scores, labels) if y == 1 and s >= t) / n_pos
-        tnr = sum(1 for s, y in zip(scores, labels) if y == 0 and s < t) / n_neg
+        tpr = sum(1 for s, y in zip(scores, labels, strict=True) if y == 1 and s >= t) / n_pos
+        tnr = sum(1 for s, y in zip(scores, labels, strict=True) if y == 0 and s < t) / n_neg
         ba = (tpr + tnr) / 2
         if ba > best_ba + 1e-12:
             best, best_ba = [t], ba
@@ -190,7 +190,7 @@ def precision_recall_abstain(
 
     Precision is None when the system never abstains.
     """
-    tp = sum(1 for p, y in zip(preds, labels) if p and y == 0)
+    tp = sum(1 for p, y in zip(preds, labels, strict=True) if p and y == 0)
     n_abstain = sum(preds)
     n_no = sum(1 for y in labels if y == 0)
     return (tp / n_abstain if n_abstain else None), tp / n_no
@@ -204,6 +204,166 @@ def features(
     top = hits[0].score if hits else 0.0
     second = hits[1].score if len(hits) > 1 else 0.0
     return {"top": top, "margin": top - second}
+
+
+FEATURES = ("top", "margin")
+PRIMARY = ("hybrid", "top")
+SEED = 42
+N_BOOT = 10000
+
+
+def pos_neg(
+    scores: dict[str, float], queries: list[AbstainQuery], difficulty: str | None = None
+) -> tuple[list[float], list[float]]:
+    """Scores of answerable queries (positives) and no_answer queries (negatives).
+
+    difficulty "easy" or "hard" keeps only the no_answer queries of that difficulty;
+    None keeps all of them.
+    """
+    pos = [scores[q.qid] for q in queries if q.label == "answerable"]
+    neg = [
+        scores[q.qid]
+        for q in queries
+        if q.label == "no_answer" and (difficulty is None or q.difficulty == difficulty)
+    ]
+    return pos, neg
+
+
+def evaluate_feature(
+    scores: dict[str, float], queries: list[AbstainQuery], n_boot: int = N_BOOT
+) -> dict[str, object]:
+    """AUROC with bootstrap CI (all, hard-only, easy-only) and leave-one-out abstention.
+
+    Returns a dict with keys all/hard/easy (auroc, ci, n_pos, n_neg) plus precision, recall,
+    recall_hard, recall_easy, n_abstain and preds from the leave-one-out threshold on all
+    queries.
+    """
+    out: dict[str, object] = {}
+    for name, diff in (("all", None), ("hard", "hard"), ("easy", "easy")):
+        pos, neg = pos_neg(scores, queries, diff)
+        lo, hi = bootstrap_auroc(pos, neg, n=n_boot, seed=SEED)
+        out[name] = {"auroc": auroc(pos, neg), "ci": (lo, hi), "n_pos": len(pos), "n_neg": len(neg)}
+    sc = [scores[q.qid] for q in queries]
+    lab = [1 if q.label == "answerable" else 0 for q in queries]
+    preds = loo_abstain(sc, lab)
+    prec, rec = precision_recall_abstain(preds, lab)
+    by_diff: dict[str, float | None] = {}
+    for diff in ("hard", "easy"):
+        idx = [i for i, q in enumerate(queries) if q.label == "no_answer" and q.difficulty == diff]
+        by_diff[diff] = sum(preds[i] for i in idx) / len(idx) if idx else None
+    out.update(
+        precision=prec, recall=rec, recall_hard=by_diff["hard"], recall_easy=by_diff["easy"],
+        n_abstain=sum(preds), preds=preds,
+    )
+    return out
+
+
+def collect_scores(
+    runs: dict[str, dict[str, list]], queries: list[AbstainQuery]
+) -> dict[tuple[str, str], dict[str, float]]:
+    """(system, feature) -> {qid: value} for every system and feature."""
+    return {
+        (s, f): {q.qid: features(runs, q.qid, s)[f] for q in queries}
+        for s in runs
+        for f in FEATURES
+    }
+
+
+def _f(x: float | None, nd: int = 3) -> str:
+    """Formats a number, or n/a for None."""
+    return "n/a" if x is None else f"{x:.{nd}f}"
+
+
+def report_markdown(
+    queries: list[AbstainQuery],
+    scores: dict[tuple[str, str], dict[str, float]],
+    results: dict[tuple[str, str], dict[str, object]],
+    predecl: str,
+    flips: dict[str, list[str]],
+    max_grade: dict[str, int],
+) -> str:
+    """Builds the Markdown report for results/step16_abstention.md."""
+    n_ans = sum(q.label == "answerable" for q in queries)
+    n_hard = sum(q.difficulty == "hard" for q in queries)
+    n_easy = sum(q.difficulty == "easy" for q in queries)
+    out = ["# Step 16: abstention evaluation (medicine mode)", ""]
+    out += ["## Pre-declaration (committed before any score was computed)", "", predecl.strip(), ""]
+    out += ["## Data", ""]
+    out += [
+        f"- Queries: {len(queries)} ({n_ans} answerable, {len(queries) - n_ans} no_answer: "
+        f"{n_hard} hard, {n_easy} easy). Medicine index only (468 chunks).",
+        f"- Relabelling check (grade >= 2 chunk for a no_answer query in the judged pool): "
+        f"{len(flips)} queries flipped" + (": " + ", ".join(flips) if flips else "") + ".",
+        "- Pool: bm25, dense and hybrid top 20, 788 unique (query, chunk) pairs, all graded by the "
+        "LLM grader (claude-sonnet-5-5, frozen prompt). Grades are not human grades.",
+        "- Highest grade seen per no_answer query: "
+        + ", ".join(f"{q.qid}={max_grade.get(q.qid, 0)}" for q in queries if q.label == "no_answer")
+        + ".",
+        "- No cross-encoder exists in this repo, so the cross-encoder rank-1 score was not computed.",
+        "",
+        "## Size warning",
+        "",
+        "With 10 answerable and 10 no_answer queries (10 vs 7 hard, 10 vs 3 easy) every interval "
+        "below is very wide and the bootstrap itself is unstable at this size. The easy-only "
+        "comparison has only 3 negatives, so its AUROC can take only a few values and its "
+        "interval is close to uninformative. Treat all numbers as indicative, not as estimates.",
+        "",
+        "## AUROC (answerable = positive, higher score = more likely answerable)",
+        "",
+        f"Stratified bootstrap, {N_BOOT} resamples, seed {SEED}, 95% percentile interval.",
+        "",
+        "| System | Score | AUROC all 20 [95% CI] | vs hard only (10 v 7) | vs easy only (10 v 3) |",
+        "|---|---|---|---|---|",
+    ]
+    for (s, f), r in results.items():
+        cells = []
+        for k in ("all", "hard", "easy"):
+            d = r[k]
+            lo, hi = d["ci"]  # type: ignore[index]
+            cells.append(f"{d['auroc']:.3f} [{lo:.3f}, {hi:.3f}]")  # type: ignore[index]
+        tag = " (PRIMARY)" if (s, f) == PRIMARY else ""
+        out.append(f"| {s} | {f}{tag} | " + " | ".join(cells) + " |")
+    out += [
+        "",
+        "## Abstaining at a leave-one-out threshold (all 20 queries)",
+        "",
+        "no_answer is the positive class. Threshold picked on the other 19 queries (max balanced "
+        "accuracy), applied to the held-out one.",
+        "",
+        "| System | Score | Abstained | Precision | Recall | Recall hard | Recall easy |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    for (s, f), r in results.items():
+        out.append(
+            f"| {s} | {f} | {r['n_abstain']} | {_f(r['precision'])} | {_f(r['recall'])} | "  # type: ignore[arg-type]
+            f"{_f(r['recall_hard'])} | {_f(r['recall_easy'])} |"  # type: ignore[arg-type]
+        )
+    out += ["", "## Per query, primary score (hybrid top RRF score)", ""]
+    out += ["| qid | label | difficulty | hybrid top | LOO abstain | query |", "|---|---|---|---|---|---|"]
+    prim = scores[PRIMARY]
+    for i, q in enumerate(queries):
+        pred = results[PRIMARY]["preds"][i]  # type: ignore[index]
+        out.append(
+            f"| {q.qid} | {q.label} | {q.difficulty or '-'} | {prim[q.qid]:.5f} | "
+            f"{'abstain' if pred else 'answer'} | {q.text} |"
+        )
+    return "\n".join(out) + "\n"
+
+
+def cmd_eval(args: argparse.Namespace) -> None:
+    """Runs the abstention evaluation and writes the Markdown report."""
+    queries = load_abstain_queries(args.queries)
+    chunks = load_chunks(CORPUS_PATH)
+    runs = retrieve_all(build_medicine_systems(chunks), queries)
+    scores = collect_scores(runs, queries)
+    results = {k: evaluate_feature(v, queries) for k, v in scores.items()}
+    qrels = load_qrels(args.qrels)
+    flips = no_answer_with_grade2(queries, qrels)
+    max_grade = {q.qid: max(qrels.get(q.qid, {}).values(), default=0) for q in queries}
+    predecl = Path(args.predecl).read_text(encoding="utf-8")
+    text = report_markdown(queries, scores, results, predecl, flips, max_grade)
+    Path(args.out).write_text(text, encoding="utf-8")
+    print(text)
 
 
 # ---------- CLI ----------
@@ -252,6 +412,12 @@ def main() -> None:
     sc.add_argument("--queries", default=str(DRAFT_PATH))
     sc.add_argument("--qrels", default=str(LLM_QRELS_PATH))
     sc.set_defaults(func=cmd_check)
+    se = sub.add_parser("eval")
+    se.add_argument("--queries", default=str(DRAFT_PATH))
+    se.add_argument("--qrels", default=str(LLM_QRELS_PATH))
+    se.add_argument("--predecl", default="results/step16_predeclaration.md")
+    se.add_argument("--out", default="results/step16_abstention.md")
+    se.set_defaults(func=cmd_eval)
     args = p.parse_args()
     args.func(args)
 
