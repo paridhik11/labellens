@@ -274,11 +274,11 @@
   "queries": "03f3b36c12093b2a96456abc80e787ae9b88b0fe7523e8472793dbb86ec0508e",
   "corpus": "4a817ad1e06a4c09cc9f8ac724bca63cd30aa8c65367a90752b9d13ec0ca0df6"
  },
- "main_commit": null,
+ "main_commit": "8ca347813d90fd60c70f5f3a315432ffdac81c65",
  "qrels": {
   "path": "data/eval/qrels_t1_llm.tsv",
-  "rows": null,
-  "sha256": null
+  "rows": 2801,
+  "sha256": "cd375034e7066399d0bf989553fd3d4a0c686d249d66abc970e781935b2c7e44"
  },
  "settings_sha256": "33c3a6e6395c4d071ef37fdcfd9e4287019821548f623325e081b1407622d00a"
 }
