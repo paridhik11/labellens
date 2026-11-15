@@ -6,11 +6,13 @@ import json
 import re
 from datetime import date
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import zxingcpp
 from PIL import Image, ImageDraw, ImageFont
 
+from src.gen.alt_symbols import draw_alt_symbol, draw_distractor
 from src.gen.symbols import draw_symbol
 
 DPI = 300
@@ -21,18 +23,53 @@ def mm_to_px(value: float) -> int:
     return round(value * DPI / 25.4)
 
 
+def _draw_override(
+    draw: ImageDraw.ImageDraw, override: dict[str, Any], box: tuple[int, int, int, int]
+) -> dict[str, Any]:
+    """Draw a non-default pictogram in a symbol slot and describe what was drawn.
+
+    ``override`` has "draw" (a symbol name, or None to leave the slot empty),
+    "style" ("outline" for the default artwork, "alt" for the independent
+    filled artwork, "distractor" for a wrong symbol) and "scale" (size relative
+    to the slot, centred in it).
+    """
+    name = override.get("draw")
+    style = override.get("style", "outline")
+    scale = float(override.get("scale", 1.0))
+    x, y, width, height = box
+    scaled = (
+        round(x + width * (1 - scale) / 2), round(y + height * (1 - scale) / 2),
+        round(width * scale), round(height * scale),
+    )
+    if name is not None:
+        if style == "outline":
+            draw_symbol(draw, name, scaled)
+        elif style == "alt":
+            draw_alt_symbol(draw, name, scaled)
+        elif style == "distractor":
+            draw_distractor(draw, name, scaled)
+        else:
+            raise ValueError(f"Unknown symbol style: {style}")
+    return {"drawn_name": name, "style": style, "scale": scale, "bbox_px_xywh": list(scaled)}
+
+
 def build_label(
     output_dir: Path,
     *,
     label_id: str = "test_label_001",
     field_values: dict[str, str] | None = None,
     barcode_ais: dict[str, str] | None = None,
+    symbol_overrides: dict[str, dict[str, Any]] | None = None,
+    allow_print_barcode_mismatch: bool = False,
 ) -> dict[str, str]:
     """Render a test label with optional overrides and verify its GS1 payload.
 
     Barcode overrides supply the printed lot and expiry unless those fields
     are explicitly provided, in which case they must match. AI 01 stays at
     the existing test placeholder; this generator cannot allocate identifiers.
+    ``symbol_overrides`` and ``allow_print_barcode_mismatch`` exist only to
+    build negative test cases (missing or wrong symbol, printed lot or expiry
+    that disagrees with the barcode); without them the output is unchanged.
     """
     if re.fullmatch(r"test_[A-Za-z0-9_-]+", label_id) is None:
         raise ValueError("label_id must start with test_ and contain only letters, digits, underscores or hyphens")
@@ -70,7 +107,8 @@ def build_label(
         if field_values.keys() - fields.keys():
             raise ValueError("Unknown label field")
         fields.update(field_values)
-    if fields["lot"] != f"LOT: {ais['10']}" or fields["expiry"] != f"EXP: {expiry.isoformat()}":
+    print_matches = fields["lot"] == f"LOT: {ais['10']}" and fields["expiry"] == f"EXP: {expiry.isoformat()}"
+    if not print_matches and not allow_print_barcode_mismatch:
         raise ValueError("Printed lot and expiry must match barcode AIs 10 and 17")
     payload = "".join(f"({key}){value}" for key, value in ais.items())
     size = template["size_mm"]
@@ -90,6 +128,7 @@ def build_label(
     )
 
     boxes = {}
+    drawn_overrides: dict[str, dict[str, Any]] = {}
     for slot in template["slots"]:
         x, y, width, height = map(mm_to_px, slot["bbox_mm"])
         boxes[slot["field"]] = [x, y, width, height]
@@ -105,9 +144,13 @@ def build_label(
             draw.text((x, y), text, font=font, fill="black", anchor="lt")
 
         elif slot["type"] == "symbol":
-            draw_symbol(
-                draw, slot["symbol_name"], (x, y, width, height)
-            )
+            override = (symbol_overrides or {}).get(slot["symbol_name"])
+            if override is None:
+                draw_symbol(
+                    draw, slot["symbol_name"], (x, y, width, height)
+                )
+            else:
+                drawn_overrides[slot["symbol_name"]] = _draw_override(draw, override, (x, y, width, height))
 
         elif slot["type"] == "barcode":
             barcode = zxingcpp.create_barcode(
@@ -171,6 +214,9 @@ def build_label(
         ],
         "limitations": ["Simplified test pictograms; augmentations not yet added"]
     }
+    if symbol_overrides or allow_print_barcode_mismatch:
+        truth["symbol_overrides"] = drawn_overrides
+        truth["print_matches_barcode"] = print_matches
     image.save(image_path, dpi=(DPI, DPI))
     truth_path.write_text(
         json.dumps(truth, indent=2) + "\n", encoding="utf-8"
