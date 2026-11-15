@@ -587,3 +587,11 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its CV step 16 to 
 4. **How I verified it:** `/opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider -m "not slow"`: `336 passed, 3 deselected in 32.04s`. `/opt/anaconda3/envs/labellens-cv/bin/python -m ruff check --no-cache src tests`: `All checks passed!`. Ran background jobs to logs and checked completed results once. Reviewed the sample preview.
 5. **What you should check yourself:** Actual-template PDF dimensions, all SVG slot IDs, repeated-field text and the no-network QR test. Full output and limitations are in the task report.
 6. **What I am unsure about or assumed:** Installed missing packages already declared by the project into the CV environment; no requirements or dependencies were added to the repository. Windows execution, physical printing and later approval-contract integration are separate checks.
+
+## Parth clarification: local-only real data and module separation
+1. **What I did:** Untracked the legacy 60 medicine images and generated dataset files while preserving them locally. Tagged every image medicine in SOURCES.md and excluded the catalog from device evaluation.
+2. **Files changed:** `.gitignore`, `data/real/SOURCES.md`, `tests/test_real_set.py`, `reports/parth_task3.md` and this log; 125 old dataset files untracked.
+3. **How it works:** Only the sources catalog is tracked under data/real. The old fetch/rebuild script remains versioned; local source images/XML retain their original hashes.
+4. **How I verified it:** Real-set tests: `17 passed in 0.36s`; full source/tests Ruff: `All checks passed!`. Verified unchanged hashes for 60 images and 60 XML files and checked the Git index and ignore rules.
+5. **What you should check yourself:** SOURCES.md medicine tags, source links, local files and the index.
+6. **What I am unsure about or assumed:** The new 20-label device/symbol set is not complete. Physical photos require Parth; AI transcriptions will be LLM-labelled, with three photos spot-checked by him. Past commits retain old data because history was not rewritten.

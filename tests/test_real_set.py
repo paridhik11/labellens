@@ -256,8 +256,7 @@ def test_git_windows_line_endings_preserve_source_bytes(tmp_path: Path) -> None:
     source.parent.mkdir(parents=True)
     original = b"<original>  \r\n  source bytes \n</original>\r\n"
     source.write_bytes(original)
-    attributes = Path("data/real/.gitattributes").read_bytes()
-    assert attributes == builder.GIT_ATTRIBUTES.encode("utf-8")
+    attributes = builder.GIT_ATTRIBUTES.encode("utf-8")
     (subtree / ".gitattributes").write_bytes(attributes)
     subprocess.run([executable, "init", "-q", str(repo)], check=True, capture_output=True)
     subprocess.run(

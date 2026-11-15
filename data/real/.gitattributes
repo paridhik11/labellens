@@ -1,6 +1,0 @@
-# Downloaded XML is original evidence: preserve every byte, including whitespace.
-source/*.xml -text -whitespace
-images/* -text
-*.json text eol=lf
-truth.csv text eol=lf
-*.md text eol=lf
