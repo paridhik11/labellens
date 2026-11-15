@@ -224,3 +224,20 @@ A dry run of `next-batch` gives batch 52 (the first batch of this pool).
 | 112 | 33 (abstain rows 674 to 706) | ab18 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 32 zero, 1 one, 0 two |
 | 113 | 40 (abstain rows 707 to 746) | ab19 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 38 zero, 2 one, 0 two |
 | 114 | 42 (abstain rows 747 to 788) | ab20 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 40 zero, 2 one, 0 two. Pool total 788 rows: 722 zero, 46 one, 20 two |
+| 115 | 18 (extra4 rows 3600 to 3617) | q01, q02, q03, q05 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 15 zero, 3 one, 0 two |
+| 116 | 15 (extra4 rows 3618 to 3632) | q06, q07, q08, q09 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 13 zero, 1 one, 1 two |
+| 117 | 17 (extra4 rows 3633 to 3649) | q10, q11, q12 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 14 zero, 3 one, 0 two |
+| 118 | 18 (extra4 rows 3650 to 3667) | q13, q14 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 13 zero, 5 one, 0 two |
+| 119 | 15 (extra4 rows 3668 to 3682) | q15, q16, q17, q18 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 13 zero, 2 one, 0 two |
+| 120 | 14 (extra4 rows 3683 to 3696) | q19, q20, q21 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 11 zero, 3 one, 0 two |
+| 121 | 13 (extra4 rows 3697 to 3709) | q22, q23 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 13 zero, 0 one, 0 two |
+| 122 | 17 (extra4 rows 3710 to 3726) | q24, q25 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 15 zero, 2 one, 0 two |
+| 123 | 18 (extra4 rows 3727 to 3744) | q26, q27, q28, q29 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 17 zero, 1 one, 0 two |
+| 124 | 10 (extra4 rows 3745 to 3754) | q30, q31 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 10 zero, 0 one, 0 two |
+| 125 | 15 (extra4 rows 3755 to 3769) | q32, q33, q34 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 15 zero, 0 one, 0 two |
+| 126 | 11 (extra4 rows 3770 to 3780) | q35, q36, q37 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 10 zero, 1 one, 0 two |
+| 127 | 12 (extra4 rows 3781 to 3792) | q39, q40 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 12 zero, 0 one, 0 two |
+| 128 | 14 (extra4 rows 3793 to 3806) | q45, q46 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 9 zero, 5 one, 0 two |
+| 129 | 16 (extra4 rows 3807 to 3822) | q47, q48, q49, q50, q51 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 7 zero, 5 one, 4 two |
+| 130 | 16 (extra4 rows 3823 to 3838) | q54, q55, q57, q58, q59, q60 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 15 zero, 1 one, 0 two |
+| 131 | 3 (extra4 rows 3839 to 3841) | q61 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 2 zero, 1 one, 0 two |
