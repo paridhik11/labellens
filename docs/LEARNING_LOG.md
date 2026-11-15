@@ -359,3 +359,13 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 4. **Verified:** Documentation was checked against the committed `parth-cv` branch, `results/cv_extract.md`, and the recorded Conda test and lint outputs.
 5. **Check yourself:** Review the measured-results tables, reproduction commands, and remaining-work section before sharing.
 6. **Assumptions:** The report is a project handoff, not a regulatory claim; temporary evaluation datasets are not committed.
+
+---
+
+## Step 19a: data model and schema change requests (branch step19-contracts)
+1. **What I did:** Wrote `docs/contracts/DATA_MODEL.md`, which covers 14 entities with their fields, types, relations and version history rules, plus the public medicine mode shapes. Every field maps to a `schemas.py` class field or points to a numbered change request. Wrote `docs/contracts/SCHEMA_CHANGE_REQUESTS.md` with 14 proposed requests (CR-1 to CR-14) for what the locked `schemas.py` lacks. `schemas.py` was not edited.
+2. **Files changed:** `docs/contracts/DATA_MODEL.md` (entity contract), `docs/contracts/SCHEMA_CHANGE_REQUESTS.md` (gap list), this log.
+3. **How it works:** A Finding is the existing `Flag` plus optional citations. Each citation is built from a real `Chunk` (chunk_id, section, url, verbatim quote), so no regulation text is invented. Versions are append-only, and an approval binds to the artwork's sha256.
+4. **Verified:** A throwaway script found 41 `Class.field` references to `schemas.py` and none were missing. Every field of ProductRecord, LabelExtraction, Flag and ChangeRequest appears in the doc. No em dashes. `ruff check src tests`: All checks passed.
+5. **Check yourself:** CR-14 (a returned change stays `draft`), version rule 5 (approval binds to the hash), and the public corpus line (21 CFR 201, 208, 211 only).
+6. **Assumptions:** Report and PublishedPage are exports, not tables. Prefixed opaque ids. The abstention score is provisional. None of the CRs is approved.
