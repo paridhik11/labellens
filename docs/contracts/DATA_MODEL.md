@@ -83,7 +83,7 @@ Exactly the fields of `ProductRecord`, plus version metadata. Immutable once wri
 | `udi_di` | string | opt | `ProductRecord.udi_di` | Allocated by the company. Empty means "not yet entered". |
 | `sterilization` | string | opt | `ProductRecord.sterilization` | |
 | `storage` | string | opt | `ProductRecord.storage` | |
-| `extra` | object of string | opt | `ProductRecord.extra` | Free fields such as `ref`. |
+| `extra` | object of string | opt | `ProductRecord.extra` | Free fields. Two keys are read by the checker (docs/CHECKER_SPEC.md): `ref` (reference number, used when `model` is empty) and `rx_only` (the string `true` when the device is prescription only). **`rx_only` is a product registration field**: the registration form offers it as a checkbox, and with it set the checker looks for the Rx statement of 21 CFR 801.109. |
 | `created_at` | timestamp | req | NONE (CR-1) | |
 | `created_by` | string (user id) | req | NONE (CR-1) | |
 | `source_change_id` | string | opt | NONE (CR-1) | The ChangeRequest that produced this version. Empty for the first version. |
@@ -183,7 +183,9 @@ One run of the checker, the layout checks or the closed-loop self-check against 
 | `run_at` | timestamp | req | NONE (CR-5) | |
 | `findings` | array of Finding | req | `Flag` | |
 | `critical_count`, `review_count`, `info_count` | integer | req | NONE (CR-5) | Derived from `findings[].severity`. |
-| `passed` | boolean | req | NONE (CR-5) | True when zero critical findings (GENERATION.md "Pass means zero critical flags"). |
+| `passed` | boolean | req | NONE (CR-5) | True when zero critical findings (GENERATION.md "Pass means zero critical flags"). It does not mean the label is compliant, and it can be true while `needs_human_count` is above 0. |
+| `needs_human_count` | integer | req for inspection, self_check | NONE (CR-17) | Number of `coverage` entries with outcome `needs_human`. Shown beside Passed on the Review screen ("3 items need a human"). |
+| `coverage` | array of RuleOutcome | req for inspection, self_check | NONE (CR-17) | One entry per checker rule: `rule_id`, `outcome` (`pass`, `fail`, `needs_human`, `not_applicable`, `not_checked`), `reason`. `findings` contain only problems, so `coverage` is how a client sees which rules ran. |
 
 ## Finding (a Flag with regulation citations)
 
@@ -201,6 +203,7 @@ One run of the checker, the layout checks or the closed-loop self-check against 
 | `citations` | array of Citation | opt | NONE (CR-6) | Regulation citation details, below. |
 | `field` | string | opt | NONE (CR-6) | Field or slot the finding is about. |
 | `bbox` | array of 4 numbers | opt | NONE (CR-6) | Box on the original image for highlighting. |
+| `rule_id` | string | opt | NONE (CR-17) | Checker rule that raised the finding (for example `B-EXP`). Absent on layout findings. |
 
 Citation (derived from a `Chunk`, so no text is invented):
 

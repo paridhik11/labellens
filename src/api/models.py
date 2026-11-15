@@ -150,6 +150,43 @@ class CheckResult(Base):
     review_count: Mapped[int] = mapped_column(Integer)
     info_count: Mapped[int] = mapped_column(Integer)
     findings: Mapped[list[dict[str, Any]]] = mapped_column(JSON)
+    # Step 21 (CR-17). Null on rows written before the checker existed or by tests that give no coverage.
+    needs_human_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    coverage: Mapped[list[dict[str, Any]] | None] = mapped_column(JSON, nullable=True)
+    retrieval_config: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+
+
+class Extraction(Base):
+    """A LabelExtraction produced for one label version (Step 21). Append-only: a re-extraction is a new row."""
+
+    __tablename__ = "extractions"
+
+    seq: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    extraction_id: Mapped[str] = mapped_column(String, unique=True)
+    version_id: Mapped[str] = mapped_column(ForeignKey("label_versions.version_id"), index=True)
+    label_id: Mapped[str] = mapped_column(String)
+    mode: Mapped[str] = mapped_column(String)  # blind | template | stub
+    payload: Mapped[dict[str, Any]] = mapped_column(JSON)  # LabelExtraction.model_dump(mode="json")
+    created_at: Mapped[str] = mapped_column(String)
+
+
+class Job(Base):
+    """One state change of a background job (Step 21). The job's current state is its newest row."""
+
+    __tablename__ = "jobs"
+    __table_args__ = (CheckConstraint("state IN ('queued','processing','done','failed')", name="ck_job_state"),)
+
+    seq: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    job_id: Mapped[str] = mapped_column(String, index=True)
+    kind: Mapped[str] = mapped_column(String)
+    state: Mapped[str] = mapped_column(String)
+    progress: Mapped[float] = mapped_column(Float, default=0.0)
+    message: Mapped[str] = mapped_column(String, default="")
+    result_url: Mapped[str | None] = mapped_column(String, nullable=True)
+    error: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+    version_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    created_by: Mapped[str] = mapped_column(String)
+    created_at: Mapped[str] = mapped_column(String)
 
 
 class Review(Base):
@@ -211,6 +248,8 @@ IMMUTABLE_TABLES: tuple[str, ...] = (
     "change_requests",
     "label_versions",
     "check_results",
+    "extractions",
+    "jobs",
     "reviews",
     "published_pages",
     "audit_events",

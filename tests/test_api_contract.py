@@ -17,10 +17,12 @@ from src.api.main import create_app
 from src.api.routes import REAL_OPERATIONS
 from src.api.seed import CHANGE_ID, L3_SHA256, LABEL_ID, PRODUCT_ID, TEMPLATE_ID
 from src.api.store import add_check_result, add_label_version
+from tests.checker_api_helpers import install
 from tests.openapi_helpers import conformance_errors, documented_statuses, find_operation
 
 EDITOR, REVIEWER, ADMIN = "usr_demo_editor", "usr_demo_reviewer", "usr_demo_admin"
 L3 = "lbv_exampledevice_carton_l3"
+L2_ID = "lbv_exampledevice_carton_l2"
 SLOT = {"id": "name", "type": "text", "field": "name", "bbox_mm": [5, 10, 50, 6], "size_pt": 10}
 TEMPLATE_BODY = {"size_mm": {"w": 100, "h": 60}, "background": None, "slots": [SLOT]}
 EDIT = [{"field": "storage", "new_value": "Store cool"}]
@@ -55,9 +57,10 @@ def run():
         yield Run(client)
 
 
-def test_every_real_response_conforms_to_openapi(run: Run) -> None:
+def test_every_real_response_conforms_to_openapi(run: Run, tmp_path, monkeypatch) -> None:
     sf = run.client.app.state.session_factory
     c = run.check
+    install(run.client, tmp_path, monkeypatch)  # stub extractor and bm25 retrieval: no CV libraries needed
 
     # users
     c("getCurrentUser", 200, "GET", "/me")
@@ -181,6 +184,27 @@ def test_every_real_response_conforms_to_openapi(run: Run) -> None:
     c("reviewArtwork", 409, "POST", f"/label-versions/{own.version_id}/reviews", user=REVIEWER, json=own_body)  # closed
     c("getChange", 200, "GET", f"/changes/{admin_change.json()['change']['change_id']}")  # closed true
     c("getProductHistory", 200, "GET", f"/products/{PRODUCT_ID}/history")
+
+    # checker (Step 21c): inspect, re-check, jobs, check results, search
+    inspect = c("inspectLabel", 202, "POST", f"/label-versions/{L2_ID}/inspect")
+    job = c("getJob", 200, "GET", f"/jobs/{inspect.json()['job_id']}", user=None)
+    assert job.json()["state"] == "done"
+    c("getCheckResult", 200, "GET", job.json()["result_url"])
+    c("getCheckResult", 401, "GET", job.json()["result_url"], user=None)
+    c("getCheckResult", 404, "GET", "/check-results/chk_missing")
+    c("getJob", 404, "GET", "/jobs/job_deadbeef", user=None)
+    c("inspectLabel", 200, "POST", f"/label-versions/{L2_ID}/inspect")
+    c("inspectLabel", 401, "POST", f"/label-versions/{L2_ID}/inspect", user=None)
+    c("inspectLabel", 404, "POST", "/label-versions/lbv_missing/inspect")
+    c("inspectLabel", 422, "POST", f"/label-versions/{L2_ID}/inspect", json={"retrieval": {"rerank": True}})
+    c("recheckArtwork", 409, "POST", f"/label-versions/{L2_ID}/recheck")
+    c("recheckArtwork", 202, "POST", f"/label-versions/{L3}/recheck")
+    c("recheckArtwork", 200, "POST", f"/label-versions/{L3}/recheck")
+    c("recheckArtwork", 401, "POST", f"/label-versions/{L3}/recheck", user=None)
+    c("recheckArtwork", 404, "POST", "/label-versions/lbv_missing/recheck")
+    search = {"query": "expiration date format", "module": "device", "retrieval": {"method": "bm25"}}
+    c("searchEvidence", 200, "POST", "/search", user=None, json=search)
+    c("searchEvidence", 422, "POST", "/search", user=None, json={"query": "x"})
 
     # coverage: every documented status of every real operation was validated at least once
     real_in_spec = {op: documented_statuses(op) for op in REAL_OPERATIONS}
