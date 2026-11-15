@@ -72,3 +72,29 @@ CNN detail (idea 4): 3 classes (manufacturer, expiry, other), input two 48 by 48
 class of procedurally drawn pictograms from the seen geometry families (jittered, outline, filled or duo, never badge)
 pushed through the candidate finder, plus crops mined from the train-split label set. CPU only, at most 4 torch threads, seed 0.
 A procedural-only first model (no mined crops) also scored 241/256 on dev.
+
+## Phase 5: text-anchor rule (OCR lines as a presence signal)
+
+Anchor lines come from OCR only: the line with the EXP key, and the line above a street-address line (or one starting
+"manufacturer"). A candidate is "near" its anchor when within 3 line heights. Two uses: **boost** (accept a weaker candidate,
+silhouette >= 0.6 or CNN p >= 0.2, when it is near its anchor) and **gate** (accept only candidates near their anchor).
+Relaxed thresholds were fixed before the run, not tuned. OCR found the EXP line in 222/224 and the manufacturer line in
+218/224 anchored images, and 362/368 and 357/368 in random-layout images.
+
+| Dev set | Variant | Recall, all conditions | Recall, very hard | False positives |
+| --- | --- | --- | --- | --- |
+| anchored layout (symbol beside its text; 128 symbols, 320 absent) | silhouette | 122/128 (95.3%; 90.2 to 97.8) | 26/32 (81.2%) | 0/320 (0.0%) |
+| | silhouette + boost | 123/128 (96.1%) | 27/32 (84.4%) | 52/320 (16.2%; 12.6 to 20.7) |
+| | silhouette + gate | 121/128 (94.5%) | 25/32 (78.1%) | 0/320 (0.0%) |
+| | CNN | 123/128 (96.1%; 91.2 to 98.3) | 27/32 (84.4%) | 0/320 (0.0%) |
+| | CNN + boost | 123/128 (96.1%) | 27/32 (84.4%) | 0/320 (0.0%) |
+| | CNN + gate | 122/128 (95.3%) | 26/32 (81.2%) | 0/320 (0.0%) |
+| random layout (256 symbols, 480 absent) | silhouette + boost | 241/256 (94.1%) | 51/64 | 120/480 (25.0%) |
+| | silhouette + gate | **4/256 (1.6%)** | 4/64 | 0/480 |
+| | CNN + gate | **4/256 (1.6%)** | 4/64 | 0/480 |
+
+Reading: when the symbol sits beside its text (the ISO practice), the anchor rule gains at most one symbol (123 against 122
+or 123) and the boost lets text-like blobs through (16% false positives with the silhouette scorer). Used as a gate it does
+not help and collapses when the layout is not as assumed. Every label here carries the EXP and manufacturer lines
+whether or not a symbol is printed, so the text does not say whether a symbol is present; only position can. Verdict: report
+the signal, do not use it in the detector.

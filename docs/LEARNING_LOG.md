@@ -571,3 +571,11 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 4. **Verified:** `pytest src/cv/test_symbols_cnn.py` 3 passed; dev recall 241/256 (94.1%), false positives 0/480.
 5. **Check yourself:** training excludes badge mode and the dev and held-out families (`symbol_procedural.py` docstring and test).
 6. **Assumptions:** Same recall as the silhouette bank on dev, so held-out decides.
+
+## Symbols phase 5: text-anchor rule
+1. **What I did:** Used OCR lines (EXP, the line above the address) as anchors and tested "boost" and "gate" rules with the silhouette and CNN scorers.
+2. **Files:** `src/cv/symbols_v2/anchors.py`, `detector.py` (`make_anchor_rule`), `scripts/symbols/anchor_eval.py`, anchored layout generator.
+3. **How it works:** A symbol is expected next to its text; accept weaker evidence if it is close to the text, or demand closeness.
+4. **Verified:** anchored dev: +0 to +1 symbols, boost 52/320 false positives with silhouette; random layout gate 4/256.
+5. **Check yourself:** relaxed thresholds (0.6, 0.2) were fixed before the run.
+6. **Assumptions:** Synthetic layout; verdict: not used in the detector.
