@@ -595,3 +595,11 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 4. **Verified:** real artwork 206/336 (CLIP) down to 0/336 (v1); real cartons 0/3 for every detector (the symbols are 1 to 2% of the image).
 5. **Check yourself:** my box coordinates in `build_real_labels_eval.py`.
 6. **Assumptions:** `data/real/` does not exist here; 3 symbols is not a measurement.
+
+## Symbols phase 7: lot and expiry format check
+1. **What I did:** `check_extraction` now treats a printed lot or expiry that lost its LOT or EXP key, has impossible characters, or is not a valid calendar date as a damaged reading: `needs_human_review`, never `barcode_mismatch`.
+2. **Files:** `src/cv/consistency.py`, `src/cv/eval_v2.py` (records old and new flags), `tests/test_cv_text_rules.py`, `scripts/symbols/phase7_report.py`.
+3. **How it works:** Before calling two things different, check that the thing you read is a lot or a date at all; a smudged "2O27-13-45" is not evidence the print is wrong.
+4. **Verified:** new seeds 103 to 105: very hard false mismatches 7/44 to 1/44 (blind) and 8/45 to 1/45 (template); wrong barcodes still 102/102 `barcode_mismatch`; other cases 0/612.
+5. **Check yourself:** `format_problem` and the order of conditions in `check_extraction`.
+6. **Assumptions:** A confident misread that still looks valid cannot be caught by format.

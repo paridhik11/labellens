@@ -5,10 +5,13 @@ not be read, and the printed lot or expiry disagrees with the barcode.
 Characters that OCR commonly confuses (0 and O, 1 and I, 5 and S, 8 and B) are
 treated as equal, so a real misprint of exactly that kind cannot be noticed.
 
-A disagreement is only called a ``barcode_mismatch`` when the OCR reading of
-that field is confident. When the reading is uncertain (confidence below
-``min_ocr_confidence``, or no OCR line can be matched to the field) the flag
-is ``needs_human_review`` instead: the print may be fine and the OCR wrong,
+A disagreement is only called a ``barcode_mismatch`` when the printed reading
+is well formed and the OCR reading of that field is confident. A reading that
+has lost its printed key (LOT or EXP), a lot with characters a lot cannot
+have, or an expiry that is not a valid calendar date is a damaged reading, not
+evidence about the print, so it gives ``needs_human_review`` whatever the OCR
+confidence. The same flag is used when the reading is uncertain (confidence
+below ``min_ocr_confidence``, or no OCR line can be matched to the field): the print may be fine and the OCR wrong,
 so a person should compare the label with the barcode. Every flag asks for
 human review; nothing here decides compliance.
 """
@@ -16,6 +19,7 @@ human review; nothing here decides compliance.
 from __future__ import annotations
 
 import re
+from datetime import date
 
 from src.common.schemas import Flag, LabelExtraction
 from src.cv.fields import _canonical, normalise_field, split_key_value
@@ -45,12 +49,44 @@ def field_confidence(extraction: LabelExtraction, field: str) -> float | None:
     return max(matches) if matches else None
 
 
+_LOT_VALUE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._/-]{0,19}")
+_ISO_DATE = re.compile(r"(\d{4})-(\d{2})-(\d{2})")
+
+
+def format_problem(field: str, text: str) -> str | None:
+    """Describe why a printed lot or expiry reading is malformed, or return None when it is well formed.
+
+    Well formed means: the printed key (LOT or EXP) is present, a lot is 1 to 20 letters, digits or ``._/-``,
+    and an expiry is an ISO date (YYYY-MM-DD) that exists in the calendar.
+    """
+    found, key, value = split_key_value(text)
+    wanted = {"lot": "LOT", "expiry": "EXP"}[field]
+    if found != field or key != wanted:
+        return f"the printed key {wanted} is missing or unreadable"
+    value = value.strip()
+    if field == "lot":
+        return None if _LOT_VALUE.fullmatch(value) else "the lot has characters a lot cannot have"
+    match = _ISO_DATE.fullmatch(value)
+    if match is None:
+        return "the expiry is not written as YYYY-MM-DD"
+    try:
+        date(int(match.group(1)), int(match.group(2)), int(match.group(3)))
+    except ValueError:
+        return "the expiry is not a valid calendar date"
+    return None
+
+
 def check_extraction(
     extraction: LabelExtraction,
     expected_symbols: tuple[str, ...] = EXPECTED_SYMBOLS,
     min_ocr_confidence: float = DEFAULT_MIN_OCR_CONFIDENCE,
+    check_format: bool = True,
 ) -> list[Flag]:
-    """Return review flags for missing symbols, an unreadable barcode and print/barcode disagreements."""
+    """Return review flags for missing symbols, an unreadable barcode and print/barcode disagreements.
+
+    ``check_format=False`` switches off the malformed-reading rule, which reproduces the earlier behaviour
+    (only OCR confidence separated a mismatch from a review request); it exists to compare the two on the same OCR.
+    """
     flags = []
     found = {symbol.name for symbol in extraction.symbols}
     for name in expected_symbols:
@@ -87,15 +123,20 @@ def check_extraction(
         if _canonical(value) == _canonical(expected):
             continue
         confidence = field_confidence(extraction, field)
-        if confidence is None or confidence < min_ocr_confidence:
+        problem = format_problem(field, extraction.fields[field]) if check_format else None
+        if problem is not None or confidence is None or confidence < min_ocr_confidence:
             shown = "unknown" if confidence is None else f"{confidence:.2f}"
+            reason = (
+                f"the reading is damaged ({problem})" if problem is not None
+                else f"the OCR reading is uncertain (confidence {shown})"
+            )
             flags.append(Flag(
                 flag_id=f"{extraction.label_id}:needs_human_review:{field}",
                 kind="needs_human_review",
                 severity="review",
                 message=(
-                    f"Printed {field} differs from the barcode, but the OCR reading is uncertain "
-                    f"(confidence {shown}); compare the label with the barcode by eye"
+                    f"Printed {field} differs from the barcode, but {reason}; "
+                    "compare the label with the barcode by eye"
                 ),
                 observed=value,
                 expected=expected,

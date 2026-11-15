@@ -168,3 +168,59 @@ sample of 3, not a measurement of recall.
 
 v2 keeps everything v1 gets on clean to hard labels and fixes the independent drawing (0/204 to 204/204), but loses 11 to 15
 points on very hard labels (glare and opaque bars hide part of the symbol and the blob finder then misses it).
+
+## Phase 7: lot and expiry format check (src/cv/consistency.py)
+
+Paired comparison on the same OCR: the confidence-only checker against the checker with the format rule. Wilson 95% intervals.
+
+### Dev seeds 42 and 43 (rule not tuned on them)
+
+### Labels whose print agrees with the barcode: false `barcode_mismatch` alarms (lower is better)
+
+| condition | mode | decoded labels | confidence only: false mismatch | with format check: false mismatch | with format check: needs_human_review |
+| --- | --- | ---: | --- | --- | --- |
+| clean | blind | 34 | 0/34 (0.0%; 0.0 to 10.2) | 0/34 (0.0%; 0.0 to 10.2) | 0/34 (0.0%; 0.0 to 10.2) |
+| clean | template | 34 | 0/34 (0.0%; 0.0 to 10.2) | 0/34 (0.0%; 0.0 to 10.2) | 0/34 (0.0%; 0.0 to 10.2) |
+| moderate | blind | 34 | 0/34 (0.0%; 0.0 to 10.2) | 0/34 (0.0%; 0.0 to 10.2) | 0/34 (0.0%; 0.0 to 10.2) |
+| moderate | template | 34 | 0/34 (0.0%; 0.0 to 10.2) | 0/34 (0.0%; 0.0 to 10.2) | 0/34 (0.0%; 0.0 to 10.2) |
+| hard | blind | 34 | 0/34 (0.0%; 0.0 to 10.2) | 0/34 (0.0%; 0.0 to 10.2) | 0/34 (0.0%; 0.0 to 10.2) |
+| hard | template | 34 | 0/34 (0.0%; 0.0 to 10.2) | 0/34 (0.0%; 0.0 to 10.2) | 0/34 (0.0%; 0.0 to 10.2) |
+| hard_original | blind | 33 | 0/33 (0.0%; 0.0 to 10.4) | 0/33 (0.0%; 0.0 to 10.4) | 0/33 (0.0%; 0.0 to 10.4) |
+| hard_original | template | 33 | 0/33 (0.0%; 0.0 to 10.4) | 0/33 (0.0%; 0.0 to 10.4) | 0/33 (0.0%; 0.0 to 10.4) |
+| very_hard | blind | 33 | 5/33 (15.2%; 6.7 to 30.9) | 1/33 (3.0%; 0.5 to 15.3) | 4/33 (12.1%; 4.8 to 27.3) |
+| very_hard | template | 33 | 9/33 (27.3%; 15.1 to 44.2) | 1/33 (3.0%; 0.5 to 15.3) | 8/33 (24.2%; 12.8 to 41.0) |
+
+### Negative sets (moderate and hard): wrong_barcode must stay flagged, other cases must stay quiet
+
+| group | mode | decoded labels | confidence only: `barcode_mismatch` | with format check: `barcode_mismatch` | with format check: mismatch or review |
+| --- | --- | ---: | --- | --- | --- |
+| other cases | blind | 408 | 0/408 (0.0%; 0.0 to 0.9) | 0/408 (0.0%; 0.0 to 0.9) | 0/408 (0.0%; 0.0 to 0.9) |
+| other cases | template | 408 | 0/408 (0.0%; 0.0 to 0.9) | 0/408 (0.0%; 0.0 to 0.9) | 0/408 (0.0%; 0.0 to 0.9) |
+| wrong_barcode | blind | 68 | 68/68 (100.0%; 94.7 to 100.0) | 68/68 (100.0%; 94.7 to 100.0) | 68/68 (100.0%; 94.7 to 100.0) |
+| wrong_barcode | template | 68 | 68/68 (100.0%; 94.7 to 100.0) | 68/68 (100.0%; 94.7 to 100.0) | 68/68 (100.0%; 94.7 to 100.0) |
+
+### New seeds 103 to 105 (run once, after the code was frozen)
+
+### Labels whose print agrees with the barcode: false `barcode_mismatch` alarms (lower is better)
+
+| condition | mode | decoded labels | confidence only: false mismatch | with format check: false mismatch | with format check: needs_human_review |
+| --- | --- | ---: | --- | --- | --- |
+| clean | blind | 51 | 0/51 (0.0%; 0.0 to 7.0) | 0/51 (0.0%; 0.0 to 7.0) | 0/51 (0.0%; 0.0 to 7.0) |
+| clean | template | 51 | 0/51 (0.0%; 0.0 to 7.0) | 0/51 (0.0%; 0.0 to 7.0) | 0/51 (0.0%; 0.0 to 7.0) |
+| moderate | blind | 51 | 0/51 (0.0%; 0.0 to 7.0) | 0/51 (0.0%; 0.0 to 7.0) | 0/51 (0.0%; 0.0 to 7.0) |
+| moderate | template | 51 | 0/51 (0.0%; 0.0 to 7.0) | 0/51 (0.0%; 0.0 to 7.0) | 0/51 (0.0%; 0.0 to 7.0) |
+| hard | blind | 51 | 0/51 (0.0%; 0.0 to 7.0) | 0/51 (0.0%; 0.0 to 7.0) | 0/51 (0.0%; 0.0 to 7.0) |
+| hard | template | 51 | 0/51 (0.0%; 0.0 to 7.0) | 0/51 (0.0%; 0.0 to 7.0) | 0/51 (0.0%; 0.0 to 7.0) |
+| hard_original | blind | 50 | 0/50 (0.0%; 0.0 to 7.1) | 0/50 (0.0%; 0.0 to 7.1) | 0/50 (0.0%; 0.0 to 7.1) |
+| hard_original | template | 49 | 0/49 (0.0%; 0.0 to 7.3) | 0/49 (0.0%; 0.0 to 7.3) | 0/49 (0.0%; 0.0 to 7.3) |
+| very_hard | blind | 44 | 7/44 (15.9%; 7.9 to 29.4) | 1/44 (2.3%; 0.4 to 11.8) | 6/44 (13.6%; 6.4 to 26.7) |
+| very_hard | template | 45 | 8/45 (17.8%; 9.3 to 31.3) | 1/45 (2.2%; 0.4 to 11.6) | 8/45 (17.8%; 9.3 to 31.3) |
+
+### Negative sets (moderate and hard): wrong_barcode must stay flagged, other cases must stay quiet
+
+| group | mode | decoded labels | confidence only: `barcode_mismatch` | with format check: `barcode_mismatch` | with format check: mismatch or review |
+| --- | --- | ---: | --- | --- | --- |
+| other cases | blind | 612 | 0/612 (0.0%; 0.0 to 0.6) | 0/612 (0.0%; 0.0 to 0.6) | 0/612 (0.0%; 0.0 to 0.6) |
+| other cases | template | 612 | 0/612 (0.0%; 0.0 to 0.6) | 0/612 (0.0%; 0.0 to 0.6) | 0/612 (0.0%; 0.0 to 0.6) |
+| wrong_barcode | blind | 102 | 102/102 (100.0%; 96.4 to 100.0) | 102/102 (100.0%; 96.4 to 100.0) | 102/102 (100.0%; 96.4 to 100.0) |
+| wrong_barcode | template | 102 | 102/102 (100.0%; 96.4 to 100.0) | 102/102 (100.0%; 96.4 to 100.0) | 102/102 (100.0%; 96.4 to 100.0) |
