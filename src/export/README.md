@@ -44,7 +44,7 @@ emitted only once, preventing duplicate SVG IDs.
 
 The 9 mm DRAFT band follows the current renderer and Paridhi's handoff, which
 supersedes the older contract's 6 mm draft default. Symbol names are
-`manufacturer`, `expiry`, `sterile`, and `sterile_eo`. These are simplified
+`manufacturer`, `expiry`, `sterile`, `sterile_eo`, and `sterile_r`. These are simplified
 synthetic test drawings, not licensed or certified ISO artwork.
 
 ## Usage
@@ -97,7 +97,7 @@ Draft output is the default and always carries DRAFT. TEST DATA remains visible
 even on an approved test export. This package accepts approval records from the
 application; it never creates one. To remove DRAFT, supply all of:
 
-- `ApprovalRecord` with reviewer, version_id, reference_sha256 and nonempty check_id.
+- `ApprovalRecord` with reviewer, reviewer_role (`reviewer` or `admin`), version_id, reference_sha256 and nonempty check_id.
 - A `PassedCheck` with the same check_id, version_id and reference_sha256, and passed=True.
 - The trusted application's authorized reviewer set. The creator cannot approve their own label.
 
@@ -140,7 +140,7 @@ Sources:
 ```
 
 The export tests check nonstandard page sizes, extractable PDF text, XML escaping
-and named groups, PNG embedding, all four symbols, immutable outputs, blocked
+and named groups, PNG embedding, all five supported symbols, immutable outputs, blocked
 overflow/overlap/clipping, module warnings, exact barcode dimensions and origins,
 both GS1 formats decoded from independent 600 dpi renders, QR payloads, valid
 approval and rejected stale, failed, missing or unauthorized approvals.
@@ -160,3 +160,25 @@ dimensions are checked to 0.0001 point. Both printed GS1 test formats decoded.
 A sample with the new sterile symbol and a verification QR was rendered and
 visually inspected at `/tmp/labellens-task2-sample/`. Temporary examples are not
 committed; the usage example above recreates a draft from the existing fixture.
+
+## Task 5 approval and renderer alignment
+
+`src/export/approval.py` holds the shared local records and approval gate. Existing
+imports from `label_model` remain available. `reviewer_role` is required, and
+authorization still comes from the trusted application, not the uploaded role.
+The canonical hash field stays `reference_sha256`, as clarified by Paridhi.
+`approval_from_records` also maps API `user_id`/`artifact_sha256` to the local
+names and refuses conflicting aliases or a check with critical findings.
+
+`verify_print` now needs `check_record` as well as `approval_record`. The passed
+check must have the same check ID, version and exact manifest hash as the review.
+Missing or old records without that evidence fail before OCR. The original
+generator now writes `version_id` and `created_by`, supports all five symbol
+names and emits named SVG layers/slots too. It accepts an explicit version ID;
+otherwise its local ID is derived from product ID and record version.
+
+The print verifier hashes the original generated manifest bytes. The standalone
+exporter continues to hash its canonical Label snapshot. These references are
+different representations and must not be interchanged without an explicit
+application mapping and a new check for the chosen reference. No approval is
+automatically issued. Real symbol detection accuracy has not been established.

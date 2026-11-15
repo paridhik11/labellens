@@ -209,7 +209,7 @@ def test_qr_invalid_input_and_failed_decode(monkeypatch: pytest.MonkeyPatch) -> 
 def test_approval_requires_matching_check_and_independent_reviewer(sample: Label, tmp_path: Path) -> None:
     """Approval removes DRAFT only when bound to the exact snapshot and passed check."""
     fingerprint = reference_sha256(sample)
-    approval = ApprovalRecord("pari", sample.version_id, fingerprint, "check-1")
+    approval = ApprovalRecord("pari", sample.version_id, fingerprint, "check-1", reviewer_role="reviewer")
     check = PassedCheck("check-1", sample.version_id, fingerprint, True)
     pdf = render_pdf(
         sample, tmp_path / "approved.pdf", approval=approval, check=check, authorized_reviewers=frozenset({"pari"})
@@ -219,6 +219,7 @@ def test_approval_requires_matching_check_and_independent_reviewer(sample: Label
     assert json.loads(pdf.with_suffix(".pdf.json").read_text())["check_id"] == "check-1"
     invalid = [
         (replace(approval, check_id=""), check, sample, frozenset({"pari"})),
+        (replace(approval, reviewer_role="editor"), check, sample, frozenset({"pari"})),
         (approval, replace(check, passed=False), sample, frozenset({"pari"})),
         (approval, replace(check, version_id="wrong"), sample, frozenset({"pari"})),
         (approval, replace(check, reference_sha256="wrong"), sample, frozenset({"pari"})),
@@ -321,7 +322,7 @@ def test_overlap_duplicate_ids_and_immutable_outputs(sample: Label, tmp_path: Pa
     assert pdf.read_bytes() == before
 
 
-@pytest.mark.parametrize("name", ["manufacturer", "expiry", "sterile", "sterile_eo"])
+@pytest.mark.parametrize("name", ["manufacturer", "expiry", "sterile", "sterile_eo", "sterile_r"])
 def test_supported_symbols_render_as_vectors(name: str, tmp_path: Path) -> None:
     """All four simplified symbols are exported as vector shapes or editable text."""
     label = Label(
@@ -356,7 +357,7 @@ def test_svg_approval_retains_test_mark_and_audit(sample: Label, tmp_path: Path)
     root_path = render_svg(
         sample,
         tmp_path / "approved.svg",
-        approval=ApprovalRecord("pari", sample.version_id, fingerprint, "check-1"),
+        approval=ApprovalRecord("pari", sample.version_id, fingerprint, "check-1", reviewer_role="reviewer"),
         check=PassedCheck("check-1", sample.version_id, fingerprint, True),
         authorized_reviewers=frozenset({"pari"}),
     )

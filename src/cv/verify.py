@@ -10,6 +10,7 @@ from typing import Any
 
 from src.common.schemas import LabelExtraction
 from src.cv.extract import extract_label
+from src.export.approval import approval_from_records, require_approved_reference
 
 
 @dataclass
@@ -121,25 +122,30 @@ def verify_print(
     photo_path: str | Path,
     approved_label: str | Path,
     *,
-    approval_record: dict[str, str] | None = None,
+    approval_record: dict[str, Any] | None = None,
+    check_record: dict[str, Any] | None = None,
     authorized_reviewers: frozenset[str] = frozenset(),
 ) -> VerificationResult:
     """Verify a photo only against an intact reference explicitly approved by an authorized reviewer.
 
     The application must supply the authorized reviewer set from trusted auth,
     not from an upload. Approval references the exact manifest SHA-256. This
-    function neither creates approval records nor publishes any artwork.
+    check_record must match the approval check_id, version and reference hash.
+    This function neither creates approval records nor publishes any artwork.
     """
     path = Path(approved_label)
-    fingerprint = hashlib.sha256(path.read_bytes()).hexdigest()
-    if (
-        not approval_record
-        or approval_record.get("decision") != "approve"
-        or approval_record.get("reviewer") not in authorized_reviewers
-        or approval_record.get("reference_sha256") != fingerprint
-    ):
-        raise PermissionError("An authorized approval record bound to this exact reference is required")
-    reference = json.loads(path.read_text(encoding="utf-8"))
+    raw_reference = path.read_bytes()
+    fingerprint = hashlib.sha256(raw_reference).hexdigest()
+    reference = json.loads(raw_reference)
+    approval, check = approval_from_records(approval_record, check_record)
+    require_approved_reference(
+        fingerprint,
+        reference.get("version_id", ""),
+        reference.get("created_by", ""),
+        approval,
+        check,
+        authorized_reviewers,
+    )
     for name, relative in reference["artifacts"].items():
         artifact = (path.parent / relative).resolve()
         if not artifact.is_relative_to(path.parent.resolve()):

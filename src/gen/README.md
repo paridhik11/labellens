@@ -127,3 +127,22 @@ template-slot recovery pipeline described in `src/cv/README.md`. Two seed-42
 and one seed-43 hard images still require human barcode review. Failed images
 remain in the datasets. These synthetic results do not estimate performance on
 real photographs.
+
+## Task 5 renderer and approval contract updates
+
+The generator supports simplified `manufacturer`, `expiry`, `sterile`,
+`sterile_eo` and `sterile_r` artwork. This is synthetic artwork, not licensed or
+certified ISO artwork. The existing CV detector still has its original two
+reference symbols; rendering a new symbol does not prove it can be detected.
+Draft self-check findings must be reviewed, not silently treated as passes.
+
+SVG output now has `layer-background`, `layer-slots`, `layer-watermark`,
+`layer-review` and one `slot-{id}` group for every slot. Its root uses millimetre
+units and a matching viewBox while preserving the PDF geometry.
+
+Manifests include `created_by` and `version_id`. `render_label` accepts a supplied
+version ID; its default local ID is the product ID plus record version. A new
+revision cannot reuse its previous version ID. The generator creates no review
+records or passed checks. `verify_print` requires an authorized independent
+reviewer, reviewer role, `reference_sha256`, version and a matching passed
+`check_id`. Old records missing these fields must be rechecked and reviewed.

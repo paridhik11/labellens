@@ -595,3 +595,11 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its CV step 16 to 
 4. **How I verified it:** Real-set tests: `17 passed in 0.36s`; full source/tests Ruff: `All checks passed!`. Verified unchanged hashes for 60 images and 60 XML files and checked the Git index and ignore rules.
 5. **What you should check yourself:** SOURCES.md medicine tags, source links, local files and the index.
 6. **What I am unsure about or assumed:** The new 20-label device/symbol set is not complete. Physical photos require Parth; AI transcriptions will be LLM-labelled, with three photos spot-checked by him. Past commits retain old data because history was not rewritten.
+
+## Parth next Task 5: renderer and approval contract gaps
+1. **What I did:** Added sterile/EO/R artwork and named SVG groups to the original generator. Shared approval validation now requires reviewer role, reference/version binding and a matching passed check before print extraction or watermark removal.
+2. **Files changed:** Generator render/symbol code, export approval/label model, CV verifier, module tests, module READMEs, `reports/parth_task5.md` and this log. Shared schemas and contracts are unchanged.
+3. **How it works:** Local canonical names remain reviewer/reference_sha256; API aliases map explicitly and conflicts fail. The reviewer must be authorized and different from the creator, and check_id/version/reference must all match a passed check. Generator manifests now carry version_id and created_by.
+4. **How I verified it:** Fast suite: `358 passed, 3 deselected in 36.75s`; generator plus verifier tests: `59 passed in 35.24s`; Ruff: `All checks passed!`. Contract mock tests are included. Background jobs logged results and were checked once after completion.
+5. **What you should check yourself:** Named SVG groups, sterile text, missing/stale/failed check rejection and API alias conflicts. Full commands are in the report.
+6. **What I am unsure about or assumed:** Manifest and Label-snapshot hashes represent different references and require explicit mapping. Synthetic symbol rendering is not real-device detection accuracy. The new device-symbol set and real-photo human spot-check remain unfinished.

@@ -19,7 +19,9 @@ from PIL import Image
 from reportlab.pdfbase.pdfmetrics import getAscentDescent, standardFonts, stringWidth
 
 from src.common.schemas import IdentifierRequired
+from src.export.approval import ApprovalRecord, PassedCheck, require_approved_reference
 from src.gen.gs1 import parse_gs1
+from src.gen.symbols import SUPPORTED_SYMBOLS
 
 MM_TO_PT = 72 / 25.4
 DRAFT_BAND_MM = 9.0
@@ -72,27 +74,6 @@ class Label:
 
 
 @dataclass(frozen=True)
-class ApprovalRecord:
-    """An externally supplied reviewer decision, never created by export."""
-
-    reviewer: str
-    version_id: str
-    reference_sha256: str
-    check_id: str
-    decision: str = "approve"
-
-
-@dataclass(frozen=True)
-class PassedCheck:
-    """Externally supplied check result for the same version and reference."""
-
-    check_id: str
-    version_id: str
-    reference_sha256: str
-    passed: bool
-
-
-@dataclass(frozen=True)
 class Primitive:
     """A measured rectangle, line, text baseline or PNG shared by both writers."""
 
@@ -136,21 +117,14 @@ def validate_approval(
     """
     if approval is None:
         return False
-    fingerprint = reference_sha256(label)
-    if (
-        approval.decision != "approve"
-        or not approval.check_id
-        or approval.reviewer not in authorized_reviewers
-        or approval.reviewer == label.created_by
-        or approval.version_id != label.version_id
-        or approval.reference_sha256 != fingerprint
-        or check is None
-        or check.passed is not True
-        or check.check_id != approval.check_id
-        or check.version_id != label.version_id
-        or check.reference_sha256 != fingerprint
-    ):
-        raise PermissionError("Approval needs an authorized independent reviewer and matching passed check_id")
+    require_approved_reference(
+        reference_sha256(label),
+        label.version_id,
+        label.created_by,
+        approval,
+        check,
+        authorized_reviewers,
+    )
     return True
 
 
@@ -257,7 +231,7 @@ def validate_label(label: Label, min_module_mm: float = 0.25) -> None:
             if any(np.any(edge != 255) for edge in border):
                 raise ValueError("Barcode quiet zone is missing")
         elif element.kind == "symbol":
-            if element.symbol_name not in {"manufacturer", "expiry", "sterile", "sterile_eo"} or min(w, h) < 5:
+            if element.symbol_name not in SUPPORTED_SYMBOLS or min(w, h) < 5:
                 raise ValueError("Unsupported symbol or symbol below 5 mm project minimum")
         else:
             raise ValueError(f"Unsupported element kind: {element.kind}")
@@ -300,7 +274,7 @@ def primitives(element: Element) -> list[Primitive]:
         return result
     # Simplified synthetic symbol artwork, not licensed or certified ISO artwork.
     if element.symbol_name.startswith("sterile"):
-        label = "STERILE EO" if element.symbol_name == "sterile_eo" else "STERILE"
+        label = {"sterile": "STERILE", "sterile_eo": "STERILE EO", "sterile_r": "STERILE R"}[element.symbol_name]
         size = min(8, w * MM_TO_PT / stringWidth(label, "Helvetica", 1) * 0.8)
         return [
             Primitive("outline", x + 0.05 * w, y + 0.15 * h, 0.9 * w, 0.7 * h),
