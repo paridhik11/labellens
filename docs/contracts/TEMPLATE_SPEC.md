@@ -31,8 +31,8 @@ Worked example: a 100 x 60 mm label gives a PDF page of 283.46 x 170.08 pt. A sl
      "bbox_mm": [5, 12, 60, 6], "font": "Helvetica", "size_pt": 12, "align": "left", "max_lines": 1},
     {"id": "mfr_address", "type": "text", "field": "manufacturer_address",
      "bbox_mm": [5, 26, 60, 10], "font": "Helvetica", "size_pt": 7, "align": "left", "max_lines": 3},
-    {"id": "sterile_symbol", "type": "symbol", "field": "sterilization", "symbol_name": "sterile_eo",
-     "bbox_mm": [70, 5, 10, 10]},
+    {"id": "mfr_symbol", "type": "symbol", "field": "manufacturer", "symbol_name": "manufacturer",
+     "bbox_mm": [70, 10, 10, 10]},
     {"id": "udi_barcode", "type": "barcode", "field": "udi", "symbology": "GS1_DataMatrix",
      "bbox_mm": [70, 20, 25, 25]}
   ]
@@ -63,7 +63,7 @@ Worked example: a 100 x 60 mm label gives a PDF page of 283.46 x 170.08 pt. A sl
 | `size_pt` | text | req | At least the minimum readable size (`min_font_pt`, default 6). |
 | `align` | text | opt | `left` (default), `center`, `right`. |
 | `max_lines` | text | opt | Default 1. Wrapped text past this is a `text_overflow` finding, never silently shrunk. |
-| `symbol_name` | symbol | req | Name of the reference symbol drawn in the slot, for example `manufacturer`, `expiry`. |
+| `symbol_name` | symbol | req | Reference symbol drawn in the slot. For now only `manufacturer` and `expiry` are supported, each at least 5 mm. Other symbols (sterilization and others) are future work for Parth and are refused until the renderer supports them. |
 | `symbology` | barcode | req | `GS1_DataMatrix` or `GS1-128`. |
 | `min_size_mm` | symbol, barcode | opt | Minimum printed size checked by the layout checks. |
 
@@ -71,14 +71,16 @@ Worked example: a 100 x 60 mm label gives a PDF page of 283.46 x 170.08 pt. A sl
 
 | Rule | Finding kind | Severity |
 |---|---|---|
-| Slot box outside the label | `slot_out_of_bounds` | critical |
-| Two slots overlap | `slot_overlap` | review |
-| Slot overlaps the reserved DRAFT band (top 6 mm, full width) | `watermark_overlap` | critical |
+| Slot box outside the label | `clipping` | critical |
+| Two slots overlap | `overlap` | review |
+| Slot overlaps the reserved DRAFT band (top 9 mm, full width) | `watermark_overlap` | critical |
 | Text wraps past `max_lines` or past the box | `text_overflow` | critical |
 | Font below `min_font_pt` | `font_too_small` | critical |
 | Symbol or barcode below `min_size_mm` | `symbol_too_small`, `barcode_too_small` | critical |
 | Barcode quiet zone not clear | `barcode_quiet_zone` | critical |
 | Required field empty | `required_field_empty` | critical |
+| Barcode module (one dark square of the code) below 0.25 mm | `barcode_size` | critical |
+| Text contains a character outside printable ASCII | `unsupported_characters` | critical |
 
 ## 3. Named SVG groups
 
@@ -149,7 +151,7 @@ The user picks fonts from the installed list. LabelLens cannot recover an unknow
 1. Millimetres from the top left, y downwards, matches both `docs/GENERATION.md` and the code on Parth's branch, which scales `bbox_mm` with `(width - 1) / w`.
 2. `GS1-128` (with a hyphen) is the symbology string, because Parth's renderer accepts `GS1_DataMatrix` and `GS1-128`. `GENERATION.md` only names it in prose.
 3. The named SVG groups are a contract for the renderer. The current renderer on Parth's branch writes the SVG through ReportLab and does not yet emit these group ids. That is a gap for Parth, not something this step changes.
-4. The 6 mm DRAFT band and the 6 pt minimum font size are defaults chosen for the contract. They are not regulatory values, and a product setup may change them.
+4. The 9 mm DRAFT band (matching the merged renderer, which flags slots with `y < 9` mm) and the 6 pt minimum font size are defaults chosen for the contract. They are not regulatory values. The 0.25 mm barcode module and the printable ASCII only rule are the merged renderer's limits (Step 20 Phase 0, D-8).
 5. `product_name` is accepted as an alias of `name` so Parth's fixture validates unchanged.
 6. The lot and serial limits (20 characters, `N2+X..20`) were confirmed on 2026-11-15 against GS1's published AI list (ref.gs1.org). That list is the machine-readable form of the GS1 General Specifications AI table. I did not read the full General Specifications PDF.
 7. The serial (21) is included only where the product uses serialisation. The payload order (01), (17), (10), (21) follows `GENERATION.md` and Parth's renderer.

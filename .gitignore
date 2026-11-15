@@ -18,3 +18,6 @@ results/*
 .venv-cv/
 data/synthetic/
 !results/cv_*.md
+
+# local API database (Step 20)
+data/api/

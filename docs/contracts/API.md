@@ -1,6 +1,6 @@
 # API (contract, Step 19c)
 
-The machine-readable contract is [`openapi.yaml`](openapi.yaml) (OpenAPI 3.1, JSON Schema 2020-12). This page explains it for people. If the two disagree, `openapi.yaml` wins and this page gets fixed. Nothing here is implemented yet: `src/api/main.py` only serves `GET /health`.
+The machine-readable contract is [`openapi.yaml`](openapi.yaml) (OpenAPI 3.1, JSON Schema 2020-12). This page explains it for people. If the two disagree, `openapi.yaml` wins and this page gets fixed. Step 20 implements part of it: the operations marked real in "Implementation status" below run against SQLite, and every other operation serves its mock JSON with the header `X-Mock: true`.
 
 Entities and field meanings are in [`DATA_MODEL.md`](DATA_MODEL.md). Template and barcode rules are in [`TEMPLATE_SPEC.md`](TEMPLATE_SPEC.md). Shapes missing from `src/common/schemas.py` are listed in [`SCHEMA_CHANGE_REQUESTS.md`](SCHEMA_CHANGE_REQUESTS.md).
 
@@ -107,6 +107,8 @@ Further rules, all enforced by the server:
 | Reject is terminal | `closed` becomes `true`. Generate, review and publish on the change give `409 change_closed`. A new change is needed. |
 | Return is not terminal | The editor can regenerate. |
 
+"Currently approved" must be read from the change status (`status` is `reviewed`), never from a version's own status, because a newer version voids an earlier approval and the old version still shows as approved in its own record.
+
 ### The "returned" case
 
 `openapi.yaml` has a `returned` example under `GET /changes/{change_id}` and under the `201` of `POST /label-versions/{version_id}/reviews`. The change shows `status: draft` with `latest_review_id: rev_0002`, and that Review has `decision: return`. The status is not stored. It is read off the latest Review.
@@ -128,6 +130,45 @@ Further rules, all enforced by the server:
 `score_name` is a free string (for example `hybrid_top_score`, the Step 16 primary score) so the score can be swapped later without changing the API. `score` and `threshold` are `null` when a scope rule, not a score, made the decision. The banner "Authenticity not verified. Based on a reference label match." is always present.
 
 The public corpus is 21 CFR Parts 201, 208 and 211 only. The reference label corpus (DailyMed or openFDA) is not built yet.
+
+## Roles and error codes
+
+The caller is the user named by the `X-User-Id` header. Reads need a known user. Writes check the role:
+
+| Operation | Allowed roles | Otherwise |
+|---|---|---|
+| `registerProduct`, `registerTemplate`, `assessChange` | `editor`, `admin` | `403 role_forbidden` |
+| `reviewArtwork` | `reviewer`, `admin` | `403 role_forbidden` |
+
+Error codes (body `{error, message, details?}`):
+
+| Code | Status | When |
+|---|---|---|
+| `unknown_user` | 401 | `X-User-Id` header missing or no such user |
+| `role_forbidden` | 403 | The user's role may not do this |
+| `self_approval_forbidden` | 403 | The submitter of a change tried to approve it |
+| `not_found` | 404 | Unknown product, template, label, version or change |
+| `validation_error` | 422 | Request body has the wrong shape |
+| `check_required` | 422 | Approve without a `check_id` |
+| `comment_required` | 422 | Return or reject without a comment |
+| `parser_not_implemented` | 422 | `POST /changes` with `raw_text` only. Send structured `edits`. |
+| `artifact_hash_required` | 422 | Generated artwork without its `artifact_sha256` |
+| `hash_mismatch` | 409 | `artifact_sha256` is not the version's hash |
+| `check_not_passed` | 409 | `check_id` is missing, failed, or belongs to another version or hash |
+| `version_superseded` | 409 | A newer artwork version exists for the change |
+| `change_closed` | 409 | The change was rejected |
+| `template_product_mismatch` | 409 | The `template_id` belongs to another product |
+| `label_product_mismatch` | 409 | The `label_id` belongs to another product |
+| `needs_input` | 409 | Generate needs an identifier (see above) |
+
+## Implementation status (Step 20)
+
+| Operation | Status |
+|---|---|
+| `getHealth`, `getCurrentUser`, `listProducts`, `registerProduct`, `getProduct`, `listProductVersions`, `registerTemplate`, `getTemplate`, `getProductHistory`, `listLabelVersions`, `getLabelVersion`, `assessChange`, `getChange`, `listReviews`, `reviewArtwork` | Real (SQLite). |
+| Every other operation | Mock JSON, response header `X-Mock: true`. `?mock_state=<state>` picks another mock of the same operation. |
+
+Limits of the real operations: `registerTemplate` validates the shape only, so the layout findings (`422 CheckResult`) are not produced yet. `assessChange` stores a structured change and answers `parser: not_implemented` with an empty `affected` list, `checklist_complete: false` and a `needs_human_review` message, so an unchecked change cannot be mistaken for a clean one. `listAffectedLabels` is a mock until an impact analysis exists.
 
 ## Mapping from the old draft
 

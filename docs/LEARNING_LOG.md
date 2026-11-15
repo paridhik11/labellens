@@ -499,3 +499,43 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 4. **Verified:** CV suite 258 passed, 1 skipped; root command without CV libraries 111 passed, 1 skipped, 1 deselected; ruff clean. Dev seeds only: very hard false mismatch flags 9 of 33 (template) and 5 of 33 (blind) before and after; real mismatches 68/68 per mode before and after.
 5. **Check yourself:** That the 0.8 threshold changed nothing because every false alarm had confidence 0.876 to 0.999.
 6. **Assumptions:** The threshold was set before measuring and not tuned. Symbol intervals treat the two symbols on a label as independent, so they are somewhat too narrow.
+
+## Step 20 Phase 0: contract follows merged code (D-2, D-4, D-7, D-8)
+1. **What I did:** Applied Pari's per-item decisions on the 11 differences between the contract and Parth's merged renderer. The contract now follows the code for symbol names (only `manufacturer` and `expiry`), the 9 mm DRAFT band, the layout kinds `clipping` and `overlap`, and two extra limits (barcode module at least 0.25 mm, printable ASCII). D-3, D-5, D-6 and D-9 stay as written and are marked decided gaps for Parth.
+2. **Files:** `docs/contracts/TEMPLATE_SPEC.md`, `DATA_MODEL.md` (also the per-template version rule), `openapi.yaml` (enum on `symbol_name`), `SCHEMA_CHANGE_REQUESTS.md` (decision table), six mock JSON files.
+3. **How it works:** A "contract" is the written promise the UI builds against. When code and promise disagree, someone must pick which one moves; this step records that pick per item.
+4. **Verified:** `python -m pytest -q tests/test_mock_contracts.py` gave 83 passed.
+5. **Check yourself:** The decision table at the end of `SCHEMA_CHANGE_REQUESTS.md`; the mock slots `name` and `ref` now start at y = 10 mm.
+6. **Assumptions:** D-7 is only partly decided (other kind names such as `font_too_small` still differ). The sterilization symbol impact item no longer names a slot, because that symbol cannot be a slot yet.
+
+## Step 20a: persistence layer and review rules
+1. **What I did:** Built the SQLite store with SQLAlchemy: users, products and versions, templates, label versions, change requests, check results, reviews, published pages and audit events. Every table except users rejects UPDATE and DELETE through database triggers, so an edit is always a new row. Status is never stored; `src/api/status.py` computes it from reviews and checks, and `src/api/reviews.py` enforces the review rules (role, no self approval, hash and passed check for approve, comment for return and reject, reject is terminal, a newer version voids an approval).
+2. **Files:** `src/api/db.py`, `models.py`, `errors.py`, `store.py`, `status.py`, `reviews.py`, `seed.py`, `tests/test_api_persistence.py`, `.gitignore` (local db folder), `.github/workflows/ci.yml` (installs sqlalchemy).
+3. **How it works:** Think of a ledger. You never erase a line, you add a new one, and "what is the status now" is answered by reading the latest relevant lines. A trigger is a rule inside the database that refuses the erase attempt even if our own code tried it.
+4. **Verified:** `python -m pytest -q tests/test_api_persistence.py` gave 20 passed; `python -m pytest -q -m "not slow"` gave 238 passed, 1 skipped, 1 deselected; `ruff check src tests` clean.
+5. **Check yourself:** The order of checks in `record_review`; `label_version_status` versus `change_status` (only the change's latest version counts); the trigger loop in `init_db`.
+6. **Assumptions:** No separate GeneratedArtwork table (its hash and change link are columns on `label_versions`); `closed` and `resulting_status` are computed on read; template versions count per template_id inside a product; unknown user is 401; role checks for non-review writes wait for the endpoints (20b).
+
+## Step 20b: real endpoints and role checks
+1. **What I did:** Turned 15 operations of `openapi.yaml` into real FastAPI endpoints on the SQLite store: me, products, templates, label versions, version history, changes, reviews and the audit log. Editors and admins register products, templates and changes; reviewers and admins review; everything else is a 403 `role_forbidden`. `POST /changes` stores a structured change but answers `parser: not_implemented`, an empty affected list, `checklist_complete: false` and a NEEDS_HUMAN_REVIEW message, so "not checked" cannot look like "clean".
+2. **Files:** `src/api/routes.py`, `views.py` (database rows to contract JSON, status computed there), `requests.py` (request shapes), `main.py` (app factory, error handlers), `store.py` (extra edits on a change), `docs/contracts/` (parser field, error codes, roles, the "currently approved" sentence, 401 and 404 and 422 responses), two mocks (`parser: mock`), `tests/test_api_endpoints.py`, CI and `pyproject.toml` (fastapi, httpx, Depends lint rule).
+3. **How it works:** The header `X-User-Id` names the caller; a small dependency looks the user up and checks the role before the handler runs. "Currently approved" is read from the change status, because an old version keeps showing as approved in its own record after a newer version voids the approval.
+4. **Verified:** `python -m pytest -q tests/test_api_endpoints.py` gave 26 passed; full fast suite 264 passed, 1 skipped, 1 deselected; `ruff check src tests` clean.
+5. **Check yourself:** `REAL_OPERATIONS` in `routes.py`; the four forbidden-role cases in the parametrized test; the new Error codes table in `docs/contracts/API.md`.
+6. **Assumptions:** `registerTemplate` validates the shape only (no layout findings yet); plain-text changes are refused with 422 `parser_not_implemented`; `listAffectedLabels` stays a mock; a missing header and an unknown user share the code `unknown_user`; `old_value` defaults to the record's current value for a known field.
+
+## Step 20c: mock fallback
+1. **What I did:** Every operation that is not real now serves its mock JSON with the response header `X-Mock: true`. `?mock_state=<state or file name>` picks another mock of the same operation (for example `empty`). Three operations had no mock (confirm extraction, confirm change, publish), so I added one each.
+2. **Files:** `src/api/mock_server.py`, `src/api/main.py`, three new mock files, `src/api/mock/index.json`, `docs/contracts/SCREENS.md`, `tests/test_api_mock_fallback.py`.
+3. **How it works:** The server reads `openapi.yaml`, and for each operation not in `REAL_OPERATIONS` it registers a route that returns the chosen mock file. The route handler takes only the request, so FastAPI never tries to parse a body.
+4. **Verified:** `python -m pytest -q tests/test_api_mock_fallback.py` gave 26 passed (one test per non-real operation checks the header, status and body); full fast suite 295 passed, 1 skipped, 1 deselected.
+5. **Check yourself:** `NOT_MOCKED` and `pick_entry` in `mock_server.py`; the test that real operations never carry the header.
+6. **Assumptions:** The default mock is chosen by state order success, loading, approved, empty; mock routes do not check the user header.
+
+## Step 20d: contract tests against openapi.yaml
+1. **What I did:** One scripted run calls every real operation and every status the spec documents for it, and validates each response body against its schema in `openapi.yaml`. It fails if a status is undocumented, so I added the missing 401, 404 and 422 responses to the spec. A last check requires that every documented status of every real operation was seen.
+2. **Files:** `tests/openapi_helpers.py`, `tests/test_api_contract.py`, `docs/contracts/openapi.yaml`, `docs/LEARNING_LOG.md`, `CLAUDE.md`.
+3. **How it works:** A schema is a machine-checkable description of a response. A passing test means the server's real answers match the promise the UI builds on; a second test breaks copies of real responses to prove the check can fail.
+4. **Verified:** `python -m pytest -q tests/test_api_contract.py` gave 3 passed; full fast suite 298 passed, 1 skipped, 1 deselected; `ruff check src tests` clean; live smoke with uvicorn and a file database: `/health`, `/me`, `/products` real, `POST /public/ask` returned `x-mock: true`.
+5. **Check yourself:** The coverage assertion at the end of `test_every_real_response_conforms_to_openapi`; the oneOf on the `registerTemplate` 422 response.
+6. **Assumptions:** Only JSON responses are validated; the layout-findings CheckResult variant of the template 422 is validated by the mock tests, because the real server cannot produce it yet.

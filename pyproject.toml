@@ -23,3 +23,7 @@ select = ["E", "F", "I", "B"]
 # The importorskip guard must run before the CV imports below it.
 "src/cv/test_*.py" = ["E402"]
 "src/gen/test_*.py" = ["E402"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI dependencies are declared as default arguments: Depends(...)
+extend-immutable-calls = ["fastapi.Depends"]
