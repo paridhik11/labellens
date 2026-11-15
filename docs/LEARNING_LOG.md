@@ -401,3 +401,11 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 4. **Verified:** GS1 dataset (ref.gs1.org): 01 `N2+N14`, 10 `N2+X..20` separator required, 17 `N2+N6`, 21 `N2+X..20` separator required, so the 20-character limits were already right. OpenAPI: 35 operations, 67 schemas, 0 failing the metaschema, 73 refs resolved, 6 examples OK, all 35 operationIds in API.md. Mapping script: 41 refs, none missing. Em dashes 0.
 5. **Check yourself:** The self-approval rule (the submitter may still return or reject), Status derivation rule 1, and the "public endpoints need no header" choice.
 6. **Assumptions:** `X-User-Id` is a trusted dev stub, not security. "Needs review" is a UI label, not a fifth status.
+
+## Step 19d: screens
+1. **What I did:** Wrote `docs/contracts/SCREENS.md`: 3 public screens (P1 to P3) and 10 professional screens (D1 to D10). Each state names the operationId that feeds it and the mock file path, with a shared state vocabulary (empty, loading, success, failed_check, needs_review, approved, abstained, plus failed for broken jobs).
+2. **Files changed:** `docs/contracts/SCREENS.md` (new), this log.
+3. **How it works:** The Inspect screen's "failed check" state is the `inspectLabel` 200 response with an expiry mismatch finding, and its mock is `professional/inspect/failed_check.json`. The UI can build every state from mocks before the backend exists.
+4. **Verified:** All 27 operationIds named in SCREENS.md exist in openapi.yaml. 50 mock paths listed. Em dashes 0.
+5. **Check yourself:** The coverage check line, and the P2 needs_review meaning (several candidates, so a picker).
+6. **Assumptions:** Idle scan screens need no mock. `failed` is an extra state.
