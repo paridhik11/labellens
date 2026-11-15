@@ -108,7 +108,7 @@ Item construction, per matching slot:
 
 - **Text slot**: `item_kind = text`, `slot_id = slot.id`, `suggestion = edit_required` (the slot is bound to this field, so it must be refilled; this is a fact about the template, not a compliance claim).
 - **Symbol slot**: `item_kind = symbol`, `suggestion = review_suggested`. The symbol image itself does not depend on the value, so the rule cannot say it must change. A person decides.
-- **Barcode slot**: one `barcode` item per label when any edit touches an encoded field (section 5), with the `BarcodeDecision` attached. `suggestion = no_change` for KEEP, `edit_required` for REGENERATE, `review_suggested` for NEEDS_INPUT.
+- **Barcode slot**: one `barcode` item for **every assessed label that has a barcode slot** (KEEP when no encoded value changes, so each label shows its barcode decision), with the `BarcodeDecision` attached. `suggestion = no_change` for KEEP, `edit_required` for REGENERATE, `review_suggested` for NEEDS_INPUT.
 - **No matching slot on a label** (the field is not a slot of its template, the label has no template because it was uploaded, or the template row cannot be found): one `linked_label` item, no `slot_id`, `suggestion = review_suggested`, `needs_human = true`, reason "no template field for `<field>` on this label; if the text is part of the fixed background LabelLens cannot update it". LabelLens never edits fixed background artwork.
 - **Product has no label at all**: no items, and the assessment says so in `needs_human_review` (an empty list must never read as "nothing is affected").
 
