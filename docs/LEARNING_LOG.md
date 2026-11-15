@@ -371,3 +371,11 @@ A sequential log of progress, implementation decisions, worked examples, and ver
 4. **Verified:** Checked each number against the summaries printed by `python -m src.cv.eval_v2 summary`.
 5. **Check yourself:** The "What remains weak" section of `results/cv_fixes.md`.
 6. **Assumptions:** `docs/PARTH_WORK_SUMMARY.md` itself was not edited; the caveats are listed for Parth to apply.
+
+## CV fix 9: wrap-up (intervals, Poppler skip, uncertain-reading flag)
+1. **What I did:** Added Wilson 95% intervals to the barcode and symbol rates in `results/cv_final_eval.md` and `results/cv_fixes.md`, computed from the existing counts. Made the Poppler render test skip when `pdftoppm` is missing. The consistency checker now emits `needs_human_review` instead of `barcode_mismatch` when the lot or expiry OCR line has confidence below 0.8.
+2. **Files:** `src/cv/intervals.py` (new), `src/cv/consistency.py`, `src/cv/eval_v2.py` (counts review flags), `src/gen/test_render.py`, `tests/test_cv_text_rules.py`, `scripts/cv_experiments/false_alarm_confidence.py`, the two reports.
+3. **How it works:** A Wilson interval stays sensible at 51/51 (93.0% to 100%) where the simple plus-or-minus interval would claim zero uncertainty.
+4. **Verified:** CV suite 258 passed, 1 skipped; root command without CV libraries 111 passed, 1 skipped, 1 deselected; ruff clean. Dev seeds only: very hard false mismatch flags 9 of 33 (template) and 5 of 33 (blind) before and after; real mismatches 68/68 per mode before and after.
+5. **Check yourself:** That the 0.8 threshold changed nothing because every false alarm had confidence 0.876 to 0.999.
+6. **Assumptions:** The threshold was set before measuring and not tuned. Symbol intervals treat the two symbols on a label as independent, so they are somewhat too narrow.

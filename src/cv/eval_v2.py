@@ -106,7 +106,7 @@ def _new_counts() -> dict[str, Any]:
     return {
         "images": 0, "errors": 0, "gs1_exact": 0, "decoded": 0, "label_found": 0, "corners_10px": 0,
         "corners_fallback": 0, "symbols_expected": 0, "symbols_matched": 0, "symbol_false_positives": 0,
-        "mismatch_false_alarms": 0, "mismatch_checkable": 0,
+        "mismatch_false_alarms": 0, "mismatch_reviews": 0, "mismatch_checkable": 0,
         "raw": {field: [0, 0] for field in FIELDS}, "post": {field: [0, 0] for field in FIELDS},
         "barcode_methods": {},
     }
@@ -172,6 +172,9 @@ def summarise_main(run: dict[str, Any]) -> dict[str, dict[str, Any]]:
                 counts["mismatch_false_alarms"] += int(
                     any(flag["kind"] == "barcode_mismatch" for flag in result["flags"])
                 )
+                counts["mismatch_reviews"] += int(
+                    any(flag["kind"] == "needs_human_review" for flag in result["flags"])
+                )
     return table
 
 
@@ -193,7 +196,7 @@ def summarise_negatives(run: dict[str, Any]) -> dict[str, dict[str, Any]]:
                 {
                     "images": 0, "errors": 0, "absent_total": 0, "absent_reported": 0, "present_total": 0,
                     "present_matched": 0, "other_false_positives": 0, "missing_flagged": 0,
-                    "mismatch_flagged": 0, "barcode_decoded": 0,
+                    "mismatch_flagged": 0, "review_flagged": 0, "barcode_decoded": 0,
                 },
             )
             counts["images"] += 1
@@ -216,6 +219,7 @@ def summarise_negatives(run: dict[str, Any]) -> dict[str, dict[str, Any]]:
             counts["missing_flagged"] += sum(name in flagged_missing for name in absent)
             counts["barcode_decoded"] += int(len(result["barcodes"]) == 1 and bool(result["barcodes"][0]))
             counts["mismatch_flagged"] += int(any(flag["kind"] == "barcode_mismatch" for flag in result["flags"]))
+            counts["review_flagged"] += int(any(flag["kind"] == "needs_human_review" for flag in result["flags"]))
     return table
 
 
@@ -274,6 +278,22 @@ def render_main(table: dict[str, dict[str, Any]], title: str) -> list[str]:
         )
     lines += [
         "",
+        f"### {title}: print/barcode check on labels with one decoded barcode",
+        "",
+        "Every label here prints the same lot and expiry as its barcode, so every flag is a false alarm.",
+        "",
+        "| Condition | Mode | Labels checked | `barcode_mismatch` flags | `needs_human_review` flags |",
+        "| --- | --- | ---: | ---: | ---: |",
+    ]
+    for condition in conditions:
+        for mode in MODES:
+            c = table[f"{condition}|{mode}"]
+            lines.append(
+                f"| {condition} | {mode} | {c['mismatch_checkable']} | {c['mismatch_false_alarms']} |"
+                f" {c.get('mismatch_reviews', 0)} |"
+            )
+    lines += [
+        "",
         f"### {title}: OCR character error rate per field",
         "",
         "Edits / reference characters. \"raw\" is the OCR text as read, \"post\" is after format post-correction.",
@@ -302,8 +322,9 @@ def render_negatives(table: dict[str, dict[str, Any]], title: str) -> list[str]:
         "\"Absence flagged\" counts absent symbols for which a `missing_symbol` flag was raised.",
         "",
         "| Case | Condition | Mode | Images | Present symbols matched | Absent symbols reported |"
-        " Absence flagged | Other false positives | Barcode decoded | Print/barcode mismatch flagged |",
-        "| --- | --- | --- | ---: | --- | --- | --- | ---: | --- | --- |",
+        " Absence flagged | Other false positives | Barcode decoded | Print/barcode mismatch flagged |"
+        " Needs-human review flagged |",
+        "| --- | --- | --- | ---: | --- | --- | --- | ---: | --- | --- | --- |",
     ]
     for key in sorted(table):
         case, condition, mode = key.split("|")
@@ -313,6 +334,7 @@ def render_negatives(table: dict[str, dict[str, Any]], title: str) -> list[str]:
             f" {_percent(c['absent_reported'], c['absent_total'])} |"
             f" {_percent(c['missing_flagged'], c['absent_total'])} | {c['other_false_positives']} |"
             f" {_percent(c['barcode_decoded'], c['images'])} | {_percent(c['mismatch_flagged'], c['images'])} |"
+            f" {_percent(c.get('review_flagged', 0), c['images'])} |"
         )
     lines.append("")
     return lines

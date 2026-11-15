@@ -2,6 +2,7 @@
 
 import copy
 import json
+import shutil
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
@@ -35,6 +36,9 @@ def template() -> dict:
     return json.loads((Path(__file__).parent / "templates/test_device.json").read_text())
 
 
+@pytest.mark.skipif(
+    shutil.which("pdftoppm") is None, reason="Poppler pdftoppm is not installed; it renders the PDF preview"
+)
 def test_render_reuse_and_confirmed_change(tmp_path: Path, template: dict, record: ProductRecord) -> None:
     """Render real PDFs and preserve barcode pixels until confirmed encoded values change."""
     first = render_label(template, record, tmp_path / "first", actor="test_actor", reason="test", test_data=True)

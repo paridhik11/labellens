@@ -93,13 +93,21 @@ def test_snap_to_vocabulary() -> None:
 
 
 def _extraction(
-    lot: str = "LOT: TESTLOT0016232", symbols: tuple[str, ...] = ("manufacturer", "expiry")
+    lot: str = "LOT: TESTLOT0016232",
+    symbols: tuple[str, ...] = ("manufacturer", "expiry"),
+    lot_conf: float | None = 0.95,
+    lot_read: str | None = None,
 ) -> LabelExtraction:
+    """Build an extraction whose OCR lines carry the given lot confidence (None: no lot line)."""
+    blocks = [OcrBlock(text="EXP: 2028-11-01", bbox=(0, 50, 100, 20), conf=0.95)]
+    if lot_conf is not None:
+        blocks.append(OcrBlock(text=lot if lot_read is None else lot_read, bbox=(0, 20, 100, 20), conf=lot_conf))
     return LabelExtraction(
         label_id="test_label_001",
         fields={"lot": lot, "expiry": "EXP: 2028-11-01"},
         barcodes=[BarcodeResult(type="DataMatrix", raw="x", parsed={"10": "TESTLOT0016232", "17": "281101"})],
         symbols=[SymbolDetection(name=name, bbox=(0, 0, 10, 10), conf=0.9) for name in symbols],
+        ocr_blocks=blocks,
     )
 
 
@@ -115,6 +123,31 @@ def test_consistency_flags() -> None:
     unreadable = _extraction()
     unreadable.barcodes = []
     assert [flag.kind for flag in check_extraction(unreadable)] == ["barcode_unreadable"]
+
+
+def test_uncertain_reading_needs_human_not_mismatch() -> None:
+    """A disagreement read with low OCR confidence is a review request, not a mismatch."""
+    from src.cv.consistency import DEFAULT_MIN_OCR_CONFIDENCE, field_confidence
+
+    low = check_extraction(_extraction(lot="LOT: TESTLOT0016233", lot_conf=0.42))
+    assert [flag.kind for flag in low] == ["needs_human_review"]
+    assert low[0].severity == "review" and low[0].needs_human and low[0].confidence == 0.42
+    assert low[0].observed == "TESTLOT0016233" and low[0].expected == "TESTLOT0016232"
+    # No OCR line can be matched to the field: confidence is unknown, so also a review request.
+    unknown = check_extraction(_extraction(lot="LOT: TESTLOT0016233", lot_conf=None))
+    assert [flag.kind for flag in unknown] == ["needs_human_review"] and unknown[0].confidence == 0.0
+    # The threshold is inclusive: exactly at the threshold counts as confident.
+    edge = check_extraction(_extraction(lot="LOT: TESTLOT0016233", lot_conf=DEFAULT_MIN_OCR_CONFIDENCE))
+    assert [flag.kind for flag in edge] == ["barcode_mismatch"]
+    assert check_extraction(_extraction(lot="LOT: TESTLOT0016233", lot_conf=0.42), min_ocr_confidence=0.4)[0].kind == (
+        "barcode_mismatch"
+    )
+    # Agreement never produces a flag, however low the confidence.
+    assert check_extraction(_extraction(lot_conf=0.1)) == []
+    # A post-corrected field (key spacing fixed) is still matched to its raw OCR line.
+    corrected = _extraction(lot="LOT: TESTLOT0016233", lot_conf=0.9, lot_read="LOT:TESTLOT0016233")
+    assert field_confidence(corrected, "lot") == 0.9
+    assert field_confidence(corrected, "model") is None
 
 
 def _record(condition: str, lot_read: str, parsed: list[dict[str, str]]) -> dict:
@@ -207,3 +240,26 @@ def test_real_photo_harness_without_photos(tmp_path) -> None:
     assert scored["product_name"] == {"edits": 0, "characters": 12, "exact": 1, "present": 1}
     assert scored["lot"]["edits"] == 1 and scored["lot"]["exact"] == 0
     assert eval_real.score({"lot": "A1"}, {})["lot"] == {"edits": 2, "characters": 2, "exact": 0, "present": 0}
+
+
+def test_wilson_interval_and_cell_annotation() -> None:
+    import pytest
+
+    from src.cv.intervals import annotate_cell, annotate_table, wilson_interval
+
+    low, high = wilson_interval(51, 51)
+    assert high == 1.0 and round(100 * low, 1) == 93.0
+    low, high = wilson_interval(45, 51)
+    assert (round(100 * low, 1), round(100 * high, 1)) == (76.6, 94.5)
+    assert wilson_interval(0, 34)[0] == 0.0
+    with pytest.raises(ValueError):
+        wilson_interval(3, 2)
+    assert annotate_cell(" 45/51 (88.2%) ") == " 45/51 (88.2%; 95% CI 76.6 to 94.5%) "
+    assert annotate_cell(" 51/51 ") == " 51/51 (100.0%; 95% CI 93.0 to 100.0%) "
+    assert annotate_cell(" 0/0 ") == " 0/0 "
+    assert annotate_cell(" n/a ") == " n/a "
+    once = annotate_cell(" 45/51 (88.2%) ")
+    assert annotate_cell(once) == once
+    lines = ["| A | B |", "| --- | --- |", "| x | 1/2 |", "", "| A | B |"]
+    assert annotate_table(lines, "| A |", (1,)) == 1
+    assert "95% CI" in lines[2] and lines[4] == "| A | B |"

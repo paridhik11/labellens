@@ -6,17 +6,22 @@ was changed after these images were generated. (The report was written at `cadf7
 crashed in the Windows process pool that runs the starting-point code and was re-run unchanged.)
 17 labels per condition and seed, so 51 images per condition below. All data is synthetic, from one template family, with test identifiers.
 
+Intervals are Wilson 95% score intervals computed from the counts in the tables (`python -m src.cv.intervals`;
+nothing was re-run). They treat every label, or every symbol, as an independent trial. Labels are
+independent draws, but the two symbols on one label share its photo conditions, so the symbol intervals
+are somewhat too narrow.
+
 ## Starting point on the same images
 
 Extractor at `05869b6` (the parth-cv branch as received), run from that commit.
 
 | Condition | Images | Exact GS1 | Symbols IoU>=0.5 | Symbol false positives | Corners within 10 px | CER product_name | CER manufacturer | CER manufacturer_address | CER model | CER lot | CER expiry | CER all |
 | --- | ---: | --- | --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| clean | 51 | 51/51 (100.0%) | 102/102 (100.0%) | 0 | 51/51 (100.0%) | 13.68% | 0.00% | 0.00% | 7.14% | 5.26% | 6.14% | 5.12% (245/4782) |
-| moderate | 51 | 51/51 (100.0%) | 102/102 (100.0%) | 0 | 51/51 (100.0%) | 1.71% | 0.00% | 0.25% | 5.18% | 1.24% | 0.00% | 1.32% (63/4782) |
-| hard | 51 | 45/51 (88.2%) | 102/102 (100.0%) | 0 | 51/51 (100.0%) | 0.43% | 0.00% | 0.00% | 0.28% | 0.10% | 0.13% | 0.15% (7/4782) |
-| hard_original | 51 | 37/51 (72.5%) | 102/102 (100.0%) | 0 | 51/51 (100.0%) | 0.57% | 0.00% | 0.00% | 3.78% | 0.41% | 1.70% | 1.00% (48/4782) |
-| very_hard | 51 | 28/51 (54.9%) | 42/102 (41.2%) | 0 | 22/51 (43.1%) | 58.12% | 57.72% | 58.95% | 59.10% | 58.31% | 58.04% | 58.36% (2791/4782) |
+| clean | 51 | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 0 | 51/51 (100.0%) | 13.68% | 0.00% | 0.00% | 7.14% | 5.26% | 6.14% | 5.12% (245/4782) |
+| moderate | 51 | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 0 | 51/51 (100.0%) | 1.71% | 0.00% | 0.25% | 5.18% | 1.24% | 0.00% | 1.32% (63/4782) |
+| hard | 51 | 45/51 (88.2%; 95% CI 76.6 to 94.5%) | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 0 | 51/51 (100.0%) | 0.43% | 0.00% | 0.00% | 0.28% | 0.10% | 0.13% | 0.15% (7/4782) |
+| hard_original | 51 | 37/51 (72.5%; 95% CI 59.1 to 82.9%) | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 0 | 51/51 (100.0%) | 0.57% | 0.00% | 0.00% | 3.78% | 0.41% | 1.70% | 1.00% (48/4782) |
+| very_hard | 51 | 28/51 (54.9%; 95% CI 41.4 to 67.7%) | 42/102 (41.2%; 95% CI 32.1 to 50.9%) | 0 | 22/51 (43.1%) | 58.12% | 57.72% | 58.95% | 59.10% | 58.31% | 58.04% | 58.36% (2791/4782) |
 
 ## Final configuration
 
@@ -24,11 +29,11 @@ Extractor at `05869b6` (the parth-cv branch as received), run from that commit.
 
 | Condition | Images | Exact GS1, blind | Exact GS1, template-assisted | Symbols IoU>=0.5, blind | Symbol false positives, blind | Symbols IoU>=0.5, template | Label found | Corners within 10 px | Found by fallback |
 | --- | ---: | --- | --- | --- | ---: | --- | --- | --- | ---: |
-| clean | 51 | 51/51 (100.0%) | 51/51 (100.0%) | 102/102 (100.0%) | 0 | 102/102 (100.0%) | 51/51 (100.0%) | 51/51 (100.0%) | 0 |
-| moderate | 51 | 51/51 (100.0%) | 51/51 (100.0%) | 102/102 (100.0%) | 0 | 102/102 (100.0%) | 51/51 (100.0%) | 51/51 (100.0%) | 0 |
-| hard | 51 | 51/51 (100.0%) | 51/51 (100.0%) | 102/102 (100.0%) | 0 | 102/102 (100.0%) | 51/51 (100.0%) | 51/51 (100.0%) | 0 |
-| hard_original | 51 | 51/51 (100.0%) | 50/51 (98.0%) | 102/102 (100.0%) | 0 | 102/102 (100.0%) | 51/51 (100.0%) | 51/51 (100.0%) | 0 |
-| very_hard | 51 | 43/51 (84.3%) | 44/51 (86.3%) | 93/102 (91.2%) | 0 | 93/102 (91.2%) | 51/51 (100.0%) | 51/51 (100.0%) | 29 |
+| clean | 51 | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 0 | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 51/51 (100.0%) | 51/51 (100.0%) | 0 |
+| moderate | 51 | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 0 | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 51/51 (100.0%) | 51/51 (100.0%) | 0 |
+| hard | 51 | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 0 | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 51/51 (100.0%) | 51/51 (100.0%) | 0 |
+| hard_original | 51 | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 50/51 (98.0%; 95% CI 89.7 to 99.7%) | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 0 | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 51/51 (100.0%) | 51/51 (100.0%) | 0 |
+| very_hard | 51 | 43/51 (84.3%; 95% CI 72.0 to 91.8%) | 44/51 (86.3%; 95% CI 74.3 to 93.2%) | 93/102 (91.2%; 95% CI 84.1 to 95.3%) | 0 | 93/102 (91.2%; 95% CI 84.1 to 95.3%) | 51/51 (100.0%) | 51/51 (100.0%) | 29 |
 
 ### Seeds 100, 101, 102: OCR character error rate per field
 
@@ -61,10 +66,10 @@ Edits / reference characters. "raw" is the OCR text as read, "post" is after for
 
 | Decoder | Original hard (blur to 1.8, noise 8) | Reduced hard (blur to 1.6, noise 6) |
 | --- | --- | --- |
-| Old decoder (`ecc9869`): photo, then rectified label | 11/51 (21.6%) | 24/51 (47.1%) |
-| Starting point (`05869b6`): plus thresholded template slot | 37/51 (72.5%) | 45/51 (88.2%) |
-| Final, template-assisted | 50/51 (98.0%) | 51/51 (100.0%) |
-| Final, blind (no slot position) | 51/51 (100.0%) | 51/51 (100.0%) |
+| Old decoder (`ecc9869`): photo, then rectified label | 11/51 (21.6%; 95% CI 12.5 to 34.6%) | 24/51 (47.1%; 95% CI 34.1 to 60.5%) |
+| Starting point (`05869b6`): plus thresholded template slot | 37/51 (72.5%; 95% CI 59.1 to 82.9%) | 45/51 (88.2%; 95% CI 76.6 to 94.5%) |
+| Final, template-assisted | 50/51 (98.0%; 95% CI 89.7 to 99.7%) | 51/51 (100.0%; 95% CI 93.0 to 100.0%) |
+| Final, blind (no slot position) | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 51/51 (100.0%; 95% CI 93.0 to 100.0%) |
 
 ## Negative and variation cases
 
@@ -75,50 +80,50 @@ Edits / reference characters. "raw" is the OCR text as read, "post" is after for
 
 | Case | Condition | Mode | Images | Present symbols matched | Absent symbols reported | Absence flagged | Other false positives | Barcode decoded | Print/barcode mismatch flagged |
 | --- | --- | --- | ---: | --- | --- | --- | ---: | --- | --- |
-| alt_style | hard | blind | 51 | 0/102 (0.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
-| alt_style | hard | template | 51 | 0/102 (0.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
-| alt_style | moderate | blind | 51 | 0/102 (0.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
-| alt_style | moderate | template | 51 | 0/102 (0.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
-| large_symbols | hard | blind | 51 | 102/102 (100.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
-| large_symbols | hard | template | 51 | 102/102 (100.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
-| large_symbols | moderate | blind | 51 | 102/102 (100.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
-| large_symbols | moderate | template | 51 | 102/102 (100.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
-| missing_expiry | hard | blind | 51 | 51/51 (100.0%) | 0/51 (0.0%) | 51/51 (100.0%) | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
-| missing_expiry | hard | template | 51 | 51/51 (100.0%) | 0/51 (0.0%) | 51/51 (100.0%) | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
-| missing_expiry | moderate | blind | 51 | 51/51 (100.0%) | 0/51 (0.0%) | 51/51 (100.0%) | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
-| missing_expiry | moderate | template | 51 | 51/51 (100.0%) | 0/51 (0.0%) | 51/51 (100.0%) | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
-| missing_manufacturer | hard | blind | 51 | 51/51 (100.0%) | 0/51 (0.0%) | 51/51 (100.0%) | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
-| missing_manufacturer | hard | template | 51 | 51/51 (100.0%) | 0/51 (0.0%) | 51/51 (100.0%) | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
-| missing_manufacturer | moderate | blind | 51 | 51/51 (100.0%) | 0/51 (0.0%) | 51/51 (100.0%) | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
-| missing_manufacturer | moderate | template | 51 | 51/51 (100.0%) | 0/51 (0.0%) | 51/51 (100.0%) | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
-| small_symbols | hard | blind | 51 | 102/102 (100.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
-| small_symbols | hard | template | 51 | 0/102 (0.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
-| small_symbols | moderate | blind | 51 | 102/102 (100.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
-| small_symbols | moderate | template | 51 | 0/102 (0.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
-| wrong_barcode | hard | blind | 51 | 102/102 (100.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 51/51 (100.0%) |
-| wrong_barcode | hard | template | 51 | 102/102 (100.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 51/51 (100.0%) |
-| wrong_barcode | moderate | blind | 51 | 102/102 (100.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 51/51 (100.0%) |
-| wrong_barcode | moderate | template | 51 | 102/102 (100.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 51/51 (100.0%) |
-| wrong_symbol | hard | blind | 51 | 51/51 (100.0%) | 0/51 (0.0%) | 51/51 (100.0%) | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
-| wrong_symbol | hard | template | 51 | 51/51 (100.0%) | 0/51 (0.0%) | 51/51 (100.0%) | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
-| wrong_symbol | moderate | blind | 51 | 51/51 (100.0%) | 0/51 (0.0%) | 51/51 (100.0%) | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
-| wrong_symbol | moderate | template | 51 | 51/51 (100.0%) | 0/51 (0.0%) | 51/51 (100.0%) | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
+| alt_style | hard | blind | 51 | 0/102 (0.0%; 95% CI 0.0 to 3.6%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
+| alt_style | hard | template | 51 | 0/102 (0.0%; 95% CI 0.0 to 3.6%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
+| alt_style | moderate | blind | 51 | 0/102 (0.0%; 95% CI 0.0 to 3.6%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
+| alt_style | moderate | template | 51 | 0/102 (0.0%; 95% CI 0.0 to 3.6%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
+| large_symbols | hard | blind | 51 | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
+| large_symbols | hard | template | 51 | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
+| large_symbols | moderate | blind | 51 | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
+| large_symbols | moderate | template | 51 | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
+| missing_expiry | hard | blind | 51 | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 0/51 (0.0%; 95% CI 0.0 to 7.0%) | 51/51 (100.0%) | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
+| missing_expiry | hard | template | 51 | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 0/51 (0.0%; 95% CI 0.0 to 7.0%) | 51/51 (100.0%) | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
+| missing_expiry | moderate | blind | 51 | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 0/51 (0.0%; 95% CI 0.0 to 7.0%) | 51/51 (100.0%) | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
+| missing_expiry | moderate | template | 51 | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 0/51 (0.0%; 95% CI 0.0 to 7.0%) | 51/51 (100.0%) | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
+| missing_manufacturer | hard | blind | 51 | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 0/51 (0.0%; 95% CI 0.0 to 7.0%) | 51/51 (100.0%) | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
+| missing_manufacturer | hard | template | 51 | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 0/51 (0.0%; 95% CI 0.0 to 7.0%) | 51/51 (100.0%) | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
+| missing_manufacturer | moderate | blind | 51 | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 0/51 (0.0%; 95% CI 0.0 to 7.0%) | 51/51 (100.0%) | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
+| missing_manufacturer | moderate | template | 51 | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 0/51 (0.0%; 95% CI 0.0 to 7.0%) | 51/51 (100.0%) | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
+| small_symbols | hard | blind | 51 | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
+| small_symbols | hard | template | 51 | 0/102 (0.0%; 95% CI 0.0 to 3.6%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
+| small_symbols | moderate | blind | 51 | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
+| small_symbols | moderate | template | 51 | 0/102 (0.0%; 95% CI 0.0 to 3.6%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
+| wrong_barcode | hard | blind | 51 | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 51/51 (100.0%) |
+| wrong_barcode | hard | template | 51 | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 51/51 (100.0%) |
+| wrong_barcode | moderate | blind | 51 | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 51/51 (100.0%) |
+| wrong_barcode | moderate | template | 51 | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 0/0 | 0/0 | 0 | 51/51 (100.0%) | 51/51 (100.0%) |
+| wrong_symbol | hard | blind | 51 | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 0/51 (0.0%; 95% CI 0.0 to 7.0%) | 51/51 (100.0%) | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
+| wrong_symbol | hard | template | 51 | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 0/51 (0.0%; 95% CI 0.0 to 7.0%) | 51/51 (100.0%) | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
+| wrong_symbol | moderate | blind | 51 | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 0/51 (0.0%; 95% CI 0.0 to 7.0%) | 51/51 (100.0%) | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
+| wrong_symbol | moderate | template | 51 | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 0/51 (0.0%; 95% CI 0.0 to 7.0%) | 51/51 (100.0%) | 0 | 51/51 (100.0%) | 0/51 (0.0%) |
 
 ### Starting point (`05869b6`) on the same negative and variation cases
 
 | Case | Condition | Images | Present symbols matched | Absent symbols reported |
 | --- | --- | ---: | --- | --- |
-| alt_style | hard | 51 | 0/102 (0.0%) | 0/0 |
-| alt_style | moderate | 51 | 0/102 (0.0%) | 0/0 |
-| large_symbols | hard | 51 | 102/102 (100.0%) | 0/0 |
-| large_symbols | moderate | 51 | 102/102 (100.0%) | 0/0 |
-| missing_expiry | hard | 51 | 51/51 (100.0%) | 0/51 (0.0%) |
-| missing_expiry | moderate | 51 | 51/51 (100.0%) | 0/51 (0.0%) |
-| missing_manufacturer | hard | 51 | 51/51 (100.0%) | 0/51 (0.0%) |
-| missing_manufacturer | moderate | 51 | 51/51 (100.0%) | 0/51 (0.0%) |
-| small_symbols | hard | 51 | 0/102 (0.0%) | 0/0 |
-| small_symbols | moderate | 51 | 0/102 (0.0%) | 0/0 |
-| wrong_barcode | hard | 51 | 102/102 (100.0%) | 0/0 |
-| wrong_barcode | moderate | 51 | 102/102 (100.0%) | 0/0 |
-| wrong_symbol | hard | 51 | 51/51 (100.0%) | 0/51 (0.0%) |
-| wrong_symbol | moderate | 51 | 51/51 (100.0%) | 0/51 (0.0%) |
+| alt_style | hard | 51 | 0/102 (0.0%; 95% CI 0.0 to 3.6%) | 0/0 |
+| alt_style | moderate | 51 | 0/102 (0.0%; 95% CI 0.0 to 3.6%) | 0/0 |
+| large_symbols | hard | 51 | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 0/0 |
+| large_symbols | moderate | 51 | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 0/0 |
+| missing_expiry | hard | 51 | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 0/51 (0.0%; 95% CI 0.0 to 7.0%) |
+| missing_expiry | moderate | 51 | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 0/51 (0.0%; 95% CI 0.0 to 7.0%) |
+| missing_manufacturer | hard | 51 | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 0/51 (0.0%; 95% CI 0.0 to 7.0%) |
+| missing_manufacturer | moderate | 51 | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 0/51 (0.0%; 95% CI 0.0 to 7.0%) |
+| small_symbols | hard | 51 | 0/102 (0.0%; 95% CI 0.0 to 3.6%) | 0/0 |
+| small_symbols | moderate | 51 | 0/102 (0.0%; 95% CI 0.0 to 3.6%) | 0/0 |
+| wrong_barcode | hard | 51 | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 0/0 |
+| wrong_barcode | moderate | 51 | 102/102 (100.0%; 95% CI 96.4 to 100.0%) | 0/0 |
+| wrong_symbol | hard | 51 | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 0/51 (0.0%; 95% CI 0.0 to 7.0%) |
+| wrong_symbol | moderate | 51 | 51/51 (100.0%; 95% CI 93.0 to 100.0%) | 0/51 (0.0%; 95% CI 0.0 to 7.0%) |
