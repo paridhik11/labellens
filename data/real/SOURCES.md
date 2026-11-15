@@ -1110,26 +1110,37 @@ The collector reads this JSON directly; no untracked manifest is needed to rebui
 ]
 ```
 
-## Online photo candidates for Task 4 (supplemental only)
+## Online photos for Task 4 (substitution accepted)
 
-These are ten online photographs, not Parth's captures. None is admitted to the
-three-field evaluation yet. Readability of product_name, lot and expiry has **not**
-been verified from the original pixels, transcriptions are not supplied, and the
-human spot-check is NOT_RUN. Check each original before selecting an evaluation
-subset. The needle-holder pair shows related objects and must not be treated as
-independent evidence. Some candidates depict wrapping materials rather than a
-finished device label and may prove unsuitable. These photographs are separate
-from the DailyMed artwork collection above and the legacy medicine collection.
+On 2026-11-16 Parth confirmed that Paridhi accepted online photographs as
+substitutes for his own captures. These remain online photos, not Parth captures.
+The original ten candidates below were inspected along with two additional views
+of a decompression needle kit. References are LLM-labelled, saved locally in
+`data/real_photos/online/transcriptions.csv`, with uncertainty in annotations.json.
+Human review is recorded separately and is not inferred from this acceptance.
 
-License and author are taken from each original Commons file page, checked
-2026-11-16. Keep attribution and license links with any local copies or derivatives.
-The listed license covers the photograph; it does not imply endorsement by any
-manufacturer. A photo marked camera unknown is not asserted to be a phone photo.
-No image files are committed, and none of these candidates is claimed as a human
-capture or a completed Task 4 benchmark. Paridhi must accept online substitution
-before it can replace the requested physical captures.
+Five files are original downloads. Wikimedia rate-limited later originals with
+HTTP 429 and recommended standard thumbnail sizes. Seven inputs therefore use
+the server's 1280-pixel-wide thumbnails, explicitly listed below. Fingerprints
+refer to the evaluated bytes, not to a larger original. No synthetic images or
+local enhancements replace these inputs. The two needle-kit views are correlated,
+and the two needle-holder views are correlated.
 
-| Candidate / source and original download page | Author | Photo license | Capture / relevance limitation | Module |
+Twelve photos were inspected: seven have at least one readable target field,
+and five have no reliable target-field reference and are unscored. Ten field
+values were frozen before running OCR. Absence or unreadability is not a correct
+extraction. Sterilization packaging accessories and non-English/historical labels
+are identified per image; this is a small convenience sample, not a representative
+medical-device accuracy benchmark. No medicine images are included.
+
+License and author are taken from each original Commons file page/API. Keep
+attribution and license links with any local copies or derivatives. The photograph
+license does not establish an open license for depicted company artwork.
+
+The next table preserves the initial discovery notes; evaluated status and file
+representations appear in the table below it.
+
+| Candidate / source and original download page | Author | Photo license | Initial discovery limitation | Module |
 |---|---|---|---|---|
 | [Epidural kit in sterile packaging](https://commons.wikimedia.org/wiki/File:Epidural_kit_in_sterile_packaging.jpg) | Sgroey | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | iPhone 11 metadata; device kit package; three fields unverified | device candidate |
 | [Ethylene oxide sticker](https://commons.wikimedia.org/wiki/File:Ethylene_oxide_sterilisation_sticker_on_box_of_medical_supplies.jpg) | Sgroey | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | Sterilization sticker; product/lot/expiry may be absent; camera not verified here | device candidate |
@@ -1141,3 +1152,33 @@ before it can replace the requested physical captures.
 | [Needle holder 02](https://commons.wikimedia.org/wiki/File:Mikrochirurgischer_Nadelhalter_02.JPG) | Werneuchen | Public-domain dedication by photographer on source page | Related to candidate 01; three fields unverified | device candidate |
 | [Sterilization packaging materials](https://commons.wikimedia.org/wiki/File:Packaging_materials_for_sterilisation.jpg) | Ivanhoe | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) | Panasonic DMC-FZ8 camera; wrapping materials, potentially unsuitable | device candidate |
 | [Soviet glass syringe](https://commons.wikimedia.org/wiki/File:Soviet_glass_syringe.png) | im_tau | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | Historical Russian packaging; language and missing lot/expiry may exclude it | device candidate |
+
+### Evaluated photo files and pinned representations
+
+| Local filename under data/real_photos/online | Source page | Evaluated download | Representation / dimensions | Rights / author | Readable fields | SHA-256 of evaluated file |
+|---|---|---|---|---|---|---|
+| `online_01.jpg` | [source](https://commons.wikimedia.org/wiki/File:Epidural_kit_in_sterile_packaging.jpg) | [download](https://upload.wikimedia.org/wikipedia/commons/2/29/Epidural_kit_in_sterile_packaging.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original) | original, 2138x3936 | CC BY-SA 4.0; Sgroey | none; unscored | `edd70662a3cb0cffc5d41ea241ba98021a30ab8c46dcd110e2ce246c7030838b` |
+| `online_02.jpg` | [source](https://commons.wikimedia.org/wiki/File:Ethylene_oxide_sterilisation_sticker_on_box_of_medical_supplies.jpg) | [download](https://upload.wikimedia.org/wikipedia/commons/c/c3/Ethylene_oxide_sterilisation_sticker_on_box_of_medical_supplies.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original) | original, 1487x1487 | CC BY-SA 4.0; Sgroey | none; unscored | `ddeb5488c2a413748f5a53e5423563021e0e8260438ed2ac5af5d06e35fd8274` |
+| `online_03.jpg` | [source](https://commons.wikimedia.org/wiki/File:Curette_in_sterile_packaging.jpg) | [download](https://upload.wikimedia.org/wikipedia/commons/2/28/Curette_in_sterile_packaging.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original) | original, 950x1600 | CC0; Mikael Häggström. When using this image in external works, it may be cited as: Häggström, Mikael (2014). "Medical gallery of Mikael Häggström 2014". WikiJournal of Medicine 1 (2). DOI:10.15347/wjm/2014.008. ISSN 2002-4436. Public Domain. or By Mikael Häggström, used with permission. | none; unscored | `82459e951e394ac2db925030dad429ac87858c5ca635df26a722a96c92efa5d0` |
+| `online_04.jpg` | [source](https://commons.wikimedia.org/wiki/File:Medizinische_Einwegverpackung_06.JPG) | [download](https://upload.wikimedia.org/wikipedia/commons/1/13/Medizinische_Einwegverpackung_06.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original) | original, 1600x1200 | Public domain; Werneuchen | lot | `825dcb0b9f2a39ef1aca807b2660cf5a0250025e1f1064b2a7b90aa1a64e4da6` |
+| `online_05.jpg` | [source](https://commons.wikimedia.org/wiki/File:Sterile_instruments_ready_for_use.jpg) | [download](https://upload.wikimedia.org/wikipedia/commons/4/40/Sterile_instruments_ready_for_use.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original) | original, 2976x3968 | CC BY-SA 4.0; Ptrump16 | product_name, expiry | `2c8f570fb3630e30ed926b7bb4df4b3b49881ff91e790fdc55992485cd4b44fa` |
+| `online_06.jpg` | [source](https://commons.wikimedia.org/wiki/File:MELAfol_502.jpg) | [download](https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9d/MELAfol_502.jpg/1280px-MELAfol_502.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail) | 1280px server thumbnail, 1280x959 | CC BY-SA 4.0; Entrancess | product_name | `6fac65441a1eb6d05fdff41100aa1d6061cf312e040551905fed3e31d6306ca5` |
+| `online_07.jpg` | [source](https://commons.wikimedia.org/wiki/File:Mikrochirurgischer_Nadelhalter_01.JPG) | [download](https://thumb.wikimedia.org/wikipedia/commons/thumb/2/23/Mikrochirurgischer_Nadelhalter_01.JPG/1280px-Mikrochirurgischer_Nadelhalter_01.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail) | 1280px server thumbnail, 1280x483 | Public domain; Werneuchen | none; unscored | `6f871ec85fe923c839106d6f1acac4d3fac09b5abee7026f99e504723a08c23a` |
+| `online_08.jpg` | [source](https://commons.wikimedia.org/wiki/File:Mikrochirurgischer_Nadelhalter_02.JPG) | [download](https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d3/Mikrochirurgischer_Nadelhalter_02.JPG/1280px-Mikrochirurgischer_Nadelhalter_02.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail) | 1280px server thumbnail, 1280x960 | Public domain; Werneuchen | none; unscored | `3c0a6ba94a87a3b61c70ddd6c6ac3dd1b995ec9444a3f81766f0bbb56f6476cb` |
+| `online_09.jpg` | [source](https://commons.wikimedia.org/wiki/File:Packaging_materials_for_sterilisation.jpg) | [download](https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/Packaging_materials_for_sterilisation.jpg/1280px-Packaging_materials_for_sterilisation.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail) | 1280px server thumbnail, 1280x900 | CC BY-SA 3.0; Ivanhoe | product_name | `d1634bd1546fdbde7524f4fbff4aec4b2a6f331c9756e96612f33e50bb813a8f` |
+| `online_10.png` | [source](https://commons.wikimedia.org/wiki/File:Soviet_glass_syringe.png) | [download](https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b1/Soviet_glass_syringe.png/1280px-Soviet_glass_syringe.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail) | 1280px server thumbnail, 1280x1049 | CC BY 4.0; im_tau | product_name | `f814a63c4b56f8f914e02ae11f83ed83fdffd4cd3c611af672deb93aba3cf237` |
+| `online_11.jpg` | [source](https://commons.wikimedia.org/wiki/File:Thoacic_Decompression_Needle_1.jpg) | [download](https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cf/Thoacic_Decompression_Needle_1.jpg/1280px-Thoacic_Decompression_Needle_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail) | 1280px server thumbnail, 1280x720 | CC BY-SA 4.0; Intropin (Mark Oniffrey) | product_name, expiry | `a0342a81ee4137b145eed0392e40dfb5df7a15ef006e8669214e42f2ea07496f` |
+| `online_12.jpg` | [source](https://commons.wikimedia.org/wiki/File:Thoacic_Decompression_Needle_2.jpg) | [download](https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Thoacic_Decompression_Needle_2.jpg/1280px-Thoacic_Decompression_Needle_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail) | 1280px server thumbnail, 1280x720 | CC BY-SA 4.0; Intropin (Mark Oniffrey) | product_name, expiry | `5b416b754228c8877d4b603e939cb1fdb131a4b426a345422ffdd48c8a8f846c` |
+
+The needle-kit views are by Intropin (Mark Oniffrey), licensed
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/):
+[view 1](https://commons.wikimedia.org/wiki/File:Thoacic_Decompression_Needle_1.jpg),
+[view 2](https://commons.wikimedia.org/wiki/File:Thoacic_Decompression_Needle_2.jpg).
+
+Reference decisions: 01 has several component devices but no identifiable outer kit
+name; 02 is an indicator sticker; 03 is blurred; 07/08 show manufacturer and pouch
+reference rather than an identifiable instrument name. These five are unscored.
+04 has a readable lot but ambiguous dual dates; 05 is a Chinese hospital
+reprocessing label; 06 and 09 are sterilization-packaging accessories; 10 is
+historical Russian syringe packaging; 11/12 are two views of the same needle kits.
+Do not infer absent lot/expiry values from dates, filenames or web descriptions.

@@ -1,8 +1,11 @@
 # Real phone photos and LLM-labelled transcriptions
 
-Parth must capture about 10 actual phone photos of labels he can photograph and
-share. The coding agent cannot take physical photos or substitute downloaded
-artwork for them. No photos have been supplied in this folder yet.
+Parth confirmed on 2026-11-16 that Paridhi accepted online photographs as
+Task 4 substitutes. The current inputs are in local `online/`: 12 photos,
+seven with readable references and five unscored. These are not Parth captures.
+Source pages, download representations and fingerprints are in
+`data/real/SOURCES.md`. Five inputs are originals and seven are explicitly
+identified 1280-pixel server thumbnails. Two needle-kit views are correlated.
 
 This workflow follows Paridhi's clarification: the agent transcribes fields
 in-session and marks them **LLM-labelled**. Parth then spot-checks three photos,
@@ -55,7 +58,9 @@ is **NOT_RUN**, not zero errors.
 ## Evaluation
 
 ```sh
-/opt/anaconda3/envs/labellens-cv/bin/python -m src.cv.eval_real
+/opt/anaconda3/envs/labellens-cv/bin/python -m src.cv.eval_real \
+  --folder data/real_photos/online --reference-source LLM-labelled \
+  --report results/cv_real_photos.md
 ```
 
 Without photos and transcriptions it prints that there is nothing to evaluate.
@@ -67,3 +72,9 @@ results separate.
 
 New photos, transcriptions and provenance files remain local under the repository
 ignore rules. Reports may contain counts and errors without publishing the photos.
+
+The report lists each of the three requested fields for every photo. A field
+without a readable reference is marked not scored, and a photo with no readable
+reference fields is skipped before OCR. A failed extraction remains a miss for
+its readable fields. AI reference provenance appears in both console and saved
+report. Human spot-check status remains NOT_RUN until Parth supplies feedback.
