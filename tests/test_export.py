@@ -378,3 +378,27 @@ def test_reused_test_barcode_cannot_lose_test_watermark(sample: Label, tmp_path:
     with pytest.raises(IdentifierRequired):
         render_pdf(replace(sample, test_data=False), tmp_path / "unmarked.pdf")
     assert not (tmp_path / "unmarked.pdf").exists()
+
+
+def test_product_extra_cannot_override_core_fields() -> None:
+    """Auxiliary fields cannot replace canonical product identity in exported text."""
+    template = json.loads(Path("src/gen/templates/test_device.json").read_text())
+    record = ProductRecord(
+        product_id="test-device",
+        name="Canonical Device",
+        model="REF001",
+        manufacturer="Canonical Labs",
+        manufacturer_address="Test address",
+        udi_di="00000000000000",
+        extra={
+            "expiry": "2028-12-31",
+            "lot": "LOT001",
+            "name": "Wrong name",
+            "product_name": "Wrong alias",
+            "manufacturer": "Wrong manufacturer",
+        },
+    )
+    label = from_product(template, record, version_id="v1", actor="parth", reason="identity check", test_data=True)
+    fields = {element.field: element.text for element in label.elements if element.kind == "text"}
+    assert fields["product_name"] == record.name
+    assert fields["manufacturer"] == record.manufacturer

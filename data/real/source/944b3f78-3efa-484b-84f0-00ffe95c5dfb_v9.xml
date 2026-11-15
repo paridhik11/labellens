@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet href="https://www.accessdata.fda.gov/spl/stylesheet/spl.xsl" type="text/xsl"?>
+<document xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:hl7-org:v3 https://www.accessdata.fda.gov/spl/schema/spl.xsd">
+   <id root="84587c08-b7a3-4195-a91b-af243ba1962d"/>
+   <code code="34390-5" codeSystem="2.16.840.1.113883.6.1" displayName="HUMAN OTC DRUG LABEL"/>
+   <title>Target Pain Relieving Cleansing Spray</title>
+   <effectiveTime value="20261110"/>
+   <setId root="944b3f78-3efa-484b-84f0-00ffe95c5dfb"/>
+   <versionNumber value="9"/>
+   <author>
+      <time/>
+      <assignedEntity>
+         <representedOrganization>
+            <id extension="006961700" root="1.3.6.1.4.1.519.1"/>
+            <name>TARGET CORPORATION</name>
+         </representedOrganization>
+      </assignedEntity>
+   </author>
+   <component>
+      <structuredBody>
+         <component>
+            <section>
+               <id root="dd4b0578-144a-4456-bd3d-cab62b88169a"/>
+               <code code="48780-1" codeSystem="2.16.840.1.113883.6.1" displayName="SPL product data elements section"/>
+               <effectiveTime value="20261110"/>
+               <subject>
+                  <manufacturedProduct>
+                     <manufacturedProduct>
+                        <code code="11673-795" codeSystem="2.16.840.1.113883.6.69"/>
+                        <name>Pain Relieving Cleansing</name>
+                        <formCode code="C42989" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="SPRAY"/>
+                        <asEntityWithGeneric>
+                           <genericMedicine>
+                              <name>Benzalkonium Chloride, Lidocaine HCl</name>
+                           </genericMedicine>
+                        </asEntityWithGeneric>
+                        <ingredient classCode="ACTIB">
+                           <quantity>
+                              <numerator unit="g" value="0.13"/>
+                              <denominator unit="mL" value="100"/>
+                           </quantity>
+                           <ingredientSubstance>
+                              <code code="F5UM2KM3W7" codeSystem="2.16.840.1.113883.4.9"/>
+                              <name>BENZALKONIUM CHLORIDE</name>
+                              <activeMoiety>
+                                 <activeMoiety>
+                                    <code code="7N6JUD5X6Y" codeSystem="2.16.840.1.113883.4.9"/>
+                                    <name>BENZALKONIUM</name>
+                                 </activeMoiety>
+                              </activeMoiety>
+                           </ingredientSubstance>
+                        </ingredient>
+                        <ingredient classCode="ACTIR">
+                           <quantity>
+                              <numerator unit="g" value="2.5"/>
+                              <denominator unit="mL" value="100"/>
+                           </quantity>
+                           <ingredientSubstance>
+                              <code code="V13007Z41A" codeSystem="2.16.840.1.113883.4.9"/>
+                              <name>LIDOCAINE HYDROCHLORIDE</name>
+                              <activeMoiety>
+                                 <activeMoiety>
+                                    <code code="98PI200987" codeSystem="2.16.840.1.113883.4.9"/>
+                                    <name>LIDOCAINE</name>
+                                 </activeMoiety>
+                              </activeMoiety>
+                              <asEquivalentSubstance>
+                                 <definingSubstance>
+                                    <code code="V13007Z41A" codeSystem="2.16.840.1.113883.4.9"/>
+                                    <name>LIDOCAINE HYDROCHLORIDE</name>
+                                 </definingSubstance>
+                              </asEquivalentSubstance>
+                           </ingredientSubstance>
+                        </ingredient>
+                        <ingredient classCode="IACT">
+                           <ingredientSubstance>
+                              <code code="8NLQ36F6MM" codeSystem="2.16.840.1.113883.4.9"/>
+                              <name>EDETATE DISODIUM ANHYDROUS</name>
+                           </ingredientSubstance>
+                        </ingredient>
+                        <ingredient classCode="IACT">
+                           <ingredientSubstance>
+                              <code code="6DC9Q167V3" codeSystem="2.16.840.1.113883.4.9"/>
+                              <name>Propylene Glycol</name>
+                           </ingredientSubstance>
+                        </ingredient>
+                        <ingredient classCode="IACT">
+                           <ingredientSubstance>
+                              <code code="059QF0KO0R" codeSystem="2.16.840.1.113883.4.9"/>
+                              <name>Water</name>
+                           </ingredientSubstance>
+                        </ingredient>
+                        <ingredient classCode="IACT">
+                           <ingredientSubstance>
+                              <code code="55X04QC32I" codeSystem="2.16.840.1.113883.4.9"/>
+                              <name>SODIUM HYDROXIDE</name>
+                           </ingredientSubstance>
+                        </ingredient>
+                        <asContent>
+                           <quantity>
+                              <numerator unit="mL" value="150"/>
+                              <denominator value="1"/>
+                           </quantity>
+                           <containerPackagedProduct>
+                              <code code="11673-795-05" codeSystem="2.16.840.1.113883.6.69"/>
+                              <formCode code="C43175" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="BOTTLE, SPRAY"/>
+                           </containerPackagedProduct>
+                           <subjectOf>
+                              <marketingAct>
+                                 <code code="C53292" codeSystem="2.16.840.1.113883.3.26.1.1"/>
+                                 <statusCode code="active"/>
+                                 <effectiveTime>
+                                    <low value="20200310"/>
+                                 </effectiveTime>
+                              </marketingAct>
+                           </subjectOf>
+                           <subjectOf>
+                              <characteristic>
+                                 <code code="SPLCMBPRDTP" codeSystem="2.16.840.1.113883.1.11.19255"/>
+                                 <value code="C112160" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="Type 0: Not a Combination Product" xsi:type="CV"/>
+                              </characteristic>
+                           </subjectOf>
+                        </asContent>
+                     </manufacturedProduct>
+                     <subjectOf>
+                        <approval>
+                           <id extension="M003" root="2.16.840.1.113883.3.9421"/>
+                           <code code="C200263" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="OTC Monograph Drug"/>
+                           <author>
+                              <territorialAuthority>
+                                 <territory>
+                                    <code code="USA" codeSystem="2.16.840.1.113883.5.28"/>
+                                 </territory>
+                              </territorialAuthority>
+                           </author>
+                        </approval>
+                     </subjectOf>
+                     <subjectOf>
+                        <marketingAct>
+                           <code code="C53292" codeSystem="2.16.840.1.113883.3.26.1.1"/>
+                           <statusCode code="active"/>
+                           <effectiveTime>
+                              <low value="20200310"/>
+                           </effectiveTime>
+                        </marketingAct>
+                     </subjectOf>
+                     <consumedIn>
+                        <substanceAdministration>
+                           <routeCode code="C38304" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="TOPICAL"/>
+                        </substanceAdministration>
+                     </consumedIn>
+                  </manufacturedProduct>
+               </subject>
+            </section>
+         </component>
+         <component>
+            <section ID="Lae40124a-a5e2-4edd-be12-832436e40608">
+               <id root="e7e54b32-ece2-40c3-a4fa-40c6b49905f8"/>
+               <code code="55106-9" codeSystem="2.16.840.1.113883.6.1" displayName="OTC - ACTIVE INGREDIENT SECTION"/>
+               <title>Active ingredients</title>
+               <text>
+                  <paragraph>Benzalkonium Cl 0.13% w/w               </paragraph>
+                  <paragraph>Lidocaine HCI 2.5% w/w           </paragraph>
+               </text>
+               <effectiveTime value="20261110"/>
+               <component>
+                  <section ID="ID_b66e8d5b-4da3-4fa1-8fdd-658fae57b111">
+                     <id root="626d5d34-dea5-4353-83bd-33b566f533c5"/>
+                     <code code="55105-1" codeSystem="2.16.840.1.113883.6.1" displayName="OTC - PURPOSE SECTION"/>
+                     <title>Purpose </title>
+                     <text>
+                        <paragraph>First aid antiseptic</paragraph>
+                        <paragraph>Pain relieving spray</paragraph>
+                     </text>
+                     <effectiveTime value="20261110"/>
+                  </section>
+               </component>
+            </section>
+         </component>
+         <component>
+            <section ID="L19a93c15-91ba-49fb-b36c-b6d2f8d6bd88">
+               <id root="e95a49cb-eb59-440c-9eab-a9a266d78707"/>
+               <code code="34067-9" codeSystem="2.16.840.1.113883.6.1" displayName="INDICATIONS &amp; USAGE SECTION"/>
+               <title>Uses</title>
+               <text>
+                  <paragraph>First aid to help prevent bacterial contamination or skin infection, and for temporary relief of pain and itching associated with minor:</paragraph>
+                  <list listType="unordered">
+                     <item>
+                        <caption>•</caption>cuts</item>
+                     <item>
+                        <caption>•</caption>scrapes</item>
+                     <item>
+                        <caption>•</caption>burns</item>
+                     <item>
+                        <caption>•</caption>sunburn</item>
+                     <item>
+                        <caption>•</caption>skin irritations</item>
+                  </list>
+               </text>
+               <effectiveTime value="20261110"/>
+            </section>
+         </component>
+         <component>
+            <section ID="L44be3003-87b3-4af4-92e4-8a627fc1c583">
+               <id root="06e0776f-e9e9-48ac-bd9c-a0250322c911"/>
+               <code code="34071-1" codeSystem="2.16.840.1.113883.6.1" displayName="WARNINGS SECTION"/>
+               <title>Warnings</title>
+               <text>
+                  <paragraph>
+                     <content styleCode="bold">​For external use only</content>
+                  </paragraph>
+               </text>
+               <effectiveTime value="20200319"/>
+               <component>
+                  <section ID="L4c5300ef-2c35-46f1-88bf-e4bbb3be2d27">
+                     <id root="c399c66e-2c22-454a-a49f-730f8ec21fd7"/>
+                     <code code="50569-3" codeSystem="2.16.840.1.113883.6.1" displayName="OTC - ASK DOCTOR SECTION"/>
+                     <title>​Ask a doctor before use if you have</title>
+                     <text>
+                        <list listType="unordered">
+                           <item>
+                              <caption>•</caption>deep or puncture wounds</item>
+                           <item>
+                              <caption>•</caption>animal bites</item>
+                           <item>
+                              <caption>•</caption>serious burns</item>
+                        </list>
+                     </text>
+                     <effectiveTime value="20200319"/>
+                  </section>
+               </component>
+               <component>
+                  <section ID="L7efd685d-59e3-420a-925e-7c1baef2f9f2">
+                     <id root="d3ebf2e9-87af-47c7-9ea7-d4ce83748952"/>
+                     <code code="50567-7" codeSystem="2.16.840.1.113883.6.1" displayName="OTC - WHEN USING SECTION"/>
+                     <title>When using this product​</title>
+                     <text>
+                        <list listType="unordered">
+                           <item>
+                              <caption>•</caption>do not use in or near the eyes</item>
+                           <item>
+                              <caption>•</caption>do not apply over large area of the body or in large quantities</item>
+                           <item>
+                              <caption>•</caption>do not apply over raw surfaces or blistered areas</item>
+                        </list>
+                     </text>
+                     <effectiveTime value="20200319"/>
+                  </section>
+               </component>
+               <component>
+                  <section ID="Lfce1bac4-45ae-495a-9a82-c2625d9b8b33">
+                     <id root="99b05d6e-6528-49e7-98ca-006cc2612c50"/>
+                     <code code="50566-9" codeSystem="2.16.840.1.113883.6.1" displayName="OTC - STOP USE SECTION"/>
+                     <title>​Stop use and ask a doctor if</title>
+                     <text>
+                        <list listType="unordered">
+                           <item>
+                              <caption>•</caption>condition worsens</item>
+                           <item>
+                              <caption>•</caption>symptoms persist for more than 7 days, or clear up and occur again within a few days</item>
+                        </list>
+                     </text>
+                     <effectiveTime value="20200319"/>
+                  </section>
+               </component>
+               <component>
+                  <section ID="L353326a5-dd27-4113-88e1-7b9263e375ee">
+                     <id root="426f7abc-bf85-4002-a808-8de9cc7e09bc"/>
+                     <code code="50565-1" codeSystem="2.16.840.1.113883.6.1" displayName="OTC - KEEP OUT OF REACH OF CHILDREN SECTION"/>
+                     <title>​Keep out of reach of children</title>
+                     <text>
+                        <paragraph>​If swallowed get medical help or contact a Poison Control Center right away at 1-800-222-1222</paragraph>
+                     </text>
+                     <effectiveTime value="20200319"/>
+                  </section>
+               </component>
+            </section>
+         </component>
+         <component>
+            <section ID="L607790cb-388a-4214-803d-10e3ce9d5960">
+               <id root="d06c0eb6-e8ae-4ecd-bc9a-95d8a99485b9"/>
+               <code code="34068-7" codeSystem="2.16.840.1.113883.6.1" displayName="DOSAGE &amp; ADMINISTRATION SECTION"/>
+               <title>Directions</title>
+               <text>
+                  <list listType="unordered">
+                     <item>
+                        <caption>•</caption>
+                        <content styleCode="bold">adults and children 2 years and older:</content> clean the affected area. spray small amount on the area 1-3 times daily; may be covered with sterile bandage (let dry first)</item>
+                     <item>
+                        <caption>•</caption>
+                        <content styleCode="bold">children under 2 years:</content> ask a doctor</item>
+                  </list>
+               </text>
+               <effectiveTime value="20200319"/>
+            </section>
+         </component>
+         <component>
+            <section ID="Lec2c1b95-415a-41f2-9721-35c49b710745">
+               <id root="1ca4a394-3c0c-4302-acc6-da08bc90384d"/>
+               <code code="60561-8" codeSystem="2.16.840.1.113883.6.1" displayName="OTHER SAFETY INFORMATION"/>
+               <title>Other information</title>
+               <text>
+                  <list listType="unordered">
+                     <item>
+                        <caption>•</caption>store at room temperature</item>
+                     <item>
+                        <caption>•</caption>avoid excessive heat</item>
+                  </list>
+               </text>
+               <effectiveTime value="20200319"/>
+            </section>
+         </component>
+         <component>
+            <section ID="L9ff1970a-a67d-494c-8139-f6b64a96e84e">
+               <id root="17d19c43-b1fa-43d0-b0fb-19e57a3dbf67"/>
+               <code code="51727-6" codeSystem="2.16.840.1.113883.6.1" displayName="INACTIVE INGREDIENT SECTION"/>
+               <title>Inactive ingredients</title>
+               <text>
+                  <paragraph>EDTA disodium, fragrance, propylene glycol, purified water, sodium hydroxide.</paragraph>
+               </text>
+               <effectiveTime value="20200319"/>
+            </section>
+         </component>
+         <component>
+            <section ID="L6b1c742e-a21f-4ff0-ae88-e4da8512ed47">
+               <id root="cb912e86-ce98-4d0a-9aea-e771e09d1a75"/>
+               <code code="51945-4" codeSystem="2.16.840.1.113883.6.1" displayName="PACKAGE LABEL.PRINCIPAL DISPLAY PANEL"/>
+               <title>Principal Display Panel/Package Label</title>
+               <text>
+                  <paragraph>NDC# 11673-795-05</paragraph>
+                  <paragraph>
+                     <content styleCode="bold">Compare to the active ingredients in Bactine®*</content>
+                  </paragraph>
+                  <paragraph>Pain Relieving </paragraph>
+                  <paragraph>
+                     <content styleCode="bold">Cleansing Spray</content>
+                  </paragraph>
+                  <paragraph>NO STING</paragraph>
+                  <paragraph>First Aid Antiseptic &amp; Pain Reliever</paragraph>
+                  <list listType="unordered">
+                     <item>
+                        <caption>•</caption>Cleans</item>
+                     <item>
+                        <caption>•</caption>Soothes Instantly</item>
+                     <item>
+                        <caption>•</caption>Prevents Infection</item>
+                  </list>
+                  <table styleCode="Noautorules" width="100%">
+                     <col width="100%"/>
+                     <tbody>
+                        <tr>
+                           <td styleCode="Rrule Botrule Lrule Toprule " valign="top">
+                              <paragraph>
+                                 <content styleCode="bold">To unlock, push in tab and twist right. To lock, twist left until locked.</content>
+                              </paragraph>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+                  <paragraph>u<content styleCode="bold">p &amp; up</content>
+                  </paragraph>
+                  <paragraph>5 FL OZ (150 mL)</paragraph>
+                  <paragraph>DIST. by Target Corp.</paragraph>
+                  <paragraph>Mpls., MN 55403</paragraph>
+                  <paragraph>
+                     <content styleCode="bold">Made in U.S.A.</content>
+                  </paragraph>
+                  <paragraph>TM &amp; ©2020 Target Brands, Inc.</paragraph>
+                  <paragraph>*This product is not manufactured or distributed by Well Spring Pharmaceuticals Corporation, owner of the registered trademark Bactine®.</paragraph>
+                  <renderMultiMedia ID="id-465128204" referencedObject="ID_12efd1ea-8b5a-42e1-a5a9-cdf333b13c99"/>
+               </text>
+               <effectiveTime value="20261110"/>
+               <component>
+                  <observationMedia ID="ID_12efd1ea-8b5a-42e1-a5a9-cdf333b13c99">
+                     <text>Target Pain Relieving cleasing spray</text>
+                     <value mediaType="image/jpeg" xsi:type="ED">
+                        <reference value="79505WAG artwork.png.jpg"/>
+                     </value>
+                  </observationMedia>
+               </component>
+            </section>
+         </component>
+      </structuredBody>
+   </component>
+</document>

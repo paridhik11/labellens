@@ -134,12 +134,12 @@ def from_product(
     if record.extra.get("serial"):
         elements["21"] = record.extra["serial"]
     fields = {
+        **record.extra,
         "name": record.name,
         "product_name": record.name,
         "manufacturer": record.manufacturer,
         "manufacturer_address": record.manufacturer_address,
         "model": record.model,
-        **record.extra,
     }
     return from_template(
         template, fields, elements, version_id=version_id, actor=actor, reason=reason, test_data=test_data

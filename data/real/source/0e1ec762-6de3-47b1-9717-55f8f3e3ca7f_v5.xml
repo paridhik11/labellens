@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="https://www.accessdata.fda.gov/spl/stylesheet/spl.xsl"?>
+<document xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:hl7-org:v3 https://www.accessdata.fda.gov/spl/schema/spl.xsd">
+   <id root="b4184c30-e910-423d-992f-93bdd2b70561"/>
+   <code code="34390-5" displayName="HUMAN OTC DRUG LABEL" codeSystem="2.16.840.1.113883.6.1"/>
+   <title>Rugby<sup>®</sup> 10% Benzoyl Peroxide Wash USP <br/> Acne Medication</title>
+   <effectiveTime value="20240213"/>
+   <setId root="0e1ec762-6de3-47b1-9717-55f8f3e3ca7f"/>
+   <versionNumber value="5"/>
+   <author>
+      <time/>
+      <assignedEntity>
+         <representedOrganization>
+            <id extension="079246066" root="1.3.6.1.4.1.519.1"/>
+            <name>Rugby Laboratories</name>
+            <assignedEntity>
+               <assignedOrganization>
+                  <id extension="036464697" root="1.3.6.1.4.1.519.1"/>
+                  <name>Garcoa, Inc.</name>
+                  <assignedEntity>
+                     <assignedOrganization>
+                        <id extension="203917476" root="1.3.6.1.4.1.519.1"/>
+                        <name>SV Labs Toronto Corporation</name>
+                     </assignedOrganization>
+                     <performance>
+                        <actDefinition>
+                           <code code="C43360" displayName="manufacture" codeSystem="2.16.840.1.113883.3.26.1.1"/>
+                           <product>
+                              <manufacturedProduct classCode="MANU">
+                                 <manufacturedMaterialKind>
+                                    <code code="0536-1261" codeSystem="2.16.840.1.113883.6.69"/>
+                                 </manufacturedMaterialKind>
+                              </manufacturedProduct>
+                           </product>
+                        </actDefinition>
+                     </performance>
+                  </assignedEntity>
+               </assignedOrganization>
+            </assignedEntity>
+         </representedOrganization>
+      </assignedEntity>
+   </author>
+   <component>
+      <structuredBody>
+         <component>
+            <section>
+               <id root="a75cdf4d-ff60-4065-9807-c2d4d9f0ec2a"/>
+               <code code="48780-1" displayName="SPL listing data elements section" codeSystem="2.16.840.1.113883.6.1"/>
+               <effectiveTime value="20260910"/>
+               <subject>
+                  <manufacturedProduct>
+                     <manufacturedProduct>
+                        <code code="0536-1261" codeSystem="2.16.840.1.113883.6.69"/>
+                        <name>Rugby Benzoyl Peroxide Wash<suffix>Acne Medication</suffix>
+                        </name>
+                        <formCode code="C29167" displayName="LOTION" codeSystem="2.16.840.1.113883.3.26.1.1"/>
+                        <asEntityWithGeneric>
+                           <genericMedicine>
+                              <name>Benzoyl Peroxide</name>
+                           </genericMedicine>
+                        </asEntityWithGeneric>
+                        <ingredient classCode="ACTIB">
+                           <quantity>
+                              <numerator unit="mg" value="100"/>
+                              <denominator unit="mL" value="1"/>
+                           </quantity>
+                           <ingredientSubstance>
+                              <code code="W9WZN9A0GM" codeSystem="2.16.840.1.113883.4.9"/>
+                              <name>Benzoyl Peroxide</name>
+                              <activeMoiety>
+                                 <activeMoiety>
+                                    <code code="W9WZN9A0GM" codeSystem="2.16.840.1.113883.4.9"/>
+                                    <name>Benzoyl Peroxide</name>
+                                 </activeMoiety>
+                              </activeMoiety>
+                           </ingredientSubstance>
+                        </ingredient>
+                        <ingredient classCode="IACT">
+                           <ingredientSubstance>
+                              <code code="0A5MM307FC" codeSystem="2.16.840.1.113883.4.9"/>
+                              <name>CARBOMER HOMOPOLYMER, UNSPECIFIED TYPE</name>
+                           </ingredientSubstance>
+                        </ingredient>
+                        <ingredient classCode="IACT">
+                           <ingredientSubstance>
+                              <code code="936JST6JCN" codeSystem="2.16.840.1.113883.4.9"/>
+                              <name>Cetyl Alcohol</name>
+                           </ingredientSubstance>
+                        </ingredient>
+                        <ingredient classCode="IACT">
+                           <ingredientSubstance>
+                              <code code="7FLD91C86K" codeSystem="2.16.840.1.113883.4.9"/>
+                              <name>Edetate Disodium</name>
+                           </ingredientSubstance>
+                        </ingredient>
+                        <ingredient classCode="IACT">
+                           <ingredientSubstance>
+                              <code code="D6DH1DTN7E" codeSystem="2.16.840.1.113883.4.9"/>
+                              <name>Disodium Laureth Sulfosuccinate</name>
+                           </ingredientSubstance>
+                        </ingredient>
+                        <ingredient classCode="IACT">
+                           <ingredientSubstance>
+                              <code code="PDC6A3C0OX" codeSystem="2.16.840.1.113883.4.9"/>
+                              <name>Glycerin</name>
+                           </ingredientSubstance>
+                        </ingredient>
+                        <ingredient classCode="IACT">
+                           <ingredientSubstance>
+                              <code code="230OU9XXE4" codeSystem="2.16.840.1.113883.4.9"/>
+                              <name>Glyceryl Monostearate</name>
+                           </ingredientSubstance>
+                        </ingredient>
+                        <ingredient classCode="IACT">
+                           <ingredientSubstance>
+                              <code code="Z95S6G8201" codeSystem="2.16.840.1.113883.4.9"/>
+                              <name>Laureth-7</name>
+                           </ingredientSubstance>
+                        </ingredient>
+                        <ingredient classCode="IACT">
+                           <ingredientSubstance>
+                              <code code="6M3P64V0NC" codeSystem="2.16.840.1.113883.4.9"/>
+                              <name>Magnesium Aluminum Silicate</name>
+                           </ingredientSubstance>
+                        </ingredient>
+                        <ingredient classCode="IACT">
+                           <ingredientSubstance>
+                              <code code="YD01N1999R" codeSystem="2.16.840.1.113883.4.9"/>
+                              <name>PEG-100 Stearate</name>
+                           </ingredientSubstance>
+                        </ingredient>
+                        <ingredient classCode="IACT">
+                           <ingredientSubstance>
+                              <code code="6DC9Q167V3" codeSystem="2.16.840.1.113883.4.9"/>
+                              <name>Propylene Glycol</name>
+                           </ingredientSubstance>
+                        </ingredient>
+                        <ingredient classCode="IACT">
+                           <ingredientSubstance>
+                              <code code="3599J29ANH" codeSystem="2.16.840.1.113883.4.9"/>
+                              <name>Sodium Coco-Sulfate</name>
+                           </ingredientSubstance>
+                        </ingredient>
+                        <ingredient classCode="IACT">
+                           <ingredientSubstance>
+                              <code code="SLK428451L" codeSystem="2.16.840.1.113883.4.9"/>
+                              <name>Sodium Lauroamphoacetate</name>
+                           </ingredientSubstance>
+                        </ingredient>
+                        <ingredient classCode="IACT">
+                           <ingredientSubstance>
+                              <code code="059QF0KO0R" codeSystem="2.16.840.1.113883.4.9"/>
+                              <name>Water</name>
+                           </ingredientSubstance>
+                        </ingredient>
+                        <ingredient classCode="IACT">
+                           <ingredientSubstance>
+                              <code code="TTV12P4NEE" codeSystem="2.16.840.1.113883.4.9"/>
+                              <name>Xanthan Gum</name>
+                           </ingredientSubstance>
+                        </ingredient>
+                        <asContent>
+                           <quantity>
+                              <numerator unit="mL" value="148"/>
+                              <denominator value="1"/>
+                           </quantity>
+                           <containerPackagedProduct>
+                              <code code="0536-1261-63" codeSystem="2.16.840.1.113883.6.69"/>
+                              <formCode code="C43170" displayName="BOTTLE, DISPENSING" codeSystem="2.16.840.1.113883.3.26.1.1"/>
+                           </containerPackagedProduct>
+                           <subjectOf>
+                              <characteristic>
+                                 <code code="SPLCMBPRDTP" codeSystem="2.16.840.1.113883.1.11.19255"/>
+                                 <value code="C112160" displayName="Type 0: Not a Combination Product" codeSystem="2.16.840.1.113883.3.26.1.1" xsi:type="CV"/>
+                              </characteristic>
+                           </subjectOf>
+                           <subjectOf>
+                              <marketingAct>
+                                 <code code="C53292" codeSystem="2.16.840.1.113883.3.26.1.1"/>
+                                 <statusCode code="completed"/>
+                                 <effectiveTime>
+                                    <low value="20191217"/>
+                                    <high value="20270201"/>
+                                 </effectiveTime>
+                              </marketingAct>
+                           </subjectOf>
+                        </asContent>
+                     </manufacturedProduct>
+                     <subjectOf>
+                        <approval>
+                           <id extension="M006" root="2.16.840.1.113883.3.9421"/>
+                           <code code="C200263" displayName="OTC Monograph Drug" codeSystem="2.16.840.1.113883.3.26.1.1"/>
+                           <author>
+                              <territorialAuthority>
+                                 <territory>
+                                    <code code="USA" codeSystem="2.16.840.1.113883.5.28"/>
+                                 </territory>
+                              </territorialAuthority>
+                           </author>
+                        </approval>
+                     </subjectOf>
+                     <subjectOf>
+                        <marketingAct>
+                           <code code="C53292" codeSystem="2.16.840.1.113883.3.26.1.1"/>
+                           <statusCode code="completed"/>
+                           <effectiveTime>
+                              <low value="20191217"/>
+                              <high value="20270201"/>
+                           </effectiveTime>
+                        </marketingAct>
+                     </subjectOf>
+                     <subjectOf>
+                        <characteristic classCode="OBS">
+                           <code code="SPLCOLOR" codeSystem="2.16.840.1.113883.1.11.19255"/>
+                           <value code="C48325" displayName="white" codeSystem="2.16.840.1.113883.3.26.1.1" xsi:type="CV"/>
+                        </characteristic>
+                     </subjectOf>
+                     <consumedIn>
+                        <substanceAdministration>
+                           <routeCode code="C38304" displayName="TOPICAL" codeSystem="2.16.840.1.113883.3.26.1.1"/>
+                        </substanceAdministration>
+                     </consumedIn>
+                  </manufacturedProduct>
+               </subject>
+            </section>
+         </component>
+         <component>
+            <section ID="LINK_4e4db5d9-4f89-4d89-bfd8-5733cf4a2222">
+               <id root="4e4db5d9-4f89-4d89-bfd8-5733cf4a2222"/>
+               <code code="42229-5" codeSystem="2.16.840.1.113883.6.1" displayName="SPL UNCLASSIFIED SECTION"/>
+               <title/>
+               <text>
+                  <paragraph>
+                     <content styleCode="bold">Drug Facts</content>
+                  </paragraph>
+               </text>
+               <effectiveTime value="20240213"/>
+            </section>
+         </component>
+         <component>
+            <section ID="LINK_6c1e498b-72b9-4620-97e0-ec338f8eb8b5">
+               <id root="6c1e498b-72b9-4620-97e0-ec338f8eb8b5"/>
+               <code code="55106-9" codeSystem="2.16.840.1.113883.6.1" displayName="OTC - ACTIVE INGREDIENT SECTION"/>
+               <title>Active ingredient</title>
+               <text>
+                  <paragraph>Benzoyl peroxide USP 10%</paragraph>
+               </text>
+               <effectiveTime value="20240213"/>
+            </section>
+         </component>
+         <component>
+            <section ID="LINK_57fc8302-1eb4-460e-95c3-8e0be3b18d61">
+               <id root="57fc8302-1eb4-460e-95c3-8e0be3b18d61"/>
+               <code code="55105-1" codeSystem="2.16.840.1.113883.6.1" displayName="OTC - PURPOSE SECTION"/>
+               <title>Purpose</title>
+               <text>
+                  <paragraph>Acne medication</paragraph>
+               </text>
+               <effectiveTime value="20240213"/>
+            </section>
+         </component>
+         <component>
+            <section ID="LINK_01d8077a-1527-417d-a09a-87c117f5914b">
+               <id root="01d8077a-1527-417d-a09a-87c117f5914b"/>
+               <code code="34067-9" codeSystem="2.16.840.1.113883.6.1" displayName="INDICATIONS &amp; USAGE SECTION"/>
+               <title>Use</title>
+               <text>
+                  <paragraph>for the treatment of acne</paragraph>
+               </text>
+               <effectiveTime value="20240213"/>
+            </section>
+         </component>
+         <component>
+            <section ID="LINK_4a866bb4-c05b-4164-a5d7-1920acf9d8da">
+               <id root="4a866bb4-c05b-4164-a5d7-1920acf9d8da"/>
+               <code code="34071-1" codeSystem="2.16.840.1.113883.6.1" displayName="WARNINGS SECTION"/>
+               <title>Warnings</title>
+               <text>
+                  <paragraph>For external use only.</paragraph>
+               </text>
+               <effectiveTime value="20240213"/>
+               <component>
+                  <section ID="LINK_e65d5405-cd15-4a96-a461-ca28e2dcb972">
+                     <id root="e65d5405-cd15-4a96-a461-ca28e2dcb972"/>
+                     <code code="50570-1" codeSystem="2.16.840.1.113883.6.1" displayName="OTC - DO NOT USE SECTION"/>
+                     <title>Do not use if you</title>
+                     <text>
+                        <list listType="unordered" styleCode="Disk">
+                           <item>have very sensitive</item>
+                           <item>are sensitive to benzoyl peroxide</item>
+                        </list>
+                     </text>
+                     <effectiveTime value="20240213"/>
+                  </section>
+               </component>
+               <component>
+                  <section ID="LINK_0ad6ba4e-49d5-4984-a30e-de15fa514ecb">
+                     <id root="0ad6ba4e-49d5-4984-a30e-de15fa514ecb"/>
+                     <code code="50567-7" codeSystem="2.16.840.1.113883.6.1" displayName="OTC - WHEN USING SECTION"/>
+                     <title>When using this product</title>
+                     <text>
+                        <list listType="unordered" styleCode="Disk">
+                           <item>avoid unnecessary sun exposure and use a sunscreen</item>
+                           <item>avoid contact with eyes, lips and mouth</item>
+                           <item>avoid contact with hair or dyed fabrics, which may be bleached by this product </item>
+                           <item>skin irritation may occur, characterized by redness, burning, itching, peeling, or possibly swelling. Irritation may be reduced by using the product less frequently or in a lower concentration.</item>
+                           <item>skin irritation and dryness is more likely to occur if you use another topical acne medication at the same time. If irritation occurs, only use one topical acne medication at a time.</item>
+                        </list>
+                     </text>
+                     <effectiveTime value="20240213"/>
+                  </section>
+               </component>
+               <component>
+                  <section ID="LINK_ccb0e887-df1a-4936-af30-c887f291bb02">
+                     <id root="ccb0e887-df1a-4936-af30-c887f291bb02"/>
+                     <code code="50566-9" codeSystem="2.16.840.1.113883.6.1" displayName="OTC - STOP USE SECTION"/>
+                     <title>Stop use and consult a doctor if</title>
+                     <text>
+                        <list listType="unordered" styleCode="Disk">
+                           <item>irritation becomes severe</item>
+                        </list>
+                     </text>
+                     <effectiveTime value="20240213"/>
+                  </section>
+               </component>
+               <component>
+                  <section ID="LINK_1230cf7a-0ff1-424b-afff-8f21fd03bcc2">
+                     <id root="1230cf7a-0ff1-424b-afff-8f21fd03bcc2"/>
+                     <code code="53414-9" codeSystem="2.16.840.1.113883.6.1" displayName="OTC - PREGNANCY OR BREAST FEEDING SECTION"/>
+                     <title/>
+                     <text>
+                        <paragraph>
+                           <content styleCode="bold">If pregnant or breast-feeding,</content> ask a health professional before use.</paragraph>
+                     </text>
+                     <effectiveTime value="20240213"/>
+                  </section>
+               </component>
+               <component>
+                  <section ID="LINK_0a5c9ba5-ff62-4202-b402-1995565195ca">
+                     <id root="0a5c9ba5-ff62-4202-b402-1995565195ca"/>
+                     <code code="50565-1" codeSystem="2.16.840.1.113883.6.1" displayName="OTC - KEEP OUT OF REACH OF CHILDREN SECTION"/>
+                     <title/>
+                     <text>
+                        <paragraph>
+                           <content styleCode="bold">Keep out of reach of children.</content> If swallowed, get medical help or contact a Poison Control Center (1-800-222-1222) immediately. </paragraph>
+                     </text>
+                     <effectiveTime value="20240213"/>
+                  </section>
+               </component>
+            </section>
+         </component>
+         <component>
+            <section ID="LINK_40486e82-2af9-4803-84dc-a427935cdebc">
+               <id root="40486e82-2af9-4803-84dc-a427935cdebc"/>
+               <code code="34068-7" codeSystem="2.16.840.1.113883.6.1" displayName="DOSAGE &amp; ADMINISTRATION SECTION"/>
+               <title>Directions</title>
+               <text>
+                  <list listType="unordered" styleCode="Disk">
+                     <item>shake well</item>
+                     <item>Wet area to be cleansed</item>
+                     <item>
+                        <content styleCode="bold">
+                           <content styleCode="italics">Sensitive Test for a New User</content>
+                        </content>. Apply product sparingly to one or two small affected areas during the first 3 days. If no discomfort occurs, follow directions stated below</item>
+                     <item>one to three times daily, wet skin and cover the entire affected area with a thin layer, liberally applying to areas to be cleansed. Massage gently into skin for 10-20 seconds working into a full lather, rinse thoroughly and pat dry</item>
+                     <item>because excessive drying of the skin may occur, start with one application daily, then gradually increase to two or three times daily if needed or as directed by a doctor</item>
+                     <item>if bothersome dryness or peeling occurs, reduce application to once a day or every other day</item>
+                     <item>if going outside, apply sunscreen after using this product. If irritation or sensitivity develops, stop use of both products and ask a doctor.</item>
+                  </list>
+               </text>
+               <effectiveTime value="20240213"/>
+            </section>
+         </component>
+         <component>
+            <section ID="LINK_b1ec6448-5532-4413-92de-02db0d47bdab">
+               <id root="b1ec6448-5532-4413-92de-02db0d47bdab"/>
+               <code code="44425-7" codeSystem="2.16.840.1.113883.6.1" displayName="STORAGE AND HANDLING SECTION"/>
+               <title>Other information</title>
+               <text>
+                  <list listType="unordered" styleCode="Disk">
+                     <item>keep tightly closed</item>
+                     <item>store at room temperature</item>
+                  </list>
+               </text>
+               <effectiveTime value="20240213"/>
+            </section>
+         </component>
+         <component>
+            <section ID="LINK_45cddbc3-1290-40b8-8832-6b32e1cada67">
+               <id root="45cddbc3-1290-40b8-8832-6b32e1cada67"/>
+               <code code="51727-6" codeSystem="2.16.840.1.113883.6.1" displayName="INACTIVE INGREDIENT SECTION"/>
+               <title>Inactive ingredients</title>
+               <text>
+                  <paragraph>carbomer, cetyl alcohol, disodium EDTA, disodium laureth sulfosuccinate, glycerin, glyceryl stearate, laureth-7, magnesium aluminum silicate, PEG-100 stearate, propylene glycol, sodium coco-sulfate, sodium lauroamphoacetate, water, xanthan gum</paragraph>
+               </text>
+               <effectiveTime value="20240213"/>
+            </section>
+         </component>
+         <component>
+            <section ID="LINK_1e797ce8-63a8-407b-a2b9-e40451eb3a91">
+               <id root="1e797ce8-63a8-407b-a2b9-e40451eb3a91"/>
+               <code code="53413-1" codeSystem="2.16.840.1.113883.6.1" displayName="OTC - QUESTIONS SECTION"/>
+               <title>Questions or comments?</title>
+               <text>
+                  <paragraph>
+                     <content styleCode="bold">1-800-645-2158</content>
+                  </paragraph>
+               </text>
+               <effectiveTime value="20240213"/>
+            </section>
+         </component>
+         <component>
+            <section ID="LINK_13a37ad5-f642-4d1f-8ac3-91cb517c2d5f">
+               <id root="13a37ad5-f642-4d1f-8ac3-91cb517c2d5f"/>
+               <code code="42229-5" codeSystem="2.16.840.1.113883.6.1" displayName="SPL UNCLASSIFIED SECTION"/>
+               <title/>
+               <text>
+                  <paragraph>Distributed by: <content styleCode="bold">RUGBY<sup>®</sup> LABORATORIES</content>
+                     <br/>17177 N Laurel Park Drive, Suite 233<br/>Livonia, MI 48152</paragraph>
+               </text>
+               <effectiveTime value="20240213"/>
+            </section>
+         </component>
+         <component>
+            <section ID="LINK_7d122035-9258-4dae-8199-b7832bc8cb1a">
+               <id root="7d122035-9258-4dae-8199-b7832bc8cb1a"/>
+               <code code="51945-4" codeSystem="2.16.840.1.113883.6.1" displayName="PACKAGE LABEL.PRINCIPAL DISPLAY PANEL"/>
+               <title>PRINCIPAL DISPLAY PANEL - 148 mL Bottle Label</title>
+               <text>
+                  <paragraph>Rugby<sup>®</sup>
+                  </paragraph>
+                  <paragraph>NDC 0536-1261-63</paragraph>
+                  <paragraph>Benzoyl Peroxide<br/>Wash USP<br/>10%</paragraph>
+                  <list listType="unordered" styleCode="Disk">
+                     <item>Helps to keep skin clear</item>
+                     <item>Helps dry oily skin</item>
+                     <item>Helps clear acne pimples</item>
+                  </list>
+                  <paragraph>5 FL OZ (148 mL)</paragraph>
+                  <renderMultiMedia referencedObject="MM1"/>
+               </text>
+               <effectiveTime value="20240213"/>
+               <component>
+                  <observationMedia ID="MM1">
+                     <text>PRINCIPAL DISPLAY PANEL - 148 mL Bottle Label</text>
+                     <value xsi:type="ED" mediaType="image/jpeg">
+                        <reference value="rugby-benzoyl-peroxide-wash-acne-medication-usp-10-1.jpg"/>
+                     </value>
+                  </observationMedia>
+               </component>
+            </section>
+         </component>
+      </structuredBody>
+   </component>
+</document>

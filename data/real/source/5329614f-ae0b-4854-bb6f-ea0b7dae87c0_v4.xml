@@ -1,0 +1,1009 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet href="https://www.accessdata.fda.gov/spl/stylesheet/spl.xsl" type="text/xsl"?>
+<document xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:hl7-org:v3 https://www.accessdata.fda.gov/spl/schema/spl.xsd">
+   <id root="94ad4684-ceb9-4c5e-9635-a6edb5904ccc"/>
+   <code code="34391-3" codeSystem="2.16.840.1.113883.6.1" displayName="HUMAN PRESCRIPTION DRUG LABEL"/>
+   <title>
+      <content styleCode="bold"/>
+   </title>
+   <effectiveTime value="20260210"/>
+   <setId root="5329614f-ae0b-4854-bb6f-ea0b7dae87c0"/>
+   <versionNumber value="4"/>
+   <author>
+      <time/>
+      <assignedEntity>
+         <representedOrganization>
+            <id extension="059295980" root="1.3.6.1.4.1.519.1"/>
+            <name>Mylan Pharmaceuticals Inc.</name>
+         </representedOrganization>
+      </assignedEntity>
+   </author>
+   <component>
+      <structuredBody>
+         <component>
+            <section>
+               <id root="7dfb61be-c6e6-4766-91c1-5e8105f1eca2"/>
+               <code code="48780-1" codeSystem="2.16.840.1.113883.6.1" displayName="SPL product data elements section"/>
+               <effectiveTime value="20130627"/>
+               <subject>
+                  <manufacturedProduct>
+                     <manufacturedProduct>
+                        <code code="0378-8270" codeSystem="2.16.840.1.113883.6.69"/>
+                        <name>Albuterol Sulfate</name>
+                        <formCode code="C42986" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="SOLUTION"/>
+                        <asEntityWithGeneric>
+                           <genericMedicine>
+                              <name>Albuterol Sulfate</name>
+                           </genericMedicine>
+                        </asEntityWithGeneric>
+                        <ingredient classCode="ACTIM">
+                           <quantity>
+                              <numerator unit="mg" value="2.5"/>
+                              <denominator unit="mL" value="3"/>
+                           </quantity>
+                           <ingredientSubstance>
+                              <code code="021SEF3731" codeSystem="2.16.840.1.113883.4.9"/>
+                              <name>Albuterol Sulfate</name>
+                              <activeMoiety>
+                                 <activeMoiety>
+                                    <code code="QF8SVZ843E" codeSystem="2.16.840.1.113883.4.9"/>
+                                    <name>Albuterol</name>
+                                 </activeMoiety>
+                              </activeMoiety>
+                           </ingredientSubstance>
+                        </ingredient>
+                        <ingredient classCode="IACT">
+                           <ingredientSubstance>
+                              <code code="451W47IQ8X" codeSystem="2.16.840.1.113883.4.9"/>
+                              <name>Sodium Chloride</name>
+                           </ingredientSubstance>
+                        </ingredient>
+                        <ingredient classCode="IACT">
+                           <ingredientSubstance>
+                              <code code="O40UQP6WCF" codeSystem="2.16.840.1.113883.4.9"/>
+                              <name>Sulfuric Acid</name>
+                           </ingredientSubstance>
+                        </ingredient>
+                        <ingredient classCode="IACT">
+                           <ingredientSubstance>
+                              <code code="059QF0KO0R" codeSystem="2.16.840.1.113883.4.9"/>
+                              <name>Water</name>
+                           </ingredientSubstance>
+                        </ingredient>
+                        <asContent>
+                           <quantity>
+                              <numerator unit="mL" value="3"/>
+                              <denominator value="1"/>
+                           </quantity>
+                           <containerPackagedProduct>
+                              <code/>
+                              <formCode code="C43165" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="AMPULE"/>
+                              <asContent>
+                                 <quantity>
+                                    <numerator unit="1" value="25"/>
+                                    <denominator value="1"/>
+                                 </quantity>
+                                 <containerPackagedProduct>
+                                    <code code="0378-8270-62" codeSystem="2.16.840.1.113883.6.69"/>
+                                    <formCode code="C43200" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="POUCH"/>
+                                    <asContent>
+                                       <quantity>
+                                          <numerator unit="1" value="1"/>
+                                          <denominator value="1"/>
+                                       </quantity>
+                                       <containerPackagedProduct>
+                                          <code code="0378-8270-52" codeSystem="2.16.840.1.113883.6.69"/>
+                                          <formCode code="C43182" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="CARTON"/>
+                                       </containerPackagedProduct>
+                                       <subjectOf>
+                                          <marketingAct>
+                                             <code code="C53292" codeSystem="2.16.840.1.113883.3.26.1.1"/>
+                                             <statusCode code="active"/>
+                                             <effectiveTime>
+                                                <low value="20121218"/>
+                                             </effectiveTime>
+                                          </marketingAct>
+                                       </subjectOf>
+                                    </asContent>
+                                 </containerPackagedProduct>
+                              </asContent>
+                           </containerPackagedProduct>
+                           <subjectOf>
+                              <characteristic classCode="OBS">
+                                 <code code="SPLCMBPRDTP" codeSystem="2.16.840.1.113883.1.11.19255"/>
+                                 <value code="C112160" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="Type 0: Not a Combination Product" xsi:type="CE"/>
+                              </characteristic>
+                           </subjectOf>
+                        </asContent>
+                        <asContent>
+                           <quantity>
+                              <numerator unit="mL" value="3"/>
+                              <denominator value="1"/>
+                           </quantity>
+                           <containerPackagedProduct>
+                              <code/>
+                              <formCode code="C43165" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="AMPULE"/>
+                              <asContent>
+                                 <quantity>
+                                    <numerator unit="1" value="30"/>
+                                    <denominator value="1"/>
+                                 </quantity>
+                                 <containerPackagedProduct>
+                                    <code/>
+                                    <formCode code="C43200" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="POUCH"/>
+                                    <asContent>
+                                       <quantity>
+                                          <numerator unit="1" value="1"/>
+                                          <denominator value="1"/>
+                                       </quantity>
+                                       <containerPackagedProduct>
+                                          <code code="0378-8270-93" codeSystem="2.16.840.1.113883.6.69"/>
+                                          <formCode code="C43182" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="CARTON"/>
+                                       </containerPackagedProduct>
+                                       <subjectOf>
+                                          <marketingAct>
+                                             <code code="C53292" codeSystem="2.16.840.1.113883.3.26.1.1"/>
+                                             <statusCode code="active"/>
+                                             <effectiveTime>
+                                                <low value="20130122"/>
+                                             </effectiveTime>
+                                          </marketingAct>
+                                       </subjectOf>
+                                    </asContent>
+                                 </containerPackagedProduct>
+                              </asContent>
+                           </containerPackagedProduct>
+                           <subjectOf>
+                              <characteristic classCode="OBS">
+                                 <code code="SPLCMBPRDTP" codeSystem="2.16.840.1.113883.1.11.19255"/>
+                                 <value code="C112160" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="Type 0: Not a Combination Product" xsi:type="CE"/>
+                              </characteristic>
+                           </subjectOf>
+                        </asContent>
+                        <asContent>
+                           <quantity>
+                              <numerator unit="mL" value="3"/>
+                              <denominator value="1"/>
+                           </quantity>
+                           <containerPackagedProduct>
+                              <code/>
+                              <formCode code="C43165" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="AMPULE"/>
+                              <asContent>
+                                 <quantity>
+                                    <numerator unit="1" value="30"/>
+                                    <denominator value="1"/>
+                                 </quantity>
+                                 <containerPackagedProduct>
+                                    <code code="0378-8270-64" codeSystem="2.16.840.1.113883.6.69"/>
+                                    <formCode code="C43200" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="POUCH"/>
+                                    <asContent>
+                                       <quantity>
+                                          <numerator unit="1" value="2"/>
+                                          <denominator value="1"/>
+                                       </quantity>
+                                       <containerPackagedProduct>
+                                          <code code="0378-8270-91" codeSystem="2.16.840.1.113883.6.69"/>
+                                          <formCode code="C43182" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="CARTON"/>
+                                       </containerPackagedProduct>
+                                       <subjectOf>
+                                          <marketingAct>
+                                             <code code="C53292" codeSystem="2.16.840.1.113883.3.26.1.1"/>
+                                             <statusCode code="active"/>
+                                             <effectiveTime>
+                                                <low value="20130411"/>
+                                             </effectiveTime>
+                                          </marketingAct>
+                                       </subjectOf>
+                                    </asContent>
+                                 </containerPackagedProduct>
+                              </asContent>
+                           </containerPackagedProduct>
+                           <subjectOf>
+                              <characteristic classCode="OBS">
+                                 <code code="SPLCMBPRDTP" codeSystem="2.16.840.1.113883.1.11.19255"/>
+                                 <value code="C112160" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="Type 0: Not a Combination Product" xsi:type="CE"/>
+                              </characteristic>
+                           </subjectOf>
+                        </asContent>
+                        <asContent>
+                           <quantity>
+                              <numerator unit="mL" value="3"/>
+                              <denominator value="1"/>
+                           </quantity>
+                           <containerPackagedProduct>
+                              <code/>
+                              <formCode code="C43165" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="AMPULE"/>
+                              <asContent>
+                                 <quantity>
+                                    <numerator unit="1" value="1"/>
+                                    <denominator value="1"/>
+                                 </quantity>
+                                 <containerPackagedProduct>
+                                    <code code="0378-8270-31" codeSystem="2.16.840.1.113883.6.69"/>
+                                    <formCode code="C43200" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="POUCH"/>
+                                    <asContent>
+                                       <quantity>
+                                          <numerator unit="1" value="30"/>
+                                          <denominator value="1"/>
+                                       </quantity>
+                                       <containerPackagedProduct>
+                                          <code code="0378-8270-55" codeSystem="2.16.840.1.113883.6.69"/>
+                                          <formCode code="C43182" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="CARTON"/>
+                                       </containerPackagedProduct>
+                                       <subjectOf>
+                                          <marketingAct>
+                                             <code code="C53292" codeSystem="2.16.840.1.113883.3.26.1.1"/>
+                                             <statusCode code="active"/>
+                                             <effectiveTime>
+                                                <low value="20140306"/>
+                                             </effectiveTime>
+                                          </marketingAct>
+                                       </subjectOf>
+                                    </asContent>
+                                 </containerPackagedProduct>
+                              </asContent>
+                           </containerPackagedProduct>
+                           <subjectOf>
+                              <characteristic classCode="OBS">
+                                 <code code="SPLCMBPRDTP" codeSystem="2.16.840.1.113883.1.11.19255"/>
+                                 <value code="C112160" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="Type 0: Not a Combination Product" xsi:type="CE"/>
+                              </characteristic>
+                           </subjectOf>
+                        </asContent>
+                     </manufacturedProduct>
+                     <subjectOf>
+                        <approval>
+                           <id extension="ANDA077839" root="2.16.840.1.113883.3.150"/>
+                           <code code="C73584" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="ANDA"/>
+                           <author>
+                              <territorialAuthority>
+                                 <territory>
+                                    <code code="USA" codeSystem="2.16.840.1.113883.5.28"/>
+                                 </territory>
+                              </territorialAuthority>
+                           </author>
+                        </approval>
+                     </subjectOf>
+                     <subjectOf>
+                        <marketingAct>
+                           <code code="C53292" codeSystem="2.16.840.1.113883.3.26.1.1"/>
+                           <statusCode code="active"/>
+                           <effectiveTime>
+                              <low value="20121015"/>
+                           </effectiveTime>
+                        </marketingAct>
+                     </subjectOf>
+                     <consumedIn>
+                        <substanceAdministration>
+                           <routeCode code="C38216" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="RESPIRATORY (INHALATION)"/>
+                        </substanceAdministration>
+                     </consumedIn>
+                  </manufacturedProduct>
+               </subject>
+            </section>
+         </component>
+         <component>
+            <section ID="ID_a85bfd6d-483c-4cb0-9086-5d22e3ea6525">
+               <id root="dab059ee-0626-456e-96e0-05067da308f7"/>
+               <code code="42229-5" codeSystem="2.16.840.1.113883.6.1" displayName="SPL UNCLASSIFIED SECTION"/>
+               <text>
+                  <paragraph>
+                     <content styleCode="bold">Albuterol Inhalation Solution, USP 0.083%</content>
+                  </paragraph>
+               </text>
+               <effectiveTime value="20260210"/>
+            </section>
+         </component>
+         <component>
+            <section ID="ID_03eb1d6f-e4bd-4d97-89c8-4889df66ab4d">
+               <id root="a38c25a0-e81d-4c7c-b500-89a9d4fac40a"/>
+               <code code="42229-5" codeSystem="2.16.840.1.113883.6.1" displayName="SPL UNCLASSIFIED SECTION"/>
+               <text>
+                  <paragraph>
+                     <content styleCode="bold">PRESCRIBING INFORMATION</content>
+                     <br/>
+                     <br/>
+                  </paragraph>
+                  <paragraph>
+                     <content styleCode="bold">FOR INHALATION USE ONLY-NOT FOR INJECTION.</content>
+                  </paragraph>
+               </text>
+               <effectiveTime value="20260210"/>
+            </section>
+         </component>
+         <component>
+            <section ID="ID_400bd29f-280a-47c8-9a08-1cb71c515ae2">
+               <id root="8b3a8227-ba60-4352-a62c-dc93b4958894"/>
+               <code code="34089-3" codeSystem="2.16.840.1.113883.6.1" displayName="DESCRIPTION SECTION"/>
+               <title>DESCRIPTION</title>
+               <text>
+                  <paragraph>Albuterol inhalation solution is a relatively selective beta<sub>2</sub>-adrenergic bronchodilator (see <content styleCode="bold">
+                        <linkHtml href="#CLINPHARM">CLINICAL PHARMACOLOGY</linkHtml>
+                     </content> section below). Albuterol sulfate, the racemic form of albuterol, has the chemical name α<sup>1</sup>-[(<content styleCode="italics">tert</content>- Butylamino)methyl]-4-hydroxy-<content styleCode="italics">m</content>-xylene-α,α'-diol sulfate (2:1) (salt), and the following structural formula:</paragraph>
+                  <renderMultiMedia ID="id912513140" referencedObject="B7EC57B3-2369-4CA4-BAE4-91EA2D933AD7"/>
+                  <paragraph>Albuterol sulfate has a molecular weight of 576.70 and the molecular formula (C<sub>13</sub>H<sub>21</sub>NO<sub>3</sub>)<sub>2</sub>•H<sub>2</sub>SO<sub>4</sub>. Albuterol sulfate is a white or practically white powder, freely soluble in water and slightly soluble in alcohol. </paragraph>
+                  <paragraph>The World Health Organization recommended name for albuterol base is salbutamol. </paragraph>
+                  <paragraph>Albuterol inhalation solution 0.083% requires no dilution before administration. </paragraph>
+                  <paragraph>Each milliliter of Albuterol Inhalation Solution, USP 0.083% contains 0.83 mg of albuterol (as 1 mg of albuterol sulfate) in an isotonic, sterile, aqueous solution containing sodium chloride; sulfuric acid is used to adjust the pH to between 3 and 5. Albuterol Inhalation Solution, USP 0.083% contains no sulfiting agents or preservatives. </paragraph>
+                  <paragraph>Albuterol inhalation solution is a clear, colorless to light yellow solution.</paragraph>
+               </text>
+               <effectiveTime value="20260210"/>
+               <component>
+                  <observationMedia ID="B7EC57B3-2369-4CA4-BAE4-91EA2D933AD7">
+                     <text>Albuterol Sulfate Structural Formula</text>
+                     <value mediaType="image/jpeg" xsi:type="ED">
+                        <reference value="image-02.jpg"/>
+                     </value>
+                  </observationMedia>
+               </component>
+            </section>
+         </component>
+         <component>
+            <section ID="CLINPHARM">
+               <id root="5e31b3de-a521-40e9-9fa4-f4febe2f656c"/>
+               <code code="34090-1" codeSystem="2.16.840.1.113883.6.1" displayName="CLINICAL PHARMACOLOGY SECTION"/>
+               <title>CLINICAL PHARMACOLOGY</title>
+               <text>
+                  <paragraph>The prime action of beta-adrenergic drugs is to stimulate adenyl cyclase, the enzyme which catalyzes the formation of cyclic-3',5'-adenosine monophosphate (cyclic AMP) from adenosine triphosphate (ATP). The cyclic AMP thus formed mediates the cellular responses. <content styleCode="italics">In vitro</content> studies and <content styleCode="italics">in vivo</content> pharmacologic studies have demonstrated that albuterol has a preferential effect on beta<sub>2</sub>-adrenergic receptors compared with isoproterenol. While it is recognized that beta<sub>2</sub>-adrenergic receptors are the predominant receptors in bronchial smooth muscle, 10% to 50% of the beta-receptors in the human heart may be beta<sub>2</sub>-receptors. The precise function of these receptors, however, is not yet established. Albuterol has been shown in most controlled clinical trials to have more effect on the respiratory tract in the form of bronchial smooth muscle relaxation than isoproterenol at comparable doses while producing fewer cardiovascular effects. Controlled clinical studies and other clinical experience have shown that inhaled albuterol, like other beta-adrenergic agonist drugs, can produce a significant cardiovascular effect in some patients, as measured by pulse rate, blood pressure, symptoms, and/or electrocardiographic changes.</paragraph>
+                  <paragraph>Albuterol is longer acting than isoproterenol in most patients by any route of administration because it is not a substrate for the cellular uptake processes for catecholamines nor for catechol-O-methyl transferase.</paragraph>
+                  <paragraph>Studies in asthmatic patients have shown that less than 20% of a single albuterol dose was absorbed following IPPB (intermittent positive-pressure breathing) or nebulizer administration; the remaining amount was recovered from the nebulizer and apparatus and expired air. Most of the absorbed dose was recovered in the urine 24 hours after drug administration. Following a 3 mg dose of nebulized albuterol, the maximum albuterol plasma level at 0.5 hour was 2.1 ng/mL (range 1.4 to 3.2 ng/mL). There was a significant dose-related response in FEV<sub>1</sub> (forced expiratory volume in one second) and peak flow rate. It has been demonstrated that following oral administration of 4 mg albuterol, the elimination half-life was five to six hours.</paragraph>
+                  <paragraph>Animal studies show that albuterol does not pass the blood-brain barrier. Recent studies in laboratory animals (minipigs, rodents, and dogs) recorded the occurrence of cardiac arrhythmias and sudden death (with histologic evidence of myocardial necrosis) when beta-agonists and methylxanthines were administered concurrently. The significance of these findings when applied to humans is currently unknown.</paragraph>
+                  <paragraph>In controlled clinical trials, most patients exhibited an onset of improvement in pulmonary function within 5 minutes as determined by FEV<sub>1</sub>. FEV<sub>1</sub> measurements also showed that the maximum average improvement in pulmonary function usually occurred at approximately 1 hour following inhalation of 2.5 mg of albuterol by compressor-nebulizer, and remained close to peak for 2 hours. Clinically significant improvement in pulmonary function (defined as maintenance of a 15% or more increase in FEV<sub>1</sub> over baseline values) continued for 3 to 4 hours in most patients and in some patients continued up to 6 hours. </paragraph>
+                  <paragraph>In repetitive dose studies, continued effectiveness was demonstrated throughout the three-month period of treatment in some patients.</paragraph>
+                  <paragraph>Published reports of trials in asthmatic children aged 3 years or older have demonstrated significant improvement in either FEV<sub>1</sub> or PEFR within 2 to 20 minutes following single dose of albuterol inhalation solution. An increase of 15% or more in baseline FEV<sub>1</sub> has been observed in children aged 5 to 11 years up to 6 hours after treatment with doses of 0.10 mg/kg or higher of albuterol inhalation solution. Single doses of 3, 4 or 10 mg resulted in improvement in baseline PEFR that was comparable to extent and duration to a 2 mg dose, but doses above 3 mg were associated with heart rate increases of more than 10%. </paragraph>
+               </text>
+               <effectiveTime value="20260210"/>
+            </section>
+         </component>
+         <component>
+            <section ID="ID_35ebf343-aafe-41d9-a80a-1a216245e23f">
+               <id root="cb3bac83-45ad-4146-9ed7-7e2ff383d034"/>
+               <code code="34067-9" codeSystem="2.16.840.1.113883.6.1" displayName="INDICATIONS &amp; USAGE SECTION"/>
+               <title>INDICATIONS AND USAGE</title>
+               <text>
+                  <paragraph>Albuterol inhalation solution is indicated for the relief of bronchospasm in patients 2 years of age and older with reversible obstructive airway disease and acute attacks of bronchospasm. </paragraph>
+               </text>
+               <effectiveTime value="20260210"/>
+            </section>
+         </component>
+         <component>
+            <section ID="ID_3417bd2a-cdff-4a81-852b-28f4170668f6">
+               <id root="535e96da-7bea-48f6-8a82-eda02732a777"/>
+               <code code="34070-3" codeSystem="2.16.840.1.113883.6.1" displayName="CONTRAINDICATIONS SECTION"/>
+               <title>CONTRAINDICATIONS</title>
+               <text>
+                  <paragraph>Albuterol inhalation solution is contraindicated in patients with a history of hypersensitivity to any of its components.</paragraph>
+               </text>
+               <effectiveTime value="20260210"/>
+            </section>
+         </component>
+         <component>
+            <section ID="ID_620a0234-8461-4cd2-8fba-3c529f12b8af">
+               <id root="74b455b6-aaa0-44fa-9705-81c45d4b7cb3"/>
+               <code code="34071-1" codeSystem="2.16.840.1.113883.6.1" displayName="WARNINGS SECTION"/>
+               <title>WARNINGS</title>
+               <text>
+                  <paragraph>As with other inhaled beta-adrenergic agonists, albuterol inhalation solution can produce paradoxical bronchospasm, which can be life threatening. If it occurs, the preparation should be discontinued immediately and alternative therapy instituted.</paragraph>
+                  <paragraph>Fatalities have been reported in association with excessive use of inhaled sympathomimetic drugs and with the home use of nebulizers. It is, therefore, essential that the physician instruct the patient in the need for further evaluation, if his/her asthma becomes worse. In individual patients, any beta<sub>2</sub>-adrenergic agonist, including albuterol solution for inhalation, may have a clinically significant cardiac effect.</paragraph>
+                  <paragraph>Immediate hypersensitivity reactions may occur after administration of albuterol as demonstrated by rare cases of urticaria, angioedema, rash, bronchospasm, and oropharyngeal edema.</paragraph>
+               </text>
+               <effectiveTime value="20260210"/>
+            </section>
+         </component>
+         <component>
+            <section ID="ID_f38afb52-aa9d-4382-a9bf-d1c913801970">
+               <id root="4cc012b7-7a56-45e6-b99b-45e0adb0241b"/>
+               <code code="42232-9" codeSystem="2.16.840.1.113883.6.1" displayName="PRECAUTIONS SECTION"/>
+               <title>PRECAUTIONS</title>
+               <effectiveTime value="20260210"/>
+               <component>
+                  <section ID="ID_501b6283-6d1b-4247-8ce0-12723dc13af9">
+                     <id root="c6ff4ab3-301f-4980-a512-1e0c7dfb40ca"/>
+                     <code code="34072-9" codeSystem="2.16.840.1.113883.6.1" displayName="GENERAL PRECAUTIONS SECTION"/>
+                     <title>General</title>
+                     <text>
+                        <paragraph>Albuterol, as with all sympathomimetic amines, should be used with caution in patients with cardiovascular disorders, especially coronary insufficiency, cardiac arrhythmias and hypertension, in patients with convulsive disorders, hyperthyroidism or diabetes mellitus and in patients who are unusually responsive to sympathomimetic amines. </paragraph>
+                        <paragraph>Large doses of intravenous albuterol have been reported to aggravate pre-existing diabetes mellitus and ketoacidosis. As with other beta-agonists, inhaled and intravenous albuterol may produce a significant hypokalemia in some patients, possibly through intracellular shunting, which has the potential to produce adverse cardiovascular effects. The decrease is usually transient, not requiring supplementation.</paragraph>
+                        <paragraph>Repeated dosing with 0.15 mg/kg of albuterol inhalation solution in children aged 5 to 17 years who were initially normokalemic has been associated with an asymptomatic decline of 20% to 25% in serum potassium levels.</paragraph>
+                     </text>
+                     <effectiveTime value="20260210"/>
+                  </section>
+               </component>
+               <component>
+                  <section ID="ID_62f10931-57d0-4be0-8d4d-3e4a5a69968b">
+                     <id root="81dba2a2-f2fc-4cb0-9808-fef381fd09ea"/>
+                     <code code="34076-0" codeSystem="2.16.840.1.113883.6.1" displayName="INFORMATION FOR PATIENTS SECTION"/>
+                     <title>Information for Patients</title>
+                     <text>
+                        <paragraph>The action of albuterol inhalation solution may last up to six hours, and therefore it should not be used more frequently than recommended. Do not increase the dose or frequency of medication without medical consultation. If symptoms get worse, medical consultation should be sought promptly. While taking albuterol inhalation solution, other anti-asthma medicines should not be used unless prescribed.</paragraph>
+                        <paragraph>Drug compatibility (physical and chemical), efficacy, and safety of albuterol inhalation solution when mixed with other drugs in a nebulizer have not been established.</paragraph>
+                        <paragraph>See illustrated “<content styleCode="bold">
+                              <linkHtml href="#PATIENTUSE">Patient’s Instructions for Use</linkHtml>
+                           </content>.”</paragraph>
+                     </text>
+                     <effectiveTime value="20260210"/>
+                  </section>
+               </component>
+               <component>
+                  <section ID="ID_0eb27209-68f9-4fa8-bce8-c36e664c2dbb">
+                     <id root="2b054664-f637-471b-93a7-67ce8e0d2951"/>
+                     <code code="34073-7" codeSystem="2.16.840.1.113883.6.1" displayName="DRUG INTERACTIONS SECTION"/>
+                     <title>Drug Interactions</title>
+                     <text>
+                        <paragraph>Other sympathomimetic aerosol bronchodilators or epinephrine should not be used concomitantly with albuterol.</paragraph>
+                        <paragraph>Albuterol should be administered with extreme caution to patients being treated with monoamine oxidase inhibitors or tricyclic antidepressants, since the action of albuterol on the vascular system may be potentiated.</paragraph>
+                        <paragraph>Beta-receptor blocking agents and albuterol inhibit the effect of each other.</paragraph>
+                     </text>
+                     <effectiveTime value="20260210"/>
+                  </section>
+               </component>
+               <component>
+                  <section ID="ID_9826031b-e65e-4bc7-b723-f60625a34497">
+                     <id root="b1a1a22d-eef5-4b83-b459-2fe5b4dc0bcb"/>
+                     <code code="34083-6" codeSystem="2.16.840.1.113883.6.1" displayName="CARCINOGENESIS &amp; MUTAGENESIS &amp; IMPAIRMENT OF FERTILITY SECTION"/>
+                     <title>Carcinogenesis, Mutagenesis, and Impairment of Fertility</title>
+                     <text>
+                        <paragraph>Albuterol sulfate caused a significant dose-related increase in the incidence of benign leiomyomas of the mesovarium in a 2-year study in the rat, at oral doses of 2, 10, and 50 mg/kg, corresponding to 10, 50 and 250 times, respectively, the maximum nebulization dose for a 50 kg human. In another study, this effect was blocked by the coadministration of propranolol. The relevance of these findings to humans is not known. An 18-month study in mice and a lifetime study in hamsters revealed no evidence of tumorigenicity. Studies with albuterol revealed no evidence of mutagenesis. Reproduction studies in rats revealed no evidence of impaired fertility.</paragraph>
+                     </text>
+                     <effectiveTime value="20260210"/>
+                  </section>
+               </component>
+               <component>
+                  <section ID="ID_ed1a88fb-f682-402c-bb28-8c5faa6a96f7">
+                     <id root="0cad0330-919a-4262-a7c5-4e484e95d457"/>
+                     <code code="42228-7" codeSystem="2.16.840.1.113883.6.1" displayName="PREGNANCY SECTION"/>
+                     <title>Pregnancy</title>
+                     <effectiveTime value="20260210"/>
+                     <component>
+                        <section ID="ID_34e30393-8363-4dfa-b104-993b8de5a07f">
+                           <id root="e9c0b35d-7ec8-4f50-87ec-50a1a00e0e2b"/>
+                           <code code="34077-8" codeSystem="2.16.840.1.113883.6.1" displayName="TERATOGENIC EFFECTS SECTION"/>
+                           <title>
+                              <content styleCode="bold">Teratogenic Effects</content>
+                           </title>
+                           <effectiveTime value="20260210"/>
+                           <component>
+                              <section ID="ID_aff563e2-b5ec-440a-8edf-231fae8a0419">
+                                 <id root="721ded1a-6a06-462e-b81e-8493fd8f2e0e"/>
+                                 <code code="42229-5" codeSystem="2.16.840.1.113883.6.1" displayName="SPL UNCLASSIFIED SECTION"/>
+                                 <title>
+                                    <content styleCode="bold">Pregnancy Category C</content>
+                                 </title>
+                                 <text>
+                                    <paragraph>Albuterol has been shown to be teratogenic in mice when given subcutaneously in doses corresponding to 1.25 times the human nebulization dose (based on a 50 kg human). There are no adequate and well-controlled studies in pregnant women. Albuterol should be used during pregnancy only if the potential benefit justifies the potential risk to the fetus. A reproduction study in CD-1 mice with albuterol (0.025, 0.25, and 2.5 mg/kg subcutaneously, corresponding to 0.125, 1.25 and 12.5 times the maximum human nebulization dose, respectively) showed cleft palate formation in 5 of 111 (4.5%) fetuses at 0.25 mg/kg and in 10 of 108 (9.3%) fetuses at 2.5 mg/kg. None were observed at 0.025 mg/kg. Cleft palate also occurred in 22 of 72 (30.5%) fetuses treated with 2.5 mg/kg isoproterenol (positive control). A reproduction study in Stride Dutch rabbits revealed cranioschisis in 7 of 19 (37%) fetuses at 50 mg/kg, corresponding to 250 times the maximum nebulization dose for a 50 kg human. </paragraph>
+                                    <paragraph>During worldwide marketing experience, various congenital anomalies, including cleft palate and limb defects, have been rarely reported in the offspring of patients being treated with albuterol. Some of the mothers were taking multiple medications during their pregnancies. No consistent pattern of defects can be discerned, and a relationship between albuterol use and congenital anomalies has not been established. </paragraph>
+                                 </text>
+                                 <effectiveTime value="20260210"/>
+                              </section>
+                           </component>
+                        </section>
+                     </component>
+                  </section>
+               </component>
+               <component>
+                  <section ID="ID_5237e21e-5001-4706-b90c-6ebbf166f957">
+                     <id root="3f346def-e664-48a6-bd17-758e5f11eab4"/>
+                     <code code="34079-4" codeSystem="2.16.840.1.113883.6.1" displayName="LABOR &amp; DELIVERY SECTION"/>
+                     <title>Labor and Delivery</title>
+                     <text>
+                        <paragraph>Oral albuterol has been shown to delay preterm labor in some reports. There are presently no well-controlled studies that demonstrate that it will stop preterm labor or prevent labor at term. Therefore, cautious use of albuterol inhalation solution is required in pregnant patients when given for relief of bronchospasm so as to avoid interference with uterine contractibility. </paragraph>
+                     </text>
+                     <effectiveTime value="20260210"/>
+                  </section>
+               </component>
+               <component>
+                  <section ID="ID_550a9546-f4d1-4382-a1fc-7a3091fbdabf">
+                     <id root="617543f1-12d5-45c6-b03e-90551928e268"/>
+                     <code code="34080-2" codeSystem="2.16.840.1.113883.6.1" displayName="NURSING MOTHERS SECTION"/>
+                     <title>Nursing Mothers</title>
+                     <text>
+                        <paragraph>It is not known whether this drug is excreted in human milk. Because of the potential for tumorigenicity shown for albuterol in some animal studies, a decision should be made whether to discontinue nursing or to discontinue the drug, taking into account the importance of the drug to the mother. </paragraph>
+                     </text>
+                     <effectiveTime value="20260210"/>
+                  </section>
+               </component>
+               <component>
+                  <section ID="ID_180fd76f-0082-46fb-bbfc-ac838f41eeba">
+                     <id root="5ea68bc2-1e69-41d5-977f-6c6b61e52693"/>
+                     <code code="34081-0" codeSystem="2.16.840.1.113883.6.1" displayName="PEDIATRIC USE SECTION"/>
+                     <title>Pediatric Use</title>
+                     <text>
+                        <paragraph>The safety and effectiveness of albuterol inhalation solution have been established in children 2 years of age or older. Use of albuterol inhalation solution in these age groups is supported by evidence from adequate and well-controlled studies of albuterol inhalation solution in adults; the likelihood that the disease course, pathophysiology, and the drug’s effect in pediatric and adult patients are substantially similar; and published reports of trials in pediatric patients 3 years of age or older. The recommended dose for the pediatric population is based upon three published dose comparison studies of efficacy and safety in children aged 5 to 17 years, and on the safety profile in both adults and pediatric patients at doses equal to or higher than the recommended doses. The safety and effectiveness of albuterol inhalation solution in children below 2 years of age have not been established.</paragraph>
+                     </text>
+                     <effectiveTime value="20260210"/>
+                  </section>
+               </component>
+            </section>
+         </component>
+         <component>
+            <section ID="ADVERSE">
+               <id root="a916322a-5203-406a-bbb7-209f8b068305"/>
+               <code code="34084-4" codeSystem="2.16.840.1.113883.6.1" displayName="ADVERSE REACTIONS SECTION"/>
+               <title>ADVERSE REACTIONS</title>
+               <effectiveTime value="20260210"/>
+               <component>
+                  <section ID="ID_c6cac979-9f55-40f4-9afe-42b6c065f9a8">
+                     <id root="12ba4116-aeab-4169-a875-b252819ae36e"/>
+                     <code code="34092-7" codeSystem="2.16.840.1.113883.6.1" displayName="CLINICAL STUDIES SECTION"/>
+                     <title>Clinical Trial Experience</title>
+                     <text>
+                        <paragraph>The results of clinical trials with albuterol inhalation solution in 135 patients showed the following side effects which were considered probably or possibly drug related: </paragraph>
+                        <paragraph>
+                           <content styleCode="italics">Central Nervous System: </content>tremors (20%), dizziness (7%), nervousness (4%), headache (3%), insomnia (1%).</paragraph>
+                        <paragraph>
+                           <content styleCode="italics">Gastrointestinal: </content>nausea (4%), dyspepsia (1%).</paragraph>
+                        <paragraph>
+                           <content styleCode="italics">Ear Nose and Throat: </content>pharyngitis (&lt;1%), nasal congestion (1%).</paragraph>
+                        <paragraph>
+                           <content styleCode="italics">Cardiovascular: </content>tachycardia (1%), hypertension (1%).</paragraph>
+                        <paragraph>
+                           <content styleCode="italics">Respiratory: </content>bronchospasm (8%), cough (4%), bronchitis (4%), wheezing (1%).</paragraph>
+                        <paragraph>No clinically relevant laboratory abnormalities related to albuterol inhalation solution administration were determined in these studies.</paragraph>
+                        <paragraph>In comparing the adverse reactions reported for patients treated with albuterol inhalation solution with those of patients treated with isoproterenol during clinical trials of three months, the following moderate to severe reactions, as judged by the investigators, were reported. This table does not include mild reactions.</paragraph>
+                        <table width="100%">
+                           <col width="35%"/>
+                           <col width="32%"/>
+                           <col width="33%"/>
+                           <thead>
+                              <tr>
+                                 <th align="center" colspan="3" styleCode="Rrule Botrule Lrule Toprule " valign="middle">
+                                    <content styleCode="bold">
+                                       <content styleCode="italics">Percent Incidence of Moderate to Severe Adverse Reactions</content>
+                                    </content>
+                                 </th>
+                              </tr>
+                              <tr>
+                                 <th align="center" styleCode="Rrule Lrule Toprule Botrule " valign="middle">
+                                    <content styleCode="bold">Reaction</content>
+                                 </th>
+                                 <th align="center" styleCode="Toprule Botrule " valign="top">
+                                    <content styleCode="bold">
+                                       <content styleCode="italics">Albuterol</content>
+                                    </content>
+                                    <br/>
+                                    <content styleCode="bold">N=65</content>
+                                 </th>
+                                 <th align="center" styleCode="Rrule Lrule Toprule Botrule " valign="top">
+                                    <content styleCode="bold">
+                                       <content styleCode="italics">Isoproterenol</content>
+                                    </content>
+                                    <br/>
+                                    <content styleCode="bold">N=65</content>
+                                 </th>
+                              </tr>
+                           </thead>
+                           <tbody>
+                              <tr>
+                                 <td styleCode="Rrule Lrule Toprule Botrule " valign="top">
+                                    <paragraph>
+                                       <content styleCode="bold">Central Nervous System</content>
+                                    </paragraph>
+                                 </td>
+                                 <td styleCode="Toprule Botrule " valign="top"/>
+                                 <td styleCode="Rrule Lrule Toprule Botrule " valign="top"/>
+                              </tr>
+                              <tr>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>    Tremors</paragraph>
+                                 </td>
+                                 <td styleCode="Botrule " valign="top">
+                                    <paragraph>10.7%</paragraph>
+                                 </td>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>13.8%</paragraph>
+                                 </td>
+                              </tr>
+                              <tr>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>    Headache</paragraph>
+                                 </td>
+                                 <td styleCode="Botrule " valign="top">
+                                    <paragraph>3.1%</paragraph>
+                                 </td>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>1.5%</paragraph>
+                                 </td>
+                              </tr>
+                              <tr>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>    Insomnia</paragraph>
+                                 </td>
+                                 <td styleCode="Botrule " valign="top">
+                                    <paragraph>3.1%</paragraph>
+                                 </td>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>1.5%</paragraph>
+                                 </td>
+                              </tr>
+                              <tr>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>
+                                       <content styleCode="bold">Cardiovascular</content>
+                                    </paragraph>
+                                 </td>
+                                 <td styleCode="Botrule " valign="top"/>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top"/>
+                              </tr>
+                              <tr>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>    Hypertension</paragraph>
+                                 </td>
+                                 <td styleCode="Botrule " valign="top">
+                                    <paragraph>3.1%</paragraph>
+                                 </td>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>3.1%</paragraph>
+                                 </td>
+                              </tr>
+                              <tr>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>    Arrhythmias</paragraph>
+                                 </td>
+                                 <td styleCode="Botrule " valign="top">
+                                    <paragraph>0%</paragraph>
+                                 </td>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>3%</paragraph>
+                                 </td>
+                              </tr>
+                              <tr>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>    <footnote ID="_RefID0ELBAE">The finding of no arrhythmias and no palpitations after albuterol administration in this clinical study should not be interpreted as indicating that these adverse effects cannot occur after the administration of inhaled albuterol.</footnote>Palpitation</paragraph>
+                                 </td>
+                                 <td styleCode="Botrule " valign="top">
+                                    <paragraph>0%</paragraph>
+                                 </td>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>22%</paragraph>
+                                 </td>
+                              </tr>
+                              <tr>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>
+                                       <content styleCode="bold">Respiratory</content>
+                                    </paragraph>
+                                 </td>
+                                 <td styleCode="Botrule " valign="top"/>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top"/>
+                              </tr>
+                              <tr>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>    <footnote ID="_RefID0E2BAE">In most cases of bronchospasm, this term was generally used to describe exacerbations in the underlying pulmonary disease.</footnote>Bronchospasm</paragraph>
+                                 </td>
+                                 <td styleCode="Botrule " valign="top">
+                                    <paragraph>15.4%</paragraph>
+                                 </td>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>18%</paragraph>
+                                 </td>
+                              </tr>
+                              <tr>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>    Cough</paragraph>
+                                 </td>
+                                 <td styleCode="Botrule " valign="top">
+                                    <paragraph>3.1%</paragraph>
+                                 </td>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>5%</paragraph>
+                                 </td>
+                              </tr>
+                              <tr>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>    Bronchitis</paragraph>
+                                 </td>
+                                 <td styleCode="Botrule " valign="top">
+                                    <paragraph>1.5%</paragraph>
+                                 </td>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>5%</paragraph>
+                                 </td>
+                              </tr>
+                              <tr>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>    Wheeze</paragraph>
+                                 </td>
+                                 <td styleCode="Botrule " valign="top">
+                                    <paragraph>1.5%</paragraph>
+                                 </td>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>1.5%</paragraph>
+                                 </td>
+                              </tr>
+                              <tr>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>    Sputum Increase</paragraph>
+                                 </td>
+                                 <td styleCode="Botrule " valign="top">
+                                    <paragraph>1.5%</paragraph>
+                                 </td>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>1.5%</paragraph>
+                                 </td>
+                              </tr>
+                              <tr>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>    Dyspnea</paragraph>
+                                 </td>
+                                 <td styleCode="Botrule " valign="top">
+                                    <paragraph>1.5%</paragraph>
+                                 </td>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>1.5%</paragraph>
+                                 </td>
+                              </tr>
+                              <tr>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>
+                                       <content styleCode="bold">Gastrointestinal</content>
+                                    </paragraph>
+                                 </td>
+                                 <td styleCode="Botrule " valign="top"/>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top"/>
+                              </tr>
+                              <tr>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>    Nausea</paragraph>
+                                 </td>
+                                 <td styleCode="Botrule " valign="top">
+                                    <paragraph>3.1%</paragraph>
+                                 </td>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>0%</paragraph>
+                                 </td>
+                              </tr>
+                              <tr>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>    Dyspepsia</paragraph>
+                                 </td>
+                                 <td styleCode="Botrule " valign="top">
+                                    <paragraph>1.5%</paragraph>
+                                 </td>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>0%</paragraph>
+                                 </td>
+                              </tr>
+                              <tr>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top">
+                                    <paragraph>
+                                       <content styleCode="bold">Systemic</content>
+                                    </paragraph>
+                                 </td>
+                                 <td styleCode="Botrule " valign="top"/>
+                                 <td styleCode="Rrule Lrule Botrule " valign="top"/>
+                              </tr>
+                              <tr>
+                                 <td styleCode="Rrule Botrule Lrule " valign="top">
+                                    <paragraph>    Malaise</paragraph>
+                                 </td>
+                                 <td styleCode="Botrule " valign="top">
+                                    <paragraph>1.5%</paragraph>
+                                 </td>
+                                 <td styleCode="Rrule Botrule Lrule " valign="top">
+                                    <paragraph>0%</paragraph>
+                                 </td>
+                              </tr>
+                           </tbody>
+                        </table>
+                     </text>
+                     <effectiveTime value="20260210"/>
+                  </section>
+               </component>
+               <component>
+                  <section ID="ID_519cff0e-58fc-4437-927f-d7796affd5c3">
+                     <id root="fa5885d0-cdb1-4f15-850e-babda13b0381"/>
+                     <code code="42229-5" codeSystem="2.16.840.1.113883.6.1" displayName="SPL UNCLASSIFIED SECTION"/>
+                     <title>Post-Marketing Experience</title>
+                     <text>
+                        <paragraph>Cases of urticaria, angioedema, rash, bronchospasm, hoarseness, oropharyngeal edema, arrhythmias (including atrial fibrillations, supraventricular tachycardia, extrasystoles) and metabolic acidosis have been reported after the use of albuterol inhalation solution. Because these reactions are reported voluntarily from a population of uncertain size, it is not always possible to reliably estimate their frequency or establish a causal relationship to drug exposure.</paragraph>
+                     </text>
+                     <effectiveTime value="20260210"/>
+                  </section>
+               </component>
+            </section>
+         </component>
+         <component>
+            <section ID="ID_80037887-2806-4c84-bf5e-62f228dd5dab">
+               <id root="12fc7094-9657-4869-b6ab-e88ed9e46b13"/>
+               <code code="34088-5" codeSystem="2.16.840.1.113883.6.1" displayName="OVERDOSAGE SECTION"/>
+               <title>OVERDOSAGE</title>
+               <text>
+                  <paragraph>Manifestations of overdosage may include seizures, anginal pain, hypertension, hypokalemia, tachycardia with rates up to 200 beats/min, and exaggeration of the pharmacological effects listed in <content styleCode="bold">
+                        <linkHtml href="#ADVERSE">ADVERSE REACTIONS</linkHtml>
+                     </content>. In isolated cases in children 2 to 12 years of age, tachycardia with rates &gt;200 beats/min has been observed. </paragraph>
+                  <paragraph>The oral LD<sub>50</sub> in rats and mice was greater than 2,000 mg/kg. The inhalational LD<sub>50</sub> could not be determined.  </paragraph>
+                  <paragraph>There is insufficient evidence to determine if dialysis is beneficial for overdosage of albuterol inhalation solution.</paragraph>
+               </text>
+               <effectiveTime value="20260210"/>
+            </section>
+         </component>
+         <component>
+            <section ID="ID_11e83a29-26b2-4414-b682-3be7951f6d87">
+               <id root="67d0805d-1926-4a7b-8dc8-b63dec85691f"/>
+               <code code="34068-7" codeSystem="2.16.840.1.113883.6.1" displayName="DOSAGE &amp; ADMINISTRATION SECTION"/>
+               <title>DOSAGE AND ADMINISTRATION</title>
+               <effectiveTime value="20260210"/>
+               <component>
+                  <section ID="ID_0c0b2e1c-8d93-47f7-9bcd-9c5538c4f979">
+                     <id root="d16cb12a-7a50-48fa-926c-ef1638f53eb6"/>
+                     <code code="42229-5" codeSystem="2.16.840.1.113883.6.1" displayName="SPL UNCLASSIFIED SECTION"/>
+                     <title>Adults and Children 2 to 12 Years of Age</title>
+                     <text>
+                        <paragraph>The usual dosage for adults and for children weighing at least 15 kg is 2.5 mg of albuterol (one vial) administered three to four times daily by nebulization. Children weighing &lt;15 kg who require &lt;2.5 mg/dose (i.e., less than a full vial) should use albuterol inhalation solution, 0.5% instead of albuterol inhalation solution, 0.083%. More frequent administration or higher doses are not recommended. To administer 2.5 mg of albuterol, administer the entire contents of one sterile unit dose vial (3 mL of 0.083% inhalation solution) by nebulization. The flow rate is regulated to suit the particular nebulizer so that albuterol inhalation solution will be delivered over approximately 5 to 15 minutes. </paragraph>
+                        <paragraph>The use of albuterol inhalation solution can be continued as medically indicated to control recurring bouts of bronchospasm. During this time most patients gain optimum benefit from regular use of the inhalation solution.</paragraph>
+                        <paragraph>If a previously effective dosage regimen fails to provide the usual relief, medical advice should be sought immediately, as this is often a sign of seriously worsening asthma which would require reassessment of therapy.</paragraph>
+                     </text>
+                     <effectiveTime value="20260210"/>
+                  </section>
+               </component>
+            </section>
+         </component>
+         <component>
+            <section ID="ID_e2fe1966-a401-4a52-8cf7-cb110f35e0d3">
+               <id root="dae68a31-afc1-4c34-9fd2-ee19feb72823"/>
+               <code code="34069-5" codeSystem="2.16.840.1.113883.6.1" displayName="HOW SUPPLIED SECTION"/>
+               <title>HOW SUPPLIED</title>
+               <text>
+                  <paragraph>Unit-dose plastic vial containing Albuterol Inhalation Solution, USP 0.083%, 2.5 mg/3 mL. Equivalent to 0.5 mL albuterol (as the sulfate) 0.5% (2.5 mg albuterol) diluted to 3 mL. Supplied in cartons as listed below. </paragraph>
+                  <paragraph>NDC 0378-8270-52         25 vials per carton / 25 vials per foil pouch</paragraph>
+                  <paragraph>NDC 0378-8270-93         30 vials per carton / 30 vials per foil pouch</paragraph>
+                  <paragraph>NDC 0378-8270-91         60 vials per carton / 30 vials per foil pouch</paragraph>
+                  <paragraph>NDC 0378-8270-55         30 vials per carton / 1 vial per foil pouch </paragraph>
+               </text>
+               <effectiveTime value="20260210"/>
+               <component>
+                  <section ID="ID_729696e7-4545-4019-81b0-2a6371246cc0">
+                     <id root="f9c44a59-1de8-4ff7-98f0-8b98e835b084"/>
+                     <code code="44425-7" codeSystem="2.16.840.1.113883.6.1" displayName="STORAGE AND HANDLING SECTION"/>
+                     <title>Storage</title>
+                     <text>
+                        <paragraph>PROTECT FROM LIGHT. Store in pouch until time of use. Store between 2° and 25°C (36° and 77°F).</paragraph>
+                     </text>
+                     <effectiveTime value="20260210"/>
+                  </section>
+               </component>
+            </section>
+         </component>
+         <component>
+            <section ID="ID_1588b77d-e88d-400c-a079-7b0b202ffe4f">
+               <id root="480c8c87-e053-4adb-904e-4ab7e3ae6ab1"/>
+               <code code="42229-5" codeSystem="2.16.840.1.113883.6.1" displayName="SPL UNCLASSIFIED SECTION"/>
+               <text>
+                  <paragraph>Rx only.</paragraph>
+                  <paragraph>Distributed by:<br/>
+                     <content styleCode="bold">Mylan Pharmaceuticals Inc., a Viatris Company<br/>
+                     </content>Morgantown, WV 26505 U.S.A.</paragraph>
+                  <paragraph>Manufactured by:<br/>
+                     <content styleCode="bold">The Ritedose Corporation<br/>
+                     </content>Columbia, SC 29203</paragraph>
+                  <paragraph>RPIN0212<br/>TRC:ALSUIS:R4<br/>February 2026</paragraph>
+               </text>
+               <effectiveTime value="20260210"/>
+            </section>
+         </component>
+         <component>
+            <section ID="PATIENTUSE">
+               <id root="6acdd06b-23ad-4cee-8c8c-4b628decad8b"/>
+               <code code="42230-3" codeSystem="2.16.840.1.113883.6.1" displayName="SPL PATIENT PACKAGE INSERT SECTION"/>
+               <title>Patient’s Instructions for Use</title>
+               <text>
+                  <paragraph>
+                     <content styleCode="bold">Albuterol Inhalation Solution, USP 0.083%</content>
+                  </paragraph>
+                  <paragraph>
+                     <content styleCode="bold">Note: This is a unit-dose vial. No dilution is required.</content>
+                  </paragraph>
+                  <paragraph>
+                     <content styleCode="bold">Read complete instructions carefully before using. </content>
+                  </paragraph>
+                  <list listType="ordered">
+                     <item>
+                        <caption>1.</caption>Remove the vial from the foil pouch.</item>
+                     <item>
+                        <caption>2.</caption>Twist the cap completely off the vial and squeeze the contents into the nebulizer reservoir (Figure 1).</item>
+                     <item>
+                        <caption>3.</caption>Connect the nebulizer reservoir to the mouthpiece or face mask (Figure 2).</item>
+                     <item>
+                        <caption>4.</caption>Connect the nebulizer to the compressor. </item>
+                     <item>
+                        <caption>5.</caption>Sit in a comfortable, upright position; place the mouthpiece in your mouth (Figure 3) (or put on the face mask); and turn on the compressor.</item>
+                     <item>
+                        <caption>6.</caption>
+                        <content styleCode="bold">Breathe as calmly, deeply and evenly </content>as possible until no more mist is formed in the nebulizer chamber (about 5-15 minutes). At this point, the treatment is finished. </item>
+                     <item>
+                        <caption>7.</caption>Clean the nebulizer (see manufacturer’s instructions).<br/>
+                     </item>
+                     <item>
+                        <caption> </caption>
+                        <renderMultiMedia ID="id702" referencedObject="MM2"/>
+                     </item>
+                  </list>
+                  <paragraph>
+                     <content styleCode="bold">Note: Use only as directed by your physician. More frequent administration or higher doses are not recommended</content>.</paragraph>
+                  <paragraph>
+                     <content styleCode="bold">Store Albuterol Inhalation Solution 0.083% between 2° and 25°C (36° and 77°F). Store in pouch until time of use.</content>
+                  </paragraph>
+                  <paragraph>ADDITIONAL INSTRUCTIONS: ___________________________________________<br/>________________________________________________________________________<br/>________________________________________________________________________<br/>
+                     <br/>For more information, call Viatris at 1-877-446-3679 (1-877-4-INFO-RX).</paragraph>
+                  <paragraph>Distributed by:<br/>
+                     <content styleCode="bold">Mylan Pharmaceuticals Inc., a Viatris Company<br/>
+                     </content>Morgantown, WV 26505 U.S.A.</paragraph>
+                  <paragraph>Manufactured by:<br/>
+                     <content styleCode="bold">The Ritedose Corporation<br/>
+                     </content>Columbia, SC 29203</paragraph>
+                  <paragraph>RPIN0212<br/>TRC:PIL:ALSUIS:R4<br/>February 2026</paragraph>
+               </text>
+               <effectiveTime value="20260210"/>
+               <component>
+                  <observationMedia ID="MM2">
+                     <text>Figure 1</text>
+                     <value mediaType="image/jpeg" xsi:type="ED">
+                        <reference value="albuterol-02.jpg"/>
+                     </value>
+                  </observationMedia>
+               </component>
+            </section>
+         </component>
+         <component>
+            <section ID="ID_cf059d7c-9e23-4298-967f-2cfd78604691">
+               <id root="0cb96b07-171f-4b34-ad88-1c575cb6edbb"/>
+               <code code="51945-4" codeSystem="2.16.840.1.113883.6.1" displayName="PACKAGE LABEL.PRINCIPAL DISPLAY PANEL"/>
+               <title>PRINCIPAL DISPLAY PANEL - 25 x 3 mL Vials Carton</title>
+               <text>
+                  <paragraph>
+                     <content styleCode="bold">NDC 0378-8270-52</content>
+                  </paragraph>
+                  <paragraph>
+                     <content styleCode="bold">Albuterol </content>
+                     <br/>
+                     <content styleCode="bold">Inhalation Solution, USP 0.083%</content>
+                  </paragraph>
+                  <paragraph>
+                     <content styleCode="bold">2.5 mg / 3 mL</content>
+                  </paragraph>
+                  <paragraph>Each mL contains 1 mg albuterol, equivalent to 0.83 mg albuterol <br/>in an aqueous solution containing sodium chloride and sulfuric acid <br/>to adjust pH between 3 and 5. Contains no preservatives. <br/>Please consult your physician before use. <content styleCode="bold">Do not exceed recommended dosage.</content>
+                     <br/>
+                     <content styleCode="bold">Usual Dosage:</content> See package insert. <content styleCode="bold">Protect from light. </content>
+                     <br/>
+                     <content styleCode="bold">Store between 2° and 25°C (36° and 77°F).</content> <content styleCode="bold">Store in pouch until time of use.</content> Discard if solution becomes discolored. <br/>(Note: Albuterol Inhalation Solution, USP is a clear, colorless to light yellow solution.)</paragraph>
+                  <paragraph>
+                     <content styleCode="bold">Rx only</content>
+                  </paragraph>
+                  <paragraph>
+                     <content styleCode="bold">25 x 3 mL Sterile Unit-Dose Vials</content>
+                  </paragraph>
+                  <paragraph>
+                     <content styleCode="bold">FOR ORAL INHALATION ONLY</content>
+                  </paragraph>
+                  <paragraph>Equivalent to 0.5 mL Albuterol 0.5% diluted to 3 mL<br/>with normal saline.</paragraph>
+                  <paragraph>
+                     <content styleCode="bold">Attention Pharmacist: </content>Detach "Patient's Instructions For Use"<br/>from package insert and dispense with solution.</paragraph>
+                  <paragraph>
+                     <content styleCode="bold">Protect from light. Store between 2° and 25°C (36° and 77°F).</content>
+                  </paragraph>
+                  <paragraph>
+                     <content styleCode="bold">Store in pouch until time of use.<br/>
+                     </content>Discard if solution becomes discolored.</paragraph>
+                  <paragraph>(Note: Albuterol Inhalation Solution, USP is a clear,<br/>colorless to light yellow solution.)</paragraph>
+                  <paragraph>Distributed by:<br/>
+                     <content styleCode="bold">Mylan Pharmaceuticals Inc., a Viatris Company<br/>
+                     </content>Morgantown, WV 26505 U.S.A.</paragraph>
+                  <paragraph>Manufactured by:<br/>
+                     <content styleCode="bold">The Ritedose Corporation<br/>
+                     </content>Columbia, SC 29203 U.S.A.</paragraph>
+                  <paragraph>TRC:8270:25C:R3</paragraph>
+                  <renderMultiMedia ID="id-946541798" referencedObject="ID_57c65e8c-35cd-4bc1-afb6-f6442954da33"/>
+               </text>
+               <effectiveTime value="20260210"/>
+               <component>
+                  <observationMedia ID="ID_57c65e8c-35cd-4bc1-afb6-f6442954da33">
+                     <text>Albuterol Inhalation Solution 0.083% Carton Label</text>
+                     <value mediaType="image/jpeg" xsi:type="ED">
+                        <reference value="image-01.jpg"/>
+                     </value>
+                  </observationMedia>
+               </component>
+            </section>
+         </component>
+      </structuredBody>
+   </component>
+</document>
