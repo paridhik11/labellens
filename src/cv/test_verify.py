@@ -6,6 +6,11 @@ from pathlib import Path
 
 import pytest
 
+# Skip this whole file when the CV libraries are not installed (the main CI environment).
+for _module in ("cv2", "PIL", "zxingcpp", "reportlab", "pypdf"):
+    pytest.importorskip(_module)
+
+
 from src.common.schemas import BarcodeResult, LabelExtraction, OcrBlock, SymbolDetection
 from src.cv import verify
 

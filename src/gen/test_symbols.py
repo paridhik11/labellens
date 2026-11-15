@@ -4,6 +4,11 @@ import json
 from pathlib import Path
 
 import pytest
+
+# Skip this whole file when the CV libraries are not installed (the main CI environment).
+for _module in ("cv2", "PIL", "zxingcpp", "reportlab", "pypdf"):
+    pytest.importorskip(_module)
+
 from PIL import Image, ImageDraw
 
 from src.gen.smoke_label import build_label

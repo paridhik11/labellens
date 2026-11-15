@@ -3,9 +3,14 @@
 import json
 from pathlib import Path
 
+import pytest
+
+# Skip this whole file when the CV libraries are not installed (the main CI environment).
+for _module in ("cv2", "PIL", "zxingcpp", "reportlab", "pypdf"):
+    pytest.importorskip(_module)
+
 import cv2
 import numpy as np
-import pytest
 from PIL import Image
 
 from src.cv.symbols import build_templates, detect_symbols
