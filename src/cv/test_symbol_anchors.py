@@ -1,4 +1,8 @@
-"""Checks for the text-anchor rule (pure Python, needs no CV libraries)."""
+"""Checks for the text-anchor rule (the package imports OpenCV, so this skips without it)."""
+
+import pytest
+
+pytest.importorskip("cv2")
 
 from src.common.schemas import OcrBlock
 from src.cv.symbols_v2.anchors import anchor_lines, distance_in_lines, near_anchor

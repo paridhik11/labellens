@@ -88,3 +88,13 @@ Everything here is measured on synthetic labels from one template family. No rea
     naming without the template now exists but is clearly worse under glare and occlusion.
 12. Key files: blind barcode decoding is now in `src/cv/barcode_blind.py`, field rules in `src/cv/fields.py`;
     `src/cv/barcode.py` is no longer the whole barcode story.
+
+## Symbols after the cv-symbols branch (not merged)
+
+See `reports/symbols_final.md`. The old detector found 0/204 independently drawn pictograms. Detector v2 (`src/cv/symbols_v2`,
+`extract_label(symbol_detector="v2")`, default still `"v1"`) finds 204/204 of them and keeps 100% on clean to hard original labels, but
+loses 11 to 15 points on very hard original labels (76.5% and 80.4% against 91.2%). On held-out styles written by us it reaches 49.5%
+(silhouette), 63.5% (CNN) and 80.2% (zero-shot CLIP, 4.2% false positives); the 90% and 2% targets were not met. On real carton
+photos every detector found 0 of 3 symbols (they are 1 to 2% of the image and one is rotated); real-label boxes were labelled by
+the assistant, not a human. The lot and expiry format check (`src/cv/consistency.py`) cut false critical mismatches on very hard labels from
+7/44 to 1/44 (blind) and 8/45 to 1/45 (template) on new seeds 103 to 105, with real wrong barcodes still flagged 102/102.
