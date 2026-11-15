@@ -139,15 +139,17 @@ def fmt_ci(a: float, ci: tuple[float, float]) -> str:
     return f"{a:.3f} [{ci[0]:.3f}, {ci[1]:.3f}]"
 
 
-def evaluate(feat: dict[str, dict[str, float]], labels: dict[str, int], z_from: list[str]) -> list[dict]:
+def evaluate(feat: dict[str, dict[str, float]], labels: dict[str, int], z_from: list[str],
+             z_feat: dict[str, dict[str, float]] | None = None) -> list[dict]:
     """Metrics for each score on the queries in feat (labels: 1 answerable, 0 no_answer).
 
     feat maps qid to {bm25, dense, ce_top, ce_margin, coverage}; z_from lists the qids whose values set
-    the z-score mean and std.
+    the z-score mean and std (looked up in z_feat, default feat, so a test run can still fit on dev).
     """
     qids = sorted(feat)
-    zb = zscorer([feat[q]["bm25"] for q in z_from])
-    zd = zscorer([feat[q]["dense"] for q in z_from])
+    zf = z_feat if z_feat is not None else feat
+    zb = zscorer([zf[q]["bm25"] for q in z_from])
+    zd = zscorer([zf[q]["dense"] for q in z_from])
     scores = {
         "ce_top": [feat[q]["ce_top"] for q in qids],
         "ce_margin": [feat[q]["ce_margin"] for q in qids],
@@ -217,13 +219,15 @@ def main() -> None:
     queries.update({r.qid: r.query for r in ab})
     labels = {q: 1 for q in pos} | {q: 0 for q in neg}
     use = split[half]["answerable"] + split[half]["no_answer"]
+    z_from = split["dev"]["answerable"] + split["dev"]["no_answer"]
+    use_all = list(dict.fromkeys(use + z_from))  # z-scores are always fitted on the dev half
     chunks = [c for c in load_chunks("data/processed/regs.jsonl") if c.module == "medicine"]
     ctx = ModuleContext(chunks, None, {})
     first = ctx.build(Spec("hybrid", stem=True, prefix=True))
     text_of = {c.chunk_id: c.text for c in chunks}
     cache_path = "data/processed/ce_cache_bge-reranker-base.json"
     cache = load_score_cache(cache_path)
-    todo = {q: [h for h in first.search(queries[q], k=30)] for q in use}
+    todo = {q: [h for h in first.search(queries[q], k=30)] for q in use_all}
     missing = sum((queries[q], h.doc_id) not in cache for q, hs in todo.items() for h in hs)
     print(f"[scores] {len(use)} {half} queries, {missing} cross-encoder pairs not in the 18b cache", flush=True)
     if missing:
@@ -242,16 +246,15 @@ def main() -> None:
             rr.scores(queries[q], hs)
         save_score_cache(cache_path, "BAAI/bge-reranker-base", cache)
     feat: dict[str, dict[str, float]] = {}
-    for q in use:
+    for q in use_all:
         hs = todo[q]
         ce = sorted((cache[(queries[q], h.doc_id)] for h in hs), reverse=True)
         feat[q] = {"bm25": ctx.bm25.search(queries[q], k=1)[0].score,
                    "dense": ctx.dense_prefix.search(queries[q], k=1)[0].score,
                    "ce_top": ce[0], "ce_margin": ce[0] - ce[1], "coverage": coverage(queries[q], text_of[hs[0].doc_id])}
-    z_from = split["dev"]["answerable"] + split["dev"]["no_answer"]
-    rows = evaluate(feat, labels, z_from)
+    rows = evaluate({q: feat[q] for q in use}, labels, z_from, z_feat=feat)
     per = [f"- {q}: {'answerable' if labels[q] else 'no_answer'}, {feat[q]['ce_top']:.3f}, {feat[q]['ce_margin']:.3f}, "
-           f"{feat[q]['bm25']:.2f}, {feat[q]['dense']:.3f}, {feat[q]['coverage']:.2f}" for q in sorted(feat)]
+           f"{feat[q]['bm25']:.2f}, {feat[q]['dense']:.3f}, {feat[q]['coverage']:.2f}" for q in sorted(use)]
     body = report_markdown(rows, len(split[half]["answerable"]), len(split[half]["no_answer"]),
                            "TEST" if a.test else "DEV", per)
     print(body)

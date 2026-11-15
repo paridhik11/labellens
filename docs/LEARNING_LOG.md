@@ -611,3 +611,11 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 4. **Verified:** `python -m pytest -q tests/test_api_contract.py` gave 3 passed; full fast suite 298 passed, 1 skipped, 1 deselected; `ruff check src tests` clean; live smoke with uvicorn and a file database: `/health`, `/me`, `/products` real, `POST /public/ask` returned `x-mock: true`.
 5. **Check yourself:** The coverage assertion at the end of `test_every_real_response_conforms_to_openapi`; the oneOf on the `registerTemplate` 422 response.
 6. **Assumptions:** Only JSON responses are validated; the layout-findings CheckResult variant of the template 422 is validated by the mock tests, because the real server cannot produce it yet.
+
+## Step 18f: freeze E5b, grade, score once, final summary
+1. **What I did:** Froze E5b (stemmed BM25 plus bge-large with query prefix and heading text, fused by RRF) in `data/eval/step18_config.json` with a hash. Graded the 242 accumulated unjudged pairs and the 424 pooled pairs of the 30 web_faq fresh queries with the frozen grader, then scored the fresh set and the abstention test split once each.
+2. **Files:** `data/eval/step18_config.json`, `src/ir/step18_config.py`, `src/ir/step18_final.py`, `results/step18_fresh_web.md`, `results/step18_abstain_test.md`, `results/step18_final.md`, grade files `pool_fresh_*`, `qrels_fresh_llm.tsv`, `src/ir/step18_abstain.py` (test path fix).
+3. **How it works:** The fresh queries were not used to choose anything, so their score is an honest test. A gain interval that includes 0 means the data cannot tell the two systems apart.
+4. **Verified:** config check reports "config intact"; fresh set nDCG@10 plain hybrid 0.701, hybrid+stem+prefix 0.762, E5b 0.783; E5b over hybrid+stem+prefix +0.021 [-0.011, +0.054]. Abstention test best AUROC 0.800 (targets not met).
+5. **Check yourself:** the pool-depth caveat on Recall@20 in `results/step18_final.md`; that chunk_derived queries are unscored.
+6. **Assumptions:** LLM grades only; 30 queries; abstention test has 13 queries. The first test run crashed on a bug (z-scores fitted on dev features missing in test mode), no output was written, and I fixed it before the single scored run.
