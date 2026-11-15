@@ -98,3 +98,12 @@ loses 11 to 15 points on very hard original labels (76.5% and 80.4% against 91.2
 photos every detector found 0 of 3 symbols (they are 1 to 2% of the image and one is rotated); real-label boxes were labelled by
 the assistant, not a human. The lot and expiry format check (`src/cv/consistency.py`) cut false critical mismatches on very hard labels from
 7/44 to 1/44 (blind) and 8/45 to 1/45 (template) on new seeds 103 to 105, with real wrong barcodes still flagged 102/102.
+
+## Real-label limit for symbols
+
+On real label photos the symbols are below the symbol finder's minimum size and no detector finds them. In the DailyMed carton photos
+I checked (a lancet carton and a pregnancy-test carton, 3 symbols marked by the assistant, not by a human) the pictograms are 8 to 36 px, which is
+1.0% to 2.3% of the image's short side, while detector v2's candidate finder accepts blobs of at least 4.5% (v1 needs larger still); one symbol is also turned 90
+degrees. Every detector (v1, v2 silhouette, CNN, CLIP) found 0 of 3, and the finder never proposed a box near them. This is a sample of 3, not a
+recall measurement, but until the finder scales up small symbols and handles rotation, symbol detection on real photos
+must be treated as non-functional and `symbol_detector_trusted` must stay `False` in the checker.
