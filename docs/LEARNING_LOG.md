@@ -515,3 +515,11 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its CV step 16 to 
 4. **Verified:** Scoped CV and generation pytest, Ruff and whitespace checks were run; outputs are in the step report.
 5. **Check yourself:** Confirm retrieval Step 16 remains unchanged and the three CV headings use their new prefixes.
 6. **Assumptions:** Only headings and the explanatory note needed renaming; historical entry text stays intact.
+
+## GEN step 1: Parth's schema change request recommendations
+1. **What I did:** Recommended yes for CR-2, CR-3, CR-4, CR-5, CR-9, CR-10 and CR-11 based on their fit with the template, extraction, check, review and print-verification code.
+2. **Files changed:** `docs/LEARNING_LOG.md` (records the recommendations and their scope).
+3. **How it works:** The recommendations add contract records around outputs the code already handles or needs to connect, while keeping `schemas.py` locked.
+4. **Verified:** Compared each request with `docs/contracts/DATA_MODEL.md`, `TEMPLATE_SPEC.md`, `src/gen/render.py`, `src/cv/extract.py` and `src/cv/verify.py`. Ruff passed; the focused contract test could not collect because `jsonschema` is missing from `labellens-cv`.
+5. **Check yourself:** CR-10 requires approval to reference a passed check with the same version and artifact hash; CR-4 adds confirmation state around extraction.
+6. **Assumptions:** These are Parth's technical recommendations, not approval to edit shared schemas.
