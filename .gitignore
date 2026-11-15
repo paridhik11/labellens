@@ -21,3 +21,11 @@ data/synthetic/
 
 # local API database (Step 20)
 data/api/
+
+# Symbol experiments (cv-symbols): keep reports and the held-out log, never images or caches
+!results/symbols_*.md
+!results/symbols_*.json
+!results/heldout_log.jsonl
+data/real_symbols/
+data/real_labels/
+data/models/

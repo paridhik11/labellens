@@ -539,3 +539,11 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 4. **Verified:** `python -m pytest -q tests/test_api_contract.py` gave 3 passed; full fast suite 298 passed, 1 skipped, 1 deselected; `ruff check src tests` clean; live smoke with uvicorn and a file database: `/health`, `/me`, `/products` real, `POST /public/ask` returned `x-mock: true`.
 5. **Check yourself:** The coverage assertion at the end of `test_every_real_response_conforms_to_openapi`; the oneOf on the `registerTemplate` 422 response.
 6. **Assumptions:** Only JSON responses are validated; the layout-findings CheckResult variant of the template 422 is validated by the mock tests, because the real server cannot produce it yet.
+
+## Symbols phase 0: baseline
+1. **What I did:** Built a harness that runs only the symbol detector on whole labels (same boundary finding and straightening as the extractor) and scores IoU >= 0.5 with Wilson intervals. Regenerated seeds 100 to 102 and re-ran the current blind detector.
+2. **Files:** `src/cv/symbol_eval.py`, `scripts/symbols/baseline.py`, `scripts/symbols/gen_baseline.sh`, `results/symbols_experiments.md`, `reports/symbols_phase0.md`.
+3. **How it works:** Like testing a smoke alarm by itself instead of the whole building: same room, no other equipment.
+4. **Verified:** very hard 93/102, independent drawings 0/204, absent symbols reported 0/306, all equal to `results/cv_final_eval.md`.
+5. **Check yourself:** `straighten()` in the harness mirrors `extract_label_modes`; scoring counts a symbol as found only at IoU >= 0.5.
+6. **Assumptions:** OCR and barcode steps are skipped because they do not affect symbols.
