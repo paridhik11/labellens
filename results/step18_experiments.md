@@ -6,22 +6,22 @@
 | experiment | vs | decision | gain unjudged=0 [95% CI] | gain condensed | Recall@20 gain | folds won | leave-top-2 gain | unjudged@10 |
 |---|---|---|---|---|---|---|---|---|
 | E0: hybrid+stem+prefix vs hybrid (carried over from Step 17) | hybrid | CANDIDATE | +0.026 [-0.013, +0.062] | +0.026 | +0.017 | 3 of 5 | +0.013 / +0.013 | 0.000 |
-| E1a: bge-reranker-base on hybrid, top 30, replace | hybrid | DROPPED | -0.003 [-0.060, +0.053] | -0.000 | -0.017 | 3 of 5 | -0.022 / -0.019 | 0.021 |
-| E1a: bge-reranker-base on hybrid, top 30, replace | hybrid+stem+prefix | DROPPED | -0.029 [-0.092, +0.035] | -0.026 | -0.034 | 1 of 5 | -0.052 / -0.049 | 0.021 |
+| E1a: bge-reranker-base on hybrid, top 30, replace | hybrid | DROPPED | -0.003 [-0.060, +0.053] | -0.000 | -0.017 | 3 of 5 | -0.022 / -0.019 | 0.019 |
+| E1a: bge-reranker-base on hybrid, top 30, replace | hybrid+stem+prefix | DROPPED | -0.029 [-0.092, +0.035] | -0.026 | -0.034 | 1 of 5 | -0.052 / -0.049 | 0.019 |
 | E1b: bge-reranker-base on hybrid, top 30, blend | hybrid | CANDIDATE | +0.028 [-0.008, +0.065] | +0.028 | +0.024 | 4 of 5 | +0.013 / +0.013 | 0.002 |
 | E1b: bge-reranker-base on hybrid, top 30, blend | hybrid+stem+prefix | DROPPED | +0.002 [-0.045, +0.050] | +0.003 | +0.007 | 2 of 5 | -0.019 / -0.018 | 0.002 |
-| E1c: bge-reranker-base on hybrid, top 50, replace | hybrid | PENDING_GRADING | -0.037 [-0.098, +0.024] | -0.010 | -0.054 | 2 of 5 | -0.056 / -0.029 | 0.111 |
-| E1c: bge-reranker-base on hybrid, top 50, replace | hybrid+stem+prefix | PENDING_GRADING | -0.062 [-0.126, +0.002] | -0.036 | -0.072 | 1 of 5 | -0.086 / -0.059 | 0.111 |
-| E1d: bge-reranker-base on hybrid, top 50, blend | hybrid | CANDIDATE | +0.030 [-0.010, +0.070] | +0.032 | +0.035 | 4 of 5 | +0.015 / +0.017 | 0.012 |
-| E1d: bge-reranker-base on hybrid, top 50, blend | hybrid+stem+prefix | DROPPED | +0.004 [-0.044, +0.053] | +0.006 | +0.018 | 3 of 5 | -0.017 / -0.015 | 0.012 |
+| E1c: bge-reranker-base on hybrid, top 50, replace | hybrid | PENDING_GRADING | -0.028 [-0.090, +0.036] | -0.002 | -0.049 | 2 of 5 | -0.047 / -0.021 | 0.105 |
+| E1c: bge-reranker-base on hybrid, top 50, replace | hybrid+stem+prefix | PENDING_GRADING | -0.053 [-0.120, +0.014] | -0.028 | -0.066 | 2 of 5 | -0.078 / -0.052 | 0.105 |
+| E1d: bge-reranker-base on hybrid, top 50, blend | hybrid | CANDIDATE | +0.034 [-0.006, +0.075] | +0.036 | +0.041 | 4 of 5 | +0.019 / +0.021 | 0.009 |
+| E1d: bge-reranker-base on hybrid, top 50, blend | hybrid+stem+prefix | DROPPED | +0.008 [-0.041, +0.059] | +0.010 | +0.023 | 3 of 5 | -0.012 / -0.010 | 0.009 |
 | E1e: bge-reranker-base on hybrid+stem+prefix, top 30, replace | hybrid | DROPPED | -0.007 [-0.064, +0.049] | -0.003 | +0.006 | 2 of 5 | -0.026 / -0.021 | 0.026 |
 | E1e: bge-reranker-base on hybrid+stem+prefix, top 30, replace | hybrid+stem+prefix | DROPPED | -0.033 [-0.093, +0.028] | -0.029 | -0.012 | 1 of 5 | -0.056 / -0.052 | 0.026 |
 | E1f: bge-reranker-base on hybrid+stem+prefix, top 30, blend | hybrid | CANDIDATE | +0.043 [+0.005, +0.082] | +0.043 | +0.039 | 4 of 5 | +0.029 / +0.029 | 0.002 |
 | E1f: bge-reranker-base on hybrid+stem+prefix, top 30, blend | hybrid+stem+prefix | DROPPED | +0.018 [-0.019, +0.058] | +0.018 | +0.022 | 3 of 5 | -0.002 / -0.001 | 0.002 |
-| E1g: bge-reranker-base on hybrid+stem+prefix, top 50, replace | hybrid | PENDING_GRADING | -0.043 [-0.103, +0.017] | -0.021 | -0.055 | 2 of 5 | -0.059 / -0.040 | 0.107 |
-| E1g: bge-reranker-base on hybrid+stem+prefix, top 50, replace | hybrid+stem+prefix | PENDING_GRADING | -0.068 [-0.132, -0.003] | -0.046 | -0.072 | 0 of 5 | -0.090 / -0.070 | 0.107 |
-| E1h: bge-reranker-base on hybrid+stem+prefix, top 50, blend | hybrid | CANDIDATE | +0.039 [-0.003, +0.079] | +0.039 | +0.033 | 4 of 5 | +0.026 / +0.026 | 0.011 |
-| E1h: bge-reranker-base on hybrid+stem+prefix, top 50, blend | hybrid+stem+prefix | DROPPED | +0.013 [-0.027, +0.055] | +0.014 | +0.016 | 3 of 5 | -0.004 / -0.004 | 0.011 |
+| E1g: bge-reranker-base on hybrid+stem+prefix, top 50, replace | hybrid | PENDING_GRADING | -0.039 [-0.100, +0.021] | -0.017 | -0.052 | 2 of 5 | -0.055 / -0.035 | 0.102 |
+| E1g: bge-reranker-base on hybrid+stem+prefix, top 50, replace | hybrid+stem+prefix | PENDING_GRADING | -0.065 [-0.129, +0.000] | -0.042 | -0.069 | 0 of 5 | -0.086 / -0.065 | 0.102 |
+| E1h: bge-reranker-base on hybrid+stem+prefix, top 50, blend | hybrid | CANDIDATE | +0.040 [-0.001, +0.081] | +0.041 | +0.036 | 4 of 5 | +0.028 / +0.028 | 0.007 |
+| E1h: bge-reranker-base on hybrid+stem+prefix, top 50, blend | hybrid+stem+prefix | DROPPED | +0.015 [-0.026, +0.057] | +0.015 | +0.019 | 3 of 5 | -0.003 / -0.002 | 0.007 |
 <!-- summary:end -->
 
 ## E0: hybrid+stem+prefix vs hybrid (carried over from Step 17)
@@ -66,14 +66,14 @@ Pooled base nDCG@10 0.604, variant 0.630.
 - Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.060, +0.053].
 - Folds won: 3 of 5.
 - Leave-top-2-out gain: -0.022 / -0.019; top gainers: q39 +0.559, q01 +0.466.
-- unjudged@10: variant 0.021, base 0.000.
+- unjudged@10: variant 0.019, base 0.000.
 
 | fold | n | base nDCG | variant nDCG | gain | base cond | variant cond | gain | won |
 |---|---|---|---|---|---|---|---|---|
 | 1 | 12 | 0.563 | 0.666 | +0.103 | 0.563 | 0.674 | +0.111 | yes |
 | 2 | 12 | 0.677 | 0.641 | -0.036 | 0.677 | 0.641 | -0.035 |  |
 | 3 | 11 | 0.519 | 0.532 | +0.013 | 0.519 | 0.536 | +0.017 | yes |
-| 4 | 11 | 0.653 | 0.661 | +0.008 | 0.653 | 0.662 | +0.009 | yes |
+| 4 | 11 | 0.653 | 0.661 | +0.008 | 0.653 | 0.661 | +0.008 | yes |
 | 5 | 11 | 0.607 | 0.498 | -0.109 | 0.607 | 0.498 | -0.109 |  |
 
 Pooled base nDCG@10 0.604, variant 0.601.
@@ -86,19 +86,19 @@ Pooled base nDCG@10 0.604, variant 0.601.
 - Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.092, +0.035].
 - Folds won: 1 of 5.
 - Leave-top-2-out gain: -0.052 / -0.049; top gainers: q55 +0.777, q39 +0.435.
-- unjudged@10: variant 0.021, base 0.000.
+- unjudged@10: variant 0.019, base 0.000.
 
 | fold | n | base nDCG | variant nDCG | gain | base cond | variant cond | gain | won |
 |---|---|---|---|---|---|---|---|---|
 | 1 | 12 | 0.607 | 0.666 | +0.059 | 0.607 | 0.674 | +0.067 | yes |
 | 2 | 12 | 0.650 | 0.641 | -0.009 | 0.650 | 0.641 | -0.009 |  |
 | 3 | 11 | 0.560 | 0.532 | -0.029 | 0.560 | 0.536 | -0.024 |  |
-| 4 | 11 | 0.744 | 0.661 | -0.083 | 0.744 | 0.662 | -0.082 |  |
+| 4 | 11 | 0.744 | 0.661 | -0.083 | 0.744 | 0.661 | -0.083 |  |
 | 5 | 11 | 0.588 | 0.498 | -0.090 | 0.588 | 0.498 | -0.090 |  |
 
 Pooled base nDCG@10 0.630, variant 0.601.
 
-Wall time of the scoring pass (shared by E1a to E1h): 71.7 min for 3415 new pairs, 0.80 pairs/s, batch 8, 6 torch threads, on a machine shared with other jobs.
+Cross-encoder scores were reused from the on-disk cache. Original scoring pass (shared by E1a to E1h): 71.7 min for 3415 pairs at 0.80 pairs/s, batch 8, 6 torch threads, machine shared with other jobs, qrels of that time 2801 pairs.
 
 ## E1b: bge-reranker-base on hybrid, top 30, blend
 
@@ -147,7 +147,7 @@ Pooled base nDCG@10 0.604, variant 0.632.
 
 Pooled base nDCG@10 0.630, variant 0.632.
 
-Wall time of the scoring pass (shared by E1a to E1h): 71.7 min for 3415 new pairs, 0.80 pairs/s, batch 8, 6 torch threads, on a machine shared with other jobs.
+Cross-encoder scores were reused from the on-disk cache. Original scoring pass (shared by E1a to E1h): 71.7 min for 3415 pairs at 0.80 pairs/s, batch 8, 6 torch threads, machine shared with other jobs, qrels of that time 2801 pairs.
 
 ## E1c: bge-reranker-base on hybrid, top 50, replace
 
@@ -158,45 +158,45 @@ Wall time of the scoring pass (shared by E1a to E1h): 71.7 min for 3415 new pair
 
 ### vs hybrid
 
-**PENDING_GRADING.** unjudged@10 is 0.111, above 0.05; grade the pairs in results/step18_unjudged.csv, then re-judge.
+**PENDING_GRADING.** unjudged@10 is 0.105, above 0.05; grade the pairs in results/step18_unjudged.csv, then re-judge.
 
-- Pooled over 57 queries: nDCG@10 unjudged=0 -0.037, condensed -0.010, Recall@20 -0.054.
-- Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.098, +0.024].
+- Pooled over 57 queries: nDCG@10 unjudged=0 -0.028, condensed -0.002, Recall@20 -0.049.
+- Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.090, +0.036].
 - Folds won: 2 of 5.
-- Leave-top-2-out gain: -0.056 / -0.029; top gainers: q39 +0.529, q01 +0.461.
-- unjudged@10: variant 0.111, base 0.000.
+- Leave-top-2-out gain: -0.047 / -0.021; top gainers: q39 +0.529, q24 +0.494.
+- unjudged@10: variant 0.105, base 0.000.
 
 | fold | n | base nDCG | variant nDCG | gain | base cond | variant cond | gain | won |
 |---|---|---|---|---|---|---|---|---|
 | 1 | 12 | 0.563 | 0.607 | +0.044 | 0.563 | 0.633 | +0.070 | yes |
 | 2 | 12 | 0.677 | 0.603 | -0.074 | 0.677 | 0.641 | -0.036 |  |
-| 3 | 11 | 0.519 | 0.520 | +0.001 | 0.519 | 0.553 | +0.034 | yes |
-| 4 | 11 | 0.653 | 0.635 | -0.018 | 0.653 | 0.656 | +0.003 |  |
+| 3 | 11 | 0.519 | 0.565 | +0.046 | 0.519 | 0.598 | +0.079 | yes |
+| 4 | 11 | 0.653 | 0.635 | -0.018 | 0.653 | 0.651 | -0.002 |  |
 | 5 | 11 | 0.607 | 0.466 | -0.141 | 0.607 | 0.480 | -0.127 |  |
 
-Pooled base nDCG@10 0.604, variant 0.568.
+Pooled base nDCG@10 0.604, variant 0.576.
 
 ### vs hybrid+stem+prefix
 
-**PENDING_GRADING.** unjudged@10 is 0.111, above 0.05; grade the pairs in results/step18_unjudged.csv, then re-judge.
+**PENDING_GRADING.** unjudged@10 is 0.105, above 0.05; grade the pairs in results/step18_unjudged.csv, then re-judge.
 
-- Pooled over 57 queries: nDCG@10 unjudged=0 -0.062, condensed -0.036, Recall@20 -0.072.
-- Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.126, +0.002].
-- Folds won: 1 of 5.
-- Leave-top-2-out gain: -0.086 / -0.059; top gainers: q55 +0.777, q39 +0.406.
-- unjudged@10: variant 0.111, base 0.000.
+- Pooled over 57 queries: nDCG@10 unjudged=0 -0.053, condensed -0.028, Recall@20 -0.066.
+- Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.120, +0.014].
+- Folds won: 2 of 5.
+- Leave-top-2-out gain: -0.078 / -0.052; top gainers: q55 +0.777, q24 +0.494.
+- unjudged@10: variant 0.105, base 0.000.
 
 | fold | n | base nDCG | variant nDCG | gain | base cond | variant cond | gain | won |
 |---|---|---|---|---|---|---|---|---|
 | 1 | 12 | 0.607 | 0.607 | +0.000 | 0.607 | 0.633 | +0.026 | yes |
 | 2 | 12 | 0.650 | 0.603 | -0.047 | 0.650 | 0.641 | -0.009 |  |
-| 3 | 11 | 0.560 | 0.520 | -0.040 | 0.560 | 0.553 | -0.007 |  |
-| 4 | 11 | 0.744 | 0.635 | -0.109 | 0.744 | 0.656 | -0.088 |  |
+| 3 | 11 | 0.560 | 0.565 | +0.005 | 0.560 | 0.598 | +0.038 | yes |
+| 4 | 11 | 0.744 | 0.635 | -0.109 | 0.744 | 0.651 | -0.093 |  |
 | 5 | 11 | 0.588 | 0.466 | -0.122 | 0.588 | 0.480 | -0.108 |  |
 
-Pooled base nDCG@10 0.630, variant 0.568.
+Pooled base nDCG@10 0.630, variant 0.576.
 
-Wall time of the scoring pass (shared by E1a to E1h): 71.7 min for 3415 new pairs, 0.80 pairs/s, batch 8, 6 torch threads, on a machine shared with other jobs.
+Cross-encoder scores were reused from the on-disk cache. Original scoring pass (shared by E1a to E1h): 71.7 min for 3415 pairs at 0.80 pairs/s, batch 8, 6 torch threads, machine shared with other jobs, qrels of that time 2801 pairs.
 
 ## E1d: bge-reranker-base on hybrid, top 50, blend
 
@@ -207,45 +207,45 @@ Wall time of the scoring pass (shared by E1a to E1h): 71.7 min for 3415 new pair
 
 ### vs hybrid
 
-**CANDIDATE.** gain +0.030 / +0.032, wins 4 of 5 folds, survives leave-top-2-out; a candidate only, since passing CV is not evidence of a real gain (E0 passed CV and failed held-out in Step 17).
+**CANDIDATE.** gain +0.034 / +0.036, wins 4 of 5 folds, survives leave-top-2-out; a candidate only, since passing CV is not evidence of a real gain (E0 passed CV and failed held-out in Step 17).
 
-- Pooled over 57 queries: nDCG@10 unjudged=0 +0.030, condensed +0.032, Recall@20 +0.035.
-- Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.010, +0.070].
+- Pooled over 57 queries: nDCG@10 unjudged=0 +0.034, condensed +0.036, Recall@20 +0.041.
+- Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.006, +0.075].
 - Folds won: 4 of 5.
-- Leave-top-2-out gain: +0.015 / +0.017; top gainers: q39 +0.503, q01 +0.381.
-- unjudged@10: variant 0.012, base 0.000.
+- Leave-top-2-out gain: +0.019 / +0.021; top gainers: q39 +0.503, q01 +0.381.
+- unjudged@10: variant 0.009, base 0.000.
 
 | fold | n | base nDCG | variant nDCG | gain | base cond | variant cond | gain | won |
 |---|---|---|---|---|---|---|---|---|
 | 1 | 12 | 0.563 | 0.651 | +0.089 | 0.563 | 0.659 | +0.097 | yes |
 | 2 | 12 | 0.677 | 0.694 | +0.017 | 0.677 | 0.694 | +0.017 | yes |
-| 3 | 11 | 0.519 | 0.581 | +0.062 | 0.519 | 0.581 | +0.062 | yes |
+| 3 | 11 | 0.519 | 0.603 | +0.084 | 0.519 | 0.603 | +0.084 | yes |
 | 4 | 11 | 0.653 | 0.679 | +0.026 | 0.653 | 0.681 | +0.028 | yes |
 | 5 | 11 | 0.607 | 0.557 | -0.050 | 0.607 | 0.557 | -0.050 |  |
 
-Pooled base nDCG@10 0.604, variant 0.634.
+Pooled base nDCG@10 0.604, variant 0.638.
 
 ### vs hybrid+stem+prefix
 
-**DROPPED.** gain +0.004 (unjudged=0) / +0.006 (condensed) is not above 0.01.
+**DROPPED.** gain +0.008 (unjudged=0) / +0.010 (condensed) is not above 0.01.
 
-- Pooled over 57 queries: nDCG@10 unjudged=0 +0.004, condensed +0.006, Recall@20 +0.018.
-- Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.044, +0.053].
+- Pooled over 57 queries: nDCG@10 unjudged=0 +0.008, condensed +0.010, Recall@20 +0.023.
+- Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.041, +0.059].
 - Folds won: 3 of 5.
-- Leave-top-2-out gain: -0.017 / -0.015; top gainers: q55 +0.777, q39 +0.380.
-- unjudged@10: variant 0.012, base 0.000.
+- Leave-top-2-out gain: -0.012 / -0.010; top gainers: q55 +0.777, q39 +0.380.
+- unjudged@10: variant 0.009, base 0.000.
 
 | fold | n | base nDCG | variant nDCG | gain | base cond | variant cond | gain | won |
 |---|---|---|---|---|---|---|---|---|
 | 1 | 12 | 0.607 | 0.651 | +0.045 | 0.607 | 0.659 | +0.053 | yes |
 | 2 | 12 | 0.650 | 0.694 | +0.044 | 0.650 | 0.694 | +0.044 | yes |
-| 3 | 11 | 0.560 | 0.581 | +0.021 | 0.560 | 0.581 | +0.021 | yes |
+| 3 | 11 | 0.560 | 0.603 | +0.043 | 0.560 | 0.603 | +0.043 | yes |
 | 4 | 11 | 0.744 | 0.679 | -0.065 | 0.744 | 0.681 | -0.063 |  |
 | 5 | 11 | 0.588 | 0.557 | -0.031 | 0.588 | 0.557 | -0.031 |  |
 
-Pooled base nDCG@10 0.630, variant 0.634.
+Pooled base nDCG@10 0.630, variant 0.638.
 
-Wall time of the scoring pass (shared by E1a to E1h): 71.7 min for 3415 new pairs, 0.80 pairs/s, batch 8, 6 torch threads, on a machine shared with other jobs.
+Cross-encoder scores were reused from the on-disk cache. Original scoring pass (shared by E1a to E1h): 71.7 min for 3415 pairs at 0.80 pairs/s, batch 8, 6 torch threads, machine shared with other jobs, qrels of that time 2801 pairs.
 
 ## E1e: bge-reranker-base on hybrid+stem+prefix, top 30, replace
 
@@ -294,7 +294,7 @@ Pooled base nDCG@10 0.604, variant 0.597.
 
 Pooled base nDCG@10 0.630, variant 0.597.
 
-Wall time of the scoring pass (shared by E1a to E1h): 71.7 min for 3415 new pairs, 0.80 pairs/s, batch 8, 6 torch threads, on a machine shared with other jobs.
+Cross-encoder scores were reused from the on-disk cache. Original scoring pass (shared by E1a to E1h): 71.7 min for 3415 pairs at 0.80 pairs/s, batch 8, 6 torch threads, machine shared with other jobs, qrels of that time 2801 pairs.
 
 ## E1f: bge-reranker-base on hybrid+stem+prefix, top 30, blend
 
@@ -343,7 +343,7 @@ Pooled base nDCG@10 0.604, variant 0.647.
 
 Pooled base nDCG@10 0.630, variant 0.647.
 
-Wall time of the scoring pass (shared by E1a to E1h): 71.7 min for 3415 new pairs, 0.80 pairs/s, batch 8, 6 torch threads, on a machine shared with other jobs.
+Cross-encoder scores were reused from the on-disk cache. Original scoring pass (shared by E1a to E1h): 71.7 min for 3415 pairs at 0.80 pairs/s, batch 8, 6 torch threads, machine shared with other jobs, qrels of that time 2801 pairs.
 
 ## E1g: bge-reranker-base on hybrid+stem+prefix, top 50, replace
 
@@ -354,45 +354,45 @@ Wall time of the scoring pass (shared by E1a to E1h): 71.7 min for 3415 new pair
 
 ### vs hybrid
 
-**PENDING_GRADING.** unjudged@10 is 0.107, above 0.05; grade the pairs in results/step18_unjudged.csv, then re-judge.
+**PENDING_GRADING.** unjudged@10 is 0.102, above 0.05; grade the pairs in results/step18_unjudged.csv, then re-judge.
 
-- Pooled over 57 queries: nDCG@10 unjudged=0 -0.043, condensed -0.021, Recall@20 -0.055.
-- Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.103, +0.017].
+- Pooled over 57 queries: nDCG@10 unjudged=0 -0.039, condensed -0.017, Recall@20 -0.052.
+- Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.100, +0.021].
 - Folds won: 2 of 5.
-- Leave-top-2-out gain: -0.059 / -0.040; top gainers: q01 +0.458, q61 +0.335.
-- unjudged@10: variant 0.107, base 0.000.
+- Leave-top-2-out gain: -0.055 / -0.035; top gainers: q01 +0.458, q61 +0.335.
+- unjudged@10: variant 0.102, base 0.000.
 
 | fold | n | base nDCG | variant nDCG | gain | base cond | variant cond | gain | won |
 |---|---|---|---|---|---|---|---|---|
 | 1 | 12 | 0.563 | 0.582 | +0.020 | 0.563 | 0.619 | +0.056 | yes |
 | 2 | 12 | 0.677 | 0.625 | -0.052 | 0.677 | 0.640 | -0.036 |  |
-| 3 | 11 | 0.519 | 0.531 | +0.012 | 0.519 | 0.551 | +0.032 | yes |
-| 4 | 11 | 0.653 | 0.587 | -0.067 | 0.653 | 0.610 | -0.044 |  |
+| 3 | 11 | 0.519 | 0.548 | +0.029 | 0.519 | 0.579 | +0.060 | yes |
+| 4 | 11 | 0.653 | 0.587 | -0.067 | 0.653 | 0.605 | -0.048 |  |
 | 5 | 11 | 0.607 | 0.476 | -0.131 | 0.607 | 0.489 | -0.118 |  |
 
-Pooled base nDCG@10 0.604, variant 0.562.
+Pooled base nDCG@10 0.604, variant 0.565.
 
 ### vs hybrid+stem+prefix
 
-**PENDING_GRADING.** unjudged@10 is 0.107, above 0.05; grade the pairs in results/step18_unjudged.csv, then re-judge.
+**PENDING_GRADING.** unjudged@10 is 0.102, above 0.05; grade the pairs in results/step18_unjudged.csv, then re-judge.
 
-- Pooled over 57 queries: nDCG@10 unjudged=0 -0.068, condensed -0.046, Recall@20 -0.072.
-- Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.132, -0.003].
+- Pooled over 57 queries: nDCG@10 unjudged=0 -0.065, condensed -0.042, Recall@20 -0.069.
+- Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.129, +0.000].
 - Folds won: 0 of 5.
-- Leave-top-2-out gain: -0.090 / -0.070; top gainers: q55 +0.777, q61 +0.283.
-- unjudged@10: variant 0.107, base 0.000.
+- Leave-top-2-out gain: -0.086 / -0.065; top gainers: q55 +0.777, q61 +0.283.
+- unjudged@10: variant 0.102, base 0.000.
 
 | fold | n | base nDCG | variant nDCG | gain | base cond | variant cond | gain | won |
 |---|---|---|---|---|---|---|---|---|
 | 1 | 12 | 0.607 | 0.582 | -0.024 | 0.607 | 0.619 | +0.012 |  |
 | 2 | 12 | 0.650 | 0.625 | -0.025 | 0.650 | 0.640 | -0.010 |  |
-| 3 | 11 | 0.560 | 0.531 | -0.030 | 0.560 | 0.551 | -0.009 |  |
-| 4 | 11 | 0.744 | 0.587 | -0.158 | 0.744 | 0.610 | -0.135 |  |
+| 3 | 11 | 0.560 | 0.548 | -0.012 | 0.560 | 0.579 | +0.018 |  |
+| 4 | 11 | 0.744 | 0.587 | -0.158 | 0.744 | 0.605 | -0.139 |  |
 | 5 | 11 | 0.588 | 0.476 | -0.112 | 0.588 | 0.489 | -0.100 |  |
 
-Pooled base nDCG@10 0.630, variant 0.562.
+Pooled base nDCG@10 0.630, variant 0.565.
 
-Wall time of the scoring pass (shared by E1a to E1h): 71.7 min for 3415 new pairs, 0.80 pairs/s, batch 8, 6 torch threads, on a machine shared with other jobs.
+Cross-encoder scores were reused from the on-disk cache. Original scoring pass (shared by E1a to E1h): 71.7 min for 3415 pairs at 0.80 pairs/s, batch 8, 6 torch threads, machine shared with other jobs, qrels of that time 2801 pairs.
 
 ## E1h: bge-reranker-base on hybrid+stem+prefix, top 50, blend
 
@@ -403,42 +403,42 @@ Wall time of the scoring pass (shared by E1a to E1h): 71.7 min for 3415 new pair
 
 ### vs hybrid
 
-**CANDIDATE.** gain +0.039 / +0.039, wins 4 of 5 folds, survives leave-top-2-out; a candidate only, since passing CV is not evidence of a real gain (E0 passed CV and failed held-out in Step 17).
+**CANDIDATE.** gain +0.040 / +0.041, wins 4 of 5 folds, survives leave-top-2-out; a candidate only, since passing CV is not evidence of a real gain (E0 passed CV and failed held-out in Step 17).
 
-- Pooled over 57 queries: nDCG@10 unjudged=0 +0.039, condensed +0.039, Recall@20 +0.033.
-- Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.003, +0.079].
+- Pooled over 57 queries: nDCG@10 unjudged=0 +0.040, condensed +0.041, Recall@20 +0.036.
+- Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.001, +0.081].
 - Folds won: 4 of 5.
-- Leave-top-2-out gain: +0.026 / +0.026; top gainers: q39 +0.390, q01 +0.381.
-- unjudged@10: variant 0.011, base 0.000.
+- Leave-top-2-out gain: +0.028 / +0.028; top gainers: q39 +0.390, q01 +0.381.
+- unjudged@10: variant 0.007, base 0.000.
 
 | fold | n | base nDCG | variant nDCG | gain | base cond | variant cond | gain | won |
 |---|---|---|---|---|---|---|---|---|
 | 1 | 12 | 0.563 | 0.663 | +0.101 | 0.563 | 0.664 | +0.101 | yes |
 | 2 | 12 | 0.677 | 0.699 | +0.022 | 0.677 | 0.699 | +0.022 | yes |
-| 3 | 11 | 0.519 | 0.595 | +0.076 | 0.519 | 0.595 | +0.076 | yes |
+| 3 | 11 | 0.519 | 0.603 | +0.084 | 0.519 | 0.604 | +0.085 | yes |
 | 4 | 11 | 0.653 | 0.713 | +0.060 | 0.653 | 0.716 | +0.062 | yes |
 | 5 | 11 | 0.607 | 0.536 | -0.070 | 0.607 | 0.536 | -0.070 |  |
 
-Pooled base nDCG@10 0.604, variant 0.643.
+Pooled base nDCG@10 0.604, variant 0.644.
 
 ### vs hybrid+stem+prefix
 
-**DROPPED.** driven by 1 to 2 queries (q55 +0.708, q39 +0.267); without them the gain is -0.004 / -0.004.
+**DROPPED.** driven by 1 to 2 queries (q55 +0.708, q39 +0.267); without them the gain is -0.003 / -0.002.
 
-- Pooled over 57 queries: nDCG@10 unjudged=0 +0.013, condensed +0.014, Recall@20 +0.016.
-- Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.027, +0.055].
+- Pooled over 57 queries: nDCG@10 unjudged=0 +0.015, condensed +0.015, Recall@20 +0.019.
+- Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.026, +0.057].
 - Folds won: 3 of 5.
-- Leave-top-2-out gain: -0.004 / -0.004; top gainers: q55 +0.708, q39 +0.267.
-- unjudged@10: variant 0.011, base 0.000.
+- Leave-top-2-out gain: -0.003 / -0.002; top gainers: q55 +0.708, q39 +0.267.
+- unjudged@10: variant 0.007, base 0.000.
 
 | fold | n | base nDCG | variant nDCG | gain | base cond | variant cond | gain | won |
 |---|---|---|---|---|---|---|---|---|
 | 1 | 12 | 0.607 | 0.663 | +0.057 | 0.607 | 0.664 | +0.057 | yes |
 | 2 | 12 | 0.650 | 0.699 | +0.049 | 0.650 | 0.699 | +0.049 | yes |
-| 3 | 11 | 0.560 | 0.595 | +0.035 | 0.560 | 0.595 | +0.035 | yes |
+| 3 | 11 | 0.560 | 0.603 | +0.043 | 0.560 | 0.604 | +0.044 | yes |
 | 4 | 11 | 0.744 | 0.713 | -0.031 | 0.744 | 0.716 | -0.029 |  |
 | 5 | 11 | 0.588 | 0.536 | -0.052 | 0.588 | 0.536 | -0.052 |  |
 
-Pooled base nDCG@10 0.630, variant 0.643.
+Pooled base nDCG@10 0.630, variant 0.644.
 
-Wall time of the scoring pass (shared by E1a to E1h): 71.7 min for 3415 new pairs, 0.80 pairs/s, batch 8, 6 torch threads, on a machine shared with other jobs.
+Cross-encoder scores were reused from the on-disk cache. Original scoring pass (shared by E1a to E1h): 71.7 min for 3415 pairs at 0.80 pairs/s, batch 8, 6 torch threads, machine shared with other jobs, qrels of that time 2801 pairs.

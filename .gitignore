@@ -18,3 +18,4 @@ results/*
 !results/step17_*
 !results/step18_*
 data/processed/ce_cache_*
+data/processed/_*

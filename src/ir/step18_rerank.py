@@ -77,6 +77,8 @@ def main() -> None:
     ap.add_argument("--batch", type=int, default=8)
     ap.add_argument("--max-length", type=int, default=512)
     ap.add_argument("--cache", default=None)
+    ap.add_argument("--scoring-note", default=None,
+                    help="timing text to print when every score comes from the cache")
     ap.add_argument("--queries", default="data/eval/queries_t1.tsv")
     ap.add_argument("--qrels", default="data/eval/qrels_t1_llm.tsv")
     a = ap.parse_args()
@@ -148,9 +150,13 @@ def main() -> None:
                         + (f" (alpha {ALPHA}: 0.5 x min-max cross-encoder score + 0.5 x min-max first-stage "
                            "score)" if mode == "blend" else " (sorted by cross-encoder score alone)")
                         + f". Hits beyond depth {depth} keep their first-stage order.")
-                notes = (f"Wall time of the scoring pass (shared by E1a to E1h): {wall:.1f} min for {pairs_scored} "
-                         f"new pairs, {rate:.2f} pairs/s, batch {a.batch}, {a.threads} torch threads, on a machine "
-                         "shared with other jobs.")
+                if pairs_scored == 0 and a.scoring_note:
+                    notes = (f"Cross-encoder scores were reused from the on-disk cache. Original scoring pass "
+                             f"(shared by E1a to E1h): {a.scoring_note}.")
+                else:
+                    notes = (f"Wall time of the scoring pass (shared by E1a to E1h): {wall:.1f} min for "
+                             f"{pairs_scored} new pairs, {rate:.2f} pairs/s, batch {a.batch}, {a.threads} torch "
+                             "threads, on a machine shared with other jobs.")
                 res = log_experiment(exp_id, f"{a.tag} on {stage}, top {depth}, {mode}", what,
                                      {"model": a.model, "first_stage": stage, "depth": depth, "mode": mode,
                                       "alpha": ALPHA if mode == "blend" else "-", "max_length": a.max_length},
