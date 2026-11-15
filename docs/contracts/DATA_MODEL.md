@@ -304,6 +304,8 @@ Only the change's **latest artwork version** counts. Reviews and checks of older
 
 "Latest" means highest `decided_at`. The API returns `latest_review_id` so the UI can show why a change is back at `draft`.
 
+"Currently approved" must be read from the change status (`status` is `reviewed`), never from a version's own status, because a newer version voids an earlier approval and the old version still shows as approved in its own record.
+
 Three rules follow from this table:
 
 1. **A new artwork version after approval voids the approval.** Generating again after an `approve` creates a new version with a new `artifact_sha256`. That version has no Review, so the old approval no longer counts and the change goes back to needing review: status `draft` until the new version's self-check passes, then `checked`. The UI shows it as "Needs review". The old approved version stays readable but cannot be published through this change.

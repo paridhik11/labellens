@@ -54,5 +54,6 @@
     }
   ],
   "checklist_complete": false,
+  "parser": "mock",
   "needs_human_review": "NEEDS_HUMAN_REVIEW: no retrieved passage names the symbol for gamma irradiation. The corpus has no symbol standard, so a reviewer must choose the symbol."
 }

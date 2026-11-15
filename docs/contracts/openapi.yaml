@@ -103,6 +103,8 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/ProductDetail"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "403": {$ref: "#/components/responses/Forbidden"}
         "422": {$ref: "#/components/responses/Invalid"}
 
   /products/{product_id}:
@@ -161,8 +163,16 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/LabelTemplate"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "403": {$ref: "#/components/responses/Forbidden"}
+        "404": {$ref: "#/components/responses/NotFound"}
+        "409":
+          description: template_product_mismatch (the template_id belongs to another product)
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
         "422":
-          description: Template breaks TEMPLATE_SPEC validation rules (findings listed)
+          description: Template breaks TEMPLATE_SPEC validation rules (findings listed). A request with the wrong shape returns Error validation_error instead. The real server checks the shape only, not yet the layout rules.
           content:
             application/json:
               schema: {$ref: "#/components/schemas/CheckResult"}
@@ -202,6 +212,7 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/AuditEventList"}
+        "404": {$ref: "#/components/responses/NotFound"}
 
   # ---------------------------------------------------------------- upload, scan, extraction
   /scans:
@@ -376,10 +387,13 @@ paths:
             schema: {$ref: "#/components/schemas/ChangeCreate"}
       responses:
         "201":
-          description: Proposed structured change with affected items and evidence
+          description: Proposed structured change with affected items and evidence. While no parser exists, parser is not_implemented and affected is empty.
           content:
             application/json:
               schema: {$ref: "#/components/schemas/ChangeAssessment"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "403": {$ref: "#/components/responses/Forbidden"}
+        "404": {$ref: "#/components/responses/NotFound"}
         "422": {$ref: "#/components/responses/Invalid"}
 
   /changes/{change_id}:
@@ -844,6 +858,16 @@ components:
       content:
         application/json:
           schema: {$ref: "#/components/schemas/Error"}
+    Unauthorized:
+      description: X-User-Id header missing or user unknown (unknown_user)
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/Error"}
+    Forbidden:
+      description: The user's role may not do this (role_forbidden)
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/Error"}
 
   schemas:
     # ------------------------------------------------------------ shared primitives
@@ -898,7 +922,15 @@ components:
       required: [error, message]
       additionalProperties: false
       properties:
-        error: {type: string, description: Machine readable code, for example not_found or hash_mismatch}
+        error:
+          type: string
+          description: |
+            Machine readable code. Codes used: not_found, validation_error, unknown_user (401, header missing
+            or user unknown), role_forbidden (403), self_approval_forbidden (403), check_required (422, approve
+            without check_id), comment_required (422, return or reject without comment), parser_not_implemented
+            (422, plain-language change), artifact_hash_required (422), hash_mismatch (409), check_not_passed
+            (409), version_superseded (409), change_closed (409), template_product_mismatch (409), needs_input
+            (409), label_product_mismatch (409).
         message: {type: string}
         details: {type: object}
     User:
@@ -1358,10 +1390,17 @@ components:
         items: {type: array, items: {$ref: "#/components/schemas/AffectedLabel"}}
     ChangeAssessment:
       type: object
-      required: [change, affected, citations, checklist_complete]
+      required: [change, affected, citations, checklist_complete, parser]
       additionalProperties: false
       properties:
         change: {$ref: "#/components/schemas/ChangeRequest"}
+        parser:
+          type: string
+          enum: [not_implemented, mock]
+          description: |
+            not_implemented means nothing was parsed or checked: affected is empty because no impact analysis
+            ran, not because nothing is affected, and checklist_complete is false. mock marks a canned example
+            response. Other values are added when a parser exists.
         affected: {type: array, items: {$ref: "#/components/schemas/AffectedLabel"}}
         citations: {type: array, items: {$ref: "#/components/schemas/Citation"}}
         checklist_complete: {type: boolean, description: True when every affected item is confirmed or dismissed}

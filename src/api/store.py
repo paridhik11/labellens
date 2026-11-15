@@ -226,6 +226,7 @@ def create_change(
     raw_text: str | None = None,
     parse_state: str = "proposed",
     change_id: str | None = None,
+    edits: list[dict[str, str]] | None = None,
     at: str | None = None,
 ) -> ChangeRequest:
     """Record a change request. Status and `closed` are derived later from reviews, never set here."""
@@ -240,7 +241,7 @@ def create_change(
         new_value=new_value,
         raw_text=raw_text,
         parse_state=parse_state,
-        edits=[],
+        edits=edits or [],
         created_at=when,
         created_by=user_id,
     )
