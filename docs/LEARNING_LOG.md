@@ -643,3 +643,67 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 4. **Verified:** Fast suite 354 passed; slow hybrid tests 2 passed; every new status validated against openapi.yaml.
 5. **Check yourself:** `_start_check` in `routes.py`.
 6. **Assumptions:** An SVG artwork is read through the PNG beside it; scan and generate jobs remain mocks.
+
+## Symbols phase 0: baseline
+1. **What I did:** Built a harness that runs only the symbol detector on whole labels (same boundary finding and straightening as the extractor) and scores IoU >= 0.5 with Wilson intervals. Regenerated seeds 100 to 102 and re-ran the current blind detector.
+2. **Files:** `src/cv/symbol_eval.py`, `scripts/symbols/baseline.py`, `scripts/symbols/gen_baseline.sh`, `results/symbols_experiments.md`, `reports/symbols_phase0.md`.
+3. **How it works:** Like testing a smoke alarm by itself instead of the whole building: same room, no other equipment.
+4. **Verified:** very hard 93/102, independent drawings 0/204, absent symbols reported 0/306, all equal to `results/cv_final_eval.md`.
+5. **Check yourself:** `straighten()` in the harness mirrors `extract_label_modes`; scoring counts a symbol as found only at IoU >= 0.5.
+6. **Assumptions:** OCR and barcode steps are skipped because they do not affect symbols.
+
+## Symbols phase 1: style library
+1. **What I did:** Wrote 16 pictogram styles (train, dev, held-out), a whole-label generator, and fetched real Wikimedia artwork and DailyMed label images with URLs and licenses recorded.
+2. **Files:** `src/gen/symbol_styles.py`, `generate_styled.py`, `generate_real_artwork.py`, `scripts/symbols/fetch_real_*.py`, tests, `docs/SYMBOLS_V2.md`.
+3. **How it works:** Like holding back whole fonts instead of random letters when testing a reader: the test styles share no shape family with the training ones.
+4. **Verified:** `pytest src/gen/test_symbol_styles.py` 150 passed; old detector on dev styles 4/256.
+5. **Check yourself:** split rules in `test_splits_are_disjoint_and_complete`; the tight truth box in `glyph_quad`.
+6. **Assumptions:** One author drew all styles; only 2 real labels contain the pictograms.
+
+## Symbols phase 2: detector v2 without learning
+1. **What I did:** Candidate blobs anywhere on the label, scored by silhouette overlap with train-style references, or SIFT/ORB keypoints; exposed as `detect_symbols_v2` and `extract_label(symbol_detector="v2")`.
+2. **Files:** `src/cv/symbols_v2/*`, `src/cv/extract.py`, tests, `scripts/symbols/sweep.py`, `dev_table.py`.
+3. **How it works:** Fill in the holes of a drawing so a line drawing and a solid one have the same blob shape, then ask "how much do the blobs overlap".
+4. **Verified:** dev recall 241/256 (94.1%) with 1/480 false positives, against 4/256 for the old detector; keypoints 14 to 15%.
+5. **Check yourself:** `make_rule` thresholds; the margin over the best wrong class (distractors are in the bank).
+6. **Assumptions:** Settings tuned on dev only.
+
+## Symbols phase 3: learned classifier
+1. **What I did:** Trained a small CPU CNN on randomly drawn pictograms (seen shape families only) plus crops mined from train labels, to classify candidate blobs.
+2. **Files:** `src/cv/symbols_v2/cnn.py`, `train_data.py`, `src/gen/symbol_procedural.py`, `src/cv/test_symbols_cnn.py`, `requirements-cv.txt` (torch, CPU).
+3. **How it works:** Show the network thousands of jittered drawings through the same blur and noise the real pipeline sees, then ask it to name each blob.
+4. **Verified:** `pytest src/cv/test_symbols_cnn.py` 3 passed; dev recall 241/256 (94.1%), false positives 0/480.
+5. **Check yourself:** training excludes badge mode and the dev and held-out families (`symbol_procedural.py` docstring and test).
+6. **Assumptions:** Same recall as the silhouette bank on dev, so held-out decides.
+
+## Symbols phase 5: text-anchor rule
+1. **What I did:** Used OCR lines (EXP, the line above the address) as anchors and tested "boost" and "gate" rules with the silhouette and CNN scorers.
+2. **Files:** `src/cv/symbols_v2/anchors.py`, `detector.py` (`make_anchor_rule`), `scripts/symbols/anchor_eval.py`, anchored layout generator.
+3. **How it works:** A symbol is expected next to its text; accept weaker evidence if it is close to the text, or demand closeness.
+4. **Verified:** anchored dev: +0 to +1 symbols, boost 52/320 false positives with silhouette; random layout gate 4/256.
+5. **Check yourself:** relaxed thresholds (0.6, 0.2) were fixed before the run.
+6. **Assumptions:** Synthetic layout; verdict: not used in the detector.
+
+## Symbols phase 4: zero-shot CLIP
+1. **What I did:** Because the CNN missed 0.90 on held-out styles, ran CLIP ViT-B/32 zero-shot on candidate crops with text prompts; threshold 0.4 frozen on dev.
+2. **Files:** `src/cv/symbols_v2/clip_zero_shot.py`, `scripts/symbols/clip_eval.py`, `results/symbols_frozen_clip.json`.
+3. **How it works:** Ask a model that has seen images and captions "is this more like a factory, an hourglass or a warning sign?", with no training on our drawings.
+4. **Verified:** held-out 308/384 (80.2%), false positives 27/640 (4.2%); badge style 59/64 where the other detectors score 0.
+5. **Check yourself:** the frozen-threshold commit precedes the held-out run (see `results/heldout_log.jsonl`).
+6. **Assumptions:** Prompts are my wording and untuned.
+
+## Symbols phase 6: real labels
+1. **What I did:** Fetched real pictogram art (Wikimedia, licenses recorded) and DailyMed label images; tested real art on synthetic labels and 3 real symbols on real cartons (labelled by the assistant, not a human).
+2. **Files:** `scripts/symbols/fetch_real_*.py`, `build_real_labels_eval.py`, `src/gen/generate_real_artwork.py`.
+3. **How it works:** Real drawings stand in for artwork the author did not draw; real cartons show the gap to photographs.
+4. **Verified:** real artwork 206/336 (CLIP) down to 0/336 (v1); real cartons 0/3 for every detector (the symbols are 1 to 2% of the image).
+5. **Check yourself:** my box coordinates in `build_real_labels_eval.py`.
+6. **Assumptions:** `data/real/` does not exist here; 3 symbols is not a measurement.
+
+## Symbols phase 7: lot and expiry format check
+1. **What I did:** `check_extraction` now treats a printed lot or expiry that lost its LOT or EXP key, has impossible characters, or is not a valid calendar date as a damaged reading: `needs_human_review`, never `barcode_mismatch`.
+2. **Files:** `src/cv/consistency.py`, `src/cv/eval_v2.py` (records old and new flags), `tests/test_cv_text_rules.py`, `scripts/symbols/phase7_report.py`.
+3. **How it works:** Before calling two things different, check that the thing you read is a lot or a date at all; a smudged "2O27-13-45" is not evidence the print is wrong.
+4. **Verified:** new seeds 103 to 105: very hard false mismatches 7/44 to 1/44 (blind) and 8/45 to 1/45 (template); wrong barcodes still 102/102 `barcode_mismatch`; other cases 0/612.
+5. **Check yourself:** `format_problem` and the order of conditions in `check_extraction`.
+6. **Assumptions:** A confident misread that still looks valid cannot be caught by format.

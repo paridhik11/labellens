@@ -216,6 +216,7 @@ def extract_label_modes(
     blur_threshold: float = 100.0,
     postcorrect: bool = False,
     field_confidence: float = 0.5,
+    symbol_detector: str = "v1",
 ) -> dict[str, tuple[LabelExtraction, dict[str, Any]]]:
     """Run the extraction once and return one result per requested mode.
 
@@ -237,6 +238,8 @@ def extract_label_modes(
         raise ValueError("blur_threshold must be finite and nonnegative")
     if not modes or set(modes) - {"template", "blind"}:
         raise ValueError("modes must be chosen from template and blind")
+    if symbol_detector not in ("v1", "v2"):
+        raise ValueError("symbol_detector must be v1 or v2")
     path = Path(image_path)
     with Image.open(path) as photo:
         image = np.asarray(photo.convert("RGB"))
@@ -311,7 +314,11 @@ def extract_label_modes(
         if corrected is None:
             output.warnings.append("LABEL_NOT_FOUND: no suitable boundary; the whole photo was read instead")
         try:
-            if mode == "template":
+            if symbol_detector == "v2":
+                from src.cv.symbols_v2 import detect_symbols_v2
+
+                detected = detect_symbols_v2(corrected if corrected is not None else image)
+            elif mode == "template":
                 detected = detect_symbols(corrected)
             else:
                 detected = detect_symbols_blind(corrected if corrected is not None else image)
@@ -365,6 +372,7 @@ def extract_label(
     blur_threshold: float = 100.0,
     mode: Mode = "template",
     postcorrect: bool = False,
+    symbol_detector: str = "v1",
 ) -> LabelExtraction:
     """Extract one label photo into the unchanged shared schema.
 
@@ -379,10 +387,13 @@ def extract_label(
     ``postcorrect`` the field texts are normalised by format rules and
     0/O style doubts in lot and expiry are settled by the barcode; without it
     the fields are exactly what OCR read.
+
+    ``symbol_detector`` is "v1" (the default, behaviour unchanged: slot windows in template mode, whole-label
+    template matching in blind mode) or "v2" (``src.cv.symbols_v2``, whole-label search in either mode).
     """
     return extract_label_modes(
         image_path, modes=(mode,), min_confidence=min_confidence, blur_threshold=blur_threshold,
-        postcorrect=postcorrect,
+        postcorrect=postcorrect, symbol_detector=symbol_detector,
     )[mode][0]
 
 
@@ -394,11 +405,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--blur-threshold", type=float, default=100.0)
     parser.add_argument("--mode", choices=["template", "blind"], default="template")
     parser.add_argument("--postcorrect", action="store_true", help="Apply format rules to the field texts")
+    parser.add_argument("--symbol-detector", choices=["v1", "v2"], default="v1")
     args = parser.parse_args(argv)
     try:
         result = extract_label(
             args.image, min_confidence=args.min_confidence, blur_threshold=args.blur_threshold,
-            mode=args.mode, postcorrect=args.postcorrect,
+            mode=args.mode, postcorrect=args.postcorrect, symbol_detector=args.symbol_detector,
         )
     except (OSError, ValueError, np.linalg.LinAlgError) as error:
         parser.error(str(error))
