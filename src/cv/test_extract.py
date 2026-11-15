@@ -355,3 +355,23 @@ def test_cli_bad_input(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> No
         extract.main(["--image", str(tmp_path / "missing.png"), "--min-confidence", "2"])
     assert settings.value.code == 2
     assert "min_confidence" in capsys.readouterr().err
+
+
+def test_symbol_detector_option(pipeline_image: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """``symbol_detector`` selects v1 (default) or v2, rejects other values, and v2 runs in both modes."""
+    from src.cv import symbols_v2
+
+    calls: list[str] = []
+    monkeypatch.setattr(extract, "detect_symbols_blind", lambda image: calls.append("v1") or [])
+    monkeypatch.setattr(extract, "detect_symbols", lambda image: calls.append("v1_template") or [])
+    monkeypatch.setattr(symbols_v2, "detect_symbols_v2", lambda image: calls.append("v2") or [])
+    extract.extract_label(pipeline_image, mode="blind")
+    extract.extract_label(pipeline_image, mode="template")
+    assert calls == ["v1", "v1_template"]
+    calls.clear()
+    blind = extract.extract_label(pipeline_image, mode="blind", symbol_detector="v2")
+    template = extract.extract_label(pipeline_image, mode="template", symbol_detector="v2")
+    assert calls == ["v2", "v2"]
+    assert any(w.startswith("SYMBOL_NOT_DETECTED: expiry") for w in blind.warnings + template.warnings)
+    with pytest.raises(ValueError, match="symbol_detector"):
+        extract.extract_label(pipeline_image, symbol_detector="v3")

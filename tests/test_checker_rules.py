@@ -191,3 +191,17 @@ def test_findings_sorted_critical_first_and_config_echoed(env) -> None:
     rank = {"critical": 0, "review": 1}
     assert [f.severity for f in result.findings] == sorted((f.severity for f in result.findings), key=rank.get)
     assert result.retrieval_config["method"] == "hybrid_rrf"
+
+
+def test_untrusted_symbol_detector_needs_human_in_both_directions(env) -> None:
+    """While symbol_detector_trusted is False a detection is not a pass and a non-detection is not a fail."""
+    assert CheckerSettings().symbol_detector_trusted is False
+    result, _, _ = check(env, symbols=("manufacturer",))
+    assert outcome(result, "S-MFR") == "needs_human"  # detected: no flag, but not confirmed as a pass
+    assert "S-MFR" not in rules(result)
+    missing = rules(result)["S-EXP"]  # not detected: a needs_human flag, never a fail
+    assert missing.needs_human and missing.severity == "review" and missing.kind == "missing_symbol"
+    both_missing, _, _ = check(env, symbols=())
+    assert all(rules(both_missing)[rid].needs_human for rid in ("S-MFR", "S-EXP"))
+    both_found, _, _ = check(env)
+    assert {outcome(both_found, r) for r in ("S-MFR", "S-EXP")} == {"needs_human"}

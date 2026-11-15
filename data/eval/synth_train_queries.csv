@@ -1,0 +1,151 @@
+qid,query,type,module,source_chunk,source_section,part,copied_rare,copied_all_count,jaccard
+sq001,labeling needed when a practitioner hands the product directly to a patient,field_req,device,fda_21cfr801_s801.110,801.110,21cfr801,practitioner,2,0.043
+sq002,which labeling rules cover a diagnostic test kit,vocab_mismatch,device,fda_21cfr801_s801.119,801.119,21cfr801,diagnostic,2,0.057
+sq003,labeling relief for products sold only to teaching and laboratory users,field_req,device,fda_21cfr801_s801.125,801.125,21cfr801,sold,2,0.048
+sq004,which labeling provisions can the agency waive through an alternative request,field_req,device,fda_21cfr801_s801.128_c4,801.128,21cfr801,provisions,2,0.041
+sq005,how should calendar dates be written on a product label,vocab_mismatch,device,fda_21cfr801_s801.18,801.18,21cfr801,,2,0.027
+sq006,is a product code required on both the label and the outer box,direct,device,fda_21cfr801_s801.20,801.20,21cfr801,,1,0.023
+sq007,products made before the deadline that sit in stock and need no device code,field_req,device,fda_21cfr801_s801.30_c1,801.30,21cfr801,,1,0.011
+sq008,what is the FDA-run repository for identification data on medical devices,change_impact,device,fda_21cfr801_s801.3_c2,801.3,21cfr801,repository,4,0.042
+sq009,the two ways a device code has to be printed,vocab_mismatch,device,fda_21cfr801_s801.40,801.40,21cfr801,two,3,0.038
+sq010,grace period before enforcement of the labeling policy begins,vocab_mismatch,device,fda_21cfr801_s801.405_c5,801.405,21cfr801,policy,1,0.029
+sq011,how long testers must keep method records and let inspectors copy them,field_req,device,fda_21cfr801_s801.410_c7,801.410,21cfr801,copy method,4,0.044
+sq012,maximum ozone concentration allowed from air-cleaning equipment,field_req,device,fda_21cfr801_s801.415_c3,801.415,21cfr801,concentration ozone,2,0.024
+sq013,laboratory method for rating how much fluid a menstrual product holds,direct,device,fda_21cfr801_s801.430_c6,801.430,21cfr801,fluid,1,0.008
+sq014,mandatory notice for products made with chemicals that damage the planet's protective layer,direct,device,fda_21cfr801_s801.433_c2,801.433,21cfr801,,1,0.009
+sq015,when stability results let a maker print a longer shelf life,change_impact,device,fda_21cfr801_s801.435_c3,801.435,21cfr801,life shelf,2,0.026
+sq016,allergy warning for devices made with rubber from trees,field_req,device,fda_21cfr801_s801.437_c1,801.437,21cfr801,rubber,2,0.026
+sq017,etched code on reusable surgical tools that go through sterilization,change_impact,device,fda_21cfr801_s801.45_c1,801.45,21cfr801,,1,0.013
+sq018,how is a manufacturer's real purpose for a product judged,change_impact,device,fda_21cfr801_s801.4_c1,801.4,21cfr801,purpose,2,0.023
+sq019,how to request permission to continue using an old firm identifier,vocab_mismatch,device,fda_21cfr801_s801.57_c2,801.57,21cfr801,continue,3,0.042
+sq020,instructions that an ordinary person can follow safely,symbol,device,fda_21cfr801_s801.5_c1,801.5,21cfr801,safely,2,0.025
+sq021,how big is the front panel area for a round bottle,direct,device,fda_21cfr801_s801.60_c2,801.60,21cfr801,area panel,2,0.049
+sq022,front label must say what the product is and what it does,direct,device,fda_21cfr801_s801.61,801.61,21cfr801,,0,0.000
+sq023,which shorthand units are permitted for quantity declarations,symbol,device,fda_21cfr801_s801.62_c10,801.62,21cfr801,,1,0.012
+sq024,rules for marketing words that describe how much is inside a package,vocab_mismatch,device,fda_21cfr801_s801.62_c12,801.62,21cfr801,,1,0.015
+sq025,does the ozone warning rule override environmental agency requirements,field_req,device,fda_21cfr801_s801.63_c2,801.63,21cfr801,,2,0.062
+sq026,how fast must a hospital report a patient death linked to equipment,vocab_mismatch,device,fda_21cfr803_s803.10_c1,803.10,21cfr803,,1,0.017
+sq027,can the agency demand more details after a report is filed,field_req,device,fda_21cfr803_s803.15,803.15,21cfr803,,0,0.000
+sq028,is filing an adverse report an admission of fault,field_req,device,fda_21cfr803_s803.16,803.16,21cfr803,admission,2,0.071
+sq029,documented company routines for spotting and judging events that may need to be filed with the agency,vocab_mismatch,device,fda_21cfr803_s803.17,803.17,21cfr803,events,2,0.025
+sq030,how a company must keep records of every incident it reported,vocab_mismatch,device,fda_21cfr803_s803.18_c1,803.18,21cfr803,,2,0.022
+sq031,who is covered by the rules on reporting patient harm from equipment,vocab_mismatch,device,fda_21cfr803_s803.1_c1,803.1,21cfr803,reporting,1,0.012
+sq032,what submission form do hospitals use for required incident notices versus volunteer ones,field_req,device,fda_21cfr803_s803.20_c1,803.20,21cfr803,what,4,0.050
+sq033,where do I find the lookup list of codes for classifying device problems,direct,device,fda_21cfr803_s803.21,803.21,21cfr803,codes,2,0.043
+sq034,what counts as information a reporter is expected to already have,field_req,device,fda_21cfr803_s803.30_c2,803.30,21cfr803,what,2,0.038
+sq035,which clinical and laboratory details belong in an incident narrative,change_impact,device,fda_21cfr803_s803.32_c2,803.32,21cfr803,laboratory,1,0.010
+sq036,when does the reporting clock start for a hospital,direct,device,fda_21cfr803_s803.3_c2,803.3,21cfr803,reporting,2,0.022
+sq037,deadline for importers to notify the agency of a death or serious harm,field_req,device,fda_21cfr803_s803.40_c1,803.40,21cfr803,death,3,0.037
+sq038,what corrections can a manufacturer add to a report originally filed by a hospital,field_req,device,fda_21cfr803_s803.52_c5,803.52,21cfr803,,1,0.015
+sq039,new facts discovered after the first filing must be sent within a month,change_impact,device,fda_21cfr803_s803.56,803.56,21cfr803,,3,0.048
+sq040,overseas firm must name a local representative for reporting,change_impact,device,fda_21cfr803_s803.58,803.58,21cfr803,reporting,2,0.023
+sq041,limits on releasing information from adverse event reports to the public,vocab_mismatch,device,fda_21cfr803_s803.9_c2,803.9,21cfr803,,1,0.020
+sq042,what a firm must record about a recall that was too minor to report,vocab_mismatch,device,fda_21cfr806_s806.20_c1,806.20,21cfr806,record,1,0.011
+sq043,must companies let investigators view and copy their recall files,field_req,device,fda_21cfr806_s806.30,806.30,21cfr806,copy,1,0.024
+sq044,what shows a new product is as safe and effective as one already sold,direct,device,fda_21cfr807_s807.100_c2,807.100,21cfr807,,2,0.042
+sq045,which agency center and form handle registration of donated tissue products,field_req,device,fda_21cfr807_s807.20_c4,807.20,21cfr807,registration,4,0.059
+sq046,how soon after starting operations must a new site be registered,change_impact,device,fda_21cfr807_s807.22_c1,807.22,21cfr807,,3,0.039
+sq047,samples of promotion that the agency can ask a firm to hand over,vocab_mismatch,device,fda_21cfr807_s807.26_c3,807.26,21cfr807,,0,0.000
+sq048,paper submission route for firms excused from submitting online,change_impact,device,fda_21cfr807_s807.34_c1,807.34,21cfr807,,0,0.000
+sq049,how a firm learns its establishment number after signing up,vocab_mismatch,device,fda_21cfr807_s807.35_c1,807.35,21cfr807,,3,0.040
+sq050,can a company advertise that FDA approved its facility because it is registered,direct,device,fda_21cfr807_s807.39,807.39,21cfr807,,1,0.036
+sq051,which label edits such as layout or typo fixes are not significant,symbol,device,fda_21cfr807_s807.3_c5,807.3,21cfr807,,2,0.020
+sq052,offshore factories shipping devices to the US must list them electronically,change_impact,device,fda_21cfr807_s807.40_c1,807.40,21cfr807,list,2,0.024
+sq053,who must an overseas manufacturer name when it uses middlemen to ship into the country,vocab_mismatch,device,fda_21cfr807_s807.41_c2,807.41,21cfr807,,2,0.041
+sq054,which small sellers do not have to register as device establishments,vocab_mismatch,device,fda_21cfr807_s807.65_c2,807.65,21cfr807,establishments,3,0.027
+sq055,what kinds of design or manufacturing changes force a new submission,change_impact,device,fda_21cfr807_s807.81_c2,807.81,21cfr807,changes design,4,0.042
+sq056,descriptions of similar marketed items and how the new one works,vocab_mismatch,device,fda_21cfr807_s807.87_c2,807.87,21cfr807,similar,3,0.032
+sq057,what description of the product and how it works goes in the public summary of a clearance filing,direct,device,fda_21cfr807_s807.92_c2,807.92,21cfr807,how,3,0.033
+sq058,text that an executive signs to attest to reviewing documented safety issues for a type of product,vocab_mismatch,device,fda_21cfr807_s807.94,807.94,21cfr807,,2,0.029
+sq059,keeping a planned product launch secret from the public,field_req,device,fda_21cfr807_s807.95_c3,807.95,21cfr807,,0,0.000
+sq060,does clearance mean FDA endorses a product,direct,device,fda_21cfr807_s807.97,807.97,21cfr807,,1,0.020
+sq061,what must be printed on diagnostic products labeled only for studies,direct,device,fda_21cfr809_s809.10_c13,809.10,21cfr809,,1,0.009
+sq062,traceability number on a diagnostic kit box that shows its production history,field_req,device,fda_21cfr809_s809.10_c15,809.10,21cfr809,history,2,0.017
+sq063,how must the label tell users to keep the reagent so it stays stable,direct,device,fda_21cfr809_s809.10_c17,809.10,21cfr809,reagent users,2,0.018
+sq064,what disclaimer goes on a building-block reagent that is not a complete test,field_req,device,fda_21cfr809_s809.10_c18,809.10,21cfr809,reagent what,4,0.040
+sq065,advice that a home urine-testing kit must give ordinary users on how reliable it is and when to confirm,symbol,device,fda_21cfr809_s809.10_c19,809.10,21cfr809,how users,2,0.018
+sq066,which measurement systems may be used to state how much active material a kit contains,symbol,device,fda_21cfr809_s809.10_c2,809.10,21cfr809,,3,0.032
+sq067,when can a pictogram on a lab test kit be used without words next to it,symbol,device,fda_21cfr809_s809.10_c20,809.10,21cfr809,,1,0.013
+sq068,can a company choose its own icons if typical consumers will understand them,symbol,device,fda_21cfr809_s809.10_c21,809.10,21cfr809,,0,0.000
+sq069,what happens if a graphic on the label does not meet the rules,symbol,device,fda_21cfr809_s809.10_c22,809.10,21cfr809,,2,0.023
+sq070,where does the wording that explains a recognized icon come from,symbol,device,fda_21cfr809_s809.10_c23,809.10,21cfr809,recognized,1,0.034
+sq071,scientific explanation of how the test works and the active components it contains,symbol,device,fda_21cfr809_s809.10_c7,809.10,21cfr809,,0,0.000
+sq072,can a diagnostic product batch get relief from a labeling rule,vocab_mismatch,device,fda_21cfr809_s809.11_c1,809.11,21cfr809,diagnostic,3,0.040
+sq073,what qualifies as a diagnostic product under the regulation,field_req,device,fda_21cfr809_s809.3,809.3,21cfr809,diagnostic,2,0.027
+sq074,building-block reagent sold to researchers instead of clinical labs,direct,device,fda_21cfr809_s809.30_c3,809.30,21cfr809,reagent sold,2,0.045
+sq075,are performance data submitted for labeling treated as secret,vocab_mismatch,device,fda_21cfr809_s809.4,809.4,21cfr809,treated,3,0.094
+sq076,how can a sponsor ask to be excused from a requirement in the trial rules,direct,device,fda_21cfr812_s812.10,812.10,21cfr812,,2,0.044
+sq077,what the lead researcher at a site is accountable for in a device study,direct,device,fda_21cfr812_s812.100,812.100,21cfr812,,0,0.000
+sq078,can researchers enroll anyone before regulators sign off,change_impact,device,fda_21cfr812_s812.110_c1,812.110,21cfr812,,1,0.010
+sq079,can a disqualified researcher get a hearing to be reinstated,field_req,device,fda_21cfr812_s812.119_c4,812.119,21cfr812,hearing reinstated,2,0.021
+sq080,what a trial sponsor must note about each shipment of study devices,field_req,device,fda_21cfr812_s812.140_c3,812.140,21cfr812,shipment,4,0.043
+sq081,can the agency walk into a site where study products are stored,direct,device,fda_21cfr812_s812.145,812.145,21cfr812,,1,0.013
+sq082,when are final study results due after a device trial ends,direct,device,fda_21cfr812_s812.150_c5,812.150,21cfr812,final,3,0.043
+sq083,who acts as the sponsor for an experimental device brought in from abroad,field_req,device,fda_21cfr812_s812.18,812.18,21cfr812,acts,4,0.093
+sq084,how long until FDA answers an application to start a device study,direct,device,fda_21cfr812_s812.20_c2,812.20,21cfr812,,3,0.030
+sq085,what earlier testing history must accompany a trial application,vocab_mismatch,device,fda_21cfr812_s812.27_c1,812.27,21cfr812,,1,0.011
+sq086,standards that overseas study data must follow to be accepted,direct,device,fda_21cfr812_s812.28_c2,812.28,21cfr812,,0,0.000
+sq087,when does a noninvasive diagnostic test escape the trial application rules,change_impact,device,fda_21cfr812_s812.2_c3,812.2,21cfr812,diagnostic noninvasive,3,0.029
+sq088,possible outcomes when a study application is reviewed,change_impact,device,fda_21cfr812_s812.30_c1,812.30,21cfr812,,1,0.012
+sq089,what a company running a device trial must arrange before and during it,direct,device,fda_21cfr812_s812.40,812.40,21cfr812,,0,0.000
+sq090,what to do when a study site breaks the rules,direct,device,fda_21cfr812_s812.46_c1,812.46,21cfr812,,0,0.000
+sq091,what a company must do to follow emergency research done without patient consent,vocab_mismatch,device,fda_21cfr812_s812.47,812.47,21cfr812,consent,2,0.023
+sq092,what an ethics board does when it finds a study is high risk,vocab_mismatch,device,fda_21cfr812_s812.66,812.66,21cfr812,,1,0.028
+sq093,can a firm sell or advertise a product still under study for more than its cost,change_impact,device,fda_21cfr812_s812.7,812.7,21cfr812,,1,0.013
+sq094,which international quality standard must manufacturers follow,field_req,device,fda_21cfr820_s820.10_c1,820.10,21cfr820,manufacturers,3,0.037
+sq095,what details a firm keeps when a customer complains or equipment is repaired,direct,device,fda_21cfr820_s820.35_c2,820.35,21cfr820,details,1,0.011
+sq096,where do the quality system terms get their meaning,vocab_mismatch,device,fda_21cfr820_s820.3_c1,820.3,21cfr820,meaning,3,0.031
+sq097,how can a private body become an approved assigner of device codes,field_req,device,fda_21cfr830_s830.100,830.100,21cfr830,private,2,0.022
+sq098,how much notice must an agency give before it stops serving as a code issuer,direct,device,fda_21cfr830_s830.110_c6,830.110,21cfr830,notice,3,0.048
+sq099,ongoing duties of an organization that hands out product codes,field_req,device,fda_21cfr830_s830.120,830.120,21cfr830,,0,0.000
+sq100,which ISO specifications govern the structure of the product identifier,direct,device,fda_21cfr830_s830.20,830.20,21cfr830,identifier,2,0.045
+sq101,when does FDA itself assign device codes,direct,device,fda_21cfr830_s830.200,830.200,21cfr830,,1,0.017
+sq102,must a firm that puts the code on its label voluntarily also report details to the database,vocab_mismatch,device,fda_21cfr830_s830.300,830.300,21cfr830,voluntarily,4,0.045
+sq103,what data fields go into a registered device record such as size and clearance number,direct,device,fda_21cfr830_s830.310_c3,830.310,21cfr830,,3,0.057
+sq104,agency can ask a firm to fix wrong entries in the identification database,vocab_mismatch,device,fda_21cfr830_s830.350,830.350,21cfr830,database,2,0.033
+sq105,must a redesigned model or new packaging get a fresh base code,change_impact,device,fda_21cfr830_s830.50,830.50,21cfr830,model,3,0.115
+sq106,which prescription label items may be limited to the secondary packaging,field_req,medicine,fda_21cfr201_s201.100_c4,201.100,21cfr201,packaging,4,0.046
+sq107,what may appear on reminder advertising for a prescription medicine,symbol,medicine,fda_21cfr201_s201.100_c7,201.100,21cfr201,reminder,3,0.032
+sq108,does labeling for animal medicines have to match the approved version,change_impact,medicine,fda_21cfr201_s201.105_c5,201.105,21cfr201,,2,0.031
+sq109,can ingredient amounts be shown away from the front of the package,field_req,medicine,fda_21cfr201_s201.10_c8,201.10,21cfr201,,1,0.012
+sq110,when a new drug is excused from the adequate directions requirement,vocab_mismatch,medicine,fda_21cfr201_s201.115,201.115,21cfr201,,2,0.049
+sq111,a distributor that sells a product for another purpose needs its own instructions,change_impact,medicine,fda_21cfr201_s201.128_c2,201.128,21cfr201,,1,0.026
+sq112,labeling relief for bulk drug shipments sent to another plant for relabeling,field_req,medicine,fda_21cfr201_s201.150_c1,201.150,21cfr201,,2,0.025
+sq113,required caution for patients breathing oxygen-enriched air for extended periods,symbol,medicine,fda_21cfr201_s201.161_c1,201.161,21cfr201,breathing,3,0.032
+sq114,up to what age is a child treated as a baby in medicine labels,direct,medicine,fda_21cfr201_s201.19,201.19,21cfr201,child,2,0.033
+sq115,what address details are needed when the producer is located abroad,change_impact,medicine,fda_21cfr201_s201.1_c7,201.1,21cfr201,,1,0.011
+sq116,boxed text for medicines whose benefits were only rated possible,direct,medicine,fda_21cfr201_s201.200_c6,201.200,21cfr201,boxed,1,0.011
+sq117,where to send a request for relief from barcode rules for a drug,field_req,medicine,fda_21cfr201_s201.25_c4,201.25,21cfr201,,1,0.030
+sq118,labeling for products made from animal gland tissue,vocab_mismatch,medicine,fda_21cfr201_s201.300_c1,201.300,21cfr201,,1,0.009
+sq119,units used to state strength of female hormone preparations,vocab_mismatch,medicine,fda_21cfr201_s201.301_c1,201.301,21cfr201,hormone preparations,3,0.037
+sq120,why is a substance banned in contrast media given rectally,vocab_mismatch,medicine,fda_21cfr201_s201.304_c1,201.304,21cfr201,,0,0.000
+sq121,warning about overuse of an asthma inhaler worsening breathing,direct,medicine,fda_21cfr201_s201.305_c1,201.305,21cfr201,asthma,2,0.021
+sq122,required cautions for bowel-cleansing products with a salt that can upset body chemistry,direct,medicine,fda_21cfr201_s201.307_c2,201.307,21cfr201,,3,0.028
+sq123,labeling for the vomit-inducing syrup kept at home for accidental poisoning,field_req,medicine,fda_21cfr201_s201.308_c1,201.308,21cfr201,accidental syrup,2,0.021
+sq124,stop using the old pharmacopeia nickname for an estrogen compound,direct,medicine,fda_21cfr201_s201.313,201.313,21cfr201,pharmacopeia,1,0.022
+sq125,wording allowed for mouth rinses and chewing products that ease slight soreness,vocab_mismatch,medicine,fda_21cfr201_s201.315,201.315,21cfr201,chewing mouth,2,0.026
+sq126,environmental harm warning required for inhalers containing certain propellants,direct,medicine,fda_21cfr201_s201.320_c2,201.320,21cfr201,,3,0.029
+sq127,warning on IV solutions about metal buildup in babies born early,direct,medicine,fda_21cfr201_s201.323_c3,201.323,21cfr201,solutions,1,0.010
+sq128,what to say about HIV protection when a lubricant is used with condoms,field_req,medicine,fda_21cfr201_s201.325_c3,201.325,21cfr201,condoms hiv,4,0.043
+sq129,how long must a new pain reliever warning stay on the front of the package,field_req,medicine,fda_21cfr201_s201.326_c15,201.326,21cfr201,,1,0.016
+sq130,labeling duties for refillable ultra-cold gas vessels in care facilities,field_req,medicine,fda_21cfr201_s201.328_c1,201.328,21cfr201,care gas,2,0.022
+sq131,can the amount statement be embossed on glass bottles of intravenous fluid,direct,medicine,fda_21cfr201_s201.51_c4,201.51,21cfr201,embossed glass,3,0.035
+sq132,what if there is not enough label room to state the usual dose,direct,medicine,fda_21cfr201_s201.55,201.55,21cfr201,usual,3,0.042
+sq133,what the label must say about a medicine passing into breast milk,direct,medicine,fda_21cfr201_s201.57_c29,201.57,21cfr201,milk,2,0.032
+sq134,are pictures enough to count as instructions for people without training,symbol,medicine,fda_21cfr201_s201.5_c1,201.5,21cfr201,,0,0.000
+sq135,how much of a cylindrical container counts as the front label area,vocab_mismatch,medicine,fda_21cfr201_s201.60_c2,201.60,21cfr201,area cylindrical,3,0.073
+sq136,typeface and orientation rules for the line naming the drug,field_req,medicine,fda_21cfr201_s201.61_c2,201.61,21cfr201,,1,0.024
+sq137,how to declare the amount of bandage tape on the package,direct,medicine,fda_21cfr201_s201.62_c2,201.62,21cfr201,tape,2,0.022
+sq138,combining diet-related cautions for calcium and salt in a single statement,symbol,medicine,fda_21cfr201_s201.64_c2,201.64,21cfr201,calcium salt,2,0.024
+sq139,what makes a nonprescription product with extra consumer safeguards mislabeled,field_req,medicine,fda_21cfr201_s201.67_c4,201.67,21cfr201,nonprescription,2,0.034
+sq140,stating how much of a mineral is in each tablet or spoonful,vocab_mismatch,medicine,fda_21cfr201_s201.71_c1,201.71,21cfr201,tablet,1,0.011
+sq141,label text telling the pharmacist to hand patients the safety leaflet,vocab_mismatch,medicine,fda_21cfr208_s208.24_c2,208.24,21cfr208,,1,0.014
+sq142,how a package's unique design can reveal that someone has opened it,symbol,medicine,fda_21cfr211_s211.132_c2,211.132,21cfr211,design,2,0.019
+sq143,which consumer packs must carry a notice about how they show interference,field_req,medicine,fda_21cfr211_s211.132_c3,211.132,21cfr211,,0,0.000
+sq144,requirements to ship older inventory before newer and to trace each batch,field_req,medicine,fda_21cfr211_s211.150,211.150,21cfr211,,1,0.022
+sq145,written plan for testing how long a medicine stays good,field_req,medicine,fda_21cfr211_s211.166_c1,211.166,21cfr211,,2,0.021
+sq146,what records are needed when a lab changes its testing method,change_impact,medicine,fda_21cfr211_s211.194_c3,211.194,21cfr211,method,3,0.055
+sq147,how long complaint files must be kept relative to shelf life,field_req,medicine,fda_21cfr211_s211.198_c2,211.198,21cfr211,complaint,1,0.013
+sq148,required qualifications and records for outside advisers to a drug plant,vocab_mismatch,medicine,fda_21cfr211_s211.34,211.34,21cfr211,qualifications,3,0.088
+sq149,facility layout requirements to avoid mixing up components,direct,medicine,fda_21cfr211_s211.42_c1,211.42,21cfr211,,1,0.011
+sq150,how frequently machines and tools need washing and disinfecting to keep drugs pure,direct,medicine,fda_21cfr211_s211.67,211.67,21cfr211,,0,0.000

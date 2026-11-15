@@ -1,0 +1,9 @@
+{"dataset": "styled_heldout", "note": "final_eval style condition", "time": "2026-11-15 23:44:36"}
+{"dataset": "styled_heldout_anch", "note": "final_eval style condition", "time": "2026-11-15 23:54:51"}
+{"dataset": "real_artwork", "note": "final_eval style condition", "time": "2026-11-15 23:59:30"}
+{"dataset": "real_labels_eval", "note": "final_eval style", "time": "2026-11-16 00:03:07"}
+{"dataset": "styled_heldout", "note": "clip_eval score", "time": "2026-11-16 00:30:13"}
+{"dataset": "styled_heldout_anch", "note": "clip_eval score", "time": "2026-11-16 00:37:23"}
+{"dataset": "real_artwork", "note": "clip_eval score", "time": "2026-11-16 00:41:03"}
+{"dataset": "real_labels_eval", "note": "clip_eval score", "time": "2026-11-16 00:43:13"}
+{"dataset": "real_labels_eval", "note": "diagnostic: proposer recall and symbol size, no tuning", "time": "2026-11-16 00:45:47"}

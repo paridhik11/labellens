@@ -263,3 +263,31 @@ def test_wilson_interval_and_cell_annotation() -> None:
     lines = ["| A | B |", "| --- | --- |", "| x | 1/2 |", "", "| A | B |"]
     assert annotate_table(lines, "| A |", (1,)) == 1
     assert "95% CI" in lines[2] and lines[4] == "| A | B |"
+
+
+def test_damaged_reading_needs_human_not_mismatch() -> None:
+    """A lot or expiry that lost its key or is not a valid date is a review request even when OCR is confident."""
+    from src.cv.consistency import format_problem
+
+    assert format_problem("lot", "LOT: TESTLOT0016232") is None
+    assert format_problem("expiry", "EXP: 2028-11-01") is None
+    assert format_problem("expiry", "EXP: 2028-13-01") is not None  # month 13 does not exist
+    assert format_problem("expiry", "EXP: 2028-02-30") is not None  # nor does 30 February
+    assert format_problem("expiry", "EXP: 2O28-11-01") is not None  # a letter O in the year
+    assert format_problem("expiry", "2028-11-01") is not None  # key lost
+    assert format_problem("lot", "TESTLOT0016232") is not None  # key lost
+    assert format_problem("lot", "LOT: TEST@LOT") is not None
+    lost_key = check_extraction(_extraction(lot="TESTLOT0016233", lot_conf=0.99))
+    assert [flag.kind for flag in lost_key] == ["needs_human_review"]
+    assert "damaged" in lost_key[0].message
+    bad_date = _extraction()
+    bad_date.fields["expiry"] = "EXP: 2028-13-01"
+    assert [flag.kind for flag in check_extraction(bad_date)] == ["needs_human_review"]
+    # A well-formed, confident, different reading is still a mismatch.
+    assert [flag.kind for flag in check_extraction(_extraction(lot="LOT: TESTLOT0016233", lot_conf=0.99))] == [
+        "barcode_mismatch"
+    ]
+    wrong_date = _extraction()
+    wrong_date.fields["expiry"] = "EXP: 2028-11-02"
+    wrong_date.ocr_blocks.append(OcrBlock(text="EXP: 2028-11-02", bbox=(0, 50, 100, 20), conf=0.95))
+    assert [flag.kind for flag in check_extraction(wrong_date)] == ["barcode_mismatch"]

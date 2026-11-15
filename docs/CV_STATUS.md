@@ -88,3 +88,22 @@ Everything here is measured on synthetic labels from one template family. No rea
     naming without the template now exists but is clearly worse under glare and occlusion.
 12. Key files: blind barcode decoding is now in `src/cv/barcode_blind.py`, field rules in `src/cv/fields.py`;
     `src/cv/barcode.py` is no longer the whole barcode story.
+
+## Symbols after the cv-symbols branch (not merged)
+
+See `reports/symbols_final.md`. The old detector found 0/204 independently drawn pictograms. Detector v2 (`src/cv/symbols_v2`,
+`extract_label(symbol_detector="v2")`, default still `"v1"`) finds 204/204 of them and keeps 100% on clean to hard original labels, but
+loses 11 to 15 points on very hard original labels (76.5% and 80.4% against 91.2%). On held-out styles written by us it reaches 49.5%
+(silhouette), 63.5% (CNN) and 80.2% (zero-shot CLIP, 4.2% false positives); the 90% and 2% targets were not met. On real carton
+photos every detector found 0 of 3 symbols (they are 1 to 2% of the image and one is rotated); real-label boxes were labelled by
+the assistant, not a human. The lot and expiry format check (`src/cv/consistency.py`) cut false critical mismatches on very hard labels from
+7/44 to 1/44 (blind) and 8/45 to 1/45 (template) on new seeds 103 to 105, with real wrong barcodes still flagged 102/102.
+
+## Real-label limit for symbols
+
+On real label photos the symbols are below the symbol finder's minimum size and no detector finds them. In the DailyMed carton photos
+I checked (a lancet carton and a pregnancy-test carton, 3 symbols marked by the assistant, not by a human) the pictograms are 8 to 36 px, which is
+1.0% to 2.3% of the image's short side, while detector v2's candidate finder accepts blobs of at least 4.5% (v1 needs larger still); one symbol is also turned 90
+degrees. Every detector (v1, v2 silhouette, CNN, CLIP) found 0 of 3, and the finder never proposed a box near them. This is a sample of 3, not a
+recall measurement, but until the finder scales up small symbols and handles rotation, symbol detection on real photos
+must be treated as non-functional and `symbol_detector_trusted` must stay `False` in the checker.

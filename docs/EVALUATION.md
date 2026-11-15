@@ -45,3 +45,5 @@ Product match accuracy at 1 and 3, summary faithfulness, chatbot citation precis
 | BM25 | | | | | |
 | Dense | | | | | |
 | Hybrid RRF | | | | | |
+
+- **Frozen Step 18 retrieval (E5b)**: `data/eval/step18_config.json` (hash in the file). Load it with `from src.ir.step18_config import load_system; load_system()`; rebuild the bge-large cache (about 37 min of CPU, only if `data/processed/dense_cache_*large*` is missing) with `python -m src.ir.step18_config rebuild-cache`; verify with `python -m src.ir.step18_config check`.

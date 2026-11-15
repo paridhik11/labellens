@@ -77,6 +77,10 @@ def _run_one(job: tuple[str, str]) -> dict[str, Any]:
             "barcode_method": details["barcode_method"],
             "symbols": [{"name": s.name, "bbox": list(s.bbox), "conf": s.conf} for s in extraction.symbols],
             "flags": [{"kind": flag.kind, "expected": flag.expected} for flag in check_extraction(extraction)],
+            "flags_confidence_only": [
+                {"kind": flag.kind, "expected": flag.expected}
+                for flag in check_extraction(extraction, check_format=False)
+            ],
             "warnings": sorted({warning.split(":", 1)[0] for warning in extraction.warnings}),
         }
     record["corners"] = outputs[MODES[0]][1]["corners"]
