@@ -38,6 +38,9 @@ The adapter preserves template slot IDs and creates the named SVG groups
 the original Task 2 brief. IDs must be unique; ambiguous collisions are refused.
 Barcode slots contain vector rectangles and `data-payload`.
 Review highlights appear in SVG only and never affect the PDF.
+A product field can appear in multiple slots with different slot IDs. Each
+occurrence keeps its own `slot-{id}` group; the alias using the field name is
+emitted only once, preventing duplicate SVG IDs.
 
 The 9 mm DRAFT band follows the current renderer and Paridhi's handoff, which
 supersedes the older contract's 6 mm draft default. Symbol names are

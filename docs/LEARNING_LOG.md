@@ -579,3 +579,11 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its CV step 16 to 
 4. **How I verified it:** `/opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider src/gen`: `57 passed in 39.59s`; the same command for `tests/test_gs1.py`: `56 passed in 1.62s`. Ran background jobs to a log and checked completed output once.
 5. **What you should check yourself:** The decision table and missing-value tests. Full commands and real output are in the report.
 6. **What I am unsure about or assumed:** Uses the newer contract's encoded-change confirmation rule. macOS software tests do not establish Windows or physical-print performance.
+
+## Parth next Task 2: export completion against the updated checklist
+1. **What I did:** Reviewed PDF/SVG/QR exports and fixed repeated product fields in separate template slots. Added explicit real-template size/group checks and a QR test that forbids network connections.
+2. **Files changed:** `src/export/label_model.py` and `svg.py` (unique IDs with repeated fields), `tests/test_export.py` (acceptance coverage), export README (behavior), `reports/parth_task2.md` (report under 400 words), this log.
+3. **How it works:** Every slot keeps its own `slot-{id}` group; a repeated field alias is emitted once. A 100 x 60 mm sample produced all 9 slot groups and maximum PDF page-size error 0.0000142 mm, below the 0.1 mm requirement. QR encodes its URL without visiting it.
+4. **How I verified it:** `/opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider -m "not slow"`: `336 passed, 3 deselected in 32.04s`. `/opt/anaconda3/envs/labellens-cv/bin/python -m ruff check --no-cache src tests`: `All checks passed!`. Ran background jobs to logs and checked completed results once. Reviewed the sample preview.
+5. **What you should check yourself:** Actual-template PDF dimensions, all SVG slot IDs, repeated-field text and the no-network QR test. Full output and limitations are in the task report.
+6. **What I am unsure about or assumed:** Installed missing packages already declared by the project into the CV environment; no requirements or dependencies were added to the repository. Windows execution, physical printing and later approval-contract integration are separate checks.

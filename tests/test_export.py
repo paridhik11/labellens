@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import shutil
+import socket
 import subprocess
 from dataclasses import replace
 from io import BytesIO
@@ -262,9 +263,11 @@ def test_exact_modules_warn_or_refuse_without_stretching(sample: Label, tmp_path
         validate_label(replace(sample, elements=(replace(barcode, module_mm=10),)))
 
 
-def test_template_adapter_and_product_schema(tmp_path: Path) -> None:
+@pytest.mark.parametrize("size_mm", [(100, 60), (106.25, 64.5)])
+def test_template_adapter_and_product_schema(tmp_path: Path, size_mm: tuple[float, float]) -> None:
     """The existing template exports against the locked ProductRecord schema."""
     template = json.loads(Path("src/gen/templates/test_device.json").read_text())
+    template["size_mm"] = {"w": size_mm[0], "h": size_mm[1]}
     record = ProductRecord(
         product_id="test-device",
         name="Test Device",
@@ -277,8 +280,20 @@ def test_template_adapter_and_product_schema(tmp_path: Path) -> None:
     label = from_product(template, record, version_id="v1", actor="parth", reason="adapter test", test_data=True)
     assert {e.slot_id for e in label.elements} == {slot["id"] for slot in template["slots"]}
     assert "(21)" not in next(e.payload for e in label.elements if e.kind == "barcode")
-    render_pdf(label, tmp_path / "template.pdf")
-    render_svg(label, tmp_path / "template.svg")
+    pdf = render_pdf(label, tmp_path / "template.pdf")
+    page = PdfReader(pdf).pages[0]
+    assert abs(float(page.mediabox.width) * 25.4 / 72 - template["size_mm"]["w"]) <= 0.1
+    assert abs(float(page.mediabox.height) * 25.4 / 72 - template["size_mm"]["h"]) <= 0.1
+    svg = render_svg(label, tmp_path / "template.svg")
+    root = ET.parse(svg).getroot()
+    slots = root.find(f"{{{SVG_NS}}}g[@id='layer-slots']")
+    assert slots is not None
+    expected_ids = {f"slot-{slot['id']}" for slot in template["slots"]}
+    assert {node.attrib["id"] for node in slots} == expected_ids
+    assert len(slots) == len(template["slots"])
+    for slot in template["slots"]:
+        group = slots.find(f"{{{SVG_NS}}}g[@id='slot-{slot['id']}']")
+        assert group is not None and group.attrib["data-field"] == slot["field"]
     with pytest.raises(ValueError, match="background"):
         from_template(
             {**template, "background": "existing.svg"},
@@ -402,3 +417,43 @@ def test_product_extra_cannot_override_core_fields() -> None:
     fields = {element.field: element.text for element in label.elements if element.kind == "text"}
     assert fields["product_name"] == record.name
     assert fields["manufacturer"] == record.manufacturer
+
+
+def test_repeated_product_field_keeps_distinct_slot_groups(tmp_path: Path) -> None:
+    """The same product field can be printed in multiple independently editable slots."""
+    template = {
+        "template_id": "repeat-name",
+        "version": 1,
+        "background": None,
+        "size_mm": {"w": 100, "h": 60},
+        "slots": [
+            {"id": "top-name", "field": "name", "type": "text", "bbox_mm": [5, 12, 60, 7], "size_pt": 10},
+            {"id": "bottom-name", "field": "name", "type": "text", "bbox_mm": [5, 25, 60, 7], "size_pt": 10},
+        ],
+    }
+    label = from_template(template, {"name": "Test Device"}, {}, version_id="v1", actor="parth", reason="repeat test")
+    root = ET.parse(render_svg(label, tmp_path / "repeat.svg")).getroot()
+    ids = [node.attrib["id"] for node in root.iter() if "id" in node.attrib]
+    assert len(ids) == len(set(ids))
+    for slot_id in ("top-name", "bottom-name"):
+        group = root.find(f".//{{{SVG_NS}}}g[@id='slot-{slot_id}']")
+        assert group is not None and group.attrib["data-field"] == "name"
+        assert any(node.text == "Test Device" for node in group.iter(f"{{{SVG_NS}}}text"))
+    page = PdfReader(render_pdf(label, tmp_path / "repeat.pdf")).pages[0]
+    assert page.extract_text().count("Test Device") == 2
+
+
+def test_published_url_qr_generation_never_connects_to_network(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The published-page URL is encoded literally without visiting the address."""
+
+    def reject_connection(*args: object, **kwargs: object) -> None:
+        """Fail if any network connection is attempted by QR generation."""
+        raise AssertionError("QR generation must not use the network")
+
+    monkeypatch.setattr(socket, "create_connection", reject_connection)
+    monkeypatch.setattr(socket.socket, "connect", reject_connection)
+    payload = "https://example.org/published/test-device/version-2"
+    qr = make_qr(payload)
+    with Image.open(BytesIO(qr.png)) as image:
+        decoded = zxingcpp.read_barcodes(np.asarray(image))
+    assert len(decoded) == 1 and decoded[0].text == payload

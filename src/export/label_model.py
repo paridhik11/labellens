@@ -188,7 +188,7 @@ def validate_label(label: Label, min_module_mm: float = 0.25) -> None:
     ids: set[str] = {"layer-background", "layer-slots", "layer-watermark", "layer-review"}
     field_ids = [element.field for element in label.elements]
     slot_ids = [f"slot-{element.slot_id or element.field}" for element in label.elements]
-    all_ids = list(ids) + field_ids + slot_ids
+    all_ids = list(ids) + list(dict.fromkeys(field_ids)) + slot_ids
     if len(all_ids) != len(set(all_ids)) or any(
         not re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]*", field) for field in field_ids
     ):

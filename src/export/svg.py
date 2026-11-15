@@ -45,6 +45,7 @@ def render_svg(
     )
     ET.SubElement(root, "g", {"id": "layer-background"})
     slots = ET.SubElement(root, "g", {"id": "layer-slots"})
+    fields_seen: set[str] = set()
     for element in label.elements:
         group = ET.SubElement(
             slots,
@@ -59,7 +60,8 @@ def render_svg(
         if element.kind == "barcode":
             group.set("data-payload", element.payload)
             group.set("data-module-mm", f"{element.module_mm:g}")
-        content = ET.SubElement(group, "g", {"id": element.field})
+        content = group if element.field in fields_seen else ET.SubElement(group, "g", {"id": element.field})
+        fields_seen.add(element.field)
         for item in primitives(element):
             if item.kind in {"rect", "outline"}:
                 ET.SubElement(
