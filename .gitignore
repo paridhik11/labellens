@@ -15,6 +15,12 @@ results/*
 !results/step15_*
 !results/step16_*
 .DS_Store
+!results/step17_*
+!results/step18_*
+data/processed/ce_cache_*
+data/processed/_*
+data/processed/medcpt_cache_*
+data/processed/ft_*
 .venv-cv/
 data/synthetic/
 !results/cv_*.md
