@@ -11,6 +11,6 @@ Branch: step22-change (worktree `../labellens-change`, from origin/main a67029b)
 - A text-only request that cannot be parsed returns 422 `parser_not_implemented`, because a ChangeRequest needs `field` and `new_value`.
 - Assessment-time edits are always unconfirmed and `confirmChange` stays a mock, so REGENERATE is tested in code but not reachable through the API in 22c.
 
-**Verified.** `grep -c "—"` on the spec: 0 em dashes. Nothing run beyond that (no code).
+**Verified.** `grep -c "-"` on the spec: 0 em dashes. Nothing run beyond that (no code).
 
 **Decisions for you:** approve CR-18; `confirm_<field>` as `required_identifier` for unconfirmed encoded changes; serial required (renderer) vs optional (TEMPLATE_SPEC); `udi_di` old==new as acknowledgement; store assessments in a new append-only table.
