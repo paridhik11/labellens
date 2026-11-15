@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import cv2
 import numpy as np
@@ -13,11 +13,14 @@ from PIL import Image
 
 from src.common.schemas import BarcodeResult, LabelExtraction, OcrBlock
 from src.cv.barcode import decode_barcode_slot, decode_barcodes
-from src.cv.ocr import read_text
-from src.cv.preprocess import _validate_image, find_label_corners, rectify_label
-from src.cv.symbols import NAMES, detect_symbols
+from src.cv.barcode_blind import decode_barcode_slot_enhanced, decode_barcodes_blind
+from src.cv.fields import map_fields_by_layout, normalise_field, reconcile_with_barcode
+from src.cv.ocr import read_text_default as read_text
+from src.cv.preprocess import _validate_image, find_label_corners, find_label_corners_fallback, rectify_label
+from src.cv.symbols import NAMES, detect_symbols, detect_symbols_blind
 
 TEMPLATE_PATH = Path(__file__).resolve().parents[1] / "gen" / "templates" / "test_device.json"
+Mode = Literal["template", "blind"]
 
 
 def map_fields(
@@ -116,116 +119,271 @@ def _decode_safely(image: np.ndarray) -> tuple[list[BarcodeResult], list[str]]:
         return [], [f"BARCODE_ENGINE_FAILED: {type(error).__name__}: {error}"]
 
 
-def extract_label(
-    image_path: str | Path, *, min_confidence: float = 0.8, blur_threshold: float = 100.0
-) -> LabelExtraction:
-    """Extract the test-device family into the unchanged shared schema.
+def _project_barcodes(
+    results: list[BarcodeResult], inverse: np.ndarray, image_size: tuple[int, int]
+) -> list[BarcodeResult]:
+    """Map barcode boxes from the corrected label back to original-photo pixels."""
+    return [
+        result.model_copy(update={
+            "bbox": project_box(result.bbox, inverse, image_size) if result.bbox is not None else None,
+        })
+        for result in results
+    ]
 
-    All returned boxes use original-image x, y, width, height coordinates.
-    Read only the image and fixed template layout, never a ground-truth sidecar.
-    Warning thresholds are provisional settings, not calibrated accuracy claims.
-    Unreadable files and unrecoverable geometry errors raise; OCR and barcode
-    engine failures become warnings with the original error type and message.
+
+def _without_not_decoded(warnings: list[str]) -> list[str]:
+    """Drop earlier "not decoded" notes once a later attempt has succeeded."""
+    return [warning for warning in warnings if not warning.startswith("BARCODE_NOT_DECODED:")]
+
+
+def _template_barcodes(
+    barcodes: list[BarcodeResult], warnings: list[str], corrected: np.ndarray, inverse: np.ndarray,
+    image_size: tuple[int, int],
+) -> tuple[list[BarcodeResult], list[str], str | None]:
+    """Template-assisted barcode chain: rectified label, then the known slot, then the deblurred slot."""
+    if barcodes:
+        return barcodes, warnings, "original_image"
+    retried, retry_warnings = _decode_safely(corrected)
+    if retried:
+        return (
+            _project_barcodes(retried, inverse, image_size),
+            [*_without_not_decoded(warnings), *retry_warnings, "BARCODE_DECODED_AFTER_RECTIFICATION"],
+            "rectified_image",
+        )
+    try:
+        slot_results, slot_warnings = decode_barcode_slot(corrected)
+        method = "template_slot"
+        if not slot_results:
+            enhanced, enhanced_warnings, attempt = decode_barcode_slot_enhanced(corrected)
+            if enhanced:
+                slot_results, slot_warnings, method = enhanced, enhanced_warnings, f"template_slot_{attempt}"
+    except Exception as error:
+        slot_results = []
+        slot_warnings = [f"BARCODE_SLOT_ENGINE_FAILED: {type(error).__name__}: {error}"]
+    if slot_results:
+        return (
+            _project_barcodes(slot_results, inverse, image_size),
+            [
+                *_without_not_decoded([*warnings, *retry_warnings, *slot_warnings]),
+                "BARCODE_DECODED_FROM_TEMPLATE_SLOT",
+            ],
+            method,
+        )
+    return [], [*warnings, *retry_warnings, *slot_warnings], None
+
+
+def _blind_barcodes(
+    barcodes: list[BarcodeResult], warnings: list[str], image: np.ndarray, corrected: np.ndarray | None,
+    inverse: np.ndarray | None, image_size: tuple[int, int],
+) -> tuple[list[BarcodeResult], list[str], str | None]:
+    """Blind barcode chain: no slot position. Located regions on the label, then on the photo."""
+    if barcodes:
+        return barcodes, warnings, "original_image"
+    try:
+        if corrected is not None and inverse is not None:
+            results, blind_warnings, attempt = decode_barcodes_blind(corrected)
+            if results:
+                return (
+                    _project_barcodes(results, inverse, image_size),
+                    [*_without_not_decoded(warnings), *blind_warnings, "BARCODE_DECODED_BLIND"],
+                    f"rectified_{attempt}",
+                )
+        results, blind_warnings, attempt = decode_barcodes_blind(image)
+        if results:
+            return (
+                results, [*_without_not_decoded(warnings), *blind_warnings, "BARCODE_DECODED_BLIND"],
+                f"photo_{attempt}",
+            )
+    except Exception as error:
+        return [], [*warnings, f"BARCODE_ENGINE_FAILED: {type(error).__name__}: {error}"], None
+    return [], warnings, None
+
+
+def _postcorrect(fields: dict[str, str], barcodes: list[BarcodeResult]) -> tuple[dict[str, str], list[str]]:
+    """Apply format rules, then let a single decoded barcode settle 0/O style doubts."""
+    corrected = {field: normalise_field(field, text) for field, text in fields.items()}
+    notes: list[str] = []
+    if len(barcodes) == 1 and barcodes[0].parsed:
+        corrected, notes = reconcile_with_barcode(corrected, barcodes[0].parsed)
+    return corrected, notes
+
+
+def extract_label_modes(
+    image_path: str | Path,
+    *,
+    modes: tuple[Mode, ...] = ("template",),
+    min_confidence: float = 0.8,
+    blur_threshold: float = 100.0,
+    postcorrect: bool = False,
+    field_confidence: float = 0.5,
+) -> dict[str, tuple[LabelExtraction, dict[str, Any]]]:
+    """Run the extraction once and return one result per requested mode.
+
+    Label detection, rectification, the plain barcode attempt and OCR are
+    shared, so asking for both modes costs little more than one. Each value is
+    the ``LabelExtraction`` and a details dictionary with the detected label
+    corners, the corner method, the name of the barcode attempt that worked and
+    the fields before post-correction (for evaluation only).
+
+    Mode "template" uses the known test-device layout for the barcode slot,
+    the field slots and the symbol windows. Mode "blind" uses none of it:
+    barcodes are located in the pixels, fields are named from their text and
+    arrangement, symbols are searched over the whole label, and when no label
+    boundary is found the whole photo is read instead.
     """
     if not np.isfinite(min_confidence) or not 0 <= min_confidence <= 1:
         raise ValueError("min_confidence must be finite and between zero and one")
     if not np.isfinite(blur_threshold) or blur_threshold < 0:
         raise ValueError("blur_threshold must be finite and nonnegative")
+    if not modes or set(modes) - {"template", "blind"}:
+        raise ValueError("modes must be chosen from template and blind")
     path = Path(image_path)
     with Image.open(path) as photo:
         image = np.asarray(photo.convert("RGB"))
     _validate_image(image)
-    output = LabelExtraction(label_id=path.stem)
-    output.warnings.append("TEMPLATE_ASSUMED: test_device_v1; template identity has not been verified")
-    barcodes, barcode_warnings = _decode_safely(image)
-    corners = find_label_corners(image)
-    if corners is None:
-        output.barcodes = barcodes
-        output.warnings.extend(barcode_warnings)
-        output.warnings.extend([
-            "SYMBOL_DETECTION_NOT_RUN",
-            "LABEL_NOT_FOUND: no suitable boundary; needs human review",
-            "OCR_NOT_RUN: no corrected label geometry",
-            "FIELD_MAPPING_SKIPPED: no corrected label geometry",
-        ])
-        return output
-    corrected, forward = rectify_label(image, corners)
-    inverse = np.linalg.inv(forward)
     image_size = (image.shape[1], image.shape[0])
-    try:
-        detected_symbols = detect_symbols(corrected)
-        output.symbols = [
-            symbol.model_copy(update={"bbox": project_box(symbol.bbox, inverse, image_size)})
-            for symbol in detected_symbols
-        ]
-        for name in NAMES:
-            if not any(symbol.name == name for symbol in detected_symbols):
-                output.warnings.append(f"SYMBOL_NOT_DETECTED: {name}")
-    except Exception as error:
-        output.warnings.append(f"SYMBOL_DETECTION_FAILED: {type(error).__name__}: {error}")
-    if not barcodes:
-        retried, retry_warnings = _decode_safely(corrected)
-        if retried:
-            barcodes = [
-                result.model_copy(update={
-                    "bbox": project_box(result.bbox, inverse, image_size) if result.bbox is not None else None,
-                })
-                for result in retried
-            ]
-            barcode_warnings = [
-                warning for warning in barcode_warnings if not warning.startswith("BARCODE_NOT_DECODED:")
-            ]
-            barcode_warnings.extend(retry_warnings)
-            barcode_warnings.append("BARCODE_DECODED_AFTER_RECTIFICATION")
-        else:
-            try:
-                slot_results, slot_warnings = decode_barcode_slot(corrected)
-            except Exception as error:
-                slot_results = []
-                slot_warnings = [f"BARCODE_SLOT_ENGINE_FAILED: {type(error).__name__}: {error}"]
-            if slot_results:
-                barcodes = [
-                    result.model_copy(update={
-                        "bbox": project_box(result.bbox, inverse, image_size) if result.bbox is not None else None,
-                    })
-                    for result in slot_results
-                ]
-                barcode_warnings = [
-                    warning
-                    for warning in [*barcode_warnings, *retry_warnings, *slot_warnings]
-                    if not warning.startswith("BARCODE_NOT_DECODED:")
-                ]
-                barcode_warnings.append("BARCODE_DECODED_FROM_TEMPLATE_SLOT")
-            else:
-                barcode_warnings.extend(retry_warnings)
-                barcode_warnings.extend(slot_warnings)
-    output.barcodes = barcodes
-    output.warnings.extend(barcode_warnings)
-    if len(barcodes) > 1:
-        output.warnings.append(f"MULTIPLE_BARCODES: {len(barcodes)} symbols decoded; none selected automatically")
-    score = blur_score(corrected)
-    if score < blur_threshold:
-        output.warnings.append(f"BLUR_SUSPECTED: Laplacian variance={score:.3f} below threshold={blur_threshold:.3f}")
-    try:
-        corrected_blocks = read_text(corrected)
-    except Exception as error:
-        corrected_blocks = []
-        output.warnings.append(f"OCR_FAILED: {type(error).__name__}: {error}")
-    if not corrected_blocks:
-        output.warnings.append("OCR_NO_TEXT: no text observations available")
-    for index, block in enumerate(corrected_blocks):
-        if block.conf < min_confidence:
-            output.warnings.append(
-                f"LOW_OCR_CONFIDENCE: block {index} score={block.conf:.3f} below {min_confidence:.3f}"
+    plain_barcodes, plain_warnings = _decode_safely(image)
+    shared_warnings: list[str] = []
+    corners = find_label_corners(image)
+    corner_method = "contour" if corners is not None else None
+    if corners is None:
+        corners = find_label_corners_fallback(image)
+        if corners is not None:
+            corner_method = "hull_fallback"
+            shared_warnings.append("LABEL_FOUND_BY_FALLBACK: boundary rebuilt from a partly hidden outline")
+    corrected = inverse = None
+    if corners is not None:
+        corrected, forward = rectify_label(image, corners)
+        inverse = np.linalg.inv(forward)
+    need_photo_ocr = corrected is None and "blind" in modes
+    ocr_image = corrected if corrected is not None else (image if need_photo_ocr else None)
+    blocks: list[OcrBlock] = []
+    ocr_warnings: list[str] = []
+    if ocr_image is not None:
+        score = blur_score(ocr_image)
+        if score < blur_threshold:
+            ocr_warnings.append(
+                f"BLUR_SUSPECTED: Laplacian variance={score:.3f} below threshold={blur_threshold:.3f}"
             )
-        output.ocr_blocks.append(block.model_copy(update={"bbox": project_box(block.bbox, inverse, image_size)}))
+        try:
+            blocks = read_text(ocr_image)
+        except Exception as error:
+            ocr_warnings.append(f"OCR_FAILED: {type(error).__name__}: {error}")
+        if not blocks:
+            ocr_warnings.append("OCR_NO_TEXT: no text observations available")
+        for index, block in enumerate(blocks):
+            if block.conf < min_confidence:
+                ocr_warnings.append(
+                    f"LOW_OCR_CONFIDENCE: block {index} score={block.conf:.3f} below {min_confidence:.3f}"
+                )
+    projected_blocks = [
+        block if inverse is None else block.model_copy(update={"bbox": project_box(block.bbox, inverse, image_size)})
+        for block in blocks
+    ]
     template = json.loads(TEMPLATE_PATH.read_text(encoding="utf-8"))
-    output.fields, field_warnings = map_fields(
-        corrected_blocks, (corrected.shape[1], corrected.shape[0]), template
-    )
-    output.warnings.extend(field_warnings)
-    output.warnings = list(dict.fromkeys(output.warnings))
-    return output
+    outputs: dict[str, tuple[LabelExtraction, dict[str, Any]]] = {}
+    for mode in modes:
+        output = LabelExtraction(label_id=path.stem)
+        details: dict[str, Any] = {
+            "corners": None if corners is None else np.asarray(corners).tolist(),
+            "corner_method": corner_method,
+            "barcode_method": None,
+            "raw_fields": {},
+        }
+        if mode == "template":
+            output.warnings.append("TEMPLATE_ASSUMED: test_device_v1; template identity has not been verified")
+        else:
+            output.warnings.append("BLIND_MODE: no template layout used; field names come from text rules")
+        if corrected is None and mode == "template":
+            output.barcodes = plain_barcodes
+            details["barcode_method"] = "original_image" if plain_barcodes else None
+            output.warnings.extend(plain_warnings)
+            output.warnings.extend([
+                "SYMBOL_DETECTION_NOT_RUN",
+                "LABEL_NOT_FOUND: no suitable boundary; needs human review",
+                "OCR_NOT_RUN: no corrected label geometry",
+                "FIELD_MAPPING_SKIPPED: no corrected label geometry",
+            ])
+            output.warnings = list(dict.fromkeys(output.warnings))
+            outputs[mode] = (output, details)
+            continue
+        output.warnings.extend(shared_warnings)
+        if corrected is None:
+            output.warnings.append("LABEL_NOT_FOUND: no suitable boundary; the whole photo was read instead")
+        try:
+            if mode == "template":
+                detected = detect_symbols(corrected)
+            else:
+                detected = detect_symbols_blind(corrected if corrected is not None else image)
+            output.symbols = [
+                symbol if inverse is None
+                else symbol.model_copy(update={"bbox": project_box(symbol.bbox, inverse, image_size)})
+                for symbol in detected
+            ]
+            for name in NAMES:
+                if not any(symbol.name == name for symbol in detected):
+                    output.warnings.append(f"SYMBOL_NOT_DETECTED: {name}")
+        except Exception as error:
+            output.warnings.append(f"SYMBOL_DETECTION_FAILED: {type(error).__name__}: {error}")
+        if mode == "template":
+            barcodes, barcode_warnings, method = _template_barcodes(
+                plain_barcodes, list(plain_warnings), corrected, inverse, image_size
+            )
+        else:
+            barcodes, barcode_warnings, method = _blind_barcodes(
+                plain_barcodes, list(plain_warnings), image, corrected, inverse, image_size
+            )
+        output.barcodes = barcodes
+        details["barcode_method"] = method
+        output.warnings.extend(barcode_warnings)
+        if len(barcodes) > 1:
+            output.warnings.append(
+                f"MULTIPLE_BARCODES: {len(barcodes)} symbols decoded; none selected automatically"
+            )
+        output.warnings.extend(ocr_warnings)
+        output.ocr_blocks = list(projected_blocks)
+        usable = [block for block in blocks if block.conf >= field_confidence]
+        if mode == "template":
+            fields, field_warnings = map_fields(usable, (corrected.shape[1], corrected.shape[0]), template)
+        else:
+            fields, field_warnings = map_fields_by_layout(blocks, min_confidence=field_confidence)
+        details["raw_fields"] = dict(fields)
+        if postcorrect:
+            fields, notes = _postcorrect(fields, barcodes)
+            field_warnings = [*field_warnings, *notes]
+        output.fields = fields
+        output.warnings.extend(field_warnings)
+        output.warnings = list(dict.fromkeys(output.warnings))
+        outputs[mode] = (output, details)
+    return outputs
+
+
+def extract_label(
+    image_path: str | Path,
+    *,
+    min_confidence: float = 0.8,
+    blur_threshold: float = 100.0,
+    mode: Mode = "template",
+    postcorrect: bool = False,
+) -> LabelExtraction:
+    """Extract one label photo into the unchanged shared schema.
+
+    All returned boxes use original-image x, y, width, height coordinates.
+    Read only the image (and, in "template" mode, the fixed template layout),
+    never a ground-truth sidecar. Warning thresholds are provisional settings,
+    not calibrated accuracy claims. Unreadable files and unrecoverable
+    geometry errors raise; OCR and barcode engine failures become warnings.
+
+    ``mode`` is "template" (uses the known test-device layout) or "blind"
+    (uses no layout knowledge, see ``extract_label_modes``). With
+    ``postcorrect`` the field texts are normalised by format rules and
+    0/O style doubts in lot and expiry are settled by the barcode; without it
+    the fields are exactly what OCR read.
+    """
+    return extract_label_modes(
+        image_path, modes=(mode,), min_confidence=min_confidence, blur_threshold=blur_threshold,
+        postcorrect=postcorrect,
+    )[mode][0]
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -234,9 +392,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--image", type=Path, required=True)
     parser.add_argument("--min-confidence", type=float, default=0.8)
     parser.add_argument("--blur-threshold", type=float, default=100.0)
+    parser.add_argument("--mode", choices=["template", "blind"], default="template")
+    parser.add_argument("--postcorrect", action="store_true", help="Apply format rules to the field texts")
     args = parser.parse_args(argv)
     try:
-        result = extract_label(args.image, min_confidence=args.min_confidence, blur_threshold=args.blur_threshold)
+        result = extract_label(
+            args.image, min_confidence=args.min_confidence, blur_threshold=args.blur_threshold,
+            mode=args.mode, postcorrect=args.postcorrect,
+        )
     except (OSError, ValueError, np.linalg.LinAlgError) as error:
         parser.error(str(error))
     print("Coordinates: input_image; boxes=x,y,width,height")
