@@ -547,3 +547,11 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 4. **Verified:** very hard 93/102, independent drawings 0/204, absent symbols reported 0/306, all equal to `results/cv_final_eval.md`.
 5. **Check yourself:** `straighten()` in the harness mirrors `extract_label_modes`; scoring counts a symbol as found only at IoU >= 0.5.
 6. **Assumptions:** OCR and barcode steps are skipped because they do not affect symbols.
+
+## Symbols phase 1: style library
+1. **What I did:** Wrote 16 pictogram styles (train, dev, held-out), a whole-label generator, and fetched real Wikimedia artwork and DailyMed label images with URLs and licenses recorded.
+2. **Files:** `src/gen/symbol_styles.py`, `generate_styled.py`, `generate_real_artwork.py`, `scripts/symbols/fetch_real_*.py`, tests, `docs/SYMBOLS_V2.md`.
+3. **How it works:** Like holding back whole fonts instead of random letters when testing a reader: the test styles share no shape family with the training ones.
+4. **Verified:** `pytest src/gen/test_symbol_styles.py` 150 passed; old detector on dev styles 4/256.
+5. **Check yourself:** split rules in `test_splits_are_disjoint_and_complete`; the tight truth box in `glyph_quad`.
+6. **Assumptions:** One author drew all styles; only 2 real labels contain the pictograms.
