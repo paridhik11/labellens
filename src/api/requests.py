@@ -122,3 +122,41 @@ class ReviewCreate(BaseModel):
     comment: str = ""
     artifact_sha256: str = Field(pattern=SHA256_PATTERN)
     check_id: str | None = None
+
+
+class RetrievalConfig(BaseModel):
+    """RetrievalConfig of the contract. Unset keys mean the checker's default (plain hybrid RRF)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    method: Literal["hybrid_rrf", "bm25", "tfidf", "dense"] | None = None
+    stem: bool | None = None
+    prefix: bool | None = None
+    rerank: bool = False
+    expansion: bool = False
+
+    def overrides(self) -> dict[str, object]:
+        """The keys that were set, for the checker. rerank and expansion have no implementation, so they are refused."""
+        if self.rerank or self.expansion:
+            raise ValueError("rerank and expansion are not available: no reranker or query expansion exists in src/ir")
+        return {k: v for k, v in self.model_dump(exclude={"rerank", "expansion"}).items() if v is not None}
+
+
+class InspectCreate(BaseModel):
+    """POST /label-versions/{id}/inspect (optional body)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    retrieval: RetrievalConfig | None = None
+
+
+class SearchCreate(BaseModel):
+    """POST /search. Module is required and never mixed."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    query: str = Field(min_length=1)
+    module: Literal["device", "medicine"]
+    k: int = Field(default=10, ge=1, le=50)
+    section_level: bool = False
+    retrieval: RetrievalConfig | None = None

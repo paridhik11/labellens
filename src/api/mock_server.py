@@ -78,6 +78,14 @@ def register_mocks(app: FastAPI) -> None:
         )
 
 
+def mock_response(operation_id: str, request: Request) -> JSONResponse:
+    """The mock response of one operation, for a real handler that has nothing real to return (fallback)."""
+    entries = [e for e in load_index() if e["operationId"] == operation_id]
+    entry = pick_entry(entries, request.query_params.get("mock_state"))
+    body = json.loads((MOCK_DIR / entry["file"]).read_text(encoding="utf-8"))
+    return JSONResponse(body, status_code=entry["status"], headers={"X-Mock": "true"})
+
+
 def _make_handler(entries: list[dict[str, Any]]):  # noqa: ANN202
     """Build a route handler for one operation. Its only parameter is the request, so FastAPI reads no body."""
 

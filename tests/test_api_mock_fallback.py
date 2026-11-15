@@ -73,6 +73,11 @@ def test_real_operations_never_carry_x_mock(client) -> None:
         ("POST", f"/products/{PRODUCT_ID}/templates"),
         ("POST", "/changes"),
         ("POST", "/label-versions/lbv_exampledevice_carton_l3/reviews"),
+        ("POST", "/label-versions/lbv_exampledevice_carton_l3/inspect"),
+        ("POST", "/label-versions/lbv_exampledevice_carton_l3/recheck"),
+        ("GET", "/jobs/job_deadbeef"),
+        ("GET", "/check-results/chk_0001"),
+        ("POST", "/search"),
     ]
     for method, path in calls:
         response = client.request(method, path, headers=HEADERS, json={} if method == "POST" else None)
@@ -93,15 +98,15 @@ def test_every_spec_path_and_method_is_routed(client) -> None:
 
 
 def test_mock_state_picks_another_mock_of_the_same_operation(client) -> None:
-    default = client.post("/label-versions/x/inspect")
-    loading = client.post("/label-versions/x/inspect?mock_state=loading")
-    assert (default.status_code, loading.status_code) == (200, 202)
-    assert loading.json()["state"] in ("queued", "processing")
+    default = client.get("/label-versions/x/extraction", headers=HEADERS)
+    review = client.get("/label-versions/x/extraction?mock_state=needs_review", headers=HEADERS)
+    assert (default.status_code, review.status_code) == (200, 200) and default.json() != review.json()
+    assert review.headers["X-Mock"] == "true"
     empty = client.get("/public/scans/x?mock_state=empty")
     assert empty.json()["candidates"] == [] and empty.headers["X-Mock"] == "true"
     by_file = client.post("/public/ask?mock_state=abstained_out_of_scope")
     assert by_file.json()["reason"] == "out_of_scope"
-    fallback = client.post("/label-versions/x/inspect?mock_state=nonsense")
+    fallback = client.get("/label-versions/x/extraction?mock_state=nonsense", headers=HEADERS)
     assert fallback.json() == default.json()
 
 

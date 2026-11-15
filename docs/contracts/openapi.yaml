@@ -70,7 +70,9 @@ paths:
         - $ref: "#/components/parameters/JobId"
       responses:
         "200":
-          description: Job state
+          description: |
+            Job state. Jobs started by inspectLabel and recheckArtwork are real. A job id this server never issued
+            (the scan and generate jobs are still mocks) is answered with the mock job and the header X-Mock.
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Job"}
@@ -360,10 +362,34 @@ paths:
             application/json:
               schema: {$ref: "#/components/schemas/CheckResult"}
         "202":
-          description: Running; poll the job
+          description: |
+            Running. The version has no stored extraction yet, so a job reads the image, stores the extraction and
+            runs the checker. Poll GET /jobs/{job_id}; result_url is /check-results/{check_id}.
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Job"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "404": {$ref: "#/components/responses/NotFound"}
+        "422": {$ref: "#/components/responses/Invalid"}
+
+  /check-results/{check_id}:
+    get:
+      tags: [device]
+      operationId: getCheckResult
+      summary: One stored check result (the result_url of a finished inspect or re-check job)
+      parameters:
+        - name: check_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: The CheckResult
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/CheckResult"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "404": {$ref: "#/components/responses/NotFound"}
 
   /search:
     post:
@@ -573,10 +599,17 @@ paths:
             application/json:
               schema: {$ref: "#/components/schemas/CheckResult"}
         "202":
-          description: Running; poll the job
+          description: Running; same job flow as inspectLabel (result_url is /check-results/{check_id})
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Job"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "404": {$ref: "#/components/responses/NotFound"}
+        "409":
+          description: not_generated (only generated artwork with an artifact_sha256 can be re-checked)
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
 
   /label-versions/{version_id}/reviews:
     get:
@@ -1015,7 +1048,14 @@ components:
         udi_di: {type: string, description: Leave empty if not yet allocated; never filled in by LabelLens}
         sterilization: {type: string}
         storage: {type: string}
-        extra: {type: object, additionalProperties: {type: string}}
+        extra:
+          type: object
+          additionalProperties: {type: string}
+          description: |
+            Free text fields. Two keys are read by the checker: `ref` (a reference number, used when `model` is empty)
+            and `rx_only` (the string `true` when the device is prescription only, so the checker looks for the Rx
+            statement of 21 CFR 801.109). The registration form should offer `rx_only` as a checkbox.
+          examples: [{ref: "EX-100", rx_only: "true"}]
         intended_market: {type: array, items: {type: string}}
     Product:
       type: object
@@ -1270,7 +1310,20 @@ components:
             citations: {type: array, items: {$ref: "#/components/schemas/Citation"}}
             field: {type: string}
             bbox: {$ref: "#/components/schemas/PixelBox"}
+            rule_id: {type: string, description: "Checker rule that raised the finding, for example B-EXP (docs/CHECKER_SPEC.md). Absent on layout findings (CR-17)"}
       unevaluatedProperties: false
+    RuleOutcome:
+      type: object
+      required: [rule_id, outcome]
+      additionalProperties: false
+      description: |
+        What one checker rule concluded (CR-17). Findings list only problems, so coverage is how a client
+        sees which rules ran and why a rule did not decide. A rule with outcome needs_human may or may not have a
+        finding: a symbol the detector found is not confirmed as a pass, so it stays needs_human with no finding.
+      properties:
+        rule_id: {type: string}
+        outcome: {type: string, enum: [pass, fail, needs_human, not_applicable, not_checked]}
+        reason: {type: string}
     CheckResult:
       type: object
       required: [check_id, kind, run_at, findings, critical_count, review_count, info_count, passed]
@@ -1280,7 +1333,7 @@ components:
         a template) or a layout check before rendering has no label version yet, so it names template_id.
       allOf:
         - if: {properties: {kind: {enum: [inspection, self_check]}}}
-          then: {required: [label_id, version_id]}
+          then: {required: [label_id, version_id, needs_human_count, coverage]}
         - if: {properties: {kind: {enum: [template, layout]}}}
           then: {required: [template_id]}
       properties:
@@ -1295,7 +1348,10 @@ components:
         critical_count: {type: integer, minimum: 0}
         review_count: {type: integer, minimum: 0}
         info_count: {type: integer, minimum: 0}
-        passed: {type: boolean, description: True when critical_count is 0}
+        passed: {type: boolean, description: True when critical_count is 0. It does not mean the label is compliant}
+        needs_human_count: {type: integer, minimum: 0, description: "Number of coverage entries with outcome needs_human (CR-17). Passed can be true while this is above 0, so show both"}
+        coverage: {type: array, items: {$ref: "#/components/schemas/RuleOutcome"}, description: "One entry per checker rule (CR-17). Findings contain only problems"}
+        retrieval_config: {type: object, description: "Retrieval settings the citations were found with (method, module, k, rrf_k, stem, prefix)"}
         disclaimer: {type: string}
 
     # ------------------------------------------------------------ search

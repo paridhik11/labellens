@@ -619,3 +619,27 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 4. **Verified:** config check reports "config intact"; fresh set nDCG@10 plain hybrid 0.701, hybrid+stem+prefix 0.762, E5b 0.783; E5b over hybrid+stem+prefix +0.021 [-0.011, +0.054]. Abstention test best AUROC 0.800 (targets not met).
 5. **Check yourself:** the pool-depth caveat on Recall@20 in `results/step18_final.md`; that chunk_derived queries are unscored.
 6. **Assumptions:** LLM grades only; 30 queries; abstention test has 13 queries. The first test run crashed on a bug (z-scores fitted on dev features missing in test mode), no output was written, and I fixed it before the single scored run.
+
+## Step 21a: checker spec
+1. **What I did:** Wrote `docs/CHECKER_SPEC.md`: 16 rules, severities, when a rule says needs_human instead of a verdict, citation procedure and the evaluation plan.
+2. **Files:** `docs/CHECKER_SPEC.md`, `reports/step21_a.md`.
+3. **How it works:** Rules decide, retrieval only cites. A citation is a real chunk from an accepted section with a verbatim quote, or nothing.
+4. **Verified:** The needed chunks (801.1, 801.15, 801.18, 801.20, 801.40, 801.109, 830.20) exist in `regs.jsonl`.
+5. **Check yourself:** The rule table severities and the section 9 decisions.
+6. **Assumptions:** GS1 check digit has only indirect support in the corpus; `extra.rx_only` marks prescription devices.
+
+## Step 21b: checker and evaluation
+1. **What I did:** Implemented `src/checker/` and evaluated it on injected errors, dev seeds 200 and 201 first, then seeds 300 to 302 once with rules and queries frozen.
+2. **Files:** `src/checker/*`, `tests/test_checker_*.py`, `results/step21_checker_{dev,final}.md`.
+3. **How it works:** One injected error should give one flag of its own kind. A wrongly formatted date switches off the barcode date comparison so it is not flagged twice.
+4. **Verified:** Final: recall 51/51 in every condition (blind hard wrong_name confident 50/51), false alarm 0/51 [0.00, 0.07] per condition, every quote verbatim.
+5. **Check yourself:** `runner.py` precedence rules; the table of rules that never fired in the evaluation.
+6. **Assumptions:** Saturated results on easy synthetic data say little about real labels; symbol outcomes are needs_human by design.
+
+## Step 21c: real inspect, recheck, jobs, search
+1. **What I did:** Made inspectLabel, recheckArtwork, getJob, getCheckResult and searchEvidence real, with append-only `extractions` and `jobs` tables and `needs_human_count` plus `coverage` on CheckResult (CR-17).
+2. **Files:** `src/api/*`, `docs/contracts/*`, four mocks, `tests/test_api_checker.py`.
+3. **How it works:** The first inspect is a 202 job that extracts then checks; later ones are 200. CV libraries are imported only inside the job.
+4. **Verified:** Fast suite 354 passed; slow hybrid tests 2 passed; every new status validated against openapi.yaml.
+5. **Check yourself:** `_start_check` in `routes.py`.
+6. **Assumptions:** An SVG artwork is read through the PNG beside it; scan and generate jobs remain mocks.
