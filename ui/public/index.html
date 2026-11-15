@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LabelLens - Public Medicine Mode</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components.css">
+</head>
+<body data-module="public">
+  <div class="app-container">
+    <!-- Mandatory Demo Banner Across Every View -->
+    <header class="demo-banner">
+      <span class="demo-banner-badge">DEMO</span>
+      <span>DEMO MODE: Sample data for course evaluation. Not for clinical use.</span>
+    </header>
+
+    <!-- Public Header -->
+    <nav class="app-header">
+      <div class="header-left">
+        <div class="brand-logo">
+          <div class="brand-logo-mark">LL</div>
+          <span>LabelLens Public Medicine</span>
+        </div>
+        <span class="badge badge-teal" style="margin-left: 12px;">21 CFR 201, 208, 211</span>
+      </div>
+      <div class="header-right">
+        <span class="text-xs text-muted">Patient &amp; Caregiver Mode</span>
+      </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="main-content">
+      <!-- Notice banner on every public result -->
+      <div class="notice-banner notice-warning">
+        <div class="notice-icon">i</div>
+        <div>
+          <div class="notice-title">Authenticity not verified</div>
+          <div class="notice-text">Authenticity not verified. Based on a reference label match. This information does not confirm that your product is genuine.</div>
+        </div>
+      </div>
+
+      <!-- Public Sub-navigation -->
+      <div class="flex-row" style="margin-bottom: 24px; border-bottom: 1px solid var(--color-border); padding-bottom: 12px; gap: 12px;">
+        <button class="btn btn-sm btn-secondary public-nav-btn" data-screen="P1 Scan and Understand" type="button">1. Scan &amp; Understand</button>
+        <button class="btn btn-sm btn-secondary public-nav-btn active" data-screen="P2 Product information" type="button">2. Product information</button>
+        <button class="btn btn-sm btn-secondary public-nav-btn" data-screen="P3 Ask about this label" type="button">3. Ask about this label</button>
+      </div>
+
+      <!-- Dynamic Content Area -->
+      <div id="publicDynamicContent">
+        <!-- Rendered by render-p*.js -->
+      </div>
+    </main>
+  </div>
+
+  <!-- Shared Data Layer & State Switcher -->
+  <script src="../js/data.js"></script>
+  <script src="../js/state-switcher.js"></script>
+
+  <!-- Public Screen Renderers -->
+  <script src="../js/render-p1.js"></script>
+  <script src="../js/render-p2.js"></script>
+  <script src="../js/render-p3.js"></script>
+
+  <!-- Public Application Controller -->
+  <script src="../js/public-app.js"></script>
+</body>
+</html>

@@ -2,20 +2,76 @@
  * ui/js/state-switcher.js
  * Floating developer panel for LabelLens UI.
  * 
- * Hard rule:
+ * Hard rules:
  * - Only shows the states that exist for the current screen (dynamically queried from mock index).
  * - Fires 'labellens:state-changed' when a state is selected.
  * - Listens for 'labellens:screen-changed' to update its available state buttons.
+ * - Respects module separation: public page only shows public screens, professional page only shows professional screens.
+ * - No em dashes.
  */
 
 (function() {
-  let currentScreen = 'D4 Inspect'; // Default initial screen
-  let currentState = 'failed_check';
+  // Detect module mode from body attribute or URL path
+  const isPublicMode = document.body && (document.body.dataset.module === 'public' || window.location.pathname.includes('/public/'));
+  const isProfessionalMode = document.body && (document.body.dataset.module === 'professional' || window.location.pathname.includes('/professional/'));
+
+  let currentScreen = isPublicMode ? 'P2 Product information' : 'D4 Inspect';
+  let currentState = isPublicMode ? 'success' : 'failed_check';
   let isCollapsed = false;
 
   const panelContainer = document.createElement('div');
   panelContainer.className = 'dev-state-panel';
   panelContainer.id = 'devStateSwitcher';
+
+  function getScreenOptionsHtml() {
+    if (isPublicMode) {
+      return `
+        <optgroup label="Public Medicine Screens">
+          <option value="P1 Scan and Understand">P1 Scan and Understand</option>
+          <option value="P2 Product information" selected>P2 Product information</option>
+          <option value="P3 Ask about this label">P3 Ask about this label</option>
+        </optgroup>
+      `;
+    }
+
+    if (isProfessionalMode) {
+      return `
+        <optgroup label="Professional Device Screens">
+          <option value="D1 Products">D1 Products</option>
+          <option value="D2 Template setup">D2 Template setup</option>
+          <option value="D3 Upload or scan">D3 Upload or scan</option>
+          <option value="D4 Inspect" selected>D4 Inspect</option>
+          <option value="D5 Evidence">D5 Evidence</option>
+          <option value="D6 Changes">D6 Changes</option>
+          <option value="D7 Review">D7 Review</option>
+          <option value="D8 Export">D8 Export</option>
+          <option value="D9 History">D9 History</option>
+          <option value="D10 Print verification">D10 Print verification</option>
+        </optgroup>
+      `;
+    }
+
+    // Default fallback if not scoped to a specific module
+    return `
+      <optgroup label="Public Medicine Screens">
+        <option value="P1 Scan and Understand">P1 Scan and Understand</option>
+        <option value="P2 Product information">P2 Product information</option>
+        <option value="P3 Ask about this label">P3 Ask about this label</option>
+      </optgroup>
+      <optgroup label="Professional Device Screens">
+        <option value="D1 Products">D1 Products</option>
+        <option value="D2 Template setup">D2 Template setup</option>
+        <option value="D3 Upload or scan">D3 Upload or scan</option>
+        <option value="D4 Inspect" selected>D4 Inspect</option>
+        <option value="D5 Evidence">D5 Evidence</option>
+        <option value="D6 Changes">D6 Changes</option>
+        <option value="D7 Review">D7 Review</option>
+        <option value="D8 Export">D8 Export</option>
+        <option value="D9 History">D9 History</option>
+        <option value="D10 Print verification">D10 Print verification</option>
+      </optgroup>
+    `;
+  }
 
   function renderPanel() {
     panelContainer.innerHTML = `
@@ -30,23 +86,7 @@
         <div class="flex-between" style="margin-bottom: 6px;">
           <span class="text-xs font-semibold text-muted">Screen:</span>
           <select id="devScreenSelect" style="font-size: 0.78rem; padding: 2px 6px; border-radius: var(--radius-sm); border: 1px solid var(--color-border);">
-            <optgroup label="Public Medicine Screens">
-              <option value="P1 Scan and Understand">P1 Scan and Understand</option>
-              <option value="P2 Product information">P2 Product information</option>
-              <option value="P3 Ask about this label">P3 Ask about this label</option>
-            </optgroup>
-            <optgroup label="Professional Device Screens">
-              <option value="D1 Products">D1 Products</option>
-              <option value="D2 Template setup">D2 Template setup</option>
-              <option value="D3 Upload or scan">D3 Upload or scan</option>
-              <option value="D4 Inspect" selected>D4 Inspect</option>
-              <option value="D5 Evidence">D5 Evidence</option>
-              <option value="D6 Changes">D6 Changes</option>
-              <option value="D7 Review">D7 Review</option>
-              <option value="D8 Export">D8 Export</option>
-              <option value="D9 History">D9 History</option>
-              <option value="D10 Print verification">D10 Print verification</option>
-            </optgroup>
+            ${getScreenOptionsHtml()}
           </select>
         </div>
 
@@ -154,7 +194,7 @@
 
     } catch (err) {
       console.error('Failed to load states for screen:', currentScreen, err);
-      buttonsContainer.innerHTML = `<span class="text-xs" style="color: var(--color-danger-text);">Error loading states</span>`;
+      buttonsContainer.innerHTML = '<span class="text-xs" style="color: var(--color-danger-text);">Error loading states</span>';
     }
   }
 
@@ -219,6 +259,9 @@
   }
 
   function escapeHtml(str) {
+    if (window.LabelLensData && window.LabelLensData.escapeHtml) {
+      return window.LabelLensData.escapeHtml(str);
+    }
     if (!str) return '';
     return String(str)
       .replace(/&/g, '&amp;')

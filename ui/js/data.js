@@ -6,6 +6,7 @@
  * - Never invent data. All mock representations come from src/api/mock/index.json.
  * - All screen data loading happens through loadScreen(screen, state).
  * - Keep public medicine and professional device workflows separate.
+ * - No em dashes.
  */
 
 const CONFIG = {
@@ -16,28 +17,46 @@ const CONFIG = {
   currentUserHeader: 'usr_demo_editor'
 };
 
+const DEMO_BANNER_TEXT = 'DEMO MODE: Sample data for course evaluation. Not for clinical use.';
+const PUBLIC_NOTICE_TEXT = 'Authenticity not verified. Based on a reference label match.';
+
 // Cached mock index data
 let mockIndexCache = null;
 
 /**
  * Fetch and cache the mock index file.
+ * Supports relative path fallbacks if served from nested directories.
  * @returns {Promise<Object>} Mock index object containing list of mocks.
  */
 async function getMockIndex() {
   if (mockIndexCache) {
     return mockIndexCache;
   }
-  try {
-    const response = await fetch(CONFIG.mockIndexUrl);
-    if (!response.ok) {
-      throw new Error(`Failed to load mock index: ${response.status} ${response.statusText}`);
+  const candidateUrls = [
+    CONFIG.mockIndexUrl,
+    '../../src/api/mock/index.json',
+    '../src/api/mock/index.json',
+    'src/api/mock/index.json'
+  ];
+
+  let lastError = null;
+  for (const url of candidateUrls) {
+    try {
+      const response = await fetch(url);
+      if (response.ok) {
+        mockIndexCache = await response.json();
+        if (url.includes('src/api/mock/index.json')) {
+          CONFIG.mockBaseUrl = url.replace('index.json', '');
+        }
+        return mockIndexCache;
+      }
+    } catch (err) {
+      lastError = err;
     }
-    mockIndexCache = await response.json();
-    return mockIndexCache;
-  } catch (error) {
-    console.error('Error fetching mock index from', CONFIG.mockIndexUrl, error);
-    throw error;
   }
+
+  console.error('Error fetching mock index from candidates', candidateUrls, lastError);
+  throw lastError || new Error('Failed to load mock index.');
 }
 
 /**
@@ -216,12 +235,7 @@ async function loadScreen(screen, state, options = {}) {
     return fetchMockPayload(target);
 
   } else if (CONFIG.mode === 'api') {
-    // TODO: Connect live API mode when FastAPI backend is active at CONFIG.apiBaseUrl.
-    // Planned integration:
-    // 1. Identify operationId from screen/state mapping in docs/contracts/SCREENS.md.
-    // 2. Send HTTP request to `${CONFIG.apiBaseUrl}/...` matching docs/contracts/API.md.
-    // 3. Attach authentication stub header: 'X-User-Id': CONFIG.currentUserHeader.
-    // 4. Handle 202 Job polling via GET /jobs/{job_id} for async scans, artwork generation, and print verification.
+    // API mode placeholder
     console.warn('API mode is not yet connected to the backend. Set CONFIG.mode = "mock" to use mock contracts.');
     throw new Error('API mode not implemented yet. Please switch CONFIG.mode to "mock".');
   } else {
@@ -258,9 +272,27 @@ async function fetchMockPayload(mockEntry) {
   }
 }
 
+/**
+ * Safe HTML escaping helper.
+ * @param {*} str
+ * @returns {string} Escaped HTML string
+ */
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // Attach to window for global access
 window.LabelLensData = {
   CONFIG,
+  DEMO_BANNER_TEXT,
+  PUBLIC_NOTICE_TEXT,
+  escapeHtml,
   getMockIndex,
   getStatesForScreen,
   loadScreen,
