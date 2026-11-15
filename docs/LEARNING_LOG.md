@@ -652,3 +652,12 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its CV step 16 to 
 4. How I verified it: `python -m scripts.real.build_medicine_corpus --offline` returned products=10, chunks=147, corpus_sha256=2b9dd48d230ee52938c564700d61d6db19ebe68eee4beb285c2c74b601aa018f. Online and offline fingerprints matched. Actual Conda fast-suite output: `436 passed, 3 deselected in 158.85s (0:02:38)`. `python -m ruff check --no-cache src tests scripts/real scripts/cv_experiments/eval_perspective.py`: `All checks passed!`. Export/device/medicine targeted suite: `59 passed in 48.25s`.
 5. What you should check yourself: Compare a passage with the source; check effective dates and module=medicine. Rebuild from the pinned catalog.
 6. What I am unsure about or assumed: No retrieval integration/evaluation or clinical validation. Photo extraction deferred: name 1/10, lot 0/10, expiry 0/10; human spot-check explicitly deferred by Parth, NOT_RUN. This does not block the medicine corpus.
+
+## CV step 26: Task 7a standalone template-ratio perspective correction
+
+1. What I did: Added a standalone boundary-to-rectangle correction module. Kept the extractor and existing preprocessing unchanged. Measured fresh synthetic conditions separately.
+2. Files created or changed: src/cv/perspective.py, scripts/cv_experiments/eval_perspective.py, tests/test_perspective.py and reports/parth_task7a.md. CV README explains the independent API.
+3. How it works: A homography maps four detected image corners into a rectangle at the template's width/height ratio. No detection returns None instead of a fabricated boundary.
+4. How I verified it: `/opt/anaconda3/envs/labellens-cv/bin/python -m scripts.cv_experiments.eval_perspective` printed `clean: detected=30/30, within_10px=30/30`, `moderate: detected=30/30, within_10px=30/30`, `hard: detected=30/30, within_10px=30/30`. Seeds 7001 to 7003, ten labels per seed/condition. Conda fast suite: `436 passed, 3 deselected in 158.85s (0:02:38)`. Ruff: `All checks passed!`.
+5. What you should check yourself: Inspect coordinate mapping assertions, fixed aspect ratio and missed-detection denominator. Check that src/cv/extract.py was not changed.
+6. What I am unsure about or assumed: One template family, roughly upright labels, visible boundaries; no real-photo geometry or OCR accuracy claim. Human photo spot-check deferred by Parth, NOT_RUN; real extraction remains name 1/10, lot 0/10, expiry 0/10.
