@@ -1023,7 +1023,7 @@ components:
         size_pt: {type: number, exclusiveMinimum: 0}
         align: {type: string, enum: [left, center, right]}
         max_lines: {type: integer, minimum: 1}
-        symbol_name: {type: string}
+        symbol_name: {type: string, enum: [manufacturer, expiry]}
         symbology: {type: string, enum: [GS1_DataMatrix, GS1-128]}
         min_size_mm: {type: number, exclusiveMinimum: 0}
       allOf:

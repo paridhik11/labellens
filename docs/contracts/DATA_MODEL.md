@@ -113,7 +113,7 @@ Slot:
 | `bbox_mm` | array of 4 numbers `[x, y, w, h]` | req | Millimetres from the top left corner. Not pixels, so it differs from `OcrBlock.bbox`. |
 | `font`, `size_pt`, `align`, `max_lines` | string, number, string, integer | text only | |
 | `symbology` | string | barcode only | `GS1_DataMatrix` or `GS1-128` (the strings the current renderer on Parth's branch accepts). |
-| `symbol_name` | string | symbol only | Reference symbol to draw, for example `manufacturer`. |
+| `symbol_name` | `manufacturer` or `expiry` | symbol only | Reference symbol to draw. Only these two are supported for now, each at least 5 mm. Sterilization and other symbols are future work (see D-2). |
 
 ## LabelVersion
 
@@ -368,7 +368,7 @@ Separate data, rules and results from the device module.
 ## Version history rules
 
 1. **Append only.** An edit to a product, template, label, change or review inserts a new row with the next version number. No UPDATE of content columns. Status columns on the newest label row may move forward through `draft`, `checked`, `reviewed`, `published`, and each move writes an AuditEvent.
-2. **Version numbers are per entity family and gapless.** Product versions 1, 2, 3 for a product. Artwork versions L1, L2, L3 for a label family. Template versions per template.
+2. **Version numbers are per entity family and gapless.** Product versions 1, 2, 3 for a product. Artwork versions L1, L2, L3 for a label family. **Template versions are numbered per template inside one product:** a `template_id` belongs to exactly one product and never moves to another. Registering a template with a new `template_id` creates version 1. Registering with an existing `template_id` of the same product creates the next version (2, 3, ...), so each template_id has versions 1..n with no gaps. A product may have several templates (for example a carton and a pouch), each with its own counter. Registering an existing `template_id` under a different product is refused.
 3. **A version records its inputs.** A LabelVersion stores the `product_version` and `template_version` it was built from. A GeneratedArtwork stores the `change_id`. This lets the History screen replay what produced each artwork.
 4. **Published and approved versions are immutable.** A fix is a new version that supersedes the old one. The old one stays readable.
 5. **Approval binds to bytes and to a check.** A Review stores `artifact_sha256` and the `check_id` of the passed CheckResult that cleared it. If the artwork changes, the hash changes and the earlier approval no longer applies.

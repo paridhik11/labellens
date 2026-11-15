@@ -19,7 +19,6 @@
       "change_id": "chg_0002",
       "label_id": "lbl_exampledevice_carton",
       "version_id": "lbv_exampledevice_carton_l2",
-      "slot_id": "sterile_symbol",
       "item_kind": "symbol",
       "title": "Symbol selection",
       "description": "Sterilization symbol may need to change",
