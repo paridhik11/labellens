@@ -43,3 +43,6 @@ Open clear_online/REVIEW.md and compare each field with the original image. Spot
 
 ## 6. What I am unsure about or assumed
 Visibility is AI-inspected; human review is NOT_RUN. Photos are selected retail/catalog views with related families, not a representative benchmark. Extraction still needs fixing despite readable inputs. No model accuracy improvement is claimed. Image licenses are not established, so binaries stay local.
+
+Update 2026-11-16: Parth explicitly deferred the three-photo human spot-check.
+Status remains NOT_RUN. Independent tasks proceeded; references remain LLM-labelled.

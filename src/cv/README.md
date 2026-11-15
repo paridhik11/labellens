@@ -515,3 +515,43 @@ exact manifest bytes. It then checks every referenced artifact hash before
 extracting the photo. The function cannot mint approval records or publish.
 The caller must obtain reviewer identity and authorization from a trusted
 application service, not from the uploaded manifest or photograph.
+
+## Standalone template-ratio correction (Task 7a)
+
+`src.cv.perspective.correct_perspective(rgb, aspect_ratio, output_width=1000)`
+returns corrected RGB pixels, source corners and an image-to-flat homography,
+or None when boundary evidence is absent. A homography maps coordinates between
+perspective views. Output height is rounded from the template ratio. Labels must
+be roughly upright; the function does not recognize text orientation. This is a
+new independent entry point and is not wired into the existing extractor.
+
+Reproduce the synthetic geometry benchmark:
+
+```bash
+python -m scripts.cv_experiments.eval_perspective
+```
+
+Results stay in `data/synthetic/perspective_task7a/evaluation.json`. The report
+in `reports/parth_task7a.md` defines success and separates the three conditions.
+
+## Per-field print comparison (Task 7)
+
+`src.cv.print_verify.verify_print(photo_path, approved_label, approval_record=...,
+check_record=..., authorized_reviewers=...)` accepts the existing generator's
+manifest package. It verifies authorized review and the matching passed check,
+then fingerprints the manifest and every artifact before blind extraction.
+Each field has expected/observed text, status, OCR evidence confidence and box.
+Unknown confidence or ambiguous evidence requires human review. Confidence is
+not a calibrated probability of correctness. Barcode and symbol issues are
+retained separately. Task 2 Label snapshot hashes are not interchangeable with
+legacy manifest hashes. The old `src.cv.verify` API remains available unchanged.
+
+```bash
+python -m src.cv.print_verify --folder data/real_photos/clear_online
+```
+
+This second command is a provisional comparison against LLM-labelled readings,
+not approval-gated print validation. It creates no review records. Online source
+photos have no trusted approved reference package. Human spot-check is deferred
+by Parth. Extraction remains poor: name 1/10, lot 0/10, expiry 0/10. Detailed local
+output is `print_comparison_llm.json`; see `reports/parth_task7.md`.
