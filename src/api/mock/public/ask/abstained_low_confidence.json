@@ -1,0 +1,9 @@
+{
+  "abstained": true,
+  "reason": "low_confidence",
+  "score_name": "hybrid_top_score",
+  "score": 0.012,
+  "threshold": 0.02,
+  "message": "I could not find a passage that answers this clearly enough. Please check the leaflet or ask a pharmacist.",
+  "banner": "Authenticity not verified. Based on a reference label match."
+}

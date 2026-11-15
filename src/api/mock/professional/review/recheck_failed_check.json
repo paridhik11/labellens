@@ -1,0 +1,28 @@
+{
+  "check_id": "chk_0005",
+  "kind": "self_check",
+  "run_at": "2026-11-12T10:00:00Z",
+  "findings": [
+    {
+      "flag_id": "flg_0007",
+      "kind": "text_overflow",
+      "severity": "critical",
+      "message": "Sterilization text wraps past max_lines (2).",
+      "observed": "3 lines",
+      "expected": "at most 2 lines",
+      "evidence_chunk_ids": [],
+      "confidence": 1.0,
+      "needs_human": false,
+      "citations": [],
+      "field": "sterilization_text"
+    }
+  ],
+  "critical_count": 1,
+  "review_count": 0,
+  "info_count": 0,
+  "passed": false,
+  "disclaimer": "Draft generated for review. Not a compliance determination.",
+  "label_id": "lbl_exampledevice_carton",
+  "version_id": "lbv_exampledevice_carton_l4",
+  "artifact_sha256": "a1281d207e4d3c2fd5a5edfcf221739af4d4bca9ce0807a956430f4c9fa82c3c"
+}

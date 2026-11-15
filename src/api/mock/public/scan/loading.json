@@ -1,0 +1,7 @@
+{
+  "job_id": "job_pub_0001",
+  "kind": "public_scan",
+  "state": "processing",
+  "progress": 0.5,
+  "message": "Looking for a matching reference label"
+}

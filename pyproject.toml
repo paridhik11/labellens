@@ -16,3 +16,14 @@ target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+# Markdown table rows inside a report template cannot be wrapped.
+"src/cv/diagnose.py" = ["E501"]
+# The importorskip guard must run before the CV imports below it.
+"src/cv/test_*.py" = ["E402"]
+"src/gen/test_*.py" = ["E402"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI dependencies are declared as default arguments: Depends(...)
+extend-immutable-calls = ["fastapi.Depends"]

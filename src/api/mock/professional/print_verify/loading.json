@@ -1,0 +1,7 @@
+{
+  "job_id": "job_pv_0001",
+  "kind": "print_verify",
+  "state": "processing",
+  "progress": 0.3,
+  "message": "Correcting perspective"
+}

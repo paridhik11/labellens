@@ -431,3 +431,183 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 4. **Verified:** `pytest -m "not slow"`: 226 passed; ruff clean. Wall times: best together 36.6 min, fine-tuning 45.5 min (21.8 s per step, estimate was 60 to 90 min), scoring E5b top 30 with the fine-tuned model 40.7 min, with the off-the-shelf model 7.6 min (cached pairs reused). The fresh set was not scored.
 5. **Check yourself:** The E5b and E6 rows of the summary table in `results/step18_experiments.md`, the training log `results/run18d_train.log` (ignored by git), and `results/step18_abstain.md`.
 6. **Assumptions:** The only known positive of a synthetic query is its source chunk, so a hard negative may in fact be relevant (same-section chunks are removed to reduce this). Epoch chosen on 30 validation groups, so the choice is noisy. Test half of the abstention split and the fresh set (web_faq and chunk_derived reported separately) are scored once at 18f.
+
+---
+
+## Step 19a: data model and schema change requests (branch step19-contracts)
+1. **What I did:** Wrote `docs/contracts/DATA_MODEL.md`, which covers 14 entities with their fields, types, relations and version history rules, plus the public medicine mode shapes. Every field maps to a `schemas.py` class field or points to a numbered change request. Wrote `docs/contracts/SCHEMA_CHANGE_REQUESTS.md` with 14 proposed requests (CR-1 to CR-14) for what the locked `schemas.py` lacks. `schemas.py` was not edited.
+2. **Files changed:** `docs/contracts/DATA_MODEL.md` (entity contract), `docs/contracts/SCHEMA_CHANGE_REQUESTS.md` (gap list), this log.
+3. **How it works:** A Finding is the existing `Flag` plus optional citations. Each citation is built from a real `Chunk` (chunk_id, section, url, verbatim quote), so no regulation text is invented. Versions are append-only, and an approval binds to the artwork's sha256.
+4. **Verified:** A throwaway script found 41 `Class.field` references to `schemas.py` and none were missing. Every field of ProductRecord, LabelExtraction, Flag and ChangeRequest appears in the doc. No em dashes. `ruff check src tests`: All checks passed.
+5. **Check yourself:** CR-14 (a returned change stays `draft`), version rule 5 (approval binds to the hash), and the public corpus line (21 CFR 201, 208, 211 only).
+6. **Assumptions:** Report and PublishedPage are exports, not tables. Prefixed opaque ids. The abstention score is provisional. None of the CRs is approved.
+
+## Step 19a2: data model review changes
+1. **What I did:** Applied Pari's five 19a review changes. Reports and published pages now carry a fixed `version_id`. Citations have `source_type` (cfr or label_section). Approval binds to `artifact_sha256` and the passed `check_id`. The CR table has a "Parth" column. Status is derived from the latest Review (new "Status derivation" table). I also added CR-15 and aligned `GS1-128`, `symbol_name` and the manifest hash with Parth's renderer on `cv-fixes`.
+2. **Files changed:** `docs/contracts/DATA_MODEL.md`, `docs/contracts/SCHEMA_CHANGE_REQUESTS.md`, this log.
+3. **How it works:** `label_id` is the label family, and `version_id` is one immutable version (L2). A QR page stores `version_id`, so it keeps showing L2 even after L3 is published.
+4. **Verified:** The mapping script found 41 refs, none missing. Em dashes 0. The openapi "returned" example comes in 19c.
+5. **Check yourself:** The status derivation order, the `check_id` rule in Review, and the Parth column values.
+6. **Assumptions:** Public label answers have no abstention validation. The public label corpus is not built. Parth's code is not on main yet.
+
+## Step 19b: template spec
+1. **What I did:** Wrote `docs/contracts/TEMPLATE_SPEC.md`: units (mm from the top left, pt for fonts, the PDF y-flip, SVG viewBox in mm), the template JSON and slot keys, validation rules that become layout findings, the named SVG groups (`layer-background`, `layer-slots`, `slot-{id}`, `layer-watermark`, `layer-review`), and the GS1 barcode rule KEEP, REGENERATE or NEEDS_INPUT, with worked examples.
+2. **Files changed:** `docs/contracts/TEMPLATE_SPEC.md` (new), this log.
+3. **How it works:** A new address leaves the GS1 payload unchanged, so the decision is KEEP and the barcode is reused exactly. A confirmed new lot changes AI (10), so the decision is REGENERATE. A missing UDI-DI gives NEEDS_INPUT and `IdentifierRequired`.
+4. **Verified:** A throwaway script found the spec example OK and Parth's `test_device.json` OK. The GENERATION.md example fails on a missing `symbol_name` (noted, not edited). The placeholder `00000000000000` has a valid mod-10 check digit. The PDF sizes are 283.46 x 170.08 pt. Em dashes 0.
+5. **Check yourself:** The DRAFT band (6 mm) and the 6 pt minimum, the NEEDS_INPUT row for unconfirmed changes, and SVG group rule 2 (watermark removed only with approval).
+6. **Assumptions:** Parth's renderer does not yet emit the named groups. The GS1 lot and serial limits (20 characters) need checking against the current GS1 spec.
+
+## Step 19c: OpenAPI 3.1 contract and API guide
+1. **What I did:** Wrote `docs/contracts/openapi.yaml`: 28 paths, 31 operations, 66 component schemas. It covers products and templates, scans and extraction, inspection, search with a retrieval config, change assessment, affected labels, generate (409 needs_input), re-check, review, publish, exports, print verification, history, jobs, and public scan and ask with an abstain response. Wrote `docs/contracts/API.md` to explain it, and marked `docs/API_CONTRACT.md` as superseded.
+2. **Files changed:** `docs/contracts/openapi.yaml`, `docs/contracts/API.md` (new), `docs/API_CONTRACT.md` (one superseded note), this log.
+3. **How it works:** Each schema mirrors `schemas.py` where a class exists (ProductRecord, LabelExtraction, Flag, Hit). Extended shapes use `allOf` plus `unevaluatedProperties: false`, so a typo in a mock fails validation. A returned Review must have `resulting_status: draft`, which the schema enforces with `if`/`then`.
+4. **Verified:** Every component schema passed the JSON Schema 2020-12 metaschema (0 failing). 72 distinct `$ref`s, all resolved. No duplicate operationIds, path params match. 5 examples validate, including both `returned` examples. Negative checks reject a returned review with status reviewed, an approve without `check_id`, an unknown abstain reason and an extra key. All 31 operationIds appear in API.md. Ruff clean.
+5. **Check yourself:** `AbstainedAnswer` (score and threshold may be null for a scope rule), `RetrievalConfig` defaults, and the `generateArtwork` 409 body.
+6. **Assumptions:** `rerank` and `expansion` have no code in `src/ir` yet. Auth is not modelled. The abstention score is provisional.
+
+## Step 19c2: users, terminal reject, voided approvals, 202 jobs, GS1 check
+1. **What I did:** Added a minimal User (user_id, name, role editor, reviewer or admin) behind an `X-User-Id` header stub (no login), with `GET /me`. Review, AuditEvent and ChangeLogEntry carry `user_id`, and the submitter of a change cannot approve it (403 self_approval_forbidden). Documented that a new artwork version after approval voids that approval, that reject is terminal (`closed`, 409 change_closed), and that scan, generate and print verify always return a 202 Job envelope with GET result endpoints. Checked the GS1 formats against GS1's AI list and added a one-line authority note to GENERATION.md.
+2. **Files changed:** `docs/contracts/DATA_MODEL.md`, `openapi.yaml`, `API.md`, `TEMPLATE_SPEC.md`, `SCHEMA_CHANGE_REQUESTS.md` (CR-16 User), `docs/GENERATION.md` (one note line), this log.
+3. **How it works:** Status derivation only looks at the change's latest artwork version. After L3 is approved, regenerating gives L4 with no Review, so the change drops back to draft or checked ("Needs review" in the UI).
+4. **Verified:** GS1 dataset (ref.gs1.org): 01 `N2+N14`, 10 `N2+X..20` separator required, 17 `N2+N6`, 21 `N2+X..20` separator required, so the 20-character limits were already right. OpenAPI: 35 operations, 67 schemas, 0 failing the metaschema, 73 refs resolved, 6 examples OK, all 35 operationIds in API.md. Mapping script: 41 refs, none missing. Em dashes 0.
+5. **Check yourself:** The self-approval rule (the submitter may still return or reject), Status derivation rule 1, and the "public endpoints need no header" choice.
+6. **Assumptions:** `X-User-Id` is a trusted dev stub, not security. "Needs review" is a UI label, not a fifth status.
+
+## Step 19d: screens
+1. **What I did:** Wrote `docs/contracts/SCREENS.md`: 3 public screens (P1 to P3) and 10 professional screens (D1 to D10). Each state names the operationId that feeds it and the mock file path, with a shared state vocabulary (empty, loading, success, failed_check, needs_review, approved, abstained, plus failed for broken jobs).
+2. **Files changed:** `docs/contracts/SCREENS.md` (new), this log.
+3. **How it works:** The Inspect screen's "failed check" state is the `inspectLabel` 200 response with an expiry mismatch finding, and its mock is `professional/inspect/failed_check.json`. The UI can build every state from mocks before the backend exists.
+4. **Verified:** All 27 operationIds named in SCREENS.md exist in openapi.yaml. 50 mock paths listed. Em dashes 0.
+5. **Check yourself:** The coverage check line, and the P2 needs_review meaning (several candidates, so a picker).
+6. **Assumptions:** Idle scan screens need no mock. `failed` is an extra state.
+
+## Step 19e: mock JSON and contract tests
+1. **What I did:** Wrote 50 mock responses under `src/api/mock/` (public and professional kept apart), one per screen state in SCREENS.md, plus `index.json`, which maps each file to its screen, state, operationId, HTTP status and schema. Wrote `tests/test_mock_contracts.py`, which validates every mock against its endpoint's response schema in openapi.yaml and checks the mapped parts with the locked `schemas.py` models. It also checks honesty rules: citations quote real chunks of the right module, no invented GTIN or UDI-DI, drafts are marked, a returned change derives draft from its latest Review, a rejected change is closed, an approval is bound to a passed check and is not self-approved, and every required state and all four abstain reasons are covered.
+2. **Files changed:** `src/api/mock/**` (51 JSON files), `tests/test_mock_contracts.py` (new), `requirements.txt` (+pyyaml to read openapi.yaml, +jsonschema to validate mocks), `.github/workflows/ci.yml` (installs the same two), `docs/contracts/openapi.yaml` and `DATA_MODEL.md` (CheckResult may name a `template_id` for template and pre-render layout checks).
+3. **How it works:** `professional/evidence/success.json` is a real run of our own BM25 on the device chunks. 801.18 (date format) ranked first for "format of expiration date on a medical device label". Other scores and confidences are illustrative, and `index.json` says so.
+4. **Verified:** `pytest -q tests/test_mock_contracts.py`: 82 passed before the non-vacuous check was added. Full fast suite: 205 passed, 1 deselected. Ruff: all checks passed. A deliberately broken mock fails validation (test_validation_is_not_vacuous).
+5. **Check yourself:** The `index.json` note on illustrative values, `test_no_invented_identifiers`, and the ci.yml one-line change.
+6. **Assumptions:** The mocks were generated once by a scratchpad script (not committed) and are edited by hand from now on. Abstain scores and thresholds are illustrative, not Step 16 values.
+
+## Step 19g: wrap-up of Step 19 (contracts)
+1. **What I did:** Updated CLAUDE.md "Current state" and "Next steps" for Step 19 and re-ran every check. Step 19 adds the contracts in `docs/contracts/` (DATA_MODEL, TEMPLATE_SPEC, openapi.yaml, API, SCREENS, SCHEMA_CHANGE_REQUESTS), 50 mocks in `src/api/mock/`, and `tests/test_mock_contracts.py`.
+2. **Files changed:** `CLAUDE.md`, this log.
+3. **How it works:** The UI builds against `src/api/mock/` files listed in `index.json`. The test fails if a mock drifts from openapi.yaml, so the contract and the mocks cannot silently disagree.
+4. **Verified:** Fast suite 205 passed, 1 deselected. `tests/test_mock_contracts.py` 83 passed. Ruff clean. No em dashes in contract docs or CLAUDE.md. `git diff 3c12419 HEAD` shows no change under src/common, src/ir, src/cv, src/gen or data/eval.
+5. **Check yourself:** CR-1 to CR-16 with the Parth column, the combined assumptions in the Step 19 report, and the ci.yml change.
+6. **Assumptions:** See the combined list in the Step 19 report. CI status could only be checked through the public GitHub API, if at all (gh is not logged in).
+
+---
+
+## CV fix 1: setup, reproduction and diagnosis
+1. **What I did:** Built a Python 3.12 CV environment from the pinned versions (now also in `requirements-cv.txt` at the root) and reproduced every published seed-42 number exactly. Added two extra photo conditions without touching the old three, and a tool that runs any older commit's code on the same images. Wrote `results/cv_diagnosis.md`.
+2. **Files:** `src/gen/augment.py` and `src/gen/generate_dataset.py` (conditions `hard_original`, `very_hard`), `src/cv/baseline_ref.py` (run an old commit), `src/cv/diagnose.py` (report), `requirements-cv.txt`, `pyproject.toml` (long table lines allowed in the report template).
+3. **How it works:** Commit `3c98598` changed the decoder and made the benchmark easier at the same time. Running the old and new decoder on both the old and new hard setting (same geometry, only blur and noise differ) separates the two effects.
+4. **Verified:** `python -m src.cv.diagnose --datasets data/synthetic/dev42 data/synthetic/dev43`. Both dev seeds: old decoder 7/34 on original hard, 14/34 on reduced; new decoder 25/34 and 31/34. OCR: 155 of 179 wrong fields only dropped spaces; padding the crops removes the errors.
+5. **Check yourself:** The 2x2 table, the controlled OCR experiment table, the template audit.
+6. **Assumptions:** The dataset hash differs from macOS while the metrics match; I could not tell whether PNG encoding or pixel values differ.
+
+## CV fix 2: OCR
+1. **What I did:** Each detected text line is now re-cropped with a 30 percent margin on lightly dithered pixels after CLAHE contrast equalisation, identically for every condition. Added field naming by printed keys and layout (no slot positions) and format post-correction.
+2. **Files:** `src/cv/ocr.py`, `src/cv/fields.py`.
+3. **How it works:** The recogniser hesitates between 0 and O, and between a gap and a space, when the crop touches the ink. A margin and a little noise push it off that knife edge. CLAHE stretches contrast tile by tile, so text washed out by glare turns dark again.
+4. **Verified:** Fresh seeds, template mode: CER 0.00% on clean, moderate, hard and hard_original (4,782 characters each).
+5. **Check yourself:** `read_text_robust`, `DEFAULT_DITHER_PAD_RATIOS`, `map_fields_by_layout`.
+6. **Assumptions:** The dither uses a fixed seed, so results are reproducible but depend on that seed.
+
+## CV fix 3: barcode
+1. **What I did:** Added a blind decoder that finds barcode-like regions itself, levels them, and tries Wiener deblurring at five strengths, two scales and three thresholds. The template-slot mode got the same attempts and is reported separately.
+2. **Files:** `src/cv/barcode_blind.py`.
+3. **How it works:** The test barcode is an 8 by 96 module strip at 3 pixels per module, so mild blur erases it. A Wiener filter divides out the known blur shape but stops amplifying where noise would dominate. Only complete GS1 decodes are accepted, so noise cannot become a barcode.
+4. **Verified:** Fresh seeds, blind: hard_original 51/51 (starting point 37/51), very hard 43/51 (starting point 28/51).
+5. **Check yourself:** `locate_barcode_candidates`, `decode_crop`, the noise test in `tests/test_cv_vision.py`.
+6. **Assumptions:** Only DataMatrix, QR, Code 128 and EAN-13 are tried; pylibdmtx would not load on Windows.
+
+## CV fix 4: symbols and negative cases
+1. **What I did:** Added a generator for negative cases (missing symbol, wrong symbol, wrong barcode value) and variations (smaller, larger, independently drawn symbols), a whole-label multi-size symbol search, and checks that return shared `Flag` objects.
+2. **Files:** `src/gen/generate_negatives.py`, `src/gen/alt_symbols.py`, `src/gen/smoke_label.py`, `src/cv/symbols.py`, `src/cv/consistency.py`.
+3. **How it works:** A false positive is a symbol reported where none is printed. Before this every test label had both symbols, so that could not be measured.
+4. **Verified:** Fresh seeds: 0 of 306 absent symbols reported; small symbols 204/204 blind (0/204 before); independent artwork 0/204; wrong barcode flagged 102/102.
+5. **Check yourself:** The `alt_style` row (0/204) and why adding its references was dropped in `results/cv_experiments.md`.
+6. **Assumptions:** The independent artwork is still my own drawing, not ISO artwork.
+
+## CV fix 5: very hard condition and label corners
+1. **What I did:** Added glare and occlusion as a new condition (old ones unchanged) and a fallback that rebuilds label corners when the outline is partly hidden.
+2. **Files:** `src/gen/augment.py` (from CV fix 1), `src/cv/preprocess.py`.
+3. **How it works:** Take the outer edge pixels, fit each label side with a Huber line fit (which gives little weight to a few outliers such as a finger sticking out), and intersect neighbouring sides, so a hidden corner is found where its two visible sides meet.
+4. **Verified:** Fresh seeds, very hard: corners within 10 px 51/51 (starting point 22/51).
+5. **Check yourself:** `find_label_corners_fallback`, `_refit_side`, `test_fallback_corners_survive_occlusion`.
+6. **Assumptions:** The occluders are bars from the edge; a label covered in the middle was not tested.
+
+## CV fix 6: extractor modes, tests, integration, real-photo harness
+1. **What I did:** `extract_label` now has `mode="template"` and `mode="blind"`, sharing one OCR pass. Added `tests/test_cv_text_rules.py` (no CV libraries needed) and `tests/test_cv_vision.py` (skips without them, OCR tests marked slow), `src/cv/integration.py`, `src/cv/eval_real.py` and `data/real_photos/README.md`.
+2. **Files:** `src/cv/extract.py`, `src/cv/eval_v2.py`, `src/cv/integration.py`, `src/cv/eval_real.py`, the two test files, the README.
+3. **How it works:** `pytest.importorskip("cv2")` skips the whole file when OpenCV is missing, so the root CI command still passes.
+4. **Verified:** Main environment without CV libraries: `pytest -q -m "not slow"` gave 109 passed, 1 skipped, 1 deselected. CV environment: 256 passed, 1 failed (Poppler, pre-existing). Integration: 5 labels passed through `LabelExtraction`, `ProductRecord` and `Flag` without schema changes.
+5. **Check yourself:** `to_product_record` never invents a UDI-DI; `eval_real` prints that there is nothing to evaluate without photos.
+6. **Assumptions:** No photo or transcription was created; Pari adds them.
+
+## CV fix 7: final evaluation on fresh seeds
+1. **What I did:** Froze the pipeline at `c594b6d`, then generated seeds 100, 101, 102 once and ran the final and starting-point code on them. Wrote `results/cv_final_eval.md`.
+2. **Files:** `src/cv/final_report.py`, `results/cv_final_eval.md`, `results/cv_experiments.md`, `scripts/cv_experiments/`.
+3. **How it works:** Dev seeds are where tuning is allowed; fresh seeds are the exam. Changing code after looking at the exam would turn it into more practice.
+4. **Verified:** 255 main and 714 negative images, 0 extraction errors. Very hard barcode fell from 33/34 on dev to 43/51 on fresh.
+5. **Check yourself:** The header of `cv_final_eval.md` (the report was re-run once after a Windows process-pool crash, with no code change).
+6. **Assumptions:** 51 images per condition is small; one label is about 2 points.
+
+## CV fix 8: documents
+1. **What I did:** Wrote `results/cv_fixes.md`, `docs/CV_STATUS.md` (including 12 claims in `docs/PARTH_WORK_SUMMARY.md` that need a caveat) and closed `docs/CV_FIX_STATUS.md`.
+2. **Files:** those three and this log.
+3. **How it works:** Every number points to a command and states its image count.
+4. **Verified:** Checked each number against the summaries printed by `python -m src.cv.eval_v2 summary`.
+5. **Check yourself:** The "What remains weak" section of `results/cv_fixes.md`.
+6. **Assumptions:** `docs/PARTH_WORK_SUMMARY.md` itself was not edited; the caveats are listed for Parth to apply.
+
+## CV fix 9: wrap-up (intervals, Poppler skip, uncertain-reading flag)
+1. **What I did:** Added Wilson 95% intervals to the barcode and symbol rates in `results/cv_final_eval.md` and `results/cv_fixes.md`, computed from the existing counts. Made the Poppler render test skip when `pdftoppm` is missing. The consistency checker now emits `needs_human_review` instead of `barcode_mismatch` when the lot or expiry OCR line has confidence below 0.8.
+2. **Files:** `src/cv/intervals.py` (new), `src/cv/consistency.py`, `src/cv/eval_v2.py` (counts review flags), `src/gen/test_render.py`, `tests/test_cv_text_rules.py`, `scripts/cv_experiments/false_alarm_confidence.py`, the two reports.
+3. **How it works:** A Wilson interval stays sensible at 51/51 (93.0% to 100%) where the simple plus-or-minus interval would claim zero uncertainty.
+4. **Verified:** CV suite 258 passed, 1 skipped; root command without CV libraries 111 passed, 1 skipped, 1 deselected; ruff clean. Dev seeds only: very hard false mismatch flags 9 of 33 (template) and 5 of 33 (blind) before and after; real mismatches 68/68 per mode before and after.
+5. **Check yourself:** That the 0.8 threshold changed nothing because every false alarm had confidence 0.876 to 0.999.
+6. **Assumptions:** The threshold was set before measuring and not tuned. Symbol intervals treat the two symbols on a label as independent, so they are somewhat too narrow.
+
+## Step 20 Phase 0: contract follows merged code (D-2, D-4, D-7, D-8)
+1. **What I did:** Applied Pari's per-item decisions on the 11 differences between the contract and Parth's merged renderer. The contract now follows the code for symbol names (only `manufacturer` and `expiry`), the 9 mm DRAFT band, the layout kinds `clipping` and `overlap`, and two extra limits (barcode module at least 0.25 mm, printable ASCII). D-3, D-5, D-6 and D-9 stay as written and are marked decided gaps for Parth.
+2. **Files:** `docs/contracts/TEMPLATE_SPEC.md`, `DATA_MODEL.md` (also the per-template version rule), `openapi.yaml` (enum on `symbol_name`), `SCHEMA_CHANGE_REQUESTS.md` (decision table), six mock JSON files.
+3. **How it works:** A "contract" is the written promise the UI builds against. When code and promise disagree, someone must pick which one moves; this step records that pick per item.
+4. **Verified:** `python -m pytest -q tests/test_mock_contracts.py` gave 83 passed.
+5. **Check yourself:** The decision table at the end of `SCHEMA_CHANGE_REQUESTS.md`; the mock slots `name` and `ref` now start at y = 10 mm.
+6. **Assumptions:** D-7 is only partly decided (other kind names such as `font_too_small` still differ). The sterilization symbol impact item no longer names a slot, because that symbol cannot be a slot yet.
+
+## Step 20a: persistence layer and review rules
+1. **What I did:** Built the SQLite store with SQLAlchemy: users, products and versions, templates, label versions, change requests, check results, reviews, published pages and audit events. Every table except users rejects UPDATE and DELETE through database triggers, so an edit is always a new row. Status is never stored; `src/api/status.py` computes it from reviews and checks, and `src/api/reviews.py` enforces the review rules (role, no self approval, hash and passed check for approve, comment for return and reject, reject is terminal, a newer version voids an approval).
+2. **Files:** `src/api/db.py`, `models.py`, `errors.py`, `store.py`, `status.py`, `reviews.py`, `seed.py`, `tests/test_api_persistence.py`, `.gitignore` (local db folder), `.github/workflows/ci.yml` (installs sqlalchemy).
+3. **How it works:** Think of a ledger. You never erase a line, you add a new one, and "what is the status now" is answered by reading the latest relevant lines. A trigger is a rule inside the database that refuses the erase attempt even if our own code tried it.
+4. **Verified:** `python -m pytest -q tests/test_api_persistence.py` gave 20 passed; `python -m pytest -q -m "not slow"` gave 238 passed, 1 skipped, 1 deselected; `ruff check src tests` clean.
+5. **Check yourself:** The order of checks in `record_review`; `label_version_status` versus `change_status` (only the change's latest version counts); the trigger loop in `init_db`.
+6. **Assumptions:** No separate GeneratedArtwork table (its hash and change link are columns on `label_versions`); `closed` and `resulting_status` are computed on read; template versions count per template_id inside a product; unknown user is 401; role checks for non-review writes wait for the endpoints (20b).
+
+## Step 20b: real endpoints and role checks
+1. **What I did:** Turned 15 operations of `openapi.yaml` into real FastAPI endpoints on the SQLite store: me, products, templates, label versions, version history, changes, reviews and the audit log. Editors and admins register products, templates and changes; reviewers and admins review; everything else is a 403 `role_forbidden`. `POST /changes` stores a structured change but answers `parser: not_implemented`, an empty affected list, `checklist_complete: false` and a NEEDS_HUMAN_REVIEW message, so "not checked" cannot look like "clean".
+2. **Files:** `src/api/routes.py`, `views.py` (database rows to contract JSON, status computed there), `requests.py` (request shapes), `main.py` (app factory, error handlers), `store.py` (extra edits on a change), `docs/contracts/` (parser field, error codes, roles, the "currently approved" sentence, 401 and 404 and 422 responses), two mocks (`parser: mock`), `tests/test_api_endpoints.py`, CI and `pyproject.toml` (fastapi, httpx, Depends lint rule).
+3. **How it works:** The header `X-User-Id` names the caller; a small dependency looks the user up and checks the role before the handler runs. "Currently approved" is read from the change status, because an old version keeps showing as approved in its own record after a newer version voids the approval.
+4. **Verified:** `python -m pytest -q tests/test_api_endpoints.py` gave 26 passed; full fast suite 264 passed, 1 skipped, 1 deselected; `ruff check src tests` clean.
+5. **Check yourself:** `REAL_OPERATIONS` in `routes.py`; the four forbidden-role cases in the parametrized test; the new Error codes table in `docs/contracts/API.md`.
+6. **Assumptions:** `registerTemplate` validates the shape only (no layout findings yet); plain-text changes are refused with 422 `parser_not_implemented`; `listAffectedLabels` stays a mock; a missing header and an unknown user share the code `unknown_user`; `old_value` defaults to the record's current value for a known field.
+
+## Step 20c: mock fallback
+1. **What I did:** Every operation that is not real now serves its mock JSON with the response header `X-Mock: true`. `?mock_state=<state or file name>` picks another mock of the same operation (for example `empty`). Three operations had no mock (confirm extraction, confirm change, publish), so I added one each.
+2. **Files:** `src/api/mock_server.py`, `src/api/main.py`, three new mock files, `src/api/mock/index.json`, `docs/contracts/SCREENS.md`, `tests/test_api_mock_fallback.py`.
+3. **How it works:** The server reads `openapi.yaml`, and for each operation not in `REAL_OPERATIONS` it registers a route that returns the chosen mock file. The route handler takes only the request, so FastAPI never tries to parse a body.
+4. **Verified:** `python -m pytest -q tests/test_api_mock_fallback.py` gave 26 passed (one test per non-real operation checks the header, status and body); full fast suite 295 passed, 1 skipped, 1 deselected.
+5. **Check yourself:** `NOT_MOCKED` and `pick_entry` in `mock_server.py`; the test that real operations never carry the header.
+6. **Assumptions:** The default mock is chosen by state order success, loading, approved, empty; mock routes do not check the user header.
+
+## Step 20d: contract tests against openapi.yaml
+1. **What I did:** One scripted run calls every real operation and every status the spec documents for it, and validates each response body against its schema in `openapi.yaml`. It fails if a status is undocumented, so I added the missing 401, 404 and 422 responses to the spec. A last check requires that every documented status of every real operation was seen.
+2. **Files:** `tests/openapi_helpers.py`, `tests/test_api_contract.py`, `docs/contracts/openapi.yaml`, `docs/LEARNING_LOG.md`, `CLAUDE.md`.
+3. **How it works:** A schema is a machine-checkable description of a response. A passing test means the server's real answers match the promise the UI builds on; a second test breaks copies of real responses to prove the check can fail.
+4. **Verified:** `python -m pytest -q tests/test_api_contract.py` gave 3 passed; full fast suite 298 passed, 1 skipped, 1 deselected; `ruff check src tests` clean; live smoke with uvicorn and a file database: `/health`, `/me`, `/products` real, `POST /public/ask` returned `x-mock: true`.
+5. **Check yourself:** The coverage assertion at the end of `test_every_real_response_conforms_to_openapi`; the oneOf on the `registerTemplate` 422 response.
+6. **Assumptions:** Only JSON responses are validated; the layout-findings CheckResult variant of the template 422 is validated by the mock tests, because the real server cannot produce it yet.

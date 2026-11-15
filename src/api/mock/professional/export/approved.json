@@ -1,0 +1,41 @@
+{
+  "label_id": "lbl_exampledevice_carton",
+  "version_id": "lbv_exampledevice_carton_l3",
+  "status": "published",
+  "draft_watermark": false,
+  "pdf": {
+    "url": "files/lbv_exampledevice_carton_l3.pdf",
+    "mime": "application/pdf",
+    "sha256": "dfd8375e18b668f8c116c3d79fcea126580eb4dadbdc90ce3143539951d0c488",
+    "size_mm": {
+      "w": 100,
+      "h": 60
+    }
+  },
+  "svg": {
+    "url": "files/lbv_exampledevice_carton_l3.svg",
+    "mime": "image/svg+xml",
+    "sha256": "70ff3a2f41668308e4e7a6ec8233a0a60a90c78000cfd50e4ac4a26b1a91bb4e",
+    "size_mm": {
+      "w": 100,
+      "h": 60
+    }
+  },
+  "report": {
+    "report_id": "rpt_0001",
+    "label_id": "lbl_exampledevice_carton",
+    "version_id": "lbv_exampledevice_carton_l3",
+    "url": "files/lbv_exampledevice_carton_l3_report.pdf",
+    "artifact_sha256": "1a515c35469966eb22fe844d986eccb1d0bdc7007cb27f7ee1f62eb7e943dcfd",
+    "created_at": "2026-11-12T15:05:00Z"
+  },
+  "qr": {
+    "page_id": "pub_0001",
+    "label_id": "lbl_exampledevice_carton",
+    "version_id": "lbv_exampledevice_carton_l3",
+    "url": "/p/pub_0001",
+    "qr_payload": "/p/pub_0001",
+    "published_at": "2026-11-12T16:00:00Z",
+    "review_id": "rev_0003"
+  }
+}

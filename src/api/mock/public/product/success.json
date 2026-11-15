@@ -1,0 +1,41 @@
+{
+  "banner": "Authenticity not verified. Based on a reference label match.",
+  "candidates": [
+    {
+      "product_id": "med_examplemed_10mg",
+      "product_name": "ExampleMed 10 mg",
+      "dosage_form": "Film-coated tablets",
+      "active_substance": "Example substance",
+      "pack_size": "28 tablets",
+      "manufacturer": "Example Pharma Ltd",
+      "reference_label_url": "files/examplemed_10mg_reference.pdf",
+      "match_confidence": 0.94,
+      "read_from_photo": {
+        "Product name": "ExampleMed 10 mg",
+        "Dosage form": "Film-coated tablets",
+        "Active substance": "Example substance",
+        "Pack size": "28 tablets",
+        "Other text": "DEMO PRODUCT"
+      },
+      "from_reference_label": {
+        "Product name": "ExampleMed 10 mg",
+        "Dosage form": "Film-coated tablets",
+        "Active substance": "Example substance",
+        "Pack size": "28 tablets",
+        "Manufacturer": "Example Pharma Ltd"
+      }
+    }
+  ],
+  "summary": "ExampleMed 10 mg is a film-coated tablet containing an example substance. It is supplied in packs of 28 tablets.",
+  "sources": [
+    {
+      "source_type": "cfr",
+      "chunk_id": "fda_21cfr201_s201.1_c1",
+      "source": "FDA",
+      "section": "201.1",
+      "title": "Drugs; name and place of business of manufacturer, packer, or distributor.",
+      "url": "https://www.ecfr.gov/current/title-21/section-201.1",
+      "quote": "(a) A drug or drug product (as defined in § 320.1 of this chapter) in finished package form is misbranded under section 502 (a) and (b)(1) of the act if its"
+    }
+  ]
+}

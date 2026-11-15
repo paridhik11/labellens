@@ -1,0 +1,17 @@
+{
+  "scan_id": "scn_0001",
+  "job_id": "job_scan_0001",
+  "module": "device",
+  "source": "upload",
+  "file": {
+    "file_id": "fil_0001",
+    "mime": "image/png",
+    "sha256": "19016cb5ce6760a2f6782480437d60f32beeeb7f1e28310b9a57aabd57749152",
+    "pages": 1
+  },
+  "product_id": "prd_exampledevice",
+  "state": "done",
+  "label_id": "lbl_exampledevice_carton",
+  "version_id": "lbv_exampledevice_carton_l2",
+  "created_at": "2026-11-10T09:05:00Z"
+}

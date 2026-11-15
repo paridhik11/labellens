@@ -21,3 +21,9 @@ data/processed/ce_cache_*
 data/processed/_*
 data/processed/medcpt_cache_*
 data/processed/ft_*
+.venv-cv/
+data/synthetic/
+!results/cv_*.md
+
+# local API database (Step 20)
+data/api/

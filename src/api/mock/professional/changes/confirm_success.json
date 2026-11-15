@@ -1,0 +1,94 @@
+{
+  "change": {
+    "change_id": "chg_0002",
+    "product_id": "prd_exampledevice",
+    "field": "sterilization",
+    "old_value": "Ethylene oxide (EO)",
+    "new_value": "Gamma irradiation",
+    "status": "draft",
+    "closed": false,
+    "raw_text": "Update the sterilization method from ethylene oxide (EO) to gamma irradiation.",
+    "parse_state": "confirmed",
+    "edits": [],
+    "created_at": "2026-11-10T09:00:00Z",
+    "created_by": "usr_demo_editor"
+  },
+  "affected": [
+    {
+      "impact_id": "imp_0001",
+      "change_id": "chg_0002",
+      "label_id": "lbl_exampledevice_carton",
+      "version_id": "lbv_exampledevice_carton_l2",
+      "slot_id": "sterilization_text",
+      "item_kind": "text",
+      "title": "Sterilization text",
+      "description": "Label text and method description",
+      "suggestion": "edit_required",
+      "evidence_chunk_ids": [],
+      "user_decision": "confirmed"
+    },
+    {
+      "impact_id": "imp_0002",
+      "change_id": "chg_0002",
+      "label_id": "lbl_exampledevice_carton",
+      "version_id": "lbv_exampledevice_carton_l2",
+      "item_kind": "symbol",
+      "title": "Symbol selection",
+      "description": "Sterilization symbol may need to change",
+      "suggestion": "review_suggested",
+      "evidence_chunk_ids": [
+        "fda_21cfr801_s801.15_c1"
+      ],
+      "user_decision": "confirmed"
+    },
+    {
+      "impact_id": "imp_0003",
+      "change_id": "chg_0002",
+      "label_id": "lbl_exampledevice_ifu",
+      "version_id": "lbv_exampledevice_ifu_l1",
+      "item_kind": "linked_label",
+      "title": "Instructions for use",
+      "description": "Related content may need updating",
+      "suggestion": "review_suggested",
+      "evidence_chunk_ids": [],
+      "user_decision": "confirmed"
+    },
+    {
+      "impact_id": "imp_0004",
+      "change_id": "chg_0002",
+      "label_id": "lbl_exampledevice_carton",
+      "version_id": "lbv_exampledevice_carton_l2",
+      "slot_id": "udi_barcode",
+      "item_kind": "barcode",
+      "title": "UDI barcode",
+      "description": "Encoded data (GTIN, expiry, lot, serial) does not change, so the barcode is kept",
+      "suggestion": "no_change",
+      "evidence_chunk_ids": [
+        "fda_21cfr801_s801.20"
+      ],
+      "user_decision": "dismissed"
+    }
+  ],
+  "citations": [
+    {
+      "source_type": "cfr",
+      "chunk_id": "fda_21cfr801_s801.15_c1",
+      "source": "FDA",
+      "section": "801.15",
+      "title": "Medical devices; prominence of required label statements; use of symbols in labeling.",
+      "url": "https://www.ecfr.gov/current/title-21/section-801.15",
+      "quote": "(a) A word, statement, or other information required by or under authority of the act to appear on the label may lack that prominence and conspicuousness"
+    },
+    {
+      "source_type": "cfr",
+      "chunk_id": "fda_21cfr801_s801.20",
+      "source": "FDA",
+      "section": "801.20",
+      "title": "Label to bear a unique device identifier.",
+      "url": "https://www.ecfr.gov/current/title-21/section-801.20",
+      "quote": "(1) The label of every medical device shall bear a unique device identifier (UDI) that meets the requirements of this subpart and part 830 of this"
+    }
+  ],
+  "checklist_complete": true,
+  "parser": "mock"
+}

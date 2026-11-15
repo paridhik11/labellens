@@ -1,0 +1,444 @@
+{
+  "note": "Mock responses for UI development (Step 19e). All product, company and person names are fake. Identifiers use the GS1 test placeholder 00000000000000 with test_data. Hashes are sha256 of mock tags, not real files. Scores, confidences and thresholds are illustrative, not measured, except professional/evidence/success.json, which is a real run of our BM25 (src/ir/bm25.py) on the device chunks. Citation quotes are verbatim from data/processed/regs.jsonl.",
+  "openapi": "docs/contracts/openapi.yaml",
+  "screens": "docs/contracts/SCREENS.md",
+  "mocks": [
+    {
+      "file": "professional/session/me.json",
+      "screen": "all professional",
+      "state": "success",
+      "operationId": "getCurrentUser",
+      "status": 200,
+      "schema": "User"
+    },
+    {
+      "file": "professional/products/empty.json",
+      "screen": "D1 Products",
+      "state": "empty",
+      "operationId": "listProducts",
+      "status": 200,
+      "schema": "ProductList"
+    },
+    {
+      "file": "professional/products/success.json",
+      "screen": "D1 Products",
+      "state": "success",
+      "operationId": "listProducts",
+      "status": 200,
+      "schema": "ProductList"
+    },
+    {
+      "file": "professional/product_detail/success.json",
+      "screen": "D1 Products",
+      "state": "success",
+      "operationId": "getProduct",
+      "status": 200,
+      "schema": "ProductDetail"
+    },
+    {
+      "file": "professional/template_setup/success.json",
+      "screen": "D2 Template setup",
+      "state": "success",
+      "operationId": "registerTemplate",
+      "status": 201,
+      "schema": "LabelTemplate"
+    },
+    {
+      "file": "professional/template_setup/failed_check.json",
+      "screen": "D2 Template setup",
+      "state": "failed_check",
+      "operationId": "registerTemplate",
+      "status": 422,
+      "schema": "CheckResult"
+    },
+    {
+      "file": "professional/upload/loading.json",
+      "screen": "D3 Upload or scan",
+      "state": "loading",
+      "operationId": "uploadScan",
+      "status": 202,
+      "schema": "Job"
+    },
+    {
+      "file": "professional/upload/failed.json",
+      "screen": "D3 Upload or scan",
+      "state": "failed",
+      "operationId": "getJob",
+      "status": 200,
+      "schema": "Job"
+    },
+    {
+      "file": "professional/upload/success.json",
+      "screen": "D3 Upload or scan",
+      "state": "success",
+      "operationId": "getScan",
+      "status": 200,
+      "schema": "Scan"
+    },
+    {
+      "file": "professional/inspect/extraction_success.json",
+      "screen": "D4 Inspect",
+      "state": "success",
+      "operationId": "getExtraction",
+      "status": 200,
+      "schema": "Extraction",
+      "schemas_py": "LabelExtraction"
+    },
+    {
+      "file": "professional/inspect/extraction_needs_review.json",
+      "screen": "D4 Inspect",
+      "state": "needs_review",
+      "operationId": "getExtraction",
+      "status": 200,
+      "schema": "Extraction",
+      "schemas_py": "LabelExtraction"
+    },
+    {
+      "file": "professional/inspect/loading.json",
+      "screen": "D4 Inspect",
+      "state": "loading",
+      "operationId": "inspectLabel",
+      "status": 202,
+      "schema": "Job"
+    },
+    {
+      "file": "professional/inspect/success.json",
+      "screen": "D4 Inspect",
+      "state": "success",
+      "operationId": "inspectLabel",
+      "status": 200,
+      "schema": "CheckResult",
+      "schemas_py": "Flag"
+    },
+    {
+      "file": "professional/inspect/failed_check.json",
+      "screen": "D4 Inspect",
+      "state": "failed_check",
+      "operationId": "inspectLabel",
+      "status": 200,
+      "schema": "CheckResult",
+      "schemas_py": "Flag"
+    },
+    {
+      "file": "professional/evidence/success.json",
+      "screen": "D5 Evidence",
+      "state": "success",
+      "operationId": "searchEvidence",
+      "status": 200,
+      "schema": "SearchResponse",
+      "schemas_py": "Hit"
+    },
+    {
+      "file": "professional/evidence/empty.json",
+      "screen": "D5 Evidence",
+      "state": "empty",
+      "operationId": "searchEvidence",
+      "status": 200,
+      "schema": "SearchResponse"
+    },
+    {
+      "file": "professional/changes/assess_success.json",
+      "screen": "D6 Changes",
+      "state": "success",
+      "operationId": "assessChange",
+      "status": 201,
+      "schema": "ChangeAssessment",
+      "schemas_py": "ChangeRequest"
+    },
+    {
+      "file": "professional/changes/assess_needs_review.json",
+      "screen": "D6 Changes",
+      "state": "needs_review",
+      "operationId": "assessChange",
+      "status": 201,
+      "schema": "ChangeAssessment",
+      "schemas_py": "ChangeRequest"
+    },
+    {
+      "file": "professional/changes/affected_success.json",
+      "screen": "D6 Changes",
+      "state": "success",
+      "operationId": "listAffectedLabels",
+      "status": 200,
+      "schema": "AffectedLabelList"
+    },
+    {
+      "file": "professional/changes/generate_loading.json",
+      "screen": "D6 Changes",
+      "state": "loading",
+      "operationId": "generateArtwork",
+      "status": 202,
+      "schema": "Job"
+    },
+    {
+      "file": "professional/changes/generate_needs_input.json",
+      "screen": "D6 Changes",
+      "state": "needs_review",
+      "operationId": "generateArtwork",
+      "status": 409,
+      "schema": "NeedsInput"
+    },
+    {
+      "file": "professional/changes/generated_success.json",
+      "screen": "D6 Changes",
+      "state": "success",
+      "operationId": "getArtwork",
+      "status": 200,
+      "schema": "GeneratedArtwork"
+    },
+    {
+      "file": "professional/changes/change_returned.json",
+      "screen": "D6 Changes",
+      "state": "returned",
+      "operationId": "getChange",
+      "status": 200,
+      "schema": "ChangeRequest",
+      "schemas_py": "ChangeRequest"
+    },
+    {
+      "file": "professional/changes/change_rejected.json",
+      "screen": "D6 Changes",
+      "state": "rejected",
+      "operationId": "getChange",
+      "status": 200,
+      "schema": "ChangeRequest",
+      "schemas_py": "ChangeRequest"
+    },
+    {
+      "file": "professional/review/recheck_success.json",
+      "screen": "D7 Review",
+      "state": "success",
+      "operationId": "recheckArtwork",
+      "status": 200,
+      "schema": "CheckResult",
+      "schemas_py": "Flag"
+    },
+    {
+      "file": "professional/review/recheck_failed_check.json",
+      "screen": "D7 Review",
+      "state": "failed_check",
+      "operationId": "recheckArtwork",
+      "status": 200,
+      "schema": "CheckResult",
+      "schemas_py": "Flag"
+    },
+    {
+      "file": "professional/review/empty.json",
+      "screen": "D7 Review",
+      "state": "empty",
+      "operationId": "listReviews",
+      "status": 200,
+      "schema": "ReviewList"
+    },
+    {
+      "file": "professional/review/approved.json",
+      "screen": "D7 Review",
+      "state": "approved",
+      "operationId": "reviewArtwork",
+      "status": 201,
+      "schema": "Review"
+    },
+    {
+      "file": "professional/review/returned.json",
+      "screen": "D7 Review",
+      "state": "returned",
+      "operationId": "reviewArtwork",
+      "status": 201,
+      "schema": "Review"
+    },
+    {
+      "file": "professional/review/self_approval_forbidden.json",
+      "screen": "D7 Review",
+      "state": "failed",
+      "operationId": "reviewArtwork",
+      "status": 403,
+      "schema": "Error"
+    },
+    {
+      "file": "professional/export/draft.json",
+      "screen": "D8 Export",
+      "state": "success",
+      "operationId": "getExports",
+      "status": 200,
+      "schema": "ExportPackage"
+    },
+    {
+      "file": "professional/export/approved.json",
+      "screen": "D8 Export",
+      "state": "approved",
+      "operationId": "getExports",
+      "status": 200,
+      "schema": "ExportPackage"
+    },
+    {
+      "file": "professional/history/success.json",
+      "screen": "D9 History",
+      "state": "success",
+      "operationId": "getProductHistory",
+      "status": 200,
+      "schema": "AuditEventList"
+    },
+    {
+      "file": "professional/history/empty.json",
+      "screen": "D9 History",
+      "state": "empty",
+      "operationId": "getProductHistory",
+      "status": 200,
+      "schema": "AuditEventList"
+    },
+    {
+      "file": "professional/history/label_versions.json",
+      "screen": "D9 History",
+      "state": "success",
+      "operationId": "listLabelVersions",
+      "status": 200,
+      "schema": "LabelVersionList"
+    },
+    {
+      "file": "professional/print_verify/empty.json",
+      "screen": "D10 Print verification",
+      "state": "empty",
+      "operationId": "listPrintVerifications",
+      "status": 200,
+      "schema": "inline:listPrintVerifications.200"
+    },
+    {
+      "file": "professional/print_verify/loading.json",
+      "screen": "D10 Print verification",
+      "state": "loading",
+      "operationId": "verifyPrint",
+      "status": 202,
+      "schema": "Job"
+    },
+    {
+      "file": "professional/print_verify/success.json",
+      "screen": "D10 Print verification",
+      "state": "success",
+      "operationId": "getPrintVerification",
+      "status": 200,
+      "schema": "PrintVerification"
+    },
+    {
+      "file": "professional/print_verify/failed_check.json",
+      "screen": "D10 Print verification",
+      "state": "failed_check",
+      "operationId": "getPrintVerification",
+      "status": 200,
+      "schema": "PrintVerification"
+    },
+    {
+      "file": "professional/print_verify/needs_review.json",
+      "screen": "D10 Print verification",
+      "state": "needs_review",
+      "operationId": "getPrintVerification",
+      "status": 200,
+      "schema": "PrintVerification"
+    },
+    {
+      "file": "public/scan/loading.json",
+      "screen": "P1 Scan and Understand",
+      "state": "loading",
+      "operationId": "publicScan",
+      "status": 202,
+      "schema": "Job"
+    },
+    {
+      "file": "public/scan/failed.json",
+      "screen": "P1 Scan and Understand",
+      "state": "failed",
+      "operationId": "getJob",
+      "status": 200,
+      "schema": "Job"
+    },
+    {
+      "file": "public/product/success.json",
+      "screen": "P2 Product information",
+      "state": "success",
+      "operationId": "getPublicScan",
+      "status": 200,
+      "schema": "PublicMatchResult"
+    },
+    {
+      "file": "public/product/needs_review.json",
+      "screen": "P2 Product information",
+      "state": "needs_review",
+      "operationId": "getPublicScan",
+      "status": 200,
+      "schema": "PublicMatchResult"
+    },
+    {
+      "file": "public/product/empty.json",
+      "screen": "P2 Product information",
+      "state": "empty",
+      "operationId": "getPublicScan",
+      "status": 200,
+      "schema": "PublicMatchResult"
+    },
+    {
+      "file": "public/ask/success.json",
+      "screen": "P3 Ask about this label",
+      "state": "success",
+      "operationId": "askPublic",
+      "status": 200,
+      "schema": "AnswerResponse"
+    },
+    {
+      "file": "public/ask/abstained_out_of_scope.json",
+      "screen": "P3 Ask about this label",
+      "state": "abstained",
+      "operationId": "askPublic",
+      "status": 200,
+      "schema": "AnswerResponse"
+    },
+    {
+      "file": "public/ask/abstained_low_confidence.json",
+      "screen": "P3 Ask about this label",
+      "state": "abstained",
+      "operationId": "askPublic",
+      "status": 200,
+      "schema": "AnswerResponse"
+    },
+    {
+      "file": "public/ask/abstained_no_evidence.json",
+      "screen": "P3 Ask about this label",
+      "state": "abstained",
+      "operationId": "askPublic",
+      "status": 200,
+      "schema": "AnswerResponse"
+    },
+    {
+      "file": "public/ask/abstained_needs_human_check.json",
+      "screen": "P3 Ask about this label",
+      "state": "abstained",
+      "operationId": "askPublic",
+      "status": 200,
+      "schema": "AnswerResponse"
+    },
+    {
+      "file": "professional/inspect/extraction_confirmed.json",
+      "screen": "D4 Inspect",
+      "state": "success",
+      "operationId": "confirmExtraction",
+      "status": 200,
+      "schema": "Extraction",
+      "schemas_py": "LabelExtraction"
+    },
+    {
+      "file": "professional/changes/confirm_success.json",
+      "screen": "D6 Changes",
+      "state": "success",
+      "operationId": "confirmChange",
+      "status": 200,
+      "schema": "ChangeAssessment",
+      "schemas_py": "ChangeRequest"
+    },
+    {
+      "file": "professional/export/publish_success.json",
+      "screen": "D8 Export",
+      "state": "success",
+      "operationId": "publishVersion",
+      "status": 201,
+      "schema": "PublishedPage"
+    }
+  ]
+}

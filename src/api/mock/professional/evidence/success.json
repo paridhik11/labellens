@@ -1,0 +1,54 @@
+{
+  "query": "format of expiration date on a medical device label",
+  "module": "device",
+  "retrieval": {
+    "method": "bm25",
+    "stem": false,
+    "prefix": false,
+    "rerank": false,
+    "expansion": false
+  },
+  "hits": [
+    {
+      "doc_id": "fda_21cfr801_s801.18",
+      "score": 15.2441,
+      "rank": 1,
+      "text": "(a) In general. Whenever the label of a medical device includes a printed expiration date, date of manufacture, or any other date intended to be brought to the attention of the user of the device, the"
+    },
+    {
+      "doc_id": "fda_21cfr801_s801.435_c3",
+      "score": 10.6255,
+      "rank": 2,
+      "text": "time storage conditions described in paragraph (d)(3) of this section. If all of the products tested after storage at temperatures as described in paragraphs (d)(1) and (d)(2) of this section pass the"
+    },
+    {
+      "doc_id": "fda_21cfr803_s803.3_c15",
+      "score": 9.878,
+      "rank": 3,
+      "text": "(1) A device identifier—a mandatory, fixed portion of a UDI that identifies the specific version or model of a device and the labeler of that device; and (2) A production identifier—a conditional, var"
+    },
+    {
+      "doc_id": "fda_21cfr801_s801.40",
+      "score": 9.6115,
+      "rank": 4,
+      "text": "(a) Every unique device identifier (UDI) must meet the technical requirements of § 830.20 of this chapter. The UDI must be presented in two forms:\n\n(1) Easily readable plain-text, and\n\n(2) Automatic i"
+    },
+    {
+      "doc_id": "fda_21cfr801_s801.3_c1",
+      "score": 9.4707,
+      "rank": 5,
+      "text": "As used in this part: Automatic identification and data capture (AIDC) means any technology that conveys the unique device identifier or the device identifier of a device in a form that can be entered"
+    }
+  ],
+  "citations": [
+    {
+      "source_type": "cfr",
+      "chunk_id": "fda_21cfr801_s801.18",
+      "source": "FDA",
+      "section": "801.18",
+      "title": "Format of dates provided on a medical device label.",
+      "url": "https://www.ecfr.gov/current/title-21/section-801.18",
+      "quote": "(a) In general. Whenever the label of a medical device includes a printed expiration date, date of manufacture, or any other date intended to be brought to the"
+    }
+  ]
+}

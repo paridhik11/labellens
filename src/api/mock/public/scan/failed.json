@@ -1,0 +1,10 @@
+{
+  "job_id": "job_pub_0002",
+  "kind": "public_scan",
+  "state": "failed",
+  "progress": 1.0,
+  "error": {
+    "error": "image_too_blurry",
+    "message": "The photo is too blurry to read. Hold the camera steady and try again."
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "query": "zzqx",
+  "module": "device",
+  "retrieval": {
+    "method": "hybrid_rrf",
+    "stem": false,
+    "prefix": false,
+    "rerank": false,
+    "expansion": false
+  },
+  "hits": [],
+  "citations": []
+}

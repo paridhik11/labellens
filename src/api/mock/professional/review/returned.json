@@ -1,0 +1,13 @@
+{
+  "review_id": "rev_0002",
+  "label_id": "lbl_exampledevice_carton",
+  "version_id": "lbv_exampledevice_carton_l3",
+  "change_id": "chg_0002",
+  "decision": "return",
+  "user_id": "usr_demo_reviewer",
+  "reviewer_role": "reviewer",
+  "comment": "Sterilization symbol must match the new method before approval.",
+  "artifact_sha256": "23f81fcd260e85a1086f09eaf733427f7cbb09becdf887a081ee857dcad90b74",
+  "resulting_status": "draft",
+  "decided_at": "2026-11-11T14:00:00Z"
+}

@@ -1,0 +1,9 @@
+{
+  "abstained": true,
+  "reason": "no_evidence",
+  "score_name": "hybrid_top_score",
+  "score": 0.0,
+  "threshold": 0.02,
+  "message": "The label and the regulations I can search do not cover this question.",
+  "banner": "Authenticity not verified. Based on a reference label match."
+}

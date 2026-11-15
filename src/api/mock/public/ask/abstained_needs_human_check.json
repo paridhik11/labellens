@@ -1,0 +1,9 @@
+{
+  "abstained": true,
+  "reason": "needs_human_check",
+  "score_name": "hybrid_top_score",
+  "score": 0.031,
+  "threshold": 0.02,
+  "message": "The passages I found disagree, so a person should check this. Please ask a pharmacist.",
+  "banner": "Authenticity not verified. Based on a reference label match."
+}

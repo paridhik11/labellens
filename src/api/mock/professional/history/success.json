@@ -1,0 +1,55 @@
+{
+  "product_id": "prd_exampledevice",
+  "items": [
+    {
+      "event_id": "evt_0006",
+      "at": "2026-11-12T16:00:00Z",
+      "user_id": "usr_demo_reviewer",
+      "action": "label.published",
+      "entity_type": "label_version",
+      "entity_id": "lbv_exampledevice_carton_l3"
+    },
+    {
+      "event_id": "evt_0005",
+      "at": "2026-11-12T15:00:00Z",
+      "user_id": "usr_demo_reviewer",
+      "action": "review.approved",
+      "entity_type": "label_version",
+      "entity_id": "lbv_exampledevice_carton_l3"
+    },
+    {
+      "event_id": "evt_0004",
+      "at": "2026-11-11T14:00:00Z",
+      "user_id": "usr_demo_reviewer",
+      "action": "review.returned",
+      "entity_type": "label_version",
+      "entity_id": "lbv_exampledevice_carton_l3"
+    },
+    {
+      "event_id": "evt_0003",
+      "at": "2026-11-10T11:05:00Z",
+      "user_id": "system",
+      "action": "check.self_check_passed",
+      "entity_type": "label_version",
+      "entity_id": "lbv_exampledevice_carton_l3"
+    },
+    {
+      "event_id": "evt_0002",
+      "at": "2026-11-10T11:00:00Z",
+      "user_id": "usr_demo_editor",
+      "action": "artwork.generated",
+      "entity_type": "label_version",
+      "entity_id": "lbv_exampledevice_carton_l3",
+      "version_before": 2,
+      "version_after": 3
+    },
+    {
+      "event_id": "evt_0001",
+      "at": "2026-11-10T09:00:00Z",
+      "user_id": "usr_demo_editor",
+      "action": "change.created",
+      "entity_type": "change_request",
+      "entity_id": "chg_0002"
+    }
+  ]
+}

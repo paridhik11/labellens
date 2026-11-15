@@ -1,0 +1,53 @@
+{
+  "banner": "Authenticity not verified. Based on a reference label match.",
+  "candidates": [
+    {
+      "product_id": "med_examplemed_10mg",
+      "product_name": "ExampleMed 10 mg",
+      "dosage_form": "Film-coated tablets",
+      "active_substance": "Example substance",
+      "pack_size": "28 tablets",
+      "manufacturer": "Example Pharma Ltd",
+      "reference_label_url": "files/examplemed_10mg_reference.pdf",
+      "match_confidence": 0.63,
+      "read_from_photo": {
+        "Product name": "ExampleMed 10 mg",
+        "Dosage form": "Film-coated tablets",
+        "Active substance": "Example substance",
+        "Pack size": "28 tablets",
+        "Other text": "DEMO PRODUCT"
+      },
+      "from_reference_label": {
+        "Product name": "ExampleMed 10 mg",
+        "Dosage form": "Film-coated tablets",
+        "Active substance": "Example substance",
+        "Pack size": "28 tablets",
+        "Manufacturer": "Example Pharma Ltd"
+      }
+    },
+    {
+      "product_id": "med_examplemed_20mg",
+      "product_name": "ExampleMed 20 mg",
+      "dosage_form": "Film-coated tablets",
+      "active_substance": "Example substance",
+      "pack_size": "28 tablets",
+      "manufacturer": "Example Pharma Ltd",
+      "reference_label_url": "files/examplemed_10mg_reference.pdf",
+      "match_confidence": 0.61,
+      "read_from_photo": {
+        "Product name": "ExampleMed 10 mg",
+        "Dosage form": "Film-coated tablets",
+        "Active substance": "Example substance",
+        "Pack size": "28 tablets",
+        "Other text": "DEMO PRODUCT"
+      },
+      "from_reference_label": {
+        "Product name": "ExampleMed 20 mg",
+        "Dosage form": "Film-coated tablets",
+        "Active substance": "Example substance",
+        "Pack size": "28 tablets",
+        "Manufacturer": "Example Pharma Ltd"
+      }
+    }
+  ]
+}
