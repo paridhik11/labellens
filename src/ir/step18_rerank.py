@@ -22,6 +22,7 @@ from pathlib import Path
 
 from src.ir.eval import load_chunks, load_qrels, load_query_rows
 from src.ir.rerank import CrossEncoderReranker
+from src.ir.step17_report import DEPTH, ModuleContext, Spec
 from src.ir.step18_cv import (
     EXPERIMENTS_MD,
     decide,
@@ -29,7 +30,6 @@ from src.ir.step18_cv import (
     log_experiment,
     rank_with_spec,
 )
-from src.ir.step17_report import DEPTH, ModuleContext, Spec
 
 SEP = "\x1f"
 DEPTHS = (30, 50)
