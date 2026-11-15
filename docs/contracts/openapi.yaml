@@ -83,6 +83,7 @@ paths:
       operationId: listProducts
       summary: List products (Products screen)
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "200":
           description: Products, possibly empty
           content:
@@ -115,6 +116,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/ProductId"
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "200":
           description: Product
           content:
@@ -130,6 +132,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/ProductId"
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "200":
           description: Versions
           content:
@@ -172,10 +175,15 @@ paths:
             application/json:
               schema: {$ref: "#/components/schemas/Error"}
         "422":
-          description: Template breaks TEMPLATE_SPEC validation rules (findings listed). A request with the wrong shape returns Error validation_error instead. The real server checks the shape only, not yet the layout rules.
+          description: |
+            Template breaks TEMPLATE_SPEC validation rules (CheckResult with layout findings), or the request has
+            the wrong shape (Error validation_error). The real server checks the shape only, not yet the layout rules.
           content:
             application/json:
-              schema: {$ref: "#/components/schemas/CheckResult"}
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/CheckResult"
+                  - $ref: "#/components/schemas/Error"
 
   /templates/{template_id}:
     get:
@@ -192,6 +200,7 @@ paths:
           required: false
           schema: {type: integer, minimum: 1}
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "200":
           description: Template
           content:
@@ -207,6 +216,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/ProductId"
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "200":
           description: Events, newest first
           content:
@@ -268,6 +278,7 @@ paths:
           required: true
           schema: {type: string}
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "200":
           description: Versions, oldest first
           content:
@@ -283,6 +294,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/VersionId"
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "200":
           description: Label version
           content:
@@ -408,6 +420,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/ChangeId"
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "200":
           description: Change request
           content:
@@ -573,6 +586,8 @@ paths:
       parameters:
         - $ref: "#/components/parameters/VersionId"
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "404": {$ref: "#/components/responses/NotFound"}
         "200":
           description: Reviews, possibly empty
           content:
@@ -597,6 +612,9 @@ paths:
                   comment: Sterilization symbol must match the new method before approval.
                   artifact_sha256: "0000000000000000000000000000000000000000000000000000000000000000"
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "404": {$ref: "#/components/responses/NotFound"}
+        "422": {$ref: "#/components/responses/Invalid"}
         "201":
           description: Review recorded
           content:
