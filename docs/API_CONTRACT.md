@@ -1,5 +1,7 @@
 # API contract (draft, Pari finalises on Day 5)
 
+> Superseded by `docs/contracts/API.md` and `docs/contracts/openapi.yaml` (Step 19). Mock JSON lives in `src/api/mock/`, not `ui/mock/`. Kept for history.
+
 All bodies are JSON and follow the Pydantic models in `src/common/schemas.py` (plus the template spec in `docs/GENERATION.md`). Ishanvi's mock files in `ui/mock/` mirror these responses exactly.
 
 | Endpoint | Request | Response |
