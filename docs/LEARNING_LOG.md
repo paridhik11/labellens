@@ -555,3 +555,11 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 4. **Verified:** `pytest src/gen/test_symbol_styles.py` 150 passed; old detector on dev styles 4/256.
 5. **Check yourself:** split rules in `test_splits_are_disjoint_and_complete`; the tight truth box in `glyph_quad`.
 6. **Assumptions:** One author drew all styles; only 2 real labels contain the pictograms.
+
+## Symbols phase 2: detector v2 without learning
+1. **What I did:** Candidate blobs anywhere on the label, scored by silhouette overlap with train-style references, or SIFT/ORB keypoints; exposed as `detect_symbols_v2` and `extract_label(symbol_detector="v2")`.
+2. **Files:** `src/cv/symbols_v2/*`, `src/cv/extract.py`, tests, `scripts/symbols/sweep.py`, `dev_table.py`.
+3. **How it works:** Fill in the holes of a drawing so a line drawing and a solid one have the same blob shape, then ask "how much do the blobs overlap".
+4. **Verified:** dev recall 241/256 (94.1%) with 1/480 false positives, against 4/256 for the old detector; keypoints 14 to 15%.
+5. **Check yourself:** `make_rule` thresholds; the margin over the best wrong class (distractors are in the bank).
+6. **Assumptions:** Settings tuned on dev only.
