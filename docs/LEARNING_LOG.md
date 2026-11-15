@@ -523,3 +523,11 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its CV step 16 to 
 4. **Verified:** Compared each request with `docs/contracts/DATA_MODEL.md`, `TEMPLATE_SPEC.md`, `src/gen/render.py`, `src/cv/extract.py` and `src/cv/verify.py`. Ruff passed; the focused contract test could not collect because `jsonschema` is missing from `labellens-cv`.
 5. **Check yourself:** CR-10 requires approval to reference a passed check with the same version and artifact hash; CR-4 adds confirmation state around extraction.
 6. **Assumptions:** These are Parth's technical recommendations, not approval to edit shared schemas.
+
+## GEN step 2: GS1 parsing, validation and barcode generation
+1. **What I did:** Added GS1 validation and serialization for AIs 01, 17, 10 and optional 21. Added `KEEP`, `REGENERATE` and `NEEDS_INPUT` decisions, plus GS1 DataMatrix and GS1-128 rendering with decode-back checks. Changed encoded values require confirmation, and changing symbology requires regeneration. Added tests for both barcode types, invalid fields, confirmation rules and a reproducible 200-payload sample.
+2. **Files changed:** `src/gen/gs1.py` (GS1 module), `tests/test_gs1.py` (behavior and round-trip coverage), this log (step record).
+3. **How it works:** The module builds the barcode, reads it back with zxing-cpp, and compares the decoded data with the requested fields. For healthcare expiry dates it requires a real day, following GS1 General Specifications 26.0, section 3.4.7.
+4. **How I verified it:** Scoped pytest and Ruff passed; exact output is in the step report.
+5. **Check yourself:** The AIs and variable field separator rules, decode-back check in `encode_gs1`, and per-AI change confirmation in `decide_barcode`.
+6. **Assumptions:** GTIN syntax/check digit validation cannot prove allocation or authenticity. The all-zero GTIN remains a test-only placeholder; no identifier allocator was added.
