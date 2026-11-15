@@ -30,9 +30,14 @@ Dev datasets (not committed) are made with:
 - `src/gen/generate_dataset.py`: `--conditions` option. Extra conditions reuse the hard seed.
 - No tests yet for these two changes (planned in fix 4).
 
-## Next
+## Phases 2 to 4: finished
 
-1. Phase 2 fixes 1 to 7, one commit each with tests.
-2. `results/cv_experiments.md` table.
-3. Phase 3: seeds 100, 101, 102 generated once. They have NOT been generated or looked at.
-4. Phase 4 documents and the list of outdated claims in `docs/PARTH_WORK_SUMMARY.md`.
+- Fixes in commits `cv-fix 2` to `cv-fix 7`, experiments in `cv-fix 8` (`results/cv_experiments.md`).
+- Pipeline code frozen at `c594b6d`; fresh seeds 100 to 102 generated once after that.
+- Final numbers: `results/cv_final_eval.md`, summary `results/cv_fixes.md`, status `docs/CV_STATUS.md`.
+
+## Next (not started)
+
+- Real photos: Pari adds them as described in `data/real_photos/README.md`, then `python -m src.cv.eval_real`.
+- Parth reviews the items under "Needs Parth's review" in `docs/CV_STATUS.md`.
+- Nothing is merged to main.
