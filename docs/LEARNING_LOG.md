@@ -571,3 +571,11 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its CV step 16 to 
 4. **How I verified it:** `/opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider tests/test_real_set.py` returned `17 passed in 0.70s`. The added test stages and checks out mixed-line-ending XML with `core.autocrlf=true` and compares exact bytes. Source-image/XML hashes and all 60 real records still validate.
 5. **What you should check yourself:** The dataset-local attributes and CSV newline change; original source XML and JPEG files are unchanged.
 6. **What I am unsure about or assumed:** The Git newline setting is simulated on macOS. Actual Windows execution remains untested; this does not claim otherwise.
+
+## Parth next Task 1: GS1 review against the new checklist
+1. **What I did:** Reviewed the existing GS1 decisions and identifier restrictions, then ran the requested generation suite and focused GS1 tests.
+2. **Files changed:** `reports/parth_task1.md` (report under 400 words), this log (review record). No GS1 implementation change was needed.
+3. **How it works:** Unchanged values give KEEP, confirmed changes give REGENERATE, and missing identifiers give NEEDS_INPUT without generating a replacement value.
+4. **How I verified it:** `/opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider src/gen`: `57 passed in 39.59s`; the same command for `tests/test_gs1.py`: `56 passed in 1.62s`. Ran background jobs to a log and checked completed output once.
+5. **What you should check yourself:** The decision table and missing-value tests. Full commands and real output are in the report.
+6. **What I am unsure about or assumed:** Uses the newer contract's encoded-change confirmation rule. macOS software tests do not establish Windows or physical-print performance.
