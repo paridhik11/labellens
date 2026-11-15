@@ -1,27 +1,28 @@
-# Parth Task 4: online-photo baseline, human review pending
+# Parth Task 4: clear three-field photo replacement
 
 ## 1. What I did
-Used online photos after Parth confirmed Paridhi accepted the substitution. Inspected 12 photos and froze ten readable field values across seven images as LLM-labelled references before OCR. Left absent, unreadable and ambiguous values blank; five images are unscored. Saved every requested field's comparison, including misses.
+Searched again and downloaded 29 candidate images; one additional URL failed. Inspected each image and accepted ten device-package photographs with product name, lot and expiry visibly readable together. Froze 30 LLM-labelled readings before OCR. Kept the old set and baseline separate, and preserved the new original bytes.
 
 ## 2. Files created or changed
-- `src/cv/eval_real.py`: per-photo report, reference provenance and explicit blank-reference skips.
-- `tests/test_real_photo_report.py`: report escaping, failure denominators and skipped fields.
-- `data/real/SOURCES.md` and photo README: accepted substitution, evaluated download URLs, fingerprints and limits.
-- `results/cv_real_photos.md`: actual results and complete standard output.
-- This report and learning log: status and checks. Photos, CSV and annotations remain local.
+- Local `data/real_photos/clear_online/`: ten photos, transcriptions.csv, annotations.json and a clickable REVIEW.md.
+- `data/real/SOURCES.md`: source pages, image URLs, fingerprints, values and selection decisions.
+- Photo README: preferred input folder and command.
+- `results/cv_real_photos_clear.md`: separate clear-set results and actual output.
+- This report and learning log: checks and limitations. Application code is unchanged.
 
 ## 3. How it works
-OCR means reading text from pixels. References were read visually before OCR, then exact text was compared field by field. Blank references cannot become successes. The two needle-kit views are correlated; two accessory images and two non-English labels are identified separately. Five files are originals; seven are 1280-pixel server thumbnails recommended after original-download HTTP 429 responses.
+Every accepted image contains all three printed fields. REF/model codes and manufacture dates are not substituted for lot and expiry. For example, Braisorb's lot is 009, not its reference BRRUP130. Dates keep their printed form. All photos and reference files remain ignored local data.
 
 ## 4. How I verified it
+Verified ten distinct file fingerprints and 30 nonblank references against the frozen annotations. Actual evaluation:
 ```text
-/opt/anaconda3/envs/labellens-cv/bin/python -m src.cv.eval_real --folder data/real_photos/online --reference-source LLM-labelled --report results/cv_real_photos.md
+/opt/anaconda3/envs/labellens-cv/bin/python -m src.cv.eval_real --folder data/real_photos/clear_online --reference-source LLM-labelled --report results/cv_real_photos_clear.md
 ```
-Actual field-output excerpt; full output is in the results file:
+Actual field-output excerpt; complete output is in the results report:
 ```text
-lot | 1 | 0/1 | 100.00% (11/11)
-product_name | 6 | 0/6 | 97.30% (36/37)
-expiry | 3 | 0/3 | 91.67% (22/24)
+product_name | 10 | 1/10 | 83.42% (161/193)
+lot | 10 | 0/10 | 100.00% (78/78)
+expiry | 10 | 0/10 | 100.00% (93/93)
 ```
 ```text
 /opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider -m "not slow"
@@ -31,14 +32,14 @@ expiry | 3 | 0/3 | 91.67% (22/24)
 ........................................................................ [ 76%]
 ........................................................................ [ 95%]
 ................                                                         [100%]
-376 passed, 3 deselected in 37.57s
+376 passed, 3 deselected in 77.03s (0:01:17)
 
 /opt/anaconda3/envs/labellens-cv/bin/python -m ruff check --no-cache src tests scripts/real
 All checks passed!
 ```
 
 ## 5. What you should check yourself
-Review photos 04, 06 and 12 against the four requested AI readings. Inspect each field mismatch and the thumbnail/source distinctions.
+Open clear_online/REVIEW.md and compare each field with the original image. Spot-check photos 01, 04 and 08. Confirm images are not staged.
 
 ## 6. What I am unsure about or assumed
-The real-photo baseline is poor; region/field selection and recognition need further work. These are provisional AI-reference results, not validated device accuracy. Human spot-check is NOT_RUN; Task 4 is not fully complete. No detector tuning, invented references or new dependencies were added.
+Visibility is AI-inspected; human review is NOT_RUN. Photos are selected retail/catalog views with related families, not a representative benchmark. Extraction still needs fixing despite readable inputs. No model accuracy improvement is claimed. Image licenses are not established, so binaries stay local.

@@ -1,11 +1,17 @@
 # Real phone photos and LLM-labelled transcriptions
 
 Parth confirmed on 2026-11-16 that Paridhi accepted online photographs as
-Task 4 substitutes. The current inputs are in local `online/`: 12 photos,
-seven with readable references and five unscored. These are not Parth captures.
-Source pages, download representations and fingerprints are in
-`data/real/SOURCES.md`. Five inputs are originals and seven are explicitly
-identified 1280-pixel server thumbnails. Two needle-kit views are correlated.
+Task 4 substitutes. The preferred inputs are now in local `clear_online/`: ten device photos,
+with product name, lot and expiry visually readable in every image. All 30
+readings are LLM-labelled and need a human spot-check. These are selected
+retail/catalog photographs, not Parth captures. Each original is unchanged;
+source URLs, file fingerprints and reading decisions are in
+`data/real/SOURCES.md`. `clear_online/REVIEW.md` links every photo and its values.
+
+The older `online/` set and `results/cv_real_photos.md` baseline remain available
+for comparison. Their twelve inputs include five photos with no readable
+reference fields, so they are not the preferred set. Do not blend either cohort
+with the other or claim that a change of dataset improved the extraction model.
 
 This workflow follows Paridhi's clarification: the agent transcribes fields
 in-session and marks them **LLM-labelled**. Parth then spot-checks three photos,
@@ -59,8 +65,8 @@ is **NOT_RUN**, not zero errors.
 
 ```sh
 /opt/anaconda3/envs/labellens-cv/bin/python -m src.cv.eval_real \
-  --folder data/real_photos/online --reference-source LLM-labelled \
-  --report results/cv_real_photos.md
+  --folder data/real_photos/clear_online --reference-source LLM-labelled \
+  --report results/cv_real_photos_clear.md
 ```
 
 Without photos and transcriptions it prints that there is nothing to evaluate.

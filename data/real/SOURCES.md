@@ -1182,3 +1182,74 @@ reference rather than an identifiable instrument name. These five are unscored.
 reprocessing label; 06 and 09 are sterilization-packaging accessories; 10 is
 historical Russian syringe packaging; 11/12 are two views of the same needle kits.
 Do not infer absent lot/expiry values from dates, filenames or web descriptions.
+
+## Clear three-field photo replacement (2026-11-16)
+
+Parth requested a new search for clear photos containing all three requested
+attributes. This selected set supersedes the earlier online candidates for the
+preferred Task 4 run; the earlier set and its baseline report are retained.
+Thirty download candidates were considered: 29 images downloaded and visually
+inspected, one image URL returned HTTP 404. Ten images passed the new gate;
+19 downloaded candidates were rejected. Selection was completed and 30 reference
+values were frozen before running OCR. No selection used extraction success.
+
+Acceptance: the product name, an actual lot/batch value and an expiry/use-by value
+are all visibly readable in the same source photo at its downloaded resolution.
+A REF/model code is not a lot, and a manufacture date is not an expiry. Product
+name line breaks are joined with spaces. Superscript trademark glyphs are
+transcribed when visible. Dates retain their printed format, including
+month-only dates and Spanish AGOS. All readings are **LLM-labelled**, not
+human-validated truth; human three-photo spot-check remains NOT_RUN.
+
+The ten images are medical-device packages, not medicine packaging or generic
+sterilization accessories. Four photos show sutures, five show catheters or a
+lead introducer, and one shows a wound dressing. The three Introcan products
+share a B. Braun family; two sutures share an Ethicon family. Group these before
+any future train/test split. These are selected clear retail/catalog photographs,
+not a representative phone-camera benchmark. Original bytes are copied locally
+without cropping, enhancement, upscaling, overlays or image generation.
+
+Images and reference files stay in ignored `data/real_photos/clear_online/`:
+`transcriptions.csv`, `annotations.json` and `REVIEW.md`. Downloaded widths range from 800 to 4912 pixels and heights from 718 to 4912;
+a larger file does not automatically mean that all of its fields are readable. Each accepted original was inspected directly.
+Rights: no open license was established for these retailer/manufacturer images.
+The publisher/manufacturer retains rights; no photo binaries are committed or
+redistributed in Git. Source links and fingerprints identify the evaluated bytes.
+
+| Local filename | Visible product name | Visible lot/batch | Visible expiry | Size, pixels | Module | Source page | Download URL | SHA-256 | Rights |
+|---|---|---|---|---|---|---|---|---|---|
+| `clear_01_crylrex.jpg` | CRYLREX | `2201KS517` | `2027-01` | 1243x1440 | device | [source](https://www.emedimall.com/shop/goods/goods_view.php?category=002020&goodsno=11803) | [image](https://www.emedimall.com/shop/data/goods/1647481881873m0.jpg) | `497677f538a064f0a7dd0141d6f30eafff2d1861e6a6cd5ff53e6006b6bf55af` | open license not established |
+| `clear_02_braisorb.jpg` | Braisorb | `009` | `12/2024` | 2560x1707 | device | [source](https://medicodentalstore.com/product/fil-de-suture-2/) | [image](https://medicodentalstore.com/wp-content/uploads/braisorb-scaled.jpg) | `4589687165df7d1f16f5e757dd053e3ec2809686341da7a970557eb34834fadc` | open license not established |
+| `clear_03_cranberry.jpg` | APÓSITO ADHESIVO TRANSPARENTE | `PC-18796` | `AGOS-2026` | 1200x1200 | device | [source](https://farmaciaelquimico.cl/products/aposito-adhesivo-transparente-6-x-7-cm) | [image](https://farmaciaelquimico.cl/cdn/shop/files/aposito-ahesivo-transparente_1200x.jpg?v=1723060014) | `ef602a0aa05323f646baf90e54466e6221a5ecc191b8a50bc3e0758f77c9b9ad` | open license not established |
+| `clear_04_cook_airway.jpg` | Cook Airway Exchange Catheter | `6903756` | `2019-04-20` | 3264x4912 | device | [source](https://imedsales.com/cook-g07873-airway-exchange-catheter-with-rapi-fit-adapters-14-0fr-x-83cm-x) | [image](https://dkcdkv8eldsua.cloudfront.net/media/catalog/product/b/a/ba1e2ba40de96f626cb01b08fe45a936.jpg) | `c23bda60f598e56921531bdbaa9a7b9722c301639b9353067d5ff2821f69a771` | open license not established |
+| `clear_05_stratafix.jpg` | Stratafix™ | `RJMCHQ` | `2023-07-31` | 4912x3264 | device | [source](https://imedsales.com/ethicon-sxpp1a205-1-stratafix-os-8-40mm-1-2c-reverse-cutting-24inch-8) | [image](https://imedsales.com/media/catalog/product/6/f/6ff1dfbb53190ca9da0a2b9573025757.jpg) | `ad87ae24df48e571d55d0739661fff2a3995f799cb10acc7ce4f5069de2605c7` | open license not established |
+| `clear_06_medtronic_introducer.jpg` | Percutaneous Lead Introducer | `GB6979375` | `2024-01-19` | 4592x2576 | device | [source](https://imedsales.com/medtronic-6209-s5-percutaneous-lead-introducer-9fr-x) | [image](https://imedsales.com/media/catalog/product/b/5/b58a32f4b5e6cfe2851ace4f335aafc4_1.jpg) | `e32e9cafa4b1bbd670713e20e1b250f786d3612a737fe6f5bcdfa8254229c08d` | open license not established |
+| `clear_07_introcan_safety.jpg` | Introcan Safety® IV Catheter | `22B25G8316` | `2027-02-01` | 1280x718 | device | [source](https://www.dotmed.com/listing/disposables-general/b-braun/4251628-02/-in-date-box-of-200-catheter-iv-introcan-22gx1-poly-safety/5403741) | [image](https://images.dotmed.com/images/listingpics2/5/4/0/3/5403741.jpg) | `fca1f592ddb33d7d86ae76a5b705f6f0414af8df598eb1217bbb926d5af6036e` | open license not established |
+| `clear_08_introcan_safety2.jpg` | Introcan Safety® 2 IV Catheter | `23H17G8271` | `2028-08-01` | 1280x960 | device | [source](https://www.dotmed.com/listing/disposables-general/b-braun-medical/4242014-02/introcan-safety-2-iv-catheter-18-ga-x-175-in/5497064) | [image](https://images.dotmed.com/images/listingpics2/5/4/9/7/5497064.jpg) | `0b908764641fe4bb44c2ea809e50945fb9245f1f65bd5baa585a6554beac5660` | open license not established |
+| `clear_09_introcan.jpg` | Introcan® | `23C11G8361` | `2028-03-01` | 800x800 | device | [source](https://shopee.co.id/IV-Introcan-24G-B-Braun-Ecer-i.183932472.20991528102) | [image](https://down-id.img.susercontent.com/file/id-11134207-7qul1-lk0tadxi5y5ma8) | `92dd526be827449690dc8aad36ded7d863a44d7ab453642e27416bf52cdb15b5` | open license not established |
+| `clear_10_ethibond.jpg` | ETHIBOND EXCEL™ | `MAK729` | `2022-12-31` | 960x960 | device | [source](https://www.dotmed.com/listing/disposables-general/ethicon/x762/ethibond-excel-polyester/4620079) | [image](https://cdn.dotmed.com/images/listingpics2/4/6/2/0/4620079.jpg) | `0bbdba1963dcf616759d3311c0d0db2bccd5470d9679780295d18ebbc3be4a11` | open license not established |
+
+Specific reading decisions: Braisorb's lot is `009`, not the reference
+`BRRUP130`. The Cook and Ethibond photos retain seller pen marks/stickers, but
+reference dates come only from the manufacturer's printed expiry field. The
+Introcan Safety photo contains two boxes with the same values and counts once.
+Stratafix and Medtronic use wider gallery photos because the initial close-ups
+cut off the product names. Cranberry retains the printed `AGOS-2026` date.
+
+Rejected examples include cropped-name images, name-only images without lot/expiry,
+low-resolution critical text, seller-added expiry overlays, annotated teaching
+images and package backs showing components instead of a complete label. No
+missing field was filled from a listing title, search caption, barcode payload,
+another picture or a product website. Candidate downloads are retained locally
+in `clear_online_candidates/` with sources.json for inspection.
+
+Run the separate clear-photo evaluation:
+
+```sh
+python -m src.cv.eval_real --folder data/real_photos/clear_online \
+  --reference-source LLM-labelled --report results/cv_real_photos_clear.md
+```
+
+Frozen clear-set transcriptions.csv SHA-256: `c7d7eb4254497acd2edfa091918832a688e1c5953f199707b7a25cd4a292c857`.
+Human spot-check for the clear set is NOT_RUN. The earlier spot-check request
+refers to the previous online baseline and does not validate these new readings.
