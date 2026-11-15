@@ -1,6 +1,6 @@
 # Label checker spec (Step 21a)
 
-Status: DRAFT for review. Nothing in this document is implemented yet. Implementation is Step 21b to 21d.
+Status: approved, implemented in `src/checker/` (21b) and `src/api/` (21c). Section 9 records the decisions taken after review.
 
 The checker takes one label extraction (from CV), one product record and the regulation corpus, and returns `Flag` objects (`src/common/schemas.py`, locked) with citations. **Rules decide, retrieval cites.** No LLM is involved: every verdict is computed by a deterministic rule, and retrieval only finds the regulation text to show beside it. The checker never says a label is compliant. A label with no flags means "no rule found a problem", and the coverage list (below) says which rules actually ran.
 
@@ -184,12 +184,15 @@ Findings from reading `src/api` and the contract. These are decisions for you, n
 3. **`recheckLabel` needs real generated artwork**, and `generateArtwork` is a mock. Proposal: recheck renders nothing. It runs the same extraction and checker on `LabelVersion.artwork_file` (the rendered preview PNG) and writes a `self_check` CheckResult with `artifact_sha256` copied from the version. Until generation is real it can only be tested on versions created by a test.
 4. **`passed` means zero critical findings** (DATA_MODEL.md). A label with an unreadable barcode and a missing symbol only has `review` findings, so `passed` would be `true`. See open question 1.
 
-## 9. Open questions for you
+## 9. Decisions (approved after review of 21a)
 
-1. **Should `passed` also require zero unresolved needs_human findings?** The contract says zero critical only. With the symbol detector untrusted, every label has a needs_human symbol outcome, so approval would never be blocked by it. My recommendation: keep `passed` as the contract says, and return `needs_human_count` in the API response as an extra field (a contract change you approve), so the Review screen can show "3 items need a human" beside Passed. The alternative, `passed = False` while any needs_human exists, would block every approval until cv-symbols lands.
-2. **Show passed rules as `info` findings** (as the inspect mock does for the date format) or only problems? Recommendation: only problems in `findings`, with the `coverage` list returned beside it. Info findings would inflate the count and blur the false alarm rate.
-3. **Rx applicability key.** `ProductRecord` has no prescription field, so I use `record.extra["rx_only"] == "true"`. Confirm the key name or give another.
-4. **Seeds** 200, 201 (dev) and 300 to 302 (final): confirm, or name seeds you prefer.
+1. `passed` stays "zero critical findings". `CheckResult` gains `needs_human_count` and `coverage` (`rule_id`, `outcome`, `reason`), added to `openapi.yaml`, the mocks, the contract tests and DATA_MODEL (CR-17). `schemas.py` is untouched.
+2. `findings` contain only problems. Passed rules appear only in `coverage`.
+3. `ProductRecord.extra["rx_only"] == "true"` marks a prescription-only device. It is documented as a product registration field in DATA_MODEL and `openapi.yaml` so the UI can collect it.
+4. Seeds 200 and 201 are development seeds. Seeds 300 to 302 are the final evaluation, run once, after the thresholds and queries in this document are frozen (committed).
+5. The gaps in section 8 are accepted: append-only `extractions` and `jobs` tables, and `recheckArtwork` runs on the version's artwork file and copies its `artifact_sha256`.
+
+Also required: `src/api` must import without cv2, zxingcpp or rapidocr (the extractor imports them lazily inside the job), and API tests stub the extraction.
 
 ## 10. Assumptions and known limits
 
