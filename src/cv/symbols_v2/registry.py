@@ -6,7 +6,7 @@ from src.cv.symbols_v2.detector import Featurizer
 
 
 def extra_featurizers(names: tuple[str, ...]) -> dict[str, Featurizer]:
-    """Return the featurizers called ``names`` (``cnn``, which needs trained weights, and ``clip``, which needs the downloaded CLIP model)."""
+    """Return the featurizers called ``names``: ``cnn`` (needs trained weights) and ``clip`` (needs the CLIP model)."""
     out: dict[str, Featurizer] = {}
     for name in names:
         if name == "cnn":

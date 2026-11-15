@@ -579,3 +579,11 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 4. **Verified:** anchored dev: +0 to +1 symbols, boost 52/320 false positives with silhouette; random layout gate 4/256.
 5. **Check yourself:** relaxed thresholds (0.6, 0.2) were fixed before the run.
 6. **Assumptions:** Synthetic layout; verdict: not used in the detector.
+
+## Symbols phase 4: zero-shot CLIP
+1. **What I did:** Because the CNN missed 0.90 on held-out styles, ran CLIP ViT-B/32 zero-shot on candidate crops with text prompts; threshold 0.4 frozen on dev.
+2. **Files:** `src/cv/symbols_v2/clip_zero_shot.py`, `scripts/symbols/clip_eval.py`, `results/symbols_frozen_clip.json`.
+3. **How it works:** Ask a model that has seen images and captions "is this more like a factory, an hourglass or a warning sign?", with no training on our drawings.
+4. **Verified:** held-out 308/384 (80.2%), false positives 27/640 (4.2%); badge style 59/64 where the other detectors score 0.
+5. **Check yourself:** the frozen-threshold commit precedes the held-out run (see `results/heldout_log.jsonl`).
+6. **Assumptions:** Prompts are my wording and untuned.
