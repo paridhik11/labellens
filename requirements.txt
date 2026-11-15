@@ -31,3 +31,5 @@ reportlab
 anthropic
 pytest
 ruff
+pyyaml
+jsonschema

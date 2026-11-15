@@ -360,6 +360,74 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 5. **Check yourself:** Review the measured-results tables, reproduction commands, and remaining-work section before sharing.
 6. **Assumptions:** The report is a project handoff, not a regulatory claim; temporary evaluation datasets are not committed.
 
+---
+
+## Step 19a: data model and schema change requests (branch step19-contracts)
+1. **What I did:** Wrote `docs/contracts/DATA_MODEL.md`, which covers 14 entities with their fields, types, relations and version history rules, plus the public medicine mode shapes. Every field maps to a `schemas.py` class field or points to a numbered change request. Wrote `docs/contracts/SCHEMA_CHANGE_REQUESTS.md` with 14 proposed requests (CR-1 to CR-14) for what the locked `schemas.py` lacks. `schemas.py` was not edited.
+2. **Files changed:** `docs/contracts/DATA_MODEL.md` (entity contract), `docs/contracts/SCHEMA_CHANGE_REQUESTS.md` (gap list), this log.
+3. **How it works:** A Finding is the existing `Flag` plus optional citations. Each citation is built from a real `Chunk` (chunk_id, section, url, verbatim quote), so no regulation text is invented. Versions are append-only, and an approval binds to the artwork's sha256.
+4. **Verified:** A throwaway script found 41 `Class.field` references to `schemas.py` and none were missing. Every field of ProductRecord, LabelExtraction, Flag and ChangeRequest appears in the doc. No em dashes. `ruff check src tests`: All checks passed.
+5. **Check yourself:** CR-14 (a returned change stays `draft`), version rule 5 (approval binds to the hash), and the public corpus line (21 CFR 201, 208, 211 only).
+6. **Assumptions:** Report and PublishedPage are exports, not tables. Prefixed opaque ids. The abstention score is provisional. None of the CRs is approved.
+
+## Step 19a2: data model review changes
+1. **What I did:** Applied Pari's five 19a review changes. Reports and published pages now carry a fixed `version_id`. Citations have `source_type` (cfr or label_section). Approval binds to `artifact_sha256` and the passed `check_id`. The CR table has a "Parth" column. Status is derived from the latest Review (new "Status derivation" table). I also added CR-15 and aligned `GS1-128`, `symbol_name` and the manifest hash with Parth's renderer on `cv-fixes`.
+2. **Files changed:** `docs/contracts/DATA_MODEL.md`, `docs/contracts/SCHEMA_CHANGE_REQUESTS.md`, this log.
+3. **How it works:** `label_id` is the label family, and `version_id` is one immutable version (L2). A QR page stores `version_id`, so it keeps showing L2 even after L3 is published.
+4. **Verified:** The mapping script found 41 refs, none missing. Em dashes 0. The openapi "returned" example comes in 19c.
+5. **Check yourself:** The status derivation order, the `check_id` rule in Review, and the Parth column values.
+6. **Assumptions:** Public label answers have no abstention validation. The public label corpus is not built. Parth's code is not on main yet.
+
+## Step 19b: template spec
+1. **What I did:** Wrote `docs/contracts/TEMPLATE_SPEC.md`: units (mm from the top left, pt for fonts, the PDF y-flip, SVG viewBox in mm), the template JSON and slot keys, validation rules that become layout findings, the named SVG groups (`layer-background`, `layer-slots`, `slot-{id}`, `layer-watermark`, `layer-review`), and the GS1 barcode rule KEEP, REGENERATE or NEEDS_INPUT, with worked examples.
+2. **Files changed:** `docs/contracts/TEMPLATE_SPEC.md` (new), this log.
+3. **How it works:** A new address leaves the GS1 payload unchanged, so the decision is KEEP and the barcode is reused exactly. A confirmed new lot changes AI (10), so the decision is REGENERATE. A missing UDI-DI gives NEEDS_INPUT and `IdentifierRequired`.
+4. **Verified:** A throwaway script found the spec example OK and Parth's `test_device.json` OK. The GENERATION.md example fails on a missing `symbol_name` (noted, not edited). The placeholder `00000000000000` has a valid mod-10 check digit. The PDF sizes are 283.46 x 170.08 pt. Em dashes 0.
+5. **Check yourself:** The DRAFT band (6 mm) and the 6 pt minimum, the NEEDS_INPUT row for unconfirmed changes, and SVG group rule 2 (watermark removed only with approval).
+6. **Assumptions:** Parth's renderer does not yet emit the named groups. The GS1 lot and serial limits (20 characters) need checking against the current GS1 spec.
+
+## Step 19c: OpenAPI 3.1 contract and API guide
+1. **What I did:** Wrote `docs/contracts/openapi.yaml`: 28 paths, 31 operations, 66 component schemas. It covers products and templates, scans and extraction, inspection, search with a retrieval config, change assessment, affected labels, generate (409 needs_input), re-check, review, publish, exports, print verification, history, jobs, and public scan and ask with an abstain response. Wrote `docs/contracts/API.md` to explain it, and marked `docs/API_CONTRACT.md` as superseded.
+2. **Files changed:** `docs/contracts/openapi.yaml`, `docs/contracts/API.md` (new), `docs/API_CONTRACT.md` (one superseded note), this log.
+3. **How it works:** Each schema mirrors `schemas.py` where a class exists (ProductRecord, LabelExtraction, Flag, Hit). Extended shapes use `allOf` plus `unevaluatedProperties: false`, so a typo in a mock fails validation. A returned Review must have `resulting_status: draft`, which the schema enforces with `if`/`then`.
+4. **Verified:** Every component schema passed the JSON Schema 2020-12 metaschema (0 failing). 72 distinct `$ref`s, all resolved. No duplicate operationIds, path params match. 5 examples validate, including both `returned` examples. Negative checks reject a returned review with status reviewed, an approve without `check_id`, an unknown abstain reason and an extra key. All 31 operationIds appear in API.md. Ruff clean.
+5. **Check yourself:** `AbstainedAnswer` (score and threshold may be null for a scope rule), `RetrievalConfig` defaults, and the `generateArtwork` 409 body.
+6. **Assumptions:** `rerank` and `expansion` have no code in `src/ir` yet. Auth is not modelled. The abstention score is provisional.
+
+## Step 19c2: users, terminal reject, voided approvals, 202 jobs, GS1 check
+1. **What I did:** Added a minimal User (user_id, name, role editor, reviewer or admin) behind an `X-User-Id` header stub (no login), with `GET /me`. Review, AuditEvent and ChangeLogEntry carry `user_id`, and the submitter of a change cannot approve it (403 self_approval_forbidden). Documented that a new artwork version after approval voids that approval, that reject is terminal (`closed`, 409 change_closed), and that scan, generate and print verify always return a 202 Job envelope with GET result endpoints. Checked the GS1 formats against GS1's AI list and added a one-line authority note to GENERATION.md.
+2. **Files changed:** `docs/contracts/DATA_MODEL.md`, `openapi.yaml`, `API.md`, `TEMPLATE_SPEC.md`, `SCHEMA_CHANGE_REQUESTS.md` (CR-16 User), `docs/GENERATION.md` (one note line), this log.
+3. **How it works:** Status derivation only looks at the change's latest artwork version. After L3 is approved, regenerating gives L4 with no Review, so the change drops back to draft or checked ("Needs review" in the UI).
+4. **Verified:** GS1 dataset (ref.gs1.org): 01 `N2+N14`, 10 `N2+X..20` separator required, 17 `N2+N6`, 21 `N2+X..20` separator required, so the 20-character limits were already right. OpenAPI: 35 operations, 67 schemas, 0 failing the metaschema, 73 refs resolved, 6 examples OK, all 35 operationIds in API.md. Mapping script: 41 refs, none missing. Em dashes 0.
+5. **Check yourself:** The self-approval rule (the submitter may still return or reject), Status derivation rule 1, and the "public endpoints need no header" choice.
+6. **Assumptions:** `X-User-Id` is a trusted dev stub, not security. "Needs review" is a UI label, not a fifth status.
+
+## Step 19d: screens
+1. **What I did:** Wrote `docs/contracts/SCREENS.md`: 3 public screens (P1 to P3) and 10 professional screens (D1 to D10). Each state names the operationId that feeds it and the mock file path, with a shared state vocabulary (empty, loading, success, failed_check, needs_review, approved, abstained, plus failed for broken jobs).
+2. **Files changed:** `docs/contracts/SCREENS.md` (new), this log.
+3. **How it works:** The Inspect screen's "failed check" state is the `inspectLabel` 200 response with an expiry mismatch finding, and its mock is `professional/inspect/failed_check.json`. The UI can build every state from mocks before the backend exists.
+4. **Verified:** All 27 operationIds named in SCREENS.md exist in openapi.yaml. 50 mock paths listed. Em dashes 0.
+5. **Check yourself:** The coverage check line, and the P2 needs_review meaning (several candidates, so a picker).
+6. **Assumptions:** Idle scan screens need no mock. `failed` is an extra state.
+
+## Step 19e: mock JSON and contract tests
+1. **What I did:** Wrote 50 mock responses under `src/api/mock/` (public and professional kept apart), one per screen state in SCREENS.md, plus `index.json`, which maps each file to its screen, state, operationId, HTTP status and schema. Wrote `tests/test_mock_contracts.py`, which validates every mock against its endpoint's response schema in openapi.yaml and checks the mapped parts with the locked `schemas.py` models. It also checks honesty rules: citations quote real chunks of the right module, no invented GTIN or UDI-DI, drafts are marked, a returned change derives draft from its latest Review, a rejected change is closed, an approval is bound to a passed check and is not self-approved, and every required state and all four abstain reasons are covered.
+2. **Files changed:** `src/api/mock/**` (51 JSON files), `tests/test_mock_contracts.py` (new), `requirements.txt` (+pyyaml to read openapi.yaml, +jsonschema to validate mocks), `.github/workflows/ci.yml` (installs the same two), `docs/contracts/openapi.yaml` and `DATA_MODEL.md` (CheckResult may name a `template_id` for template and pre-render layout checks).
+3. **How it works:** `professional/evidence/success.json` is a real run of our own BM25 on the device chunks. 801.18 (date format) ranked first for "format of expiration date on a medical device label". Other scores and confidences are illustrative, and `index.json` says so.
+4. **Verified:** `pytest -q tests/test_mock_contracts.py`: 82 passed before the non-vacuous check was added. Full fast suite: 205 passed, 1 deselected. Ruff: all checks passed. A deliberately broken mock fails validation (test_validation_is_not_vacuous).
+5. **Check yourself:** The `index.json` note on illustrative values, `test_no_invented_identifiers`, and the ci.yml one-line change.
+6. **Assumptions:** The mocks were generated once by a scratchpad script (not committed) and are edited by hand from now on. Abstain scores and thresholds are illustrative, not Step 16 values.
+
+## Step 19g: wrap-up of Step 19 (contracts)
+1. **What I did:** Updated CLAUDE.md "Current state" and "Next steps" for Step 19 and re-ran every check. Step 19 adds the contracts in `docs/contracts/` (DATA_MODEL, TEMPLATE_SPEC, openapi.yaml, API, SCREENS, SCHEMA_CHANGE_REQUESTS), 50 mocks in `src/api/mock/`, and `tests/test_mock_contracts.py`.
+2. **Files changed:** `CLAUDE.md`, this log.
+3. **How it works:** The UI builds against `src/api/mock/` files listed in `index.json`. The test fails if a mock drifts from openapi.yaml, so the contract and the mocks cannot silently disagree.
+4. **Verified:** Fast suite 205 passed, 1 deselected. `tests/test_mock_contracts.py` 83 passed. Ruff clean. No em dashes in contract docs or CLAUDE.md. `git diff 3c12419 HEAD` shows no change under src/common, src/ir, src/cv, src/gen or data/eval.
+5. **Check yourself:** CR-1 to CR-16 with the Parth column, the combined assumptions in the Step 19 report, and the ci.yml change.
+6. **Assumptions:** See the combined list in the Step 19 report. CI status could only be checked through the public GitHub API, if at all (gh is not logged in).
+
+---
+
 ## CV fix 1: setup, reproduction and diagnosis
 1. **What I did:** Built a Python 3.12 CV environment from the pinned versions (now also in `requirements-cv.txt` at the root) and reproduced every published seed-42 number exactly. Added two extra photo conditions without touching the old three, and a tool that runs any older commit's code on the same images. Wrote `results/cv_diagnosis.md`.
 2. **Files:** `src/gen/augment.py` and `src/gen/generate_dataset.py` (conditions `hard_original`, `very_hard`), `src/cv/baseline_ref.py` (run an old commit), `src/cv/diagnose.py` (report), `requirements-cv.txt`, `pyproject.toml` (long table lines allowed in the report template).

@@ -1,0 +1,10 @@
+{
+  "job_id": "job_scan_0002",
+  "kind": "scan",
+  "state": "failed",
+  "progress": 1.0,
+  "error": {
+    "error": "unreadable_file",
+    "message": "The file could not be opened as a PDF or image. Try another file."
+  }
+}

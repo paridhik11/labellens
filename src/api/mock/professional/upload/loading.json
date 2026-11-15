@@ -1,0 +1,7 @@
+{
+  "job_id": "job_scan_0001",
+  "kind": "scan",
+  "state": "processing",
+  "progress": 0.4,
+  "message": "Reading text and barcode"
+}

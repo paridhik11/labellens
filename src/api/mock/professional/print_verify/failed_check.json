@@ -1,0 +1,51 @@
+{
+  "verification_id": "pvf_0002",
+  "label_id": "lbl_exampledevice_carton",
+  "version_id": "lbv_exampledevice_carton_l3",
+  "photo_file": {
+    "file_id": "fil_0101",
+    "mime": "image/jpeg",
+    "sha256": "197e5f1024e54d1a8dee2993837c672490f2cdf46c13f2a18c28fe542f619ff8"
+  },
+  "condition": "phone_photo",
+  "outcome": "mismatch",
+  "mismatches": [
+    {
+      "field": "expiry",
+      "expected": "2028-03-31",
+      "observed": "2028-04-30",
+      "bbox": [
+        700.0,
+        300.0,
+        330.0,
+        60.0
+      ]
+    }
+  ],
+  "quality": {
+    "blur": 0.12,
+    "glare": 0.04,
+    "confidence": 0.9
+  },
+  "created_at": "2026-11-13T10:00:00Z",
+  "barcode": {
+    "expected_payload": "(01)00000000000000(17)280331(10)LOT0001(21)SN0001",
+    "decoded": {
+      "type": "DataMatrix",
+      "raw": "]d201000000000000001728033110LOT0001\u001d21SN0001",
+      "parsed": {
+        "01": "00000000000000",
+        "17": "280331",
+        "10": "LOT0001",
+        "21": "SN0001"
+      },
+      "bbox": [
+        980.0,
+        420.0,
+        260.0,
+        260.0
+      ]
+    },
+    "match": true
+  }
+}

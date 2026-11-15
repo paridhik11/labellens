@@ -1,0 +1,9 @@
+{
+  "abstained": true,
+  "reason": "out_of_scope",
+  "score_name": "scope_rule",
+  "score": null,
+  "threshold": null,
+  "message": "I can only explain what the packaging label says. For advice about taking this medicine, please ask a pharmacist or doctor.",
+  "banner": "Authenticity not verified. Based on a reference label match."
+}

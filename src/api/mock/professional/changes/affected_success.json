@@ -1,0 +1,60 @@
+{
+  "change_id": "chg_0002",
+  "items": [
+    {
+      "impact_id": "imp_0001",
+      "change_id": "chg_0002",
+      "label_id": "lbl_exampledevice_carton",
+      "version_id": "lbv_exampledevice_carton_l2",
+      "slot_id": "sterilization_text",
+      "item_kind": "text",
+      "title": "Sterilization text",
+      "description": "Label text and method description",
+      "suggestion": "edit_required",
+      "evidence_chunk_ids": [],
+      "user_decision": "pending"
+    },
+    {
+      "impact_id": "imp_0002",
+      "change_id": "chg_0002",
+      "label_id": "lbl_exampledevice_carton",
+      "version_id": "lbv_exampledevice_carton_l2",
+      "slot_id": "sterile_symbol",
+      "item_kind": "symbol",
+      "title": "Symbol selection",
+      "description": "Sterilization symbol may need to change",
+      "suggestion": "review_suggested",
+      "evidence_chunk_ids": [
+        "fda_21cfr801_s801.15_c1"
+      ],
+      "user_decision": "pending"
+    },
+    {
+      "impact_id": "imp_0003",
+      "change_id": "chg_0002",
+      "label_id": "lbl_exampledevice_ifu",
+      "version_id": "lbv_exampledevice_ifu_l1",
+      "item_kind": "linked_label",
+      "title": "Instructions for use",
+      "description": "Related content may need updating",
+      "suggestion": "review_suggested",
+      "evidence_chunk_ids": [],
+      "user_decision": "pending"
+    },
+    {
+      "impact_id": "imp_0004",
+      "change_id": "chg_0002",
+      "label_id": "lbl_exampledevice_carton",
+      "version_id": "lbv_exampledevice_carton_l2",
+      "slot_id": "udi_barcode",
+      "item_kind": "barcode",
+      "title": "UDI barcode",
+      "description": "Encoded data (GTIN, expiry, lot, serial) does not change, so the barcode is kept",
+      "suggestion": "no_change",
+      "evidence_chunk_ids": [
+        "fda_21cfr801_s801.20"
+      ],
+      "user_decision": "pending"
+    }
+  ]
+}

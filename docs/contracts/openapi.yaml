@@ -1,0 +1,1696 @@
+openapi: 3.1.0
+info:
+  title: LabelLens API
+  version: 0.1.0-contract
+  description: |
+    Contract for the LabelLens website (Step 19c). Not implemented yet; src/api/main.py only has /health.
+    Field names follow src/common/schemas.py wherever a model exists. Shapes that schemas.py lacks are
+    listed in docs/contracts/SCHEMA_CHANGE_REQUESTS.md (CR-n) and defined here in the meantime.
+    The professional device module (tag "device") and the public medicine module (tag "public") share
+    this API but never share data: a device request never returns medicine chunks and the reverse.
+    Every generated draft carries a DRAFT mark until an approval record exists. GTIN and UDI-DI values
+    are never generated; a missing identifier returns 409 needs_input.
+servers:
+  - url: http://localhost:8000
+    description: Local development server (FastAPI, src/api/main.py)
+security:
+  - UserHeader: []
+tags:
+  - name: device
+    description: Professional workspace for medical device label teams.
+  - name: public
+    description: Public medicine packaging mode. Corpus is 21 CFR 201, 208 and 211 only.
+  - name: common
+    description: Jobs and health.
+
+paths:
+  /health:
+    get:
+      tags: [common]
+      operationId: getHealth
+      summary: Liveness check (already implemented)
+      security: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status: {type: string, const: ok}
+
+  /me:
+    get:
+      tags: [common]
+      operationId: getCurrentUser
+      summary: The user named by the X-User-Id header stub
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/User"}
+        "401":
+          description: Header missing or unknown user
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
+  /jobs/{job_id}:
+    get:
+      tags: [common]
+      operationId: getJob
+      summary: Poll a long running job (scan, generate, print verify, slow inspect or re-check). Feeds every loading state.
+      security:
+        - {}
+        - UserHeader: []
+      parameters:
+        - $ref: "#/components/parameters/JobId"
+      responses:
+        "200":
+          description: Job state
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Job"}
+        "404": {$ref: "#/components/responses/NotFound"}
+
+  # ---------------------------------------------------------------- products and templates
+  /products:
+    get:
+      tags: [device]
+      operationId: listProducts
+      summary: List products (Products screen)
+      responses:
+        "200":
+          description: Products, possibly empty
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ProductList"}
+    post:
+      tags: [device]
+      operationId: registerProduct
+      summary: Register a product; creates product version 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ProductCreate"}
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ProductDetail"}
+        "422": {$ref: "#/components/responses/Invalid"}
+
+  /products/{product_id}:
+    get:
+      tags: [device]
+      operationId: getProduct
+      summary: Product with current version, templates and label families
+      parameters:
+        - $ref: "#/components/parameters/ProductId"
+      responses:
+        "200":
+          description: Product
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ProductDetail"}
+        "404": {$ref: "#/components/responses/NotFound"}
+
+  /products/{product_id}/versions:
+    get:
+      tags: [device]
+      operationId: listProductVersions
+      summary: Every product version, oldest first (History screen)
+      parameters:
+        - $ref: "#/components/parameters/ProductId"
+      responses:
+        "200":
+          description: Versions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [product_id, versions]
+                additionalProperties: false
+                properties:
+                  product_id: {type: string}
+                  versions:
+                    type: array
+                    items: {$ref: "#/components/schemas/ProductVersion"}
+        "404": {$ref: "#/components/responses/NotFound"}
+
+  /products/{product_id}/templates:
+    post:
+      tags: [device]
+      operationId: registerTemplate
+      summary: Register a label template (or a new template version) from marked slots
+      parameters:
+        - $ref: "#/components/parameters/ProductId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/TemplateCreate"}
+      responses:
+        "201":
+          description: Template created
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/LabelTemplate"}
+        "422":
+          description: Template breaks TEMPLATE_SPEC validation rules (findings listed)
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/CheckResult"}
+
+  /templates/{template_id}:
+    get:
+      tags: [device]
+      operationId: getTemplate
+      summary: A template; latest version unless version is given
+      parameters:
+        - name: template_id
+          in: path
+          required: true
+          schema: {type: string}
+        - name: version
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1}
+      responses:
+        "200":
+          description: Template
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/LabelTemplate"}
+        "404": {$ref: "#/components/responses/NotFound"}
+
+  /products/{product_id}/history:
+    get:
+      tags: [device]
+      operationId: getProductHistory
+      summary: Append only audit trail for a product and everything under it
+      parameters:
+        - $ref: "#/components/parameters/ProductId"
+      responses:
+        "200":
+          description: Events, newest first
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/AuditEventList"}
+
+  # ---------------------------------------------------------------- upload, scan, extraction
+  /scans:
+    post:
+      tags: [device]
+      operationId: uploadScan
+      summary: Upload a PDF or image, or a camera capture, of a device label
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, source]
+              properties:
+                file: {type: string, contentMediaType: application/octet-stream}
+                source: {type: string, enum: [upload, camera]}
+                product_id: {type: string}
+      responses:
+        "202":
+          description: Accepted. Job envelope; poll GET /jobs/{job_id}. result_url points at GET /scans/{scan_id}.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Job"}
+        "422": {$ref: "#/components/responses/Invalid"}
+
+  /scans/{scan_id}:
+    get:
+      tags: [device]
+      operationId: getScan
+      summary: Scan state; label_id and version_id are set when done
+      parameters:
+        - name: scan_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: Scan
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Scan"}
+        "404": {$ref: "#/components/responses/NotFound"}
+
+  /labels/{label_id}/versions:
+    get:
+      tags: [device]
+      operationId: listLabelVersions
+      summary: All versions (L1, L2, ...) of one label family
+      parameters:
+        - name: label_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: Versions, oldest first
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/LabelVersionList"}
+        "404": {$ref: "#/components/responses/NotFound"}
+
+  /label-versions/{version_id}:
+    get:
+      tags: [device]
+      operationId: getLabelVersion
+      summary: One immutable label version with its derived status
+      parameters:
+        - $ref: "#/components/parameters/VersionId"
+      responses:
+        "200":
+          description: Label version
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/LabelVersion"}
+        "404": {$ref: "#/components/responses/NotFound"}
+
+  /label-versions/{version_id}/extraction:
+    get:
+      tags: [device]
+      operationId: getExtraction
+      summary: Extracted text, barcodes and symbols beside the original
+      parameters:
+        - $ref: "#/components/parameters/VersionId"
+      responses:
+        "200":
+          description: Extraction
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Extraction"}
+        "404": {$ref: "#/components/responses/NotFound"}
+
+  /label-versions/{version_id}/extraction/confirm:
+    post:
+      tags: [device]
+      operationId: confirmExtraction
+      summary: User confirms or corrects unclear fields ("Confirm extraction")
+      parameters:
+        - $ref: "#/components/parameters/VersionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ExtractionConfirm"}
+      responses:
+        "200":
+          description: Confirmed extraction
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Extraction"}
+
+  # ---------------------------------------------------------------- inspection and evidence
+  /label-versions/{version_id}/inspect:
+    post:
+      tags: [device]
+      operationId: inspectLabel
+      summary: Compare extraction with the product record and retrieved requirements
+      parameters:
+        - $ref: "#/components/parameters/VersionId"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                retrieval: {$ref: "#/components/schemas/RetrievalConfig"}
+      responses:
+        "200":
+          description: Inspection result (kind inspection)
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/CheckResult"}
+        "202":
+          description: Running; poll the job
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Job"}
+
+  /search:
+    post:
+      tags: [device, public]
+      operationId: searchEvidence
+      summary: Retrieve requirement passages (Evidence screen). Module is required and never mixed.
+      security:
+        - {}
+        - UserHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/SearchRequest"}
+      responses:
+        "200":
+          description: Ranked hits, possibly empty
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/SearchResponse"}
+        "422": {$ref: "#/components/responses/Invalid"}
+
+  # ---------------------------------------------------------------- change assessment
+  /changes:
+    post:
+      tags: [device]
+      operationId: assessChange
+      summary: Parse a plain-language or structured change and assess its impact
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ChangeCreate"}
+      responses:
+        "201":
+          description: Proposed structured change with affected items and evidence
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ChangeAssessment"}
+        "422": {$ref: "#/components/responses/Invalid"}
+
+  /changes/{change_id}:
+    get:
+      tags: [device]
+      operationId: getChange
+      summary: A change request. status is derived from the record trail, never set by hand.
+      description: |
+        Status derivation (DATA_MODEL.md): published if a PublishedPage exists; reviewed if the latest
+        Review is approve; draft if the latest Review is return or reject; checked if there is no Review
+        and the latest CheckResult passed; otherwise draft. latest_review_id says which Review was used.
+      parameters:
+        - $ref: "#/components/parameters/ChangeId"
+      responses:
+        "200":
+          description: Change request
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ChangeRequest"}
+              examples:
+                returned:
+                  summary: Returned by the reviewer, so status is derived as draft from the latest Review
+                  value:
+                    change_id: chg_0002
+                    product_id: prd_exampledevice
+                    field: sterilization
+                    old_value: Ethylene oxide (EO)
+                    new_value: Gamma irradiation
+                    status: draft
+                    latest_review_id: rev_0002
+                    closed: false
+                    raw_text: Update the sterilization method from ethylene oxide (EO) to gamma irradiation.
+                    parse_state: confirmed
+                    edits: []
+                    created_at: "2026-11-10T09:00:00Z"
+                    created_by: usr_demo_editor
+                approved:
+                  summary: Latest Review is approve with a passed check, so status is reviewed
+                  value:
+                    change_id: chg_0002
+                    product_id: prd_exampledevice
+                    field: sterilization
+                    old_value: Ethylene oxide (EO)
+                    new_value: Gamma irradiation
+                    status: reviewed
+                    latest_review_id: rev_0003
+                    closed: false
+                    raw_text: Update the sterilization method from ethylene oxide (EO) to gamma irradiation.
+                    parse_state: confirmed
+                    edits: []
+                    created_at: "2026-11-10T09:00:00Z"
+                    created_by: usr_demo_editor
+        "404": {$ref: "#/components/responses/NotFound"}
+
+  /changes/{change_id}/confirm:
+    post:
+      tags: [device]
+      operationId: confirmChange
+      summary: Confirm the parsed change and the checklist decisions before any artwork changes
+      parameters:
+        - $ref: "#/components/parameters/ChangeId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ChangeConfirm"}
+      responses:
+        "200":
+          description: Confirmed change
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ChangeAssessment"}
+
+  /changes/{change_id}/affected:
+    get:
+      tags: [device]
+      operationId: listAffectedLabels
+      summary: Affected labels and fields for a change
+      parameters:
+        - $ref: "#/components/parameters/ChangeId"
+      responses:
+        "200":
+          description: Affected items, possibly empty
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/AffectedLabelList"}
+
+  /changes/{change_id}/generate:
+    post:
+      tags: [device]
+      operationId: generateArtwork
+      summary: Fill the existing template with the confirmed values; returns a DRAFT
+      parameters:
+        - $ref: "#/components/parameters/ChangeId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [label_id]
+              additionalProperties: false
+              properties:
+                label_id: {type: string, description: Label family to revise}
+                test_data:
+                  type: boolean
+                  default: false
+                  description: Allows the test placeholder identifier and prints TEST DATA | DRAFT
+      responses:
+        "202":
+          description: |
+            Accepted. Job envelope; poll GET /jobs/{job_id}. When done, result_url points at
+            GET /artworks/{artwork_id} (barcode decision KEEP or REGENERATE). Generating after an approval
+            creates a new version and voids that approval.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Job"}
+        "409":
+          description: |
+            Checked before the job starts. NeedsInput (barcode decision NEEDS_INPUT, IdentifierRequired),
+            or Error change_closed when the change was rejected. No artwork is produced.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/NeedsInput"
+                  - $ref: "#/components/schemas/Error"
+        "422":
+          description: Layout checks failed before rendering (findings listed)
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/CheckResult"}
+
+  /artworks/{artwork_id}:
+    get:
+      tags: [device]
+      operationId: getArtwork
+      summary: A generated DRAFT artwork (the result of a generate job)
+      parameters:
+        - name: artwork_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: Generated artwork
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/GeneratedArtwork"}
+        "404": {$ref: "#/components/responses/NotFound"}
+
+  # ---------------------------------------------------------------- re-check, review, publish
+  /label-versions/{version_id}/recheck:
+    post:
+      tags: [device]
+      operationId: recheckArtwork
+      summary: Closed-loop self-check and layout checks on generated artwork
+      parameters:
+        - $ref: "#/components/parameters/VersionId"
+      responses:
+        "200":
+          description: Check result (kind self_check); passed means zero critical findings
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/CheckResult"}
+        "202":
+          description: Running; poll the job
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Job"}
+
+  /label-versions/{version_id}/reviews:
+    get:
+      tags: [device]
+      operationId: listReviews
+      summary: Review decisions for a version, oldest first
+      parameters:
+        - $ref: "#/components/parameters/VersionId"
+      responses:
+        "200":
+          description: Reviews, possibly empty
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ReviewList"}
+    post:
+      tags: [device]
+      operationId: reviewArtwork
+      summary: Approve, return or reject. Approve requires a passed check_id and the exact artifact hash.
+      parameters:
+        - $ref: "#/components/parameters/VersionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ReviewCreate"}
+            examples:
+              return_for_correction:
+                summary: Reviewer returns the draft; the change status becomes draft
+                value:
+                  decision: return
+                  comment: Sterilization symbol must match the new method before approval.
+                  artifact_sha256: "0000000000000000000000000000000000000000000000000000000000000000"
+      responses:
+        "201":
+          description: Review recorded
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Review"}
+              examples:
+                returned:
+                  summary: Return recorded; resulting_status is draft (derived from this latest Review)
+                  value:
+                    review_id: rev_0002
+                    label_id: lbl_exampledevice_carton
+                    version_id: lbv_exampledevice_carton_l3
+                    change_id: chg_0002
+                    decision: return
+                    user_id: usr_demo_reviewer
+                    reviewer_role: reviewer
+                    comment: Sterilization symbol must match the new method before approval.
+                    artifact_sha256: "0000000000000000000000000000000000000000000000000000000000000000"
+                    resulting_status: draft
+                    decided_at: "2026-11-11T14:00:00Z"
+        "403":
+          description: |
+            role_forbidden (caller is not reviewer or admin) or self_approval_forbidden (caller created
+            the change and tried to approve it).
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+              examples:
+                self_approval:
+                  summary: The submitter of a change cannot approve it
+                  value:
+                    error: self_approval_forbidden
+                    message: The user who submitted this change cannot approve it. Ask another reviewer.
+        "409":
+          description: |
+            hash_mismatch or check_not_passed (artifact_sha256 or check_id does not match a passed check of this
+            version), version_superseded (a newer artwork version exists, so review that one), or change_closed
+            (the change was rejected; reject is terminal).
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
+  /label-versions/{version_id}/publish:
+    post:
+      tags: [device]
+      operationId: publishVersion
+      summary: Publish an approved version; creates a PublishedPage pinned to this version_id
+      parameters:
+        - $ref: "#/components/parameters/VersionId"
+      responses:
+        "201":
+          description: Published page
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/PublishedPage"}
+        "409":
+          description: No valid approval record for this version (none, voided by a newer version, or change_closed)
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
+  /label-versions/{version_id}/exports:
+    get:
+      tags: [device]
+      operationId: getExports
+      summary: PDF at physical size, editable SVG template, inspection report and QR for one version
+      parameters:
+        - $ref: "#/components/parameters/VersionId"
+      responses:
+        "200":
+          description: Export package. Unapproved versions are watermarked DRAFT and have no QR.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ExportPackage"}
+        "404": {$ref: "#/components/responses/NotFound"}
+
+  # ---------------------------------------------------------------- print verification
+  /label-versions/{version_id}/print-verifications:
+    get:
+      tags: [device]
+      operationId: listPrintVerifications
+      summary: Print verifications of one approved version
+      parameters:
+        - $ref: "#/components/parameters/VersionId"
+      responses:
+        "200":
+          description: Verifications, possibly empty
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [version_id, items]
+                additionalProperties: false
+                properties:
+                  version_id: {type: string}
+                  items:
+                    type: array
+                    items: {$ref: "#/components/schemas/PrintVerification"}
+    post:
+      tags: [device]
+      operationId: verifyPrint
+      summary: Photograph a printed label and compare it with the approved version
+      parameters:
+        - $ref: "#/components/parameters/VersionId"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [photo, condition]
+              properties:
+                photo: {type: string, contentMediaType: application/octet-stream}
+                condition: {$ref: "#/components/schemas/PrintCondition"}
+      responses:
+        "202":
+          description: |
+            Accepted. Job envelope; poll GET /jobs/{job_id}. When done, result_url points at
+            GET /print-verifications/{verification_id} (match, mismatch or rescan_needed).
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Job"}
+        "409":
+          description: Version is not approved
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
+  /print-verifications/{verification_id}:
+    get:
+      tags: [device]
+      operationId: getPrintVerification
+      summary: One print verification result
+      parameters:
+        - name: verification_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: Print verification
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/PrintVerification"}
+        "404": {$ref: "#/components/responses/NotFound"}
+
+  # ---------------------------------------------------------------- public medicine mode
+  /public/scans:
+    post:
+      tags: [public]
+      operationId: publicScan
+      summary: Scan medication packaging and find reference label candidates
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: {type: string, contentMediaType: application/octet-stream}
+      security: []
+      responses:
+        "202":
+          description: Accepted. Job envelope; poll GET /jobs/{job_id}. result_url points at GET /public/scans/{scan_id}.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Job"}
+
+  /public/scans/{scan_id}:
+    get:
+      tags: [public]
+      operationId: getPublicScan
+      summary: Match candidates for a public scan (picker when several)
+      security: []
+      parameters:
+        - name: scan_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: Match candidates, possibly none
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/PublicMatchResult"}
+        "404": {$ref: "#/components/responses/NotFound"}
+
+  /public/ask:
+    post:
+      tags: [public]
+      operationId: askPublic
+      summary: Ask about the matched label. Answers only from retrieved passages, or abstains.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/QuestionRequest"}
+      responses:
+        "200":
+          description: Cited answer or abstention
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/AnswerResponse"}
+              examples:
+                out_of_scope:
+                  summary: Medical advice is out of scope of the public corpus, so the system abstains
+                  value:
+                    abstained: true
+                    reason: out_of_scope
+                    score_name: scope_rule
+                    score: null
+                    threshold: null
+                    message: I can only explain what the packaging label says. Please ask a pharmacist or doctor.
+                    banner: Authenticity not verified. Based on a reference label match.
+
+components:
+  securitySchemes:
+    UserHeader:
+      type: apiKey
+      in: header
+      name: X-User-Id
+      description: |
+        Stub for the signed-in user (a user_id such as usr_demo_editor). There is no login flow in this
+        contract; a later session or login replaces the header without changing the User shape.
+
+  parameters:
+    ProductId:
+      name: product_id
+      in: path
+      required: true
+      schema: {type: string}
+    VersionId:
+      name: version_id
+      in: path
+      required: true
+      description: One immutable LabelVersion (L1, L2, ...)
+      schema: {type: string}
+    ChangeId:
+      name: change_id
+      in: path
+      required: true
+      schema: {type: string}
+    JobId:
+      name: job_id
+      in: path
+      required: true
+      schema: {type: string}
+
+  responses:
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/Error"}
+    Invalid:
+      description: Request is invalid
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/Error"}
+
+  schemas:
+    # ------------------------------------------------------------ shared primitives
+    Timestamp:
+      type: string
+      format: date-time
+      description: ISO 8601 in UTC
+    Module:
+      type: string
+      enum: [device, medicine]
+      description: Chunk.module values. Never mixed in one request.
+    Status:
+      type: string
+      enum: [draft, checked, reviewed, published]
+      description: ChangeRequest.status values. Always derived (DATA_MODEL.md, Status derivation).
+    PixelBox:
+      type: array
+      description: x, y, w, h in pixels of the original image (OcrBlock.bbox)
+      prefixItems: [{type: number}, {type: number}, {type: number}, {type: number}]
+      minItems: 4
+      maxItems: 4
+      items: false
+    MmBox:
+      type: array
+      description: x, y, w, h in millimetres from the top left corner
+      prefixItems: [{type: number}, {type: number}, {type: number}, {type: number}]
+      minItems: 4
+      maxItems: 4
+      items: false
+    SizeMm:
+      type: object
+      required: [w, h]
+      additionalProperties: false
+      properties:
+        w: {type: number, exclusiveMinimum: 0}
+        h: {type: number, exclusiveMinimum: 0}
+    FileRef:
+      type: object
+      required: [file_id, mime, sha256]
+      additionalProperties: false
+      properties:
+        file_id: {type: string}
+        mime: {type: string}
+        sha256: {type: string, pattern: "^[0-9a-f]{64}$"}
+        pages: {type: integer, minimum: 1}
+        url: {type: string}
+    Sha256:
+      type: string
+      pattern: "^[0-9a-f]{64}$"
+    Error:
+      type: object
+      required: [error, message]
+      additionalProperties: false
+      properties:
+        error: {type: string, description: Machine readable code, for example not_found or hash_mismatch}
+        message: {type: string}
+        details: {type: object}
+    User:
+      type: object
+      description: Minimal user (CR-16). Identified by the X-User-Id header stub; no login flow.
+      required: [user_id, name, role]
+      additionalProperties: false
+      properties:
+        user_id: {type: string}
+        name: {type: string}
+        role: {type: string, enum: [editor, reviewer, admin]}
+    Job:
+      type: object
+      required: [job_id, kind, state]
+      additionalProperties: false
+      properties:
+        job_id: {type: string}
+        kind: {type: string, enum: [scan, inspect, generate, recheck, print_verify, public_scan]}
+        state: {type: string, enum: [queued, processing, done, failed]}
+        progress: {type: number, minimum: 0, maximum: 1}
+        message: {type: string}
+        result_url: {type: string, description: Where to GET the result when state is done}
+        error: {$ref: "#/components/schemas/Error"}
+
+    # ------------------------------------------------------------ products (ProductRecord)
+    ProductRecord:
+      type: object
+      description: Mirrors src/common/schemas.py ProductRecord exactly.
+      required: [product_id, version, name]
+      properties:
+        product_id: {type: string}
+        version: {type: integer, minimum: 1}
+        name: {type: string}
+        model: {type: string}
+        manufacturer: {type: string}
+        manufacturer_address: {type: string}
+        udi_di: {type: string, description: Allocated by the company, never generated by LabelLens. Empty means not entered.}
+        sterilization: {type: string}
+        storage: {type: string}
+        extra:
+          type: object
+          additionalProperties: {type: string}
+    ProductVersion:
+      description: ProductRecord plus version metadata (CR-1)
+      allOf:
+        - $ref: "#/components/schemas/ProductRecord"
+        - type: object
+          required: [created_at, created_by]
+          properties:
+            created_at: {$ref: "#/components/schemas/Timestamp"}
+            created_by: {type: string}
+            source_change_id: {type: string}
+            supersedes_version: {type: integer, minimum: 1}
+      unevaluatedProperties: false
+    ProductCreate:
+      type: object
+      required: [name]
+      additionalProperties: false
+      properties:
+        name: {type: string}
+        model: {type: string}
+        manufacturer: {type: string}
+        manufacturer_address: {type: string}
+        udi_di: {type: string, description: Leave empty if not yet allocated; never filled in by LabelLens}
+        sterilization: {type: string}
+        storage: {type: string}
+        extra: {type: object, additionalProperties: {type: string}}
+        intended_market: {type: array, items: {type: string}}
+    Product:
+      type: object
+      required: [product_id, module, current_version, created_at]
+      additionalProperties: false
+      properties:
+        product_id: {type: string}
+        module: {type: string, const: device}
+        current_version: {type: integer, minimum: 1}
+        created_at: {$ref: "#/components/schemas/Timestamp"}
+        intended_market: {type: array, items: {type: string}}
+    ProductSummary:
+      type: object
+      required: [product, record, open_findings, label_count]
+      additionalProperties: false
+      properties:
+        product: {$ref: "#/components/schemas/Product"}
+        record: {$ref: "#/components/schemas/ProductVersion"}
+        open_findings: {type: integer, minimum: 0}
+        label_count: {type: integer, minimum: 0}
+    ProductList:
+      type: object
+      required: [items]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items: {$ref: "#/components/schemas/ProductSummary"}
+    ProductDetail:
+      type: object
+      required: [product, record, templates, labels]
+      additionalProperties: false
+      properties:
+        product: {$ref: "#/components/schemas/Product"}
+        record: {$ref: "#/components/schemas/ProductVersion"}
+        templates:
+          type: array
+          items: {$ref: "#/components/schemas/LabelTemplate"}
+        labels:
+          type: array
+          description: Latest version of each label family
+          items: {$ref: "#/components/schemas/LabelVersion"}
+
+    # ------------------------------------------------------------ templates (CR-2, TEMPLATE_SPEC.md)
+    Slot:
+      type: object
+      required: [id, type, field, bbox_mm]
+      additionalProperties: false
+      properties:
+        id: {type: string, pattern: "^[A-Za-z][A-Za-z0-9_-]*$"}
+        type: {type: string, enum: [text, symbol, barcode]}
+        field: {type: string}
+        bbox_mm: {$ref: "#/components/schemas/MmBox"}
+        font: {type: string}
+        size_pt: {type: number, exclusiveMinimum: 0}
+        align: {type: string, enum: [left, center, right]}
+        max_lines: {type: integer, minimum: 1}
+        symbol_name: {type: string}
+        symbology: {type: string, enum: [GS1_DataMatrix, GS1-128]}
+        min_size_mm: {type: number, exclusiveMinimum: 0}
+      allOf:
+        - if: {properties: {type: {const: text}}}
+          then: {required: [size_pt]}
+        - if: {properties: {type: {const: symbol}}}
+          then: {required: [symbol_name]}
+        - if: {properties: {type: {const: barcode}}}
+          then: {required: [symbology]}
+    TemplateCreate:
+      type: object
+      required: [size_mm, background, slots]
+      additionalProperties: false
+      properties:
+        template_id: {type: string, description: Set to create a new version of an existing template}
+        size_mm: {$ref: "#/components/schemas/SizeMm"}
+        background: {type: [string, "null"]}
+        min_font_pt: {type: number, exclusiveMinimum: 0}
+        slots:
+          type: array
+          minItems: 1
+          items: {$ref: "#/components/schemas/Slot"}
+    LabelTemplate:
+      type: object
+      required: [template_id, version, product_id, size_mm, background, slots, created_at, created_by]
+      additionalProperties: false
+      properties:
+        template_id: {type: string}
+        version: {type: integer, minimum: 1}
+        product_id: {type: string}
+        size_mm: {$ref: "#/components/schemas/SizeMm"}
+        background: {type: [string, "null"]}
+        min_font_pt: {type: number, exclusiveMinimum: 0}
+        slots:
+          type: array
+          minItems: 1
+          items: {$ref: "#/components/schemas/Slot"}
+        created_at: {$ref: "#/components/schemas/Timestamp"}
+        created_by: {type: string}
+
+    # ------------------------------------------------------------ labels (CR-3)
+    LabelVersion:
+      type: object
+      required: [version_id, label_id, product_id, artwork_version, product_version, kind, status,
+                 artwork_file, draft_watermark, created_at, created_by]
+      additionalProperties: false
+      properties:
+        version_id: {type: string}
+        label_id: {type: string, description: Label family (LabelExtraction.label_id)}
+        product_id: {type: string}
+        artwork_version: {type: integer, minimum: 1, description: "L-number (LabelExtraction.version)"}
+        product_version: {type: integer, minimum: 1}
+        template_id: {type: string}
+        template_version: {type: integer, minimum: 1}
+        kind: {type: string, enum: [uploaded, generated]}
+        status: {$ref: "#/components/schemas/Status"}
+        latest_review_id: {type: string}
+        artwork_file: {type: string}
+        pdf_file: {type: string}
+        draft_watermark: {type: boolean}
+        parent_version_id: {type: string}
+        created_at: {$ref: "#/components/schemas/Timestamp"}
+        created_by: {type: string}
+    LabelVersionList:
+      type: object
+      required: [label_id, versions]
+      additionalProperties: false
+      properties:
+        label_id: {type: string}
+        versions:
+          type: array
+          items: {$ref: "#/components/schemas/LabelVersion"}
+
+    # ------------------------------------------------------------ scan and extraction (CR-4)
+    Scan:
+      type: object
+      required: [scan_id, module, source, file, state, created_at]
+      additionalProperties: false
+      properties:
+        scan_id: {type: string}
+        job_id: {type: string}
+        module: {$ref: "#/components/schemas/Module"}
+        source: {type: string, enum: [upload, camera]}
+        file: {$ref: "#/components/schemas/FileRef"}
+        product_id: {type: string}
+        state: {type: string, enum: [queued, processing, done, failed]}
+        label_id: {type: string}
+        version_id: {type: string}
+        error: {$ref: "#/components/schemas/Error"}
+        created_at: {$ref: "#/components/schemas/Timestamp"}
+    OcrBlock:
+      type: object
+      description: Mirrors schemas.py OcrBlock
+      required: [text, bbox]
+      additionalProperties: false
+      properties:
+        text: {type: string}
+        bbox: {$ref: "#/components/schemas/PixelBox"}
+        conf: {type: number, minimum: 0, maximum: 1}
+    BarcodeResult:
+      type: object
+      description: Mirrors schemas.py BarcodeResult
+      required: [type, raw]
+      additionalProperties: false
+      properties:
+        type: {type: string}
+        raw: {type: string}
+        parsed: {type: object, additionalProperties: {type: string}}
+        bbox:
+          oneOf:
+            - $ref: "#/components/schemas/PixelBox"
+            - type: "null"
+    SymbolDetection:
+      type: object
+      description: Mirrors schemas.py SymbolDetection
+      required: [name, bbox]
+      additionalProperties: false
+      properties:
+        name: {type: string}
+        iso_ref: {type: string}
+        bbox: {$ref: "#/components/schemas/PixelBox"}
+        conf: {type: number, minimum: 0, maximum: 1}
+    LabelExtraction:
+      type: object
+      description: Mirrors schemas.py LabelExtraction
+      required: [label_id]
+      properties:
+        label_id: {type: string}
+        version: {type: integer, minimum: 1}
+        fields: {type: object, additionalProperties: {type: string}}
+        warnings: {type: array, items: {type: string}}
+        barcodes: {type: array, items: {$ref: "#/components/schemas/BarcodeResult"}}
+        symbols: {type: array, items: {$ref: "#/components/schemas/SymbolDetection"}}
+        ocr_blocks: {type: array, items: {$ref: "#/components/schemas/OcrBlock"}}
+    Extraction:
+      description: LabelExtraction plus confirmation state (CR-4)
+      allOf:
+        - $ref: "#/components/schemas/LabelExtraction"
+        - type: object
+          required: [extraction_id, scan_id, version_id, fields, warnings, barcodes, symbols, ocr_blocks]
+          properties:
+            extraction_id: {type: string}
+            scan_id: {type: string}
+            version_id: {type: string}
+            unclear_fields: {type: array, items: {type: string}}
+            confirmed: {type: boolean}
+            confirmed_by: {type: string}
+            confirmed_at: {$ref: "#/components/schemas/Timestamp"}
+      unevaluatedProperties: false
+    ExtractionConfirm:
+      type: object
+      required: [fields]
+      additionalProperties: false
+      properties:
+        fields:
+          type: object
+          description: Confirmed or corrected values for unclear fields
+          additionalProperties: {type: string}
+
+    # ------------------------------------------------------------ findings and checks (Flag, CR-5, CR-6)
+    Citation:
+      type: object
+      required: [source_type, chunk_id, source, section, title, url, quote]
+      additionalProperties: false
+      properties:
+        source_type: {type: string, enum: [cfr, label_section]}
+        chunk_id: {type: string, description: Chunk.chunk_id; must exist in the corpus}
+        source: {type: string}
+        section: {type: string}
+        title: {type: string}
+        url: {type: string}
+        quote: {type: string, description: Verbatim excerpt of Chunk.text}
+    Flag:
+      type: object
+      description: Mirrors schemas.py Flag
+      required: [flag_id, kind, message]
+      properties:
+        flag_id: {type: string}
+        kind: {type: string}
+        severity: {type: string, enum: [info, review, critical]}
+        message: {type: string}
+        observed: {type: string}
+        expected: {type: string}
+        evidence_chunk_ids: {type: array, items: {type: string}}
+        confidence: {type: number, minimum: 0, maximum: 1}
+        needs_human: {type: boolean}
+    Finding:
+      description: Flag plus citations, field and box (CR-6)
+      allOf:
+        - $ref: "#/components/schemas/Flag"
+        - type: object
+          required: [severity, evidence_chunk_ids, confidence, needs_human]
+          properties:
+            citations: {type: array, items: {$ref: "#/components/schemas/Citation"}}
+            field: {type: string}
+            bbox: {$ref: "#/components/schemas/PixelBox"}
+      unevaluatedProperties: false
+    CheckResult:
+      type: object
+      required: [check_id, kind, run_at, findings, critical_count, review_count, info_count, passed]
+      additionalProperties: false
+      description: |
+        label_id and version_id are required for inspection and self_check. A template check (registering
+        a template) or a layout check before rendering has no label version yet, so it names template_id.
+      allOf:
+        - if: {properties: {kind: {enum: [inspection, self_check]}}}
+          then: {required: [label_id, version_id]}
+        - if: {properties: {kind: {enum: [template, layout]}}}
+          then: {required: [template_id]}
+      properties:
+        check_id: {type: string}
+        label_id: {type: string}
+        version_id: {type: string}
+        template_id: {type: string}
+        artifact_sha256: {$ref: "#/components/schemas/Sha256"}
+        kind: {type: string, enum: [inspection, layout, self_check, template]}
+        run_at: {$ref: "#/components/schemas/Timestamp"}
+        findings: {type: array, items: {$ref: "#/components/schemas/Finding"}}
+        critical_count: {type: integer, minimum: 0}
+        review_count: {type: integer, minimum: 0}
+        info_count: {type: integer, minimum: 0}
+        passed: {type: boolean, description: True when critical_count is 0}
+        disclaimer: {type: string}
+
+    # ------------------------------------------------------------ search
+    RetrievalConfig:
+      type: object
+      description: |
+        Default is plain hybrid RRF (bm25 and dense fused by reciprocal rank fusion) with every option
+        off. The four flags are optional experiments and default to false.
+      additionalProperties: false
+      properties:
+        method: {type: string, enum: [hybrid_rrf, bm25, tfidf, dense], default: hybrid_rrf}
+        stem: {type: boolean, default: false, description: Stem query and index terms}
+        prefix: {type: boolean, default: false, description: Add the dense model query prefix (Step 15a)}
+        rerank: {type: boolean, default: false, description: Rerank the fused list}
+        expansion: {type: boolean, default: false, description: Query expansion}
+    SearchRequest:
+      type: object
+      required: [query, module]
+      additionalProperties: false
+      properties:
+        query: {type: string, minLength: 1}
+        module: {$ref: "#/components/schemas/Module"}
+        k: {type: integer, minimum: 1, maximum: 50, default: 10}
+        section_level: {type: boolean, default: false}
+        retrieval: {$ref: "#/components/schemas/RetrievalConfig"}
+    Hit:
+      type: object
+      description: Mirrors schemas.py Hit
+      required: [doc_id, score]
+      additionalProperties: false
+      properties:
+        doc_id: {type: string}
+        score: {type: number}
+        rank: {type: integer, minimum: 0}
+        text: {type: string}
+    SearchResponse:
+      type: object
+      required: [query, module, retrieval, hits, citations]
+      additionalProperties: false
+      properties:
+        query: {type: string}
+        module: {$ref: "#/components/schemas/Module"}
+        retrieval: {$ref: "#/components/schemas/RetrievalConfig"}
+        hits: {type: array, items: {$ref: "#/components/schemas/Hit"}}
+        citations: {type: array, items: {$ref: "#/components/schemas/Citation"}}
+
+    # ------------------------------------------------------------ changes (ChangeRequest, CR-7, CR-8)
+    FieldEdit:
+      type: object
+      required: [field, new_value]
+      additionalProperties: false
+      properties:
+        field: {type: string}
+        old_value: {type: string}
+        new_value: {type: string}
+    ChangeCreate:
+      type: object
+      required: [product_id]
+      additionalProperties: false
+      description: Give raw_text (plain language) or edits (structured), or both
+      properties:
+        product_id: {type: string}
+        raw_text: {type: string}
+        edits: {type: array, items: {$ref: "#/components/schemas/FieldEdit"}}
+      anyOf:
+        - required: [raw_text]
+        - required: [edits]
+    ChangeRequest:
+      type: object
+      description: schemas.py ChangeRequest fields plus CR-7 optional fields
+      required: [change_id, product_id, field, new_value, status, closed, parse_state, created_at, created_by]
+      additionalProperties: false
+      properties:
+        change_id: {type: string}
+        product_id: {type: string}
+        field: {type: string}
+        old_value: {type: string}
+        new_value: {type: string}
+        status: {$ref: "#/components/schemas/Status"}
+        latest_review_id: {type: string}
+        closed: {type: boolean, description: True after a reject. Reject is terminal.}
+        raw_text: {type: string}
+        parse_state: {type: string, enum: [proposed, confirmed]}
+        edits: {type: array, items: {$ref: "#/components/schemas/FieldEdit"}}
+        created_at: {$ref: "#/components/schemas/Timestamp"}
+        created_by: {type: string}
+    AffectedLabel:
+      type: object
+      required: [impact_id, change_id, label_id, version_id, item_kind, title, description, suggestion,
+                 evidence_chunk_ids, user_decision]
+      additionalProperties: false
+      properties:
+        impact_id: {type: string}
+        change_id: {type: string}
+        label_id: {type: string}
+        version_id: {type: string}
+        slot_id: {type: string}
+        item_kind: {type: string, enum: [text, symbol, barcode, linked_label]}
+        title: {type: string}
+        description: {type: string}
+        suggestion: {type: string, enum: [review_suggested, edit_required, no_change]}
+        evidence_chunk_ids: {type: array, items: {type: string}}
+        user_decision: {type: string, enum: [pending, confirmed, dismissed]}
+    AffectedLabelList:
+      type: object
+      required: [change_id, items]
+      additionalProperties: false
+      properties:
+        change_id: {type: string}
+        items: {type: array, items: {$ref: "#/components/schemas/AffectedLabel"}}
+    ChangeAssessment:
+      type: object
+      required: [change, affected, citations, checklist_complete]
+      additionalProperties: false
+      properties:
+        change: {$ref: "#/components/schemas/ChangeRequest"}
+        affected: {type: array, items: {$ref: "#/components/schemas/AffectedLabel"}}
+        citations: {type: array, items: {$ref: "#/components/schemas/Citation"}}
+        checklist_complete: {type: boolean, description: True when every affected item is confirmed or dismissed}
+        needs_human_review:
+          type: string
+          description: NEEDS_HUMAN_REVIEW reason when the evidence is weak; absent otherwise
+    ChangeConfirm:
+      type: object
+      required: [parse_confirmed, decisions]
+      additionalProperties: false
+      properties:
+        parse_confirmed: {type: boolean}
+        edits: {type: array, items: {$ref: "#/components/schemas/FieldEdit"}}
+        decisions:
+          type: array
+          items:
+            type: object
+            required: [impact_id, user_decision]
+            additionalProperties: false
+            properties:
+              impact_id: {type: string}
+              user_decision: {type: string, enum: [confirmed, dismissed]}
+
+    # ------------------------------------------------------------ generation (CR-9)
+    BarcodeDecision:
+      type: object
+      required: [decision, old_payload, new_payload, symbology, reason]
+      additionalProperties: false
+      properties:
+        decision: {type: string, enum: [KEEP, REGENERATE, NEEDS_INPUT]}
+        old_payload: {type: string}
+        new_payload: {type: string, description: Empty when NEEDS_INPUT}
+        symbology: {type: string, enum: [GS1_DataMatrix, GS1-128]}
+        reason: {type: string}
+        required_identifier: {type: string, description: "Set when NEEDS_INPUT, for example udi_di"}
+      allOf:
+        - if: {properties: {decision: {const: NEEDS_INPUT}}}
+          then: {required: [required_identifier]}
+    ChangeLogEntry:
+      type: object
+      required: [at, user_id, reason]
+      additionalProperties: false
+      properties:
+        at: {$ref: "#/components/schemas/Timestamp"}
+        user_id: {type: string}
+        field: {type: string}
+        old_value: {type: string}
+        new_value: {type: string}
+        reason: {type: string}
+        rules_fired: {type: array, items: {type: string}}
+        evidence_chunk_ids: {type: array, items: {type: string}}
+    GeneratedArtwork:
+      type: object
+      required: [artwork_id, change_id, label_id, version_id, template_id, template_version, svg_url, pdf_url,
+                 size_mm, draft_watermark, barcode_decision, change_log, layout_problems, self_check_id,
+                 artifact_sha256, disclaimer]
+      additionalProperties: false
+      properties:
+        artwork_id: {type: string}
+        change_id: {type: string}
+        label_id: {type: string}
+        version_id: {type: string}
+        template_id: {type: string}
+        template_version: {type: integer, minimum: 1}
+        svg_url: {type: string}
+        pdf_url: {type: string}
+        size_mm: {$ref: "#/components/schemas/SizeMm"}
+        draft_watermark: {type: boolean, const: true, description: Always true; removal needs an approval}
+        test_data: {type: boolean}
+        barcode_decision: {$ref: "#/components/schemas/BarcodeDecision"}
+        change_log: {type: array, items: {$ref: "#/components/schemas/ChangeLogEntry"}}
+        layout_problems: {type: array, items: {type: string}}
+        self_check_id: {type: string}
+        artifact_sha256: {$ref: "#/components/schemas/Sha256"}
+        disclaimer: {type: string, const: Draft generated for review. Not a compliance determination.}
+    NeedsInput:
+      type: object
+      required: [error, message, barcode_decision, task]
+      additionalProperties: false
+      properties:
+        error: {type: string, const: needs_input}
+        message: {type: string}
+        barcode_decision:
+          allOf:
+            - $ref: "#/components/schemas/BarcodeDecision"
+            - properties: {decision: {const: NEEDS_INPUT}}
+        task:
+          type: object
+          required: [task_id, title]
+          additionalProperties: false
+          properties:
+            task_id: {type: string}
+            title: {type: string, description: "For example: enter allocated identifier"}
+
+    # ------------------------------------------------------------ review, exports (CR-10, CR-15)
+    ReviewCreate:
+      type: object
+      required: [decision, artifact_sha256]
+      additionalProperties: false
+      properties:
+        decision: {type: string, enum: [approve, return, reject]}
+        comment: {type: string}
+        artifact_sha256: {$ref: "#/components/schemas/Sha256"}
+        check_id: {type: string}
+      allOf:
+        - if: {properties: {decision: {const: approve}}}
+          then: {required: [check_id]}
+        - if: {properties: {decision: {enum: [return, reject]}}}
+          then: {required: [comment]}
+    Review:
+      type: object
+      required: [review_id, label_id, version_id, decision, user_id, reviewer_role, artifact_sha256,
+                 resulting_status, decided_at]
+      additionalProperties: false
+      properties:
+        review_id: {type: string}
+        label_id: {type: string}
+        version_id: {type: string}
+        change_id: {type: string}
+        decision: {type: string, enum: [approve, return, reject]}
+        user_id: {type: string, description: The reviewer; must not be the change's created_by for an approve}
+        reviewer_role: {type: string, enum: [reviewer, admin]}
+        comment: {type: string}
+        artifact_sha256: {$ref: "#/components/schemas/Sha256"}
+        check_id: {type: string, description: Passed CheckResult of the same version and hash}
+        resulting_status: {$ref: "#/components/schemas/Status"}
+        decided_at: {$ref: "#/components/schemas/Timestamp"}
+      allOf:
+        - if: {properties: {decision: {const: approve}}}
+          then: {required: [check_id]}
+        - if: {properties: {decision: {enum: [return, reject]}}}
+          then: {required: [comment], properties: {resulting_status: {const: draft}}}
+    ReviewList:
+      type: object
+      required: [version_id, items]
+      additionalProperties: false
+      properties:
+        version_id: {type: string}
+        items: {type: array, items: {$ref: "#/components/schemas/Review"}}
+    Report:
+      type: object
+      required: [report_id, label_id, version_id, url, artifact_sha256, created_at]
+      additionalProperties: false
+      properties:
+        report_id: {type: string}
+        label_id: {type: string}
+        version_id: {type: string, description: Fixed at creation; never moves}
+        url: {type: string}
+        artifact_sha256: {$ref: "#/components/schemas/Sha256"}
+        created_at: {$ref: "#/components/schemas/Timestamp"}
+    PublishedPage:
+      type: object
+      required: [page_id, label_id, version_id, url, qr_payload, published_at, review_id]
+      additionalProperties: false
+      properties:
+        page_id: {type: string}
+        label_id: {type: string}
+        version_id: {type: string, description: Fixed at creation; a newer version gets a new page}
+        url: {type: string}
+        qr_payload: {type: string}
+        published_at: {$ref: "#/components/schemas/Timestamp"}
+        review_id: {type: string}
+    ExportFile:
+      type: object
+      required: [url, mime, sha256]
+      additionalProperties: false
+      properties:
+        url: {type: string}
+        mime: {type: string}
+        sha256: {$ref: "#/components/schemas/Sha256"}
+        size_mm: {$ref: "#/components/schemas/SizeMm"}
+    ExportPackage:
+      type: object
+      required: [label_id, version_id, status, draft_watermark, pdf, svg, report]
+      additionalProperties: false
+      properties:
+        label_id: {type: string}
+        version_id: {type: string}
+        status: {$ref: "#/components/schemas/Status"}
+        draft_watermark: {type: boolean}
+        pdf: {$ref: "#/components/schemas/ExportFile"}
+        svg: {$ref: "#/components/schemas/ExportFile"}
+        report: {$ref: "#/components/schemas/Report"}
+        qr:
+          description: Present only for a published version
+          $ref: "#/components/schemas/PublishedPage"
+
+    # ------------------------------------------------------------ print verification (CR-11)
+    PrintCondition:
+      type: string
+      enum: [clean_print_scan, phone_photo, blur, glare]
+    PrintVerification:
+      type: object
+      required: [verification_id, label_id, version_id, photo_file, condition, outcome, mismatches, quality,
+                 created_at]
+      additionalProperties: false
+      properties:
+        verification_id: {type: string}
+        label_id: {type: string}
+        version_id: {type: string}
+        photo_file: {$ref: "#/components/schemas/FileRef"}
+        condition: {$ref: "#/components/schemas/PrintCondition"}
+        outcome: {type: string, enum: [match, mismatch, rescan_needed]}
+        mismatches:
+          type: array
+          items:
+            type: object
+            required: [field, expected, observed]
+            additionalProperties: false
+            properties:
+              field: {type: string}
+              expected: {type: string}
+              observed: {type: string}
+              bbox: {$ref: "#/components/schemas/PixelBox"}
+        barcode:
+          type: object
+          required: [expected_payload, match]
+          additionalProperties: false
+          properties:
+            expected_payload: {type: string}
+            decoded:
+              oneOf:
+                - $ref: "#/components/schemas/BarcodeResult"
+                - type: "null"
+            match: {type: boolean}
+        quality:
+          type: object
+          required: [blur, glare, confidence]
+          additionalProperties: false
+          properties:
+            blur: {type: number, minimum: 0, maximum: 1}
+            glare: {type: number, minimum: 0, maximum: 1}
+            confidence: {type: number, minimum: 0, maximum: 1}
+        rescan_reason: {type: string}
+        created_at: {$ref: "#/components/schemas/Timestamp"}
+
+    # ------------------------------------------------------------ audit (CR-12)
+    AuditEvent:
+      type: object
+      required: [event_id, at, user_id, action, entity_type, entity_id]
+      additionalProperties: false
+      properties:
+        event_id: {type: string}
+        at: {$ref: "#/components/schemas/Timestamp"}
+        user_id: {type: string, description: A user_id, or system for automatic steps}
+        action: {type: string}
+        entity_type: {type: string}
+        entity_id: {type: string}
+        version_before: {type: integer}
+        version_after: {type: integer}
+        details: {type: object}
+    AuditEventList:
+      type: object
+      required: [product_id, items]
+      additionalProperties: false
+      properties:
+        product_id: {type: string}
+        items: {type: array, items: {$ref: "#/components/schemas/AuditEvent"}}
+
+    # ------------------------------------------------------------ public medicine mode (CR-13)
+    MedicineMatch:
+      type: object
+      required: [product_id, product_name, match_confidence, read_from_photo, from_reference_label]
+      additionalProperties: false
+      properties:
+        product_id: {type: string}
+        product_name: {type: string}
+        dosage_form: {type: string}
+        active_substance: {type: string}
+        pack_size: {type: string}
+        manufacturer: {type: string}
+        reference_label_url: {type: string}
+        match_confidence: {type: number, minimum: 0, maximum: 1}
+        read_from_photo: {type: object, additionalProperties: {type: string}}
+        from_reference_label: {type: object, additionalProperties: {type: string}}
+    PublicMatchResult:
+      type: object
+      required: [banner, candidates]
+      additionalProperties: false
+      properties:
+        banner: {$ref: "#/components/schemas/PublicBanner"}
+        candidates:
+          type: array
+          description: Empty when nothing matched; several means show the picker
+          items: {$ref: "#/components/schemas/MedicineMatch"}
+        summary: {type: string}
+        sources: {type: array, items: {$ref: "#/components/schemas/Citation"}}
+    PublicBanner:
+      type: string
+      const: Authenticity not verified. Based on a reference label match.
+    QuestionRequest:
+      type: object
+      required: [question, product_id]
+      additionalProperties: false
+      properties:
+        question: {type: string, minLength: 1}
+        product_id: {type: string}
+    AnsweredAnswer:
+      type: object
+      required: [abstained, answer, sources, based_on, banner]
+      additionalProperties: false
+      properties:
+        abstained: {type: boolean, const: false}
+        answer: {type: string}
+        sources:
+          type: array
+          minItems: 1
+          description: Every claim is backed by a retrieved passage
+          items: {$ref: "#/components/schemas/Citation"}
+        based_on: {type: string}
+        banner: {$ref: "#/components/schemas/PublicBanner"}
+    AbstainedAnswer:
+      type: object
+      description: |
+        No answer text. score_name is a free string because the abstention score is provisional and may
+        change (Step 16 used the hybrid top score). out_of_scope covers medical advice and anything outside
+        21 CFR 201, 208, 211 and the matched label.
+      required: [abstained, reason, score_name, score, threshold, message, banner]
+      additionalProperties: false
+      properties:
+        abstained: {type: boolean, const: true}
+        reason: {type: string, enum: [no_evidence, low_confidence, out_of_scope, needs_human_check]}
+        score_name: {type: string, minLength: 1, description: "For example hybrid_top_score, or scope_rule"}
+        score: {type: [number, "null"], description: Null when a scope rule decided, not a score}
+        threshold: {type: [number, "null"], description: Null when a scope rule decided, not a score}
+        message: {type: string}
+        banner: {$ref: "#/components/schemas/PublicBanner"}
+    AnswerResponse:
+      description: Exactly one of the two shapes, told apart by the boolean abstained
+      oneOf:
+        - $ref: "#/components/schemas/AnsweredAnswer"
+        - $ref: "#/components/schemas/AbstainedAnswer"

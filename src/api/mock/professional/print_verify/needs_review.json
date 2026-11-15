@@ -1,0 +1,25 @@
+{
+  "verification_id": "pvf_0003",
+  "label_id": "lbl_exampledevice_carton",
+  "version_id": "lbv_exampledevice_carton_l3",
+  "photo_file": {
+    "file_id": "fil_0101",
+    "mime": "image/jpeg",
+    "sha256": "197e5f1024e54d1a8dee2993837c672490f2cdf46c13f2a18c28fe542f619ff8"
+  },
+  "condition": "glare",
+  "outcome": "rescan_needed",
+  "mismatches": [],
+  "quality": {
+    "blur": 0.2,
+    "glare": 0.8,
+    "confidence": 0.35
+  },
+  "created_at": "2026-11-13T10:00:00Z",
+  "barcode": {
+    "expected_payload": "(01)00000000000000(17)280331(10)LOT0001(21)SN0001",
+    "decoded": null,
+    "match": false
+  },
+  "rescan_reason": "Strong glare over the barcode. Tilt the label away from the light and take another photo."
+}

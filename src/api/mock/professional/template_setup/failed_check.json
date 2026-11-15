@@ -1,0 +1,39 @@
+{
+  "check_id": "chk_tpl_0001",
+  "kind": "template",
+  "run_at": "2026-11-10T10:00:00Z",
+  "findings": [
+    {
+      "flag_id": "flg_tpl_1",
+      "kind": "watermark_overlap",
+      "severity": "critical",
+      "message": "Slot 'name' overlaps the reserved DRAFT band (top 6 mm).",
+      "observed": "y = 2 mm",
+      "expected": "y >= 6 mm",
+      "evidence_chunk_ids": [],
+      "confidence": 1.0,
+      "needs_human": false,
+      "citations": [],
+      "field": "name"
+    },
+    {
+      "flag_id": "flg_tpl_2",
+      "kind": "slot_overlap",
+      "severity": "review",
+      "message": "Slots 'lot' and 'udi_barcode' overlap.",
+      "observed": "",
+      "expected": "",
+      "evidence_chunk_ids": [],
+      "confidence": 1.0,
+      "needs_human": true,
+      "citations": [],
+      "field": "lot"
+    }
+  ],
+  "critical_count": 1,
+  "review_count": 1,
+  "info_count": 0,
+  "passed": false,
+  "disclaimer": "Draft generated for review. Not a compliance determination.",
+  "template_id": "tpl_exampledevice_carton"
+}

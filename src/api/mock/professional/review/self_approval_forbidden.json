@@ -1,0 +1,8 @@
+{
+  "error": "self_approval_forbidden",
+  "message": "The user who submitted this change cannot approve it. Ask another reviewer.",
+  "details": {
+    "change_id": "chg_0002",
+    "created_by": "usr_demo_editor"
+  }
+}
