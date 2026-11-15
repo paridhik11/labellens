@@ -10,7 +10,7 @@ import zxingcpp
 
 from src.common.schemas import ProductRecord
 from src.export.label_model import Element, Label, validate_label
-from src.gen.gs1 import GS1Symbology, build_element_string, encode_gs1, validate_expiry
+from src.gen.gs1 import GS1Symbology, build_element_string, build_hri, encode_gs1, validate_expiry
 
 
 def barcode_element(
@@ -60,6 +60,7 @@ def from_template(
     reason: str,
     test_data: bool = False,
     barcode_module_mm: float | None = None,
+    reuse_barcode: Element | None = None,
 ) -> Label:
     """Translate blank-background template slots, preserving IDs and millimetres."""
     if template.get("background") is not None:
@@ -69,15 +70,30 @@ def from_template(
         kind, field = slot["type"], slot["field"]
         box = tuple(slot["bbox_mm"])
         if kind == "barcode":
-            element = barcode_element(
-                field,
-                box,
-                gs1_elements,
-                symbology=slot["symbology"],
-                slot_id=slot["id"],
-                module_mm=barcode_module_mm,
-                test_data=test_data,
-            )
+            if reuse_barcode is not None:
+                expected_format = {
+                    "GS1_DataMatrix": str(zxingcpp.BarcodeFormat.DataMatrix),
+                    "GS1-128": str(zxingcpp.BarcodeFormat.Code128),
+                }.get(slot["symbology"])
+                if (
+                    reuse_barcode.kind != "barcode" or reuse_barcode.field != field
+                    or reuse_barcode.slot_id != slot["id"] or reuse_barcode.bbox_mm != box
+                    or reuse_barcode.payload != build_hri(gs1_elements)
+                    or reuse_barcode.symbology != expected_format
+                    or (barcode_module_mm is not None and barcode_module_mm != reuse_barcode.module_mm)
+                ):
+                    raise ValueError("Existing barcode does not match the requested slot, payload or format")
+                element = reuse_barcode
+            else:
+                element = barcode_element(
+                    field,
+                    box,
+                    gs1_elements,
+                    symbology=slot["symbology"],
+                    slot_id=slot["id"],
+                    module_mm=barcode_module_mm,
+                    test_data=test_data,
+                )
         elif kind == "symbol":
             element = Element(field, kind, box, slot_id=slot["id"], symbol_name=slot["symbol_name"])
         elif kind == "text":

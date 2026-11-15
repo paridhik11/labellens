@@ -4,6 +4,34 @@
 **Branch:** [parth-gen](https://github.com/paridhik11/labellens/tree/parth-gen)
 **Base work:** CV and template work from `parth-cv`, reviewed and merged to `main`.
 
+## Required status note for future summaries and handoffs
+
+Updated 2026-11-16 at Parth's request. Carry this unresolved item into every
+future progress summary, README or handoff Markdown prepared for Parth, Paridhi
+or anyone else. Do not describe photo extraction or Task 4 as fully solved.
+
+- **Photo-extraction fixes are deferred at Parth's request.** Ten clear online
+  device-package photos are now collected, with product name, lot/batch and
+  expiry readable in each image according to AI inspection. All 30 reference
+  readings are LLM-labelled, not human-validated truth.
+- The unchanged extraction pipeline still performs poorly on this clear set:
+  exact product name **1/10**, lot **0/10**, expiry **0/10**. Source:
+  [clear-photo results](../results/cv_real_photos_clear.md). No 80% real-photo
+  accuracy claim is supported. Do not present dataset selection as a model fix.
+- The three-photo human spot-check is **NOT_RUN**, not zero errors. Images stay
+  local under `data/real_photos/clear_online/`; source URLs and fingerprints are
+  in [SOURCES.md](../data/real/SOURCES.md).
+- The earlier 12-photo convenience set and its separate baseline are preserved
+  in [cv_real_photos.md](../results/cv_real_photos.md). Do not blend either set
+  with synthetic results or with medicine evaluation.
+- Task 3's newer device-symbol collection contains 20 images and 44 visually
+  assigned LLM-labelled crops. Human symbol validation and real-symbol/blind-mode
+  accuracy remain unmeasured. The legacy medicine artworks are separate.
+
+When this deferred work is actually fixed and reviewed, update this status using
+new executed results and real human feedback. Until then, include the limitation
+explicitly even when describing completed generator/export work.
+
 ## Project goal
 
 Build a reproducible synthetic medical-device label workflow and a computer-vision baseline for reading fields and GS1 barcodes, locating symbols, and preserving positions through distortion. Generated labels remain test drafts, use supplied identifiers, and are evaluated separately by condition.
@@ -30,6 +58,19 @@ Build a reproducible synthetic medical-device label workflow and a computer-visi
 - Draft output carries DRAFT marking, a change log, artifact hashes and self-check results. Barcode content is retained when unchanged and regenerated only for confirmed changes.
 - Print comparison is bound to an approval record and artifact hash. The verification code does not create approvals or publish artwork.
 
+### Structured revisions (Task 6)
+
+- Added a local revision engine that copies the old template and ProductRecord,
+  increments their versions, binds updated text into a new export snapshot and
+  records the actor, reason and change ID. Original inputs remain unchanged.
+- Reuses the exact existing barcode for KEEP, regenerates and decode-checks
+  confirmed encoded changes, and returns no artwork for NEEDS_INPUT. Missing
+  allocated identifiers are never supplied by the engine. A sterilization
+  method change updates its bound synthetic symbol without changing the barcode.
+- New PDF/SVG outputs remain drafts with the named groups. Layout and barcode
+  checks run; OCR and symbol detection for revisions are NOT_RUN. Application
+  storage, trusted confirmation/authorization and publication remain separate.
+
 ## Fresh-seed results
 
 The following results are from seeds 100, 101 and 102 in `results/cv_final_eval.md`: 51 synthetic labels per condition and 102 expected symbol instances per condition. All use one synthetic template family.
@@ -48,7 +89,7 @@ The older “15/17 hard” figure only applied to an easier, reduced blur/noise 
 
 ## Limits and remaining work
 
-- These results use synthetic artwork from one template family. No real product photo has been evaluated yet.
+- The results table above uses synthetic artwork from one template family. Separate real-photo evaluations now exist and remain poor, as recorded in the required status note above.
 - The very-hard barcode result is lower than the other conditions. OCR naming in blind mode is heuristic and performs worse than template mapping under very hard glare and occlusion.
 - Symbol detection is not validated on independent artwork: the references come from the same code as the synthetic symbols, and independently drawn variants were not detected in the fresh evaluation.
 - The test GTIN is an all-zero placeholder, not an allocated GTIN or UDI-DI. No real identifier is fabricated.

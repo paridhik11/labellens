@@ -146,3 +146,68 @@ revision cannot reuse its previous version ID. The generator creates no review
 records or passed checks. `verify_print` requires an authorized independent
 reviewer, reviewer role, `reference_sha256`, version and a matching passed
 `check_id`. Old records missing these fields must be rechecked and reviewed.
+
+## Task 6: structured label revisions
+
+`src.gen.revise.revise_template` consumes the old contract template, its current
+`ProductRecord`, one structured `ChangeRequest`, and the existing Task 2 export
+`Label` snapshot. It returns a new template version, a copied record with the
+new text and version, filled fields, a barcode decision, an audit change log,
+and a renderable draft snapshot when input is complete. Contract templates use
+field bindings rather than storing text inside slots, so the new record supplies
+new text while layout, slot IDs, physical size and template ID remain unchanged.
+The old template, record and snapshot are never modified.
+
+Supply a fresh `version_id`, actor and reason. `old_value` must match the current
+record, preventing a stale change from silently overwriting newer content. The
+`product_name` alias maps to `name`; `extra.lot` maps to the lot field. Fields
+without a text/symbol binding or encoded role are rejected instead of ignored.
+A sterilization symbol bound to `sterilization` supports EO/sterile_eo and
+R/gamma/sterile_r, plus generic sterile artwork. The source method and symbol must
+agree. No change automatically carries an approval into the new draft.
+
+- `KEEP`: exact existing barcode element, matrix and module size are reused;
+  no encoder is called. A text-only address change or EO-to-gamma change keeps it.
+- `REGENERATE`: every changed encoded field requires its matching explicit flag:
+  confirmed_gtin_change, confirmed_expiry_change, confirmed_lot_change or
+  confirmed_serial_change. The replacement is decoded and compared before return.
+- `NEEDS_INPUT`: `result.label` is None and no artwork files are written. Missing
+  identifiers are not invented. `result.require_label()` raises IdentifierRequired
+  when an allocated identifier is missing and ValueError for other blocked inputs.
+
+For a model change that requires a new allocated identifier, the caller must set
+`requires_new_identifier=True` and supply `allocated_identifier` when available.
+The engine does not guess identifier-allocation rules from model names. It
+refuses to count the old identifier as a new one. Existing explicit test mode
+is preserved; the all-zero placeholder cannot become production data.
+
+Example, with an existing source template/record/snapshot:
+
+```python
+from src.common.schemas import ChangeRequest
+from src.gen.revise import revise_template
+from src.export.pdf import render_pdf
+from src.export.svg import render_svg
+
+change = ChangeRequest(
+    change_id="address-change-1", product_id=record.product_id,
+    field="manufacturer_address", old_value=record.manufacturer_address,
+    new_value="88 Demo Rd",
+)
+revision = revise_template(
+    template, record, change, previous_label=current_label,
+    version_id="device-draft-v2", actor="parth", reason="Update the address",
+)
+label = revision.require_label()
+render_pdf(label, output_dir / "label.pdf")
+render_svg(label, output_dir / "label.svg")
+# Persist revision.template, revision.record, revision.change_log and
+# revision.self_check with the draft in application storage.
+```
+
+This returns a Task 2 export snapshot and uses its PDF/SVG writers. The older
+`src.gen.render` manifest-based path retains its existing template-migration
+restriction; do not mix its manifests with export snapshots or approval hashes.
+Revision checks cover layout and barcode decoding. OCR and symbol detection are
+NOT_RUN, and the result remains NEEDS_HUMAN_REVIEW. Publication, trusted storage
+and approval/check issuance are outside this local revision engine.
