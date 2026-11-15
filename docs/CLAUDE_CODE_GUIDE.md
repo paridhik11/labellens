@@ -22,7 +22,7 @@ Read CLAUDE.md and docs/TEAM_PLAN.md. Run git status, git branch and python --ve
 
 ## Rules that matter
 - Docs-only tasks touch nothing under `src/`, `tests/` or `data/`. Say so in the prompt.
-- Work on a branch, never force push. Several branches are checked out in separate worktrees (`step17-opt`, `step20-backend`, `cv-fixes`), so create new branches from `origin/main` and check `git branch` first.
+- Work on a branch, never force push. Several branches are checked out in separate worktrees (`step17-opt`, `cv-fixes`), so create new branches from `origin/main` and check `git branch` first.
 - Do not edit `src/common/schemas.py`, `src/ir/base.py` or anything in `docs/contracts/` without asking.
 - Relevance grades: the qrels are LLM-assessed (separate `_llm` files, logged in `docs/LLM_GRADER_PROMPT.md`). The agent never writes the human `grade` column or `data/eval/pool_t1.csv`.
 - Label artwork comes from templates, never an image model. Never invent GTIN or UDI-DI values.
@@ -44,7 +44,7 @@ Read CLAUDE.md and docs/TEAM_PLAN.md. Run git status, git branch and python --ve
 | Retrieval Steps 16 to 18 | Step 16 abstention, Steps 17 and 18 experiments exist on branches, not merged | Review the branch results, then merge. Do not tune on the held-out half |
 | CV fixes | Merged | Parth continues from `docs/CV_STATUS.md` |
 | Step 19 contracts | Merged | Review CR-1 to CR-16 |
-| Step 20 backend | Phase 0 and 20a done on `step20-backend` | 20b endpoints (below) |
+| Step 20 backend | Merged into main (6e36e47) | Layout findings on template registration, change parser, impact analysis |
 
 ## Prompts
 

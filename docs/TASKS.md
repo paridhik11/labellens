@@ -15,12 +15,12 @@ Retrieval
 - [ ] Decide how to use the LLM grades for queries without human grades; first full results table with the Step 13 caveat
 - [ ] Merge the retrieval branches into main once reviewed
 
-Backend (Step 20, branch `step20-backend`, not merged)
+Backend (Step 20, merged into main at 6e36e47)
 - [x] Phase 0: contract follows the merged renderer (D-2, D-4, D-8, part of D-7)
 - [x] 20a: SQLite store, append-only triggers, derived status, review rules, 20 tests
-- [ ] 20b: endpoints from `openapi.yaml` (`POST /changes` returns `"parser": "not_implemented"` until the parser exists)
-- [ ] 20c: mock fallback with the `X-Mock` header
-- [ ] 20d: OpenAPI response tests
+- [x] 20b: 15 real endpoints from `openapi.yaml` with role checks (`POST /changes` returns `"parser": "not_implemented"` until the parser exists)
+- [x] 20c: mock fallback with the `X-Mock` header
+- [x] 20d: OpenAPI response tests
 
 Product features (v1 build order, see `docs/TEAM_PLAN.md`)
 - [ ] Checker with evidence (Flag objects from T1 retrieval)

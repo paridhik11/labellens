@@ -38,7 +38,7 @@ Locked files (change only if Pari agrees): `src/common/schemas.py`, `src/ir/base
 | Steps 17 and 18 | Retrieval improvements (expansion, part boost, rerank, then CV-based experiments with bigger embedders and heading enrichment). On branch `step17-opt`, not merged into main. Dev gains shrank on held-out, so nothing is claimed as an improvement yet |
 | CV fixes | Merged (`cv-fixes`). Fresh-seed results in `results/cv_final_eval.md`; symbol detector finds 0/204 independently drawn pictograms (`docs/CV_STATUS.md`) |
 | Step 19 | Done and merged: data model, template spec, OpenAPI, API guide, screens, 50 mocks, contract tests |
-| Step 20 | Backend, on branch `step20-backend`, not merged. Phase 0 (contract follows merged renderer) and 20a (SQLite store, append-only triggers, derived status, review rules) done. 20b endpoints, 20c mock fallback, 20d response tests not started |
+| Step 20 | Backend, merged into main (merge commit 6e36e47). Phase 0 (contract follows merged renderer), 20a (SQLite store, append-only triggers, derived status, review rules), 20b (15 real endpoints, role checks), 20c (mock fallback with `X-Mock: true`) and 20d (responses validated against `openapi.yaml`) done. Still open: layout findings on template registration, change parser and impact analysis |
 
 ## v1 build order
 
@@ -49,7 +49,7 @@ This is the order the pieces are built so that the end-to-end demo works as earl
 3. Checker with evidence (Flag objects from T1 retrieval) and the natural-language change parser, then T3 change impact retrieval. Pari.
 4. Renderer, barcode and layout checks aligned to the contract (D-3, D-5, D-6, D-9, remaining D-7 names). Parth from Day 6.
 5. Generate endpoint and self-check wired to Parth's renderer, DRAFT mark on every draft. Pari with Parth.
-6. Review and approval flow: approval bound to `artifact_sha256` and a passed `check_id`, new version voids an approval, reject is terminal. Pari (rules already in `src/api/reviews.py` on the Step 20 branch).
+6. Review and approval flow: approval bound to `artifact_sha256` and a passed `check_id`, new version voids an approval, reject is terminal. Pari (rules already in `src/api/reviews.py` on main).
 7. Template registration flow (draw and name slots). Pari.
 8. Public medicine mode: scan, product match, cited answers, abstain with a reason. Pari. Small drug set.
 9. Print verification endpoint. Parth's `verify_print` behind a Job, Pari wires it.
