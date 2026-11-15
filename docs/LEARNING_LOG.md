@@ -369,3 +369,11 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 4. **Verified:** A throwaway script found 41 `Class.field` references to `schemas.py` and none were missing. Every field of ProductRecord, LabelExtraction, Flag and ChangeRequest appears in the doc. No em dashes. `ruff check src tests`: All checks passed.
 5. **Check yourself:** CR-14 (a returned change stays `draft`), version rule 5 (approval binds to the hash), and the public corpus line (21 CFR 201, 208, 211 only).
 6. **Assumptions:** Report and PublishedPage are exports, not tables. Prefixed opaque ids. The abstention score is provisional. None of the CRs is approved.
+
+## Step 19a2: data model review changes
+1. **What I did:** Applied Pari's five 19a review changes. Reports and published pages now carry a fixed `version_id`. Citations have `source_type` (cfr or label_section). Approval binds to `artifact_sha256` and the passed `check_id`. The CR table has a "Parth" column. Status is derived from the latest Review (new "Status derivation" table). I also added CR-15 and aligned `GS1-128`, `symbol_name` and the manifest hash with Parth's renderer on `cv-fixes`.
+2. **Files changed:** `docs/contracts/DATA_MODEL.md`, `docs/contracts/SCHEMA_CHANGE_REQUESTS.md`, this log.
+3. **How it works:** `label_id` is the label family, and `version_id` is one immutable version (L2). A QR page stores `version_id`, so it keeps showing L2 even after L3 is published.
+4. **Verified:** The mapping script found 41 refs, none missing. Em dashes 0. The openapi "returned" example comes in 19c.
+5. **Check yourself:** The status derivation order, the `check_id` rule in Review, and the Parth column values.
+6. **Assumptions:** Public label answers have no abstention validation. The public label corpus is not built. Parth's code is not on main yet.
