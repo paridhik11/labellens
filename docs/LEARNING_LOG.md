@@ -563,3 +563,11 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 4. **Verified:** dev recall 241/256 (94.1%) with 1/480 false positives, against 4/256 for the old detector; keypoints 14 to 15%.
 5. **Check yourself:** `make_rule` thresholds; the margin over the best wrong class (distractors are in the bank).
 6. **Assumptions:** Settings tuned on dev only.
+
+## Symbols phase 3: learned classifier
+1. **What I did:** Trained a small CPU CNN on randomly drawn pictograms (seen shape families only) plus crops mined from train labels, to classify candidate blobs.
+2. **Files:** `src/cv/symbols_v2/cnn.py`, `train_data.py`, `src/gen/symbol_procedural.py`, `src/cv/test_symbols_cnn.py`, `requirements-cv.txt` (torch, CPU).
+3. **How it works:** Show the network thousands of jittered drawings through the same blur and noise the real pipeline sees, then ask it to name each blob.
+4. **Verified:** `pytest src/cv/test_symbols_cnn.py` 3 passed; dev recall 241/256 (94.1%), false positives 0/480.
+5. **Check yourself:** training excludes badge mode and the dev and held-out families (`symbol_procedural.py` docstring and test).
+6. **Assumptions:** Same recall as the silhouette bank on dev, so held-out decides.

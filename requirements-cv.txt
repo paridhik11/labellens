@@ -9,3 +9,4 @@ onnxruntime==1.31.1
 pydantic==2.14.3
 reportlab==5.1.0
 pypdf==7.1.0
+torch==2.15.0  # CPU build; only for the symbol classifier (src/cv/symbols_v2/cnn.py), tests skip without it

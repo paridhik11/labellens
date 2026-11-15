@@ -66,3 +66,9 @@ glyph's tight box removed that (a measurement fix, not a detector change).
 
 Stopping rule: ideas 2 and 3 (and the combinations 5 to 7) gained under 2 points over idea 1, so the search for new scorers
 stops here. Idea 1 and idea 4 are tied on dev; the held-out styles decide between them.
+
+CNN detail (idea 4): 3 classes (manufacturer, expiry, other), input two 48 by 48 channels from the candidate's ink map
+(ink and hole-filled silhouette), 3 conv blocks and a dense head (about 60 thousand weights), trained on 12,019 crops: 4,000 per
+class of procedurally drawn pictograms from the seen geometry families (jittered, outline, filled or duo, never badge)
+pushed through the candidate finder, plus crops mined from the train-split label set. CPU only, at most 4 torch threads, seed 0.
+A procedural-only first model (no mined crops) also scored 241/256 on dev.
