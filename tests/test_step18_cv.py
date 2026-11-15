@@ -140,3 +140,16 @@ def test_two_bases_report_and_summary_table(tmp_path):
     text = path.read_text(encoding="utf-8")
     assert text.count("<!-- summary:start -->") == 1 and text.count("| E9: demo |") == 2
     assert len(json.loads(sj.read_text(encoding="utf-8"))) == 2
+
+
+def test_without_q55_column_removes_the_named_query():
+    from src.ir.step18_cv import summary_markdown, summary_rows
+
+    qids, qrels, base, var = _setup({"q00": 1, "q01": 1, "q05": 1})
+    qids = ["q55"] + qids[1:]  # rename the first query to q55 so it can be excluded
+    qrels["q55"], base["q55"], var["q55"] = qrels.pop("q00"), base.pop("q00"), var.pop("q00")
+    res = evaluate_experiment("E8", "demo", base, var, qrels, _folds(sorted(qids)))
+    assert res.gain("ndcg") > res.gain_without("ndcg") > 0
+    row = summary_rows({"hybrid": res})[0]
+    assert abs(row["wo_ndcg"] - res.gain_without("ndcg")) < 1e-12
+    assert "without q55" in summary_markdown([row]) and "q55" in experiment_markdown({"hybrid": res}, "x")

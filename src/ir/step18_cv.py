@@ -43,6 +43,7 @@ from src.ir.step17_report import DEPTH, query_metrics
 SEED = 42
 K_FOLDS = 5
 GAIN_MIN = 0.01
+EXCLUDE_QIDS = ("q55",)
 MIN_FOLD_WINS = 3
 PENDING_UNJ = 0.05
 FOLDS_PATH = Path("data/eval/cv_folds.json")
@@ -115,6 +116,10 @@ class ExperimentResult:
     def gain(self, key: str, qids: list[str] | None = None) -> float:
         d = self.diffs(key, qids)
         return sum(d) / max(len(d), 1)
+
+    def gain_without(self, key: str, drop: tuple[str, ...] = EXCLUDE_QIDS) -> float:
+        """Pooled gain with the named queries removed (q55 by default: it drives several results)."""
+        return self.gain(key, [q for q in self.qids if q not in drop])
 
     def fold_qids(self, f: int) -> list[str]:
         return [q for q in self.qids if self.fold_of[q] == f]
@@ -201,6 +206,8 @@ def _base_block(res: ExperimentResult, base_name: str) -> list[str]:
              f"condensed {res.gain('cond'):+.3f}, Recall@20 {res.gain('recall20'):+.3f}.",
              f"- Bootstrap 95% interval of the unjudged=0 gain (information only): [{lo:+.3f}, {hi:+.3f}].",
              f"- Folds won: {res.folds_won()} of {res.k}.",
+             f"- Without {', '.join(EXCLUDE_QIDS)}: nDCG@10 gain {res.gain_without('ndcg'):+.3f} "
+             f"(unjudged=0) / {res.gain_without('cond'):+.3f} (condensed).",
              f"- Leave-top-2-out gain: {res.without_top2('ndcg'):+.3f} / {res.without_top2('cond'):+.3f}; "
              "top gainers: " + ", ".join(f"{q} {d:+.3f}" for q, d in res.top_gainers()) + ".",
              f"- unjudged@10: variant {res.unjudged10():.3f}, base {res.unjudged10('base'):.3f}.",
@@ -253,6 +260,7 @@ def summary_rows(results: dict[str, ExperimentResult]) -> list[dict]:
                      "gain_ndcg": r.gain("ndcg"), "gain_cond": r.gain("cond"),
                      "gain_recall20": r.gain("recall20"), "ci_lo": lo, "ci_hi": hi,
                      "folds_won": r.folds_won(), "k": r.k, "top2_ndcg": r.without_top2("ndcg"),
+                     "wo_ndcg": r.gain_without("ndcg"), "wo_cond": r.gain_without("cond"),
                      "top2_cond": r.without_top2("cond"), "unj10": r.unjudged10()})
     return rows
 
@@ -260,12 +268,15 @@ def summary_rows(results: dict[str, ExperimentResult]) -> list[dict]:
 def summary_markdown(rows: list[dict]) -> str:
     """The summary table that sits at the top of the experiments log."""
     lines = ["| experiment | vs | decision | gain unjudged=0 [95% CI] | gain condensed | Recall@20 gain "
-             "| folds won | leave-top-2 gain | unjudged@10 |", "|---|---|---|---|---|---|---|---|---|"]
+             f"| folds won | leave-top-2 gain | without {', '.join(EXCLUDE_QIDS)} | unjudged@10 |",
+             "|---|---|---|---|---|---|---|---|---|---|"]
     for r in sorted(rows, key=lambda x: (x["exp_id"], x["base"])):
         lines.append(f"| {r['exp_id']}: {r['title']} | {r['base']} | {r['decision']} "
                      f"| {r['gain_ndcg']:+.3f} [{r['ci_lo']:+.3f}, {r['ci_hi']:+.3f}] "
                      f"| {r['gain_cond']:+.3f} | {r['gain_recall20']:+.3f} | {r['folds_won']} of {r['k']} "
-                     f"| {r['top2_ndcg']:+.3f} / {r['top2_cond']:+.3f} | {r['unj10']:.3f} |")
+                     f"| {r['top2_ndcg']:+.3f} / {r['top2_cond']:+.3f} "
+                     f"| {r.get('wo_ndcg', float('nan')):+.3f} / {r.get('wo_cond', float('nan')):+.3f} "
+                     f"| {r['unj10']:.3f} |")
     return "\n".join(lines)
 
 

@@ -19,3 +19,4 @@ results/*
 !results/step18_*
 data/processed/ce_cache_*
 data/processed/_*
+data/processed/medcpt_cache_*

@@ -73,6 +73,9 @@ def main() -> None:
     ap.add_argument("--model", default="BAAI/bge-reranker-base")
     ap.add_argument("--tag", default="bge-reranker-base")
     ap.add_argument("--exp-prefix", default="E1")
+    ap.add_argument("--start-letter", default="a", help="letter of the first experiment id (E1a, E4d, ...)")
+    ap.add_argument("--stages", default=",".join(STAGES), help="comma-separated first stages to rerank")
+    ap.add_argument("--depths", default=",".join(str(d) for d in DEPTHS))
     ap.add_argument("--threads", type=int, default=6)
     ap.add_argument("--batch", type=int, default=8)
     ap.add_argument("--max-length", type=int, default=512)
@@ -105,10 +108,12 @@ def main() -> None:
     print(f"[model] {a.model} loaded in {time.time() - t0:.0f}s, threads={a.threads}, batch={a.batch}",
           flush=True)
 
+    chosen = [x for x in a.stages.split(",") if x]
+    depths = [int(d) for d in a.depths.split(",")]
     # 1. prescore the top 50 of each first stage (one pass, cached)
     pairs_scored, t_score = 0, 0.0
     t_all = time.time()
-    for stage, spec in STAGES.items():
+    for stage, spec in ((st, STAGES[st]) for st in chosen):
         for i, row in enumerate(rows, start=1):
             first = ctxs[row.module].build(spec)
             rr = CrossEncoderReranker(first, model=model, top_n=DEPTH, batch_size=a.batch, score_cache=cache)
@@ -133,9 +138,9 @@ def main() -> None:
     # 2. evaluate every variant against both bases
     base_ranked = {name: rank_with_spec(spec, rows, ctxs) for name, spec in STAGES.items()}
     letters = "abcdefgh"
-    n = 0
-    for stage, spec in STAGES.items():
-        for depth in DEPTHS:
+    n = letters.index(a.start_letter)
+    for stage, spec in ((st, STAGES[st]) for st in chosen):
+        for depth in depths:
             for mode in MODES:
                 exp_id = f"{a.exp_prefix}{letters[n]}"
                 n += 1
