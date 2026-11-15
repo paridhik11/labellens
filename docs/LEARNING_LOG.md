@@ -359,3 +359,75 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 4. **Verified:** Documentation was checked against the committed `parth-cv` branch, `results/cv_extract.md`, and the recorded Conda test and lint outputs.
 5. **Check yourself:** Review the measured-results tables, reproduction commands, and remaining-work section before sharing.
 6. **Assumptions:** The report is a project handoff, not a regulatory claim; temporary evaluation datasets are not committed.
+
+## CV fix 1: setup, reproduction and diagnosis
+1. **What I did:** Built a Python 3.12 CV environment from the pinned versions (now also in `requirements-cv.txt` at the root) and reproduced every published seed-42 number exactly. Added two extra photo conditions without touching the old three, and a tool that runs any older commit's code on the same images. Wrote `results/cv_diagnosis.md`.
+2. **Files:** `src/gen/augment.py` and `src/gen/generate_dataset.py` (conditions `hard_original`, `very_hard`), `src/cv/baseline_ref.py` (run an old commit), `src/cv/diagnose.py` (report), `requirements-cv.txt`, `pyproject.toml` (long table lines allowed in the report template).
+3. **How it works:** Commit `3c98598` changed the decoder and made the benchmark easier at the same time. Running the old and new decoder on both the old and new hard setting (same geometry, only blur and noise differ) separates the two effects.
+4. **Verified:** `python -m src.cv.diagnose --datasets data/synthetic/dev42 data/synthetic/dev43`. Both dev seeds: old decoder 7/34 on original hard, 14/34 on reduced; new decoder 25/34 and 31/34. OCR: 155 of 179 wrong fields only dropped spaces; padding the crops removes the errors.
+5. **Check yourself:** The 2x2 table, the controlled OCR experiment table, the template audit.
+6. **Assumptions:** The dataset hash differs from macOS while the metrics match; I could not tell whether PNG encoding or pixel values differ.
+
+## CV fix 2: OCR
+1. **What I did:** Each detected text line is now re-cropped with a 30 percent margin on lightly dithered pixels after CLAHE contrast equalisation, identically for every condition. Added field naming by printed keys and layout (no slot positions) and format post-correction.
+2. **Files:** `src/cv/ocr.py`, `src/cv/fields.py`.
+3. **How it works:** The recogniser hesitates between 0 and O, and between a gap and a space, when the crop touches the ink. A margin and a little noise push it off that knife edge. CLAHE stretches contrast tile by tile, so text washed out by glare turns dark again.
+4. **Verified:** Fresh seeds, template mode: CER 0.00% on clean, moderate, hard and hard_original (4,782 characters each).
+5. **Check yourself:** `read_text_robust`, `DEFAULT_DITHER_PAD_RATIOS`, `map_fields_by_layout`.
+6. **Assumptions:** The dither uses a fixed seed, so results are reproducible but depend on that seed.
+
+## CV fix 3: barcode
+1. **What I did:** Added a blind decoder that finds barcode-like regions itself, levels them, and tries Wiener deblurring at five strengths, two scales and three thresholds. The template-slot mode got the same attempts and is reported separately.
+2. **Files:** `src/cv/barcode_blind.py`.
+3. **How it works:** The test barcode is an 8 by 96 module strip at 3 pixels per module, so mild blur erases it. A Wiener filter divides out the known blur shape but stops amplifying where noise would dominate. Only complete GS1 decodes are accepted, so noise cannot become a barcode.
+4. **Verified:** Fresh seeds, blind: hard_original 51/51 (starting point 37/51), very hard 43/51 (starting point 28/51).
+5. **Check yourself:** `locate_barcode_candidates`, `decode_crop`, the noise test in `tests/test_cv_vision.py`.
+6. **Assumptions:** Only DataMatrix, QR, Code 128 and EAN-13 are tried; pylibdmtx would not load on Windows.
+
+## CV fix 4: symbols and negative cases
+1. **What I did:** Added a generator for negative cases (missing symbol, wrong symbol, wrong barcode value) and variations (smaller, larger, independently drawn symbols), a whole-label multi-size symbol search, and checks that return shared `Flag` objects.
+2. **Files:** `src/gen/generate_negatives.py`, `src/gen/alt_symbols.py`, `src/gen/smoke_label.py`, `src/cv/symbols.py`, `src/cv/consistency.py`.
+3. **How it works:** A false positive is a symbol reported where none is printed. Before this every test label had both symbols, so that could not be measured.
+4. **Verified:** Fresh seeds: 0 of 306 absent symbols reported; small symbols 204/204 blind (0/204 before); independent artwork 0/204; wrong barcode flagged 102/102.
+5. **Check yourself:** The `alt_style` row (0/204) and why adding its references was dropped in `results/cv_experiments.md`.
+6. **Assumptions:** The independent artwork is still my own drawing, not ISO artwork.
+
+## CV fix 5: very hard condition and label corners
+1. **What I did:** Added glare and occlusion as a new condition (old ones unchanged) and a fallback that rebuilds label corners when the outline is partly hidden.
+2. **Files:** `src/gen/augment.py` (from CV fix 1), `src/cv/preprocess.py`.
+3. **How it works:** Take the outer edge pixels, fit each label side with a Huber line fit (which gives little weight to a few outliers such as a finger sticking out), and intersect neighbouring sides, so a hidden corner is found where its two visible sides meet.
+4. **Verified:** Fresh seeds, very hard: corners within 10 px 51/51 (starting point 22/51).
+5. **Check yourself:** `find_label_corners_fallback`, `_refit_side`, `test_fallback_corners_survive_occlusion`.
+6. **Assumptions:** The occluders are bars from the edge; a label covered in the middle was not tested.
+
+## CV fix 6: extractor modes, tests, integration, real-photo harness
+1. **What I did:** `extract_label` now has `mode="template"` and `mode="blind"`, sharing one OCR pass. Added `tests/test_cv_text_rules.py` (no CV libraries needed) and `tests/test_cv_vision.py` (skips without them, OCR tests marked slow), `src/cv/integration.py`, `src/cv/eval_real.py` and `data/real_photos/README.md`.
+2. **Files:** `src/cv/extract.py`, `src/cv/eval_v2.py`, `src/cv/integration.py`, `src/cv/eval_real.py`, the two test files, the README.
+3. **How it works:** `pytest.importorskip("cv2")` skips the whole file when OpenCV is missing, so the root CI command still passes.
+4. **Verified:** Main environment without CV libraries: `pytest -q -m "not slow"` gave 109 passed, 1 skipped, 1 deselected. CV environment: 256 passed, 1 failed (Poppler, pre-existing). Integration: 5 labels passed through `LabelExtraction`, `ProductRecord` and `Flag` without schema changes.
+5. **Check yourself:** `to_product_record` never invents a UDI-DI; `eval_real` prints that there is nothing to evaluate without photos.
+6. **Assumptions:** No photo or transcription was created; Pari adds them.
+
+## CV fix 7: final evaluation on fresh seeds
+1. **What I did:** Froze the pipeline at `c594b6d`, then generated seeds 100, 101, 102 once and ran the final and starting-point code on them. Wrote `results/cv_final_eval.md`.
+2. **Files:** `src/cv/final_report.py`, `results/cv_final_eval.md`, `results/cv_experiments.md`, `scripts/cv_experiments/`.
+3. **How it works:** Dev seeds are where tuning is allowed; fresh seeds are the exam. Changing code after looking at the exam would turn it into more practice.
+4. **Verified:** 255 main and 714 negative images, 0 extraction errors. Very hard barcode fell from 33/34 on dev to 43/51 on fresh.
+5. **Check yourself:** The header of `cv_final_eval.md` (the report was re-run once after a Windows process-pool crash, with no code change).
+6. **Assumptions:** 51 images per condition is small; one label is about 2 points.
+
+## CV fix 8: documents
+1. **What I did:** Wrote `results/cv_fixes.md`, `docs/CV_STATUS.md` (including 12 claims in `docs/PARTH_WORK_SUMMARY.md` that need a caveat) and closed `docs/CV_FIX_STATUS.md`.
+2. **Files:** those three and this log.
+3. **How it works:** Every number points to a command and states its image count.
+4. **Verified:** Checked each number against the summaries printed by `python -m src.cv.eval_v2 summary`.
+5. **Check yourself:** The "What remains weak" section of `results/cv_fixes.md`.
+6. **Assumptions:** `docs/PARTH_WORK_SUMMARY.md` itself was not edited; the caveats are listed for Parth to apply.
+
+## CV fix 9: wrap-up (intervals, Poppler skip, uncertain-reading flag)
+1. **What I did:** Added Wilson 95% intervals to the barcode and symbol rates in `results/cv_final_eval.md` and `results/cv_fixes.md`, computed from the existing counts. Made the Poppler render test skip when `pdftoppm` is missing. The consistency checker now emits `needs_human_review` instead of `barcode_mismatch` when the lot or expiry OCR line has confidence below 0.8.
+2. **Files:** `src/cv/intervals.py` (new), `src/cv/consistency.py`, `src/cv/eval_v2.py` (counts review flags), `src/gen/test_render.py`, `tests/test_cv_text_rules.py`, `scripts/cv_experiments/false_alarm_confidence.py`, the two reports.
+3. **How it works:** A Wilson interval stays sensible at 51/51 (93.0% to 100%) where the simple plus-or-minus interval would claim zero uncertainty.
+4. **Verified:** CV suite 258 passed, 1 skipped; root command without CV libraries 111 passed, 1 skipped, 1 deselected; ruff clean. Dev seeds only: very hard false mismatch flags 9 of 33 (template) and 5 of 33 (blind) before and after; real mismatches 68/68 per mode before and after.
+5. **Check yourself:** That the 0.8 threshold changed nothing because every false alarm had confidence 0.876 to 0.999.
+6. **Assumptions:** The threshold was set before measuring and not tuned. Symbol intervals treat the two symbols on a label as independent, so they are somewhat too narrow.
