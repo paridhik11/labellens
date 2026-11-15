@@ -20,3 +20,4 @@ results/*
 data/processed/ce_cache_*
 data/processed/_*
 data/processed/medcpt_cache_*
+data/processed/ft_*

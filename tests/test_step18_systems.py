@@ -40,6 +40,6 @@ def test_system_names_and_the_experiment_list():
         "rrf[bm25+stem+head, large+prefix+head, medcpt]")
     exps = experiments()
     ids = [e[0] for e in exps]
-    assert len(ids) == len(set(ids)) == 15
-    assert len({e[3] for e in exps}) == 15  # no two experiments build the same system
+    assert len(ids) == len(set(ids)) == 17
+    assert len({e[3] for e in exps}) == 17  # no two experiments build the same system
     assert PLAIN_HYBRID not in {e[3] for e in exps} and STEM_PREFIX_HYBRID not in {e[3] for e in exps}

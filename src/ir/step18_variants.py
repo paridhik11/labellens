@@ -9,6 +9,8 @@ Groups (so slow models can run in separate passes):
   base     E3a, E3b, E3e   bge-base alone and in an ensemble
   medcpt   E4a to E4c   MedCPT bi-encoder
   large    E3c, E3d, E3f   bge-large alone and in an ensemble
+  best     E5a, E5b       bge-large with heading enrichment (both sides, or dense side only); also
+                          reported against bge-large alone (E3d)
 
 Run:  python -m src.ir.step18_variants --groups enrich,base --threads 6
 """
@@ -34,7 +36,10 @@ GROUPS = {
     "base": ["E3a", "E3b", "E3e"],
     "medcpt": ["E4a", "E4b", "E4c"],
     "large": ["E3c", "E3d", "E3f"],
+    "best": ["E5a", "E5b"],
 }
+# experiments that are also compared with a third base (their name, the experiment whose system it is)
+EXTRA_BASES = {"E5a": "E3d", "E5b": "E3d"}
 
 
 def main() -> None:
@@ -89,7 +94,11 @@ def main() -> None:
         dt = time.time() - t
         params = {"system": system.name, "wall_s_to_build_and_rank": f"{dt:.0f}"}
         notes = f"Build and ranking wall time: {dt / 60:.1f} min (embeddings cached on disk afterwards)."
-        res = log_experiment(exp_id, title, what, params, system.name, ranked, bases, rows, qrels, folds,
+        these_bases = dict(bases)
+        if exp_id in EXTRA_BASES:
+            ref = by_id[EXTRA_BASES[exp_id]]
+            these_bases[f"{ref[0]}: {ref[3].name}"] = rank(ref[3])
+        res = log_experiment(exp_id, title, what, params, system.name, ranked, these_bases, rows, qrels, folds,
                              texts, notes)
         print(f"{exp_id} {system.name} {dt / 60:.1f} min", {b: decide(r)[0] for b, r in res.items()}, flush=True)
     print(f"[done] {(time.time() - t_all) / 60:.1f} min total", flush=True)

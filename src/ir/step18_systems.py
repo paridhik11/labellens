@@ -126,6 +126,7 @@ def experiments() -> list[tuple[str, str, str, Sys18]]:
 
     E2: heading and part number prepended for indexing, on both first stages.
     E3: bge-base and bge-large as the dense list, and two-embedder ensembles.
+    E5: the two best 18c ideas together (bge-large with heading enrichment), on stem+prefix.
     E4: MedCPT bi-encoder as the dense list or as an extra list (E4d and E4e, the MedCPT
         cross-encoder, are run by src.ir.step18_rerank).
     """
@@ -158,6 +159,12 @@ def experiments() -> list[tuple[str, str, str, Sys18]]:
         ("E3f", "ensemble bge-small + bge-large (+ stemmed BM25)",
          "three-list RRF: stemmed BM25, small+prefix, large+prefix",
          Sys18(bm25=(True, False), dense=(sp, ("large", True, False)))),
+        ("E5a", "best together: bge-large + heading on both sides, stem+prefix",
+         "E3d and E2f combined: stemmed BM25 and bge-large+prefix both index heading plus text",
+         Sys18(bm25=(True, True), dense=(("large", True, True),))),
+        ("E5b", "best together: bge-large + heading on the dense side only, stem+prefix",
+         "E3d and E2e combined: bge-large+prefix embeds heading plus text, BM25 stays stemmed and plain",
+         Sys18(bm25=(True, False), dense=(("large", True, True),))),
         ("E4a", "MedCPT bi-encoder as the dense list, plain BM25", "dense list is MedCPT (query and article encoders)",
          Sys18(bm25=(False, False), dense=(), medcpt=True)),
         ("E4b", "MedCPT bi-encoder as the dense list, stemmed BM25", "as E4a with stemmed BM25",
