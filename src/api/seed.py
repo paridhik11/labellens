@@ -102,6 +102,7 @@ def seed_demo(session: Session) -> bool:
         version_id="lbv_exampledevice_carton_l2",
         check_id="chk_0001",
         at="2026-11-10T10:00:00Z",
+        coverage=inspect["coverage"],
     )
 
     change = _mock("changes/change_returned.json")
@@ -139,6 +140,7 @@ def seed_demo(session: Session) -> bool:
         artifact_sha256=L3_SHA256,
         check_id="chk_0003",
         at="2026-11-11T09:05:00Z",
+        coverage=_mock("review/recheck_success.json")["coverage"],
     )
     return True
 

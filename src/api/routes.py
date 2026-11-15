@@ -9,14 +9,31 @@ from __future__ import annotations
 from collections.abc import Iterator
 from typing import Any
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, Request
+from fastapi.responses import JSONResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from src.api import views
+from src.api import checks, views
 from src.api.errors import ApiError
-from src.api.models import ChangeRequest, LabelTemplate, LabelVersion, Product, ProductVersion, Review, User
-from src.api.requests import ChangeCreate, ProductCreate, ReviewCreate, TemplateCreate
+from src.api.models import (
+    ChangeRequest,
+    CheckResult,
+    LabelTemplate,
+    LabelVersion,
+    Product,
+    ProductVersion,
+    Review,
+    User,
+)
+from src.api.requests import (
+    ChangeCreate,
+    InspectCreate,
+    ProductCreate,
+    ReviewCreate,
+    SearchCreate,
+    TemplateCreate,
+)
 from src.api.reviews import record_review
 from src.api.store import (
     PRODUCT_RECORD_FIELDS,
@@ -44,6 +61,11 @@ REAL_OPERATIONS = frozenset(
         "getChange",
         "listReviews",
         "reviewArtwork",
+        "inspectLabel",
+        "recheckArtwork",
+        "getJob",
+        "getCheckResult",
+        "searchEvidence",
     }
 )
 PARSER_NOT_IMPLEMENTED = "not_implemented"
@@ -265,3 +287,90 @@ def review_artwork(
         session, user.user_id, version_id, body.decision, body.artifact_sha256, body.comment, body.check_id
     )
     return views.review_json(review)
+
+
+# ---------------------------------------------------------------- checker (Step 21c)
+
+
+def _start_check(
+    kind: str, version_id: str, body: InspectCreate | None, background: BackgroundTasks, request: Request,
+    session: Session, user: User,
+) -> JSONResponse:
+    """Shared body of inspectLabel and recheckArtwork.
+
+    200 with the CheckResult when the version already has a stored extraction (only the rules run, which is
+    fast). 202 with a Job when the extraction must be computed first: the job reads the image, stores the
+    extraction, runs the checker and ends with a result_url.
+    """
+    version = require_version(session, version_id)
+    if kind == "self_check" and (version.kind != "generated" or not version.artifact_sha256):
+        raise ApiError(409, "not_generated", "Only generated artwork with an artifact hash can be re-checked.")
+    try:
+        override = body.retrieval.overrides() if body and body.retrieval else None
+    except ValueError as error:
+        raise ApiError(422, "validation_error", str(error)) from error
+    settings = checks.retrieval_for(request.app.state.checker_settings, override)
+    stored = checks.latest_extraction(session, version_id)
+    if stored is not None:
+        from src.common.schemas import LabelExtraction
+
+        row = checks.perform_check(
+            session, kind, version, LabelExtraction.model_validate(stored.payload), settings, user.user_id
+        )
+        return JSONResponse(checks.check_result_json(row), status_code=200)
+    job = checks.new_job(session, checks.JOB_KINDS[kind], version_id, user.user_id)
+    background.add_task(checks.run_check_job, request.app, job.job_id, kind, version_id, user.user_id, settings)
+    return JSONResponse(checks.job_json(job), status_code=202)
+
+
+@router.post("/label-versions/{version_id}/inspect", operation_id="inspectLabel", tags=["device"])
+def inspect_label(
+    version_id: str, request: Request, background: BackgroundTasks, body: InspectCreate | None = None,
+    session: Session = Depends(get_session), user: User = Depends(current_user),
+) -> JSONResponse:
+    """Compare the extraction with the product record and retrieved requirements (rules decide, retrieval cites)."""
+    return _start_check("inspection", version_id, body, background, request, session, user)
+
+
+@router.post("/label-versions/{version_id}/recheck", operation_id="recheckArtwork", tags=["device"])
+def recheck_artwork(
+    version_id: str, request: Request, background: BackgroundTasks,
+    session: Session = Depends(get_session), user: User = Depends(current_user),
+) -> JSONResponse:
+    """Closed-loop self-check of generated artwork: read the rendered image back and run the checker on it."""
+    return _start_check("self_check", version_id, None, background, request, session, user)
+
+
+@router.get("/jobs/{job_id}", operation_id="getJob", tags=["common"])
+def get_job(job_id: str, request: Request, session: Session = Depends(get_session)) -> Any:
+    """Current state of a job. Job ids that were never issued by this server fall back to the mock job (X-Mock)."""
+    row = checks.latest_job(session, job_id)
+    if row is not None:
+        return checks.job_json(row)
+    if checks.REAL_JOB_ID.match(job_id):  # the form this server issues, so an unknown one really is unknown
+        raise ApiError(404, "not_found", f"No job {job_id!r}.")
+    from src.api.mock_server import mock_response  # imported here: mock_server imports this module
+
+    return mock_response("getJob", request)
+
+
+@router.get("/check-results/{check_id}", operation_id="getCheckResult", tags=["device"])
+def get_check_result(
+    check_id: str, session: Session = Depends(get_session), _: User = Depends(current_user)
+) -> dict[str, Any]:
+    """One stored CheckResult (the result_url of a finished inspect or re-check job)."""
+    row = session.scalars(select(CheckResult).where(CheckResult.check_id == check_id)).first()
+    if row is None:
+        raise ApiError(404, "not_found", f"No check result {check_id!r}.")
+    return checks.check_result_json(row)
+
+
+@router.post("/search", operation_id="searchEvidence", tags=["device", "public"])
+def search_evidence(body: SearchCreate, request: Request) -> dict[str, Any]:
+    """Retrieve requirement passages for one module. No header needed. The response echoes the retrieval config used."""
+    try:
+        override = body.retrieval.overrides() if body.retrieval else None
+    except ValueError as error:
+        raise ApiError(422, "validation_error", str(error)) from error
+    settings = request.app.state.checker_settings
+    return checks.search(settings, body.module, body.query, body.k, body.section_level, override)

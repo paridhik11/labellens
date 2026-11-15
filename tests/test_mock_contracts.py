@@ -170,7 +170,7 @@ def test_mapped_parts_validate_with_schemas_py(entry: dict[str, Any]) -> None:
     if kind == "LabelExtraction":
         LabelExtraction(**model_subset(LabelExtraction, data))
     elif kind == "Flag":
-        assert data["findings"]
+        assert data["findings"] or data.get("coverage")  # a clean check has no findings but lists its coverage
         for finding in data["findings"]:
             Flag(**model_subset(Flag, finding))
     elif kind == "ChangeRequest":
@@ -332,3 +332,43 @@ def test_public_and_professional_mocks_stay_separate() -> None:
 def test_contract_docs_have_no_em_dashes() -> None:
     for path in (ROOT / "docs" / "contracts").iterdir():
         assert "—" not in path.read_text(encoding="utf-8"), path.name
+
+
+# ---------------------------------------------------------------- Step 21: checker coverage (CR-17)
+
+def _check_results() -> Iterator[tuple[str, dict[str, Any]]]:
+    for entry in ENTRIES:
+        data = load_mock(entry["file"])
+        if isinstance(data, dict) and data.get("kind") in ("inspection", "self_check"):
+            yield entry["file"], data
+
+
+def test_inspection_mocks_carry_coverage_and_needs_human_count() -> None:
+    seen = 0
+    for file, data in _check_results():
+        ids = [o["rule_id"] for o in data["coverage"]]
+        assert len(ids) == len(set(ids)), file
+        assert data["needs_human_count"] == sum(o["outcome"] == "needs_human" for o in data["coverage"]), file
+        assert data["critical_count"] == sum(f["severity"] == "critical" for f in data["findings"]), file
+        assert data["passed"] == (data["critical_count"] == 0), file
+        seen += 1
+    assert seen >= 4
+
+
+def test_findings_contain_only_problems() -> None:
+    for file, data in _check_results():
+        assert all(f["severity"] != "info" for f in data["findings"]), file
+
+
+def test_a_fail_outcome_has_a_finding_with_the_same_rule() -> None:
+    for file, data in _check_results():
+        rules = {f.get("rule_id") for f in data["findings"]}
+        for outcome in data["coverage"]:
+            if outcome["outcome"] == "fail":
+                assert outcome["rule_id"] in rules, (file, outcome["rule_id"])
+
+
+def test_rx_only_is_documented_for_product_registration() -> None:
+    extra = SPEC["components"]["schemas"]["ProductCreate"]["properties"]["extra"]
+    assert "rx_only" in extra["description"]
+    assert "rx_only" in (ROOT / "docs" / "contracts" / "DATA_MODEL.md").read_text(encoding="utf-8")

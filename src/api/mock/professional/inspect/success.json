@@ -5,60 +5,119 @@
   "findings": [
     {
       "flag_id": "flg_0001",
-      "kind": "date_format",
-      "severity": "info",
-      "message": "Printed dates use the YYYY-MM-DD format.",
-      "observed": "2028-03-31",
-      "expected": "YYYY-MM-DD",
+      "kind": "missing_symbol",
+      "severity": "review",
+      "message": "Expected symbol 'expiry' was not detected (the symbol detector is untrusted, so this is not a verdict).",
+      "observed": "",
+      "expected": "expiry",
       "evidence_chunk_ids": [
-        "fda_21cfr801_s801.18"
+        "fda_21cfr801_s801.15_c3"
       ],
-      "confidence": 0.93,
-      "needs_human": false,
+      "confidence": 0.0,
+      "needs_human": true,
       "citations": [
         {
           "source_type": "cfr",
-          "chunk_id": "fda_21cfr801_s801.18",
+          "chunk_id": "fda_21cfr801_s801.15_c3",
           "source": "FDA",
-          "section": "801.18",
-          "title": "Format of dates provided on a medical device label.",
-          "url": "https://www.ecfr.gov/current/title-21/section-801.18",
-          "quote": "(a) In general. Whenever the label of a medical device includes a printed expiration date, date of manufacture, or any other date intended to be brought to the"
+          "section": "801.15",
+          "title": "Medical devices; prominence of required label statements; use of symbols in labeling.",
+          "url": "https://www.ecfr.gov/current/title-21/section-801.15",
+          "quote": "(C) A symbol accompanied by adjacent explanatory English text, or text in the predominant language of the Territory, in the case of articles distributed solely in Puerto Rico or in a Territory where the predominant language is one other than English;"
         }
       ],
-      "field": "expiry"
-    },
-    {
-      "flag_id": "flg_0002",
-      "kind": "field_present",
-      "severity": "info",
-      "message": "Manufacturer name and place of business are on the label.",
-      "observed": "Example Devices Ltd, Sample City, Country",
-      "expected": "Example Devices Ltd, 1 Example Road, Sample City, Country",
-      "evidence_chunk_ids": [
-        "fda_21cfr801_s801.1_c1"
-      ],
-      "confidence": 0.88,
-      "needs_human": false,
-      "citations": [
-        {
-          "source_type": "cfr",
-          "chunk_id": "fda_21cfr801_s801.1_c1",
-          "source": "FDA",
-          "section": "801.1",
-          "title": "Medical devices; name and place of business of manufacturer, packer or distributor.",
-          "url": "https://www.ecfr.gov/current/title-21/section-801.1",
-          "quote": "(a) The label of a device in package form shall specify conspicuously the name and place of business of the manufacturer, packer, or distributor. (b) The"
-        }
-      ],
-      "field": "manufacturer_address"
+      "field": "expiry",
+      "rule_id": "S-EXP"
     }
   ],
   "critical_count": 0,
-  "review_count": 0,
-  "info_count": 2,
+  "review_count": 1,
+  "info_count": 0,
   "passed": true,
   "disclaimer": "Draft generated for review. Not a compliance determination.",
   "label_id": "lbl_exampledevice_carton",
-  "version_id": "lbv_exampledevice_carton_l2"
+  "version_id": "lbv_exampledevice_carton_l2",
+  "coverage": [
+    {
+      "rule_id": "X-HEALTH",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "P-NAME",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "P-REF",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "P-MFR",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "P-ADDR",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "P-UDI",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "B-READ",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "B-GS1",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "B-LOT",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "B-EXP",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "D-FMT",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "R-UDI",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "R-NAMEPLACE",
+      "outcome": "pass",
+      "reason": "address completeness is not checked"
+    },
+    {
+      "rule_id": "R-RX",
+      "outcome": "not_applicable",
+      "reason": "product is not registered as prescription only (extra.rx_only)"
+    },
+    {
+      "rule_id": "S-MFR",
+      "outcome": "needs_human",
+      "reason": "detected, but the symbol detector is untrusted; a detection is not a pass"
+    },
+    {
+      "rule_id": "S-EXP",
+      "outcome": "needs_human",
+      "reason": "Expected symbol 'expiry' was not detected (the symbol detector is untrusted, so this is not a verdict)."
+    }
+  ],
+  "needs_human_count": 2
 }

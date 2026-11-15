@@ -349,8 +349,13 @@ def add_check_result(
     check_id: str | None = None,
     user_id: str = "system",
     at: str | None = None,
+    coverage: list[dict[str, Any]] | None = None,
+    retrieval_config: dict[str, Any] | None = None,
 ) -> CheckResult:
-    """Record one checker run. Counts and `passed` (zero critical findings) are computed from `findings`."""
+    """Record one checker run. Counts and `passed` (zero critical findings) are computed from `findings`.
+
+    `coverage` (one entry per checker rule) is stored as given and `needs_human_count` is computed from it.
+    """
     label_id = None
     if kind in ("inspection", "self_check"):
         if version_id is None:
@@ -377,6 +382,9 @@ def add_check_result(
         review_count=counts["review"],
         info_count=counts["info"],
         findings=findings,
+        coverage=coverage,
+        needs_human_count=None if coverage is None else sum(1 for c in coverage if c.get("outcome") == "needs_human"),
+        retrieval_config=retrieval_config,
     )
     session.add(row)
     record_audit(
