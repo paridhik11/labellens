@@ -417,3 +417,11 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 4. **Verified:** `pytest -q tests/test_mock_contracts.py`: 82 passed before the non-vacuous check was added. Full fast suite: 205 passed, 1 deselected. Ruff: all checks passed. A deliberately broken mock fails validation (test_validation_is_not_vacuous).
 5. **Check yourself:** The `index.json` note on illustrative values, `test_no_invented_identifiers`, and the ci.yml one-line change.
 6. **Assumptions:** The mocks were generated once by a scratchpad script (not committed) and are edited by hand from now on. Abstain scores and thresholds are illustrative, not Step 16 values.
+
+## Step 19g: wrap-up of Step 19 (contracts)
+1. **What I did:** Updated CLAUDE.md "Current state" and "Next steps" for Step 19 and re-ran every check. Step 19 adds the contracts in `docs/contracts/` (DATA_MODEL, TEMPLATE_SPEC, openapi.yaml, API, SCREENS, SCHEMA_CHANGE_REQUESTS), 50 mocks in `src/api/mock/`, and `tests/test_mock_contracts.py`.
+2. **Files changed:** `CLAUDE.md`, this log.
+3. **How it works:** The UI builds against `src/api/mock/` files listed in `index.json`. The test fails if a mock drifts from openapi.yaml, so the contract and the mocks cannot silently disagree.
+4. **Verified:** Fast suite 205 passed, 1 deselected. `tests/test_mock_contracts.py` 83 passed. Ruff clean. No em dashes in contract docs or CLAUDE.md. `git diff 3c12419 HEAD` shows no change under src/common, src/ir, src/cv, src/gen or data/eval.
+5. **Check yourself:** CR-1 to CR-16 with the Parth column, the combined assumptions in the Step 19 report, and the ci.yml change.
+6. **Assumptions:** See the combined list in the Step 19 report. CI status could only be checked through the public GitHub API, if at all (gh is not logged in).
