@@ -34,6 +34,7 @@ from src.cv.intervals import wilson_interval
 from src.ir.base import Retriever
 
 CONDITIONS = ("clean", "moderate", "hard")
+ALL_CONDITIONS = (*CONDITIONS, "very_hard")  # very_hard reuses the hard augmentation seed
 KINDS = ("clean", "expiry_format", "barcode_mismatch", "missing_symbol", "wrong_name", "udi_mismatch", "rx_missing")
 IMAGE_KINDS = KINDS[:5]
 KIND_RULES = {
@@ -101,7 +102,7 @@ def _variants(index: int, rng: np.random.Generator) -> dict[str, Any]:
     return out
 
 
-def generate(seeds: list[int], per_seed: int, out_dir: Path) -> None:
+def generate(seeds: list[int], per_seed: int, out_dir: Path, conditions: tuple[str, ...] = CONDITIONS) -> None:
     """Render every base label x variant x condition into out_dir as png plus a json sidecar."""
     from PIL import Image
 
@@ -115,6 +116,7 @@ def generate(seeds: list[int], per_seed: int, out_dir: Path) -> None:
             rng = np.random.default_rng(sequence)
             base = _variants(index, rng)
             aug_seeds = {c: int(rng.integers(0, 2**32)) for c in CONDITIONS}
+            aug_seeds["very_hard"] = aug_seeds["hard"]
             for kind, var in base["variants"].items():
                 label_id = f"test_s{seed}_{index:03d}_{kind}"
                 paths = build_label(
@@ -124,7 +126,7 @@ def generate(seeds: list[int], per_seed: int, out_dir: Path) -> None:
                 )
                 truth = json.loads(Path(paths["ground_truth"]).read_text(encoding="utf-8"))
                 with Image.open(paths["image"]) as source:
-                    for condition in CONDITIONS:
+                    for condition in conditions:
                         photo, _, _, _ = augment_label_detailed(source, condition, aug_seeds[condition])
                         stem = f"{label_id}_{condition}"
                         photo.save(out_dir / f"{stem}.png")
@@ -326,7 +328,8 @@ def evaluate(in_dir: Path, report: Path, final: bool) -> None:
           f"{settings.symbol_detector_trusted}. Wilson 95% intervals, n in every cell, conditions never blended.", ""]
     for layer in layers:
         rows = _run_layer(in_dir, layer, retriever, chunks, settings)
-        conds = ("clean",) if layer == "oracle" else CONDITIONS
+        present = {s["condition"] for s in sides}
+        conds = ("clean",) if layer == "oracle" else tuple(c for c in ALL_CONDITIONS if c in present)
         scope = {"oracle": "oracle extraction (perfect CV, so the photo condition does not apply; shown once)",
                  "template": "real extraction, template mode", "blind": "real extraction, blind mode"}[layer]
         md += [f"## Layer: {scope}", "", "### Recall on injected errors", ""]
@@ -350,6 +353,7 @@ def main(argv: list[str] | None = None) -> int:
     g = sub.add_parser("generate")
     g.add_argument("--seeds", type=int, nargs="+", required=True)
     g.add_argument("--per-seed", type=int, default=17)
+    g.add_argument("--conditions", nargs="+", default=list(CONDITIONS), choices=ALL_CONDITIONS)
     g.add_argument("--out", type=Path, required=True)
     e = sub.add_parser("extract")
     e.add_argument("--dir", type=Path, required=True)
@@ -361,7 +365,7 @@ def main(argv: list[str] | None = None) -> int:
     v.add_argument("--final", action="store_true")
     args = parser.parse_args(argv)
     if args.cmd == "generate":
-        generate(args.seeds, args.per_seed, args.out)
+        generate(args.seeds, args.per_seed, args.out, tuple(args.conditions))
     elif args.cmd == "extract":
         extract(args.dir, tuple(args.shard), args.reverse)
     else:
