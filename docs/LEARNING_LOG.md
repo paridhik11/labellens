@@ -707,3 +707,11 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 4. **Verified:** new seeds 103 to 105: very hard false mismatches 7/44 to 1/44 (blind) and 8/45 to 1/45 (template); wrong barcodes still 102/102 `barcode_mismatch`; other cases 0/612.
 5. **Check yourself:** `format_problem` and the order of conditions in `check_extraction`.
 6. **Assumptions:** A confident misread that still looks valid cannot be caught by format.
+
+## Step 22a: change assessment spec
+1. **What I did:** Wrote `docs/CHANGE_SPEC.md`: edit format, rules parser with an optional off-by-default provider, impact table, barcode decision table, citations, failure cases, API mapping. No code.
+2. **Files:** `docs/CHANGE_SPEC.md`, `reports/step22_a.md`.
+3. **How it works:** A change is a list of (field, old, new) edits. Rules map each field to the template slots it fills, decide what happens to the barcode (KEEP, REGENERATE or NEEDS_INPUT), and hand everything else to a human with a cited requirement where the corpus has one.
+4. **Verified:** nothing run (plan only); no em dashes in the spec.
+5. **Check yourself:** the barcode table (section 5.2) and the rule that only rule-decided items are not needs_human (section 6).
+6. **Assumptions:** Sterilization and storage have no corpus section, so no citation. A model change always waits for a new UDI-DI (no implicit keep).

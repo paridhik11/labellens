@@ -1,6 +1,6 @@
 # Change assessment spec (Step 22a)
 
-Status: proposal, waiting for approval. Nothing in this document is implemented yet (22b builds `src/change/`, 22c wires the API).
+Status: approved with decisions (see section 11). 22b builds `src/change/`, 22c wires the API.
 
 A change assessment takes one proposed change to a product record (for example "new lot LOT002" or "sterilization EO to gamma") and answers three questions: which labels and which parts of them are affected, what happens to each barcode, and what a human still has to decide. **Rules decide, retrieval cites, a human confirms.** No language model decides anything. An assessment never says a label is compliant, and it never changes a label: it produces a checklist that a person confirms before any artwork is generated (`docs/GENERATION.md`).
 
@@ -46,7 +46,7 @@ Normalisation (same for structured and parsed edits): trim, collapse inner white
 
 `old_value` handling: if omitted it is filled from the pinned current product record (what `routes.py` does today for record fields, extended to the `extra` keys). If given and different from the record, the **record wins** and the response carries the warning `old_value_mismatch` (the typed value is shown, so a person can see which one is stale). `old_value` never changes what the barcode rule compares: that always uses the record.
 
-Edit-set rules: the same canonical field twice is refused (`duplicate_field`). An edit with `old == new` is ignored with the note `no_change`, with one exception: `udi_di` with `old == new` is an explicit acknowledgement that the identifier stays (used by the 830.50 rule below).
+Edit-set rules: the same canonical field twice is refused (`duplicate_field`). An edit whose `new_value` equals the current record value (after normalisation) is a no-op and is **rejected** with the message "`<field>` already has this value; nothing to change" (API: `422 no_change`). There is no implicit keep and no acknowledgement edit: to keep an identifier, send no `udi_di` edit.
 
 ## 3. Parser
 
@@ -131,7 +131,7 @@ Implements `TEMPLATE_SPEC.md` section 4 for assessment time.
 | 1 | The label has no barcode slot (no template, or none in it) | no barcode decision, a `linked_label` or text item with `needs_human` | Cannot regenerate what the template does not describe. |
 | 2 | No edit touches `udi_di`, `expiry`, `lot` or `serial`, and no `model` edit applies (5.3) | `KEEP` | `old_payload` is set when buildable, otherwise empty. `reason` says the encoded fields are untouched. |
 | 3 | `new_payload` cannot be built | `NEEDS_INPUT` | `required_identifier` is the first missing or invalid field in this order: `udi_di`, `expiry`, `lot`, `serial`. `new_payload` empty. Server side this is the case where `IdentifierRequired` would be raised at generation. |
-| 4 | `new_payload == old_payload` and the symbology is unchanged | `KEEP` | Includes an explicit `udi_di` acknowledgement edit. |
+| 4 | `new_payload == old_payload` and the symbology is unchanged | `KEEP` | Safety net: with no-op edits rejected this should not occur, but the comparison stays so KEEP is never claimed for a changed payload. |
 | 5 | Payloads differ and **every** changed encoded field is confirmed | `REGENERATE` | `new_payload` set, symbology from the slot. |
 | 6 | Payloads differ and at least one changed encoded field is not confirmed | `NEEDS_INPUT` | `required_identifier = confirm_<field>` (for example `confirm_lot`). The new payload is shown so the person sees what they are confirming. |
 
@@ -143,8 +143,8 @@ The placeholder identifier `00000000000000` is never accepted as a new value at 
 
 `21 CFR 830.50(a)` (chunk `fda_21cfr830_s830.50`, checked in the corpus) says a change that results in a new version or model needs a new device identifier. When an edit changes `model` and no `udi_di` edit is present:
 
-- decision `NEEDS_INPUT`, `required_identifier = udi_di`, reason "the model changed; a new model normally needs a new UDI-DI (21 CFR 830.50(a)). Enter the allocated identifier, or send a `udi_di` edit with the same old and new value to say the existing one still applies." LabelLens does not decide whether a rename counts as a new model. A person does.
-- A `udi_di` edit (new value, or old equal to new as acknowledgement) clears the condition and the normal rows 3 to 6 apply.
+- decision `NEEDS_INPUT`, `required_identifier = udi_di`, reason "the model changed; a new model normally needs a new UDI-DI (21 CFR 830.50(a)). Send the allocated identifier as a `udi_di` edit." LabelLens does not decide whether a rename counts as a new model, and it has no implicit way to say the old identifier still applies (a no-op edit is rejected). A model change therefore always waits for a new identifier. If the model is only being corrected and the identifier stays, that is a person's decision outside this tool for now (section 10).
+- A `udi_di` edit with a new value clears the condition and the normal rows 3 to 6 apply.
 
 ### 5.4 Worked examples (all synthetic, same as `TEMPLATE_SPEC.md`)
 
@@ -160,7 +160,7 @@ Record: `udi_di 00000000000000`, expiry `2028-12-31`, lot `LOT001`, serial `SN00
 | model changed, no `udi_di` edit | 5.3 | NEEDS_INPUT, `udi_di` | |
 | `udi_di` edited to `1234567890123` (13 digits) | 3 | NEEDS_INPUT, `udi_di` | not 14 digits, never padded |
 | record has no lot, edit changes expiry | 3 | NEEDS_INPUT, `lot` | the new payload cannot be built |
-| `udi_di` old equal to new | 4 | KEEP | explicit acknowledgement |
+| `udi_di` old equal to new | none | rejected `no_change` | no implicit keep |
 
 ## 6. needs_human and citations per affected item
 
@@ -197,30 +197,33 @@ Wording rule for every item and for `needs_human_review`: describe what to updat
 | No labels registered for the product | zero label contexts | Empty `affected`, `needs_human_review` says no label exists. |
 | Label has no template (uploaded only) | `template_id` is null | `linked_label` item per edit, `needs_human`, no barcode decision. |
 | Template row missing in the database | lookup returns none | treated as no template, same item, warning text names the template id. |
-| `old_value_mismatch`, `no_change`, `duplicate_field` | section 2 | warning in `needs_human_review`, or 422 `validation_error` for a duplicate field. |
+| `old_value_mismatch` | section 2 | warning in `needs_human_review`. |
+| `no_change` (new equals current record value), `duplicate_field` | section 2 | 422 with that code. |
 | Retriever raises or returns no accepted hit | exception or `find_citation` is None | no citation, item `needs_human`, assessment still returned. |
 | LLM provider fails | exception, timeout, empty | rules result stands. |
 | Change on a closed change or unknown product | existing checks | existing 404 or 409 behaviour, unchanged. |
 
 ## 8. API mapping (22c)
 
-1. `POST /changes` (editor or admin, already enforced): parse (`edits` as given, or `raw_text` through the parser), create the ChangeRequest exactly as today (first edit in `field`, rest in `edits`, `parse_state = proposed`), run the assessment, store it, return `201 ChangeAssessment` with `parser: rules` (or `llm`), `affected`, `citations`, `checklist_complete: false`, and `needs_human_review` whenever anything was skipped, warned about or left to a human. When nothing could be handled the response keeps `parser: not_implemented` with an empty `affected` and a message that says it, as today.
-2. Storage: one new append-only table `change_assessments` (`seq`, `change_id`, `payload` JSON of the items, citations and barcode decisions, `created_at`), with the same update and delete triggers as the others, and an audit event `change.assessed`. Reason for storing instead of recomputing: label versions and templates move on, and the checklist a person confirms has to be the one they were shown.
-3. `GET /changes/{id}/affected`: returns the stored items with generated `imp_` ids when the change has an assessment. For a change without one (the seeded demo change, changes created before Step 22) it keeps serving the mock with `X-Mock: true`, as `getJob` does.
-4. `confirmChange` stays a mock. `generateArtwork` stays a mock. Everything else stays as it is.
-5. Contract tests validate every real response against `openapi.yaml`, as in Steps 20d and 21c.
+1. `POST /changes` (editor or admin, already enforced): parse (`edits` as given, or `raw_text` through the parser), create the ChangeRequest as today (first edit in `field`, rest in `edits`, `parse_state = proposed`), run the assessment **twice** (as proposed, and as if confirmed), store one assessment, return `201 ChangeAssessment` with `parser: rules` (or `llm`), `affected`, `citations`, `checklist_complete: false`, and `needs_human_review` whenever anything was skipped, warned about or left to a human. When nothing could be handled the response keeps `parser: not_implemented` with an empty `affected` and a message that says it.
+2. **Append-only `change_assessments`** (`seq`, `assessment_id` `asm_xxxxxxxx`, `change_id`, `parent_assessment_id`, `payload` JSON with items, citations, warnings and the confirmed variant of the barcode decisions, `created_at`). Same UPDATE and DELETE triggers, audit event `change.assessed`. Stored instead of recomputed because label versions and templates move on, and the checklist a person confirms must be the one they were shown. `impact_id` is deterministic (hash of change, label family, slot or kind, field), so a later assessment of the same change keeps the same ids.
+3. **Real `confirmChange`** (`POST /changes/{id}/confirm`, editor or admin) with an **append-only `change_confirmations`** table (`seq`, `confirmation_id`, `change_id`, `assessment_id` it confirms, `decisions` JSON, `created_by`, `created_at`). Rules, first failure wins: 404 unknown change; 409 `change_closed`; 422 `parse_not_confirmed` when `parse_confirmed` is false; 422 `edits_not_supported` when `edits` is sent (a changed edit set is a new change, because ChangeRequest rows are immutable); 422 `unknown_impact` for an `impact_id` not in the assessment. A change with no stored assessment (seeded or older) keeps the mock, as `getJob` does. On success a **new assessment row** is appended: the stored confirmed variant, `parent_assessment_id` = the one confirmed, so barcode decisions of `confirm_<field>` become REGENERATE when nothing else blocks them. `parse_state` of the change is derived as `confirmed` once a confirmation exists. `user_decision` of each item is derived from the latest confirmation (default `pending`). A person may confirm in several requests, each one appends.
+4. **Approval points at an assessment.** `Review` gains an optional `assessment_id`, filled by the server from the latest assessment of the change. For an `approve` of a version whose change has an assessment, the latest assessment must have been confirmed (`409 change_not_confirmed`). Changes with no assessment (seed, older) are unaffected.
+5. `GET /changes/{id}/affected`: stored items of the latest assessment with their current `user_decision`; mock with `X-Mock: true` for a change without an assessment.
+6. `generateArtwork` stays a mock. Everything else stays as it is.
+7. Contract tests validate every real response against `openapi.yaml`, as in Steps 20d and 21c.
 
-### Contract additions needed (CR-18, not approved yet)
-
-`openapi.yaml` does not allow what the brief asks for today (`parser` enum is `not_implemented`, `mock`; `AffectedLabel` has no needs_human flag or barcode decision; `additionalProperties: false`). Proposed, all optional or additive so existing mocks stay valid:
+### Contract additions (CR-18, approved)
 
 | Schema | Addition |
 |---|---|
 | `ChangeAssessment.parser` | add `rules`, `llm` |
-| `ChangeAssessment` | `unassessed_edits`: array of `{field, reason}` |
-| `AffectedLabel` | `needs_human` (boolean), `reason` (string), `rule_ids` (array of string), `barcode_decision` (`BarcodeDecision`, only on `item_kind: barcode`) |
+| `ChangeAssessment` | `unassessed_edits` (array of `{field, reason}`), `assessment_id` |
+| `AffectedLabel` | `needs_human`, `reason`, `rule_ids`, `barcode_decision` (only on `item_kind: barcode`) |
+| `Review` | `assessment_id` |
+| `confirmChange` | real 200, plus 404, 409, 422 documented |
 
-`schemas.py` is not touched. Docs to update with the approval: `DATA_MODEL.md` (AffectedLabel), `API.md`, `SCHEMA_CHANGE_REQUESTS.md` (CR-18), one mock for the new state.
+`schemas.py` is not touched. Docs updated with it: `DATA_MODEL.md`, `API.md`, `SCHEMA_CHANGE_REQUESTS.md` (CR-18), one mock for the `rules` state.
 
 ## 9. Tests planned for 22b (synthetic products and label versions only)
 
@@ -237,6 +240,16 @@ Wording rule for every item and for `needs_human_review`: describe what to updat
 - One synthetic template family, text slots only for the fields in section 2, two symbols supported.
 - US 21 CFR Parts 801 and 830 only. Sterilization and storage have no cited requirement because the corpus has none.
 - The parser handles plain English sentences of the shapes listed. It is not a language understanding system, and it refuses anything else.
-- Assessment-time confirmation is always false (section 5.2), so REGENERATE appears only after `confirmChange` is real.
+- Assessment-time confirmation is false (section 5.2). REGENERATE appears only on the confirmed variant, stored when the change is confirmed (section 8).
+- A model change always waits for a new `udi_di` edit (section 5.3).
 - The serial rule follows the renderer (required), not `TEMPLATE_SPEC.md` ("where used").
 - No claim about compliance, adequacy of the new wording, or whether a change needs FDA notification.
+
+## 11. Decisions taken after review of 22a
+
+1. CR-18 approved (section 8).
+2. Unconfirmed encoded change: `required_identifier = confirm_<field>`.
+3. Serial is required, matching the renderer.
+4. Same old and new value is a no-op and is rejected with a clear message. No implicit keep.
+5. New append-only `change_assessments` table. Approval points at an assessment id.
+6. `confirmChange` is real in 22c (append-only confirmation rows), so REGENERATE is reachable through the API.
