@@ -38,3 +38,21 @@ The step brief marks it LOCKED, and the working agreement says it needs your app
 3. CR-14 recommends doing nothing, to avoid touching `ChangeRequest.status`, which other code may already use.
 4. Model names in the proposals are suggestions and can change in review.
 5. The "Parth" column is based on reading his `cv-fixes` branch (template JSON, `src/gen/render.py` manifest and barcode reuse, `src/cv` extraction and verification). It may change once his code is merged to main.
+
+## Differences from Parth's merged code (checked after merging main at 8e1aed8)
+
+The mock test does not import `src/cv` or `src/gen`, so it still passes. Comparing the contract with the merged renderer (`src/gen/render.py`) and verifier (`src/cv/verify.py`) shows these differences. Nothing in `src/cv` or `src/gen` was edited. Each row needs a decision from Pari and Parth: change the contract, or change the code.
+
+| # | Topic | Contract (docs/contracts) | Merged code | Effect |
+|---|---|---|---|---|
+| D-1 | Symbology strings | `GS1_DataMatrix`, `GS1-128` | Same (`render.py` accepts exactly these) | Matches |
+| D-2 | `symbol_name` | Required on symbol slots, any reference symbol | Required, but only `manufacturer` and `expiry` are supported, minimum 5 mm | The mock template's `sterile_eo` symbol would be flagged `symbol_size_or_type` by the current renderer |
+| D-3 | Background | `background` is a path or `null` | Any non-null background is flagged `unsupported_background` | The mock template (with a background path) cannot be rendered yet |
+| D-4 | DRAFT band | Top 6 mm reserved (TEMPLATE_SPEC default) | Slots with `y < 9` mm are flagged `watermark_overlap` | Slots at y 6 to 9 mm pass the contract but fail the renderer, including the mock template's `name` and `ref` slots at y = 8 |
+| D-5 | Artifact hash | `artifact_sha256` is one string: sha256 of the draft manifest | The manifest has a key `artifact_sha256` holding a dict of per-file hashes (svg, pdf, preview). `verify.py` binds approval to sha256 of the manifest file as `reference_sha256` | Same meaning, different names. The API field means the manifest hash, not the manifest's own `artifact_sha256` dict |
+| D-6 | Approval record | `Review` with `user_id`, `reviewer_role`, `artifact_sha256`, `check_id` | `verify.py` expects `{decision, reviewer, reference_sha256}` and no check id | An API Review must be mapped to that shape before print verification. `check_id` is not checked by the code |
+| D-7 | Layout finding kinds | `slot_out_of_bounds`, `slot_overlap`, `font_too_small`, `required_field_empty`, `symbol_too_small`, `barcode_too_small` | `clipping`, `overlap`, `font_size`, `required_field`, `symbol_size_or_type`, `barcode_size`, plus `invalid_box`, `unsupported_characters`, `unavailable_font`, `unsupported_slot`, `invalid_size` | Kind strings differ. `Flag.kind` is a free string, so nothing breaks, but the UI should map them |
+| D-8 | Extra code limits | Not in the contract | Barcode module at least 0.25 mm; printable ASCII text only | Worth adding to TEMPLATE_SPEC if the team keeps them |
+| D-9 | Named SVG groups | `layer-background`, `layer-slots`, `slot-{id}`, `layer-watermark`, `layer-review` | Not emitted (ReportLab SVG without these ids) | Already listed as a gap in TEMPLATE_SPEC assumption 3 |
+| D-10 | Barcode decision names | `KEEP`, `REGENERATE`, `NEEDS_INPUT` | `barcode_action` `reused` or `generated`. NEEDS_INPUT is an `IdentifierRequired` or `ValueError` | Matches, as described in CR-9 |
+| D-11 | Test placeholder | `00000000000000` with `test_data` | Same, and refused without `test_mode` | Matches |
