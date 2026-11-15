@@ -62,6 +62,18 @@
 | E5b: best together: bge-large + heading on the dense side only, stem+prefix | E3d: rrf[bm25+stem, large+prefix] | CANDIDATE | +0.022 [-0.001, +0.048] | +0.023 | +0.013 | 4 of 5 | +0.012 / +0.013 | +0.019 / +0.020 | 0.021 |
 | E5b: best together: bge-large + heading on the dense side only, stem+prefix | hybrid | CANDIDATE | +0.099 [+0.057, +0.141] | +0.103 | +0.063 | 5 of 5 | +0.088 / +0.091 | +0.108 / +0.111 | 0.021 |
 | E5b: best together: bge-large + heading on the dense side only, stem+prefix | hybrid+stem+prefix | CANDIDATE | +0.074 [+0.037, +0.112] | +0.077 | +0.045 | 5 of 5 | +0.060 / +0.062 | +0.070 / +0.074 | 0.021 |
+| E6a: bge-ft on rrf[bm25+stem, large+prefix+head], top 30, replace | E5b: rrf[bm25+stem, large+prefix+head] (no rerank) | PENDING_GRADING | -0.104 [-0.176, -0.037] | -0.097 | -0.049 | 1 of 5 | -0.122 / -0.114 | -0.114 / -0.107 | 0.065 |
+| E6a: bge-ft on rrf[bm25+stem, large+prefix+head], top 30, replace | hybrid | PENDING_GRADING | -0.004 [-0.068, +0.056] | +0.006 | +0.014 | 4 of 5 | -0.022 / -0.012 | -0.007 / +0.004 | 0.065 |
+| E6a: bge-ft on rrf[bm25+stem, large+prefix+head], top 30, replace | hybrid+stem+prefix | PENDING_GRADING | -0.030 [-0.092, +0.030] | -0.020 | -0.003 | 2 of 5 | -0.051 / -0.040 | -0.044 / -0.033 | 0.065 |
+| E6b: bge-ft on rrf[bm25+stem, large+prefix+head], top 30, blend | E5b: rrf[bm25+stem, large+prefix+head] (no rerank) | DROPPED | -0.011 [-0.047, +0.023] | -0.007 | +0.021 | 2 of 5 | -0.024 / -0.020 | -0.018 / -0.014 | 0.018 |
+| E6b: bge-ft on rrf[bm25+stem, large+prefix+head], top 30, blend | hybrid | CANDIDATE | +0.088 [+0.046, +0.131] | +0.095 | +0.084 | 5 of 5 | +0.077 / +0.084 | +0.089 / +0.096 | 0.018 |
+| E6b: bge-ft on rrf[bm25+stem, large+prefix+head], top 30, blend | hybrid+stem+prefix | CANDIDATE | +0.063 [+0.024, +0.105] | +0.069 | +0.067 | 5 of 5 | +0.044 / +0.051 | +0.052 / +0.059 | 0.018 |
+| E6c: bge-reranker-base on rrf[bm25+stem, large+prefix+head], top 30, replace | E5b: rrf[bm25+stem, large+prefix+head] (no rerank) | PENDING_GRADING | -0.136 [-0.204, -0.072] | -0.101 | -0.053 | 0 of 5 | -0.156 / -0.123 | -0.148 / -0.112 | 0.104 |
+| E6c: bge-reranker-base on rrf[bm25+stem, large+prefix+head], top 30, replace | hybrid | PENDING_GRADING | -0.037 [-0.091, +0.017] | +0.002 | +0.010 | 2 of 5 | -0.053 / -0.019 | -0.040 / -0.001 | 0.104 |
+| E6c: bge-reranker-base on rrf[bm25+stem, large+prefix+head], top 30, replace | hybrid+stem+prefix | PENDING_GRADING | -0.063 [-0.122, -0.002] | -0.024 | -0.007 | 1 of 5 | -0.084 / -0.049 | -0.078 / -0.038 | 0.104 |
+| E6d: bge-reranker-base on rrf[bm25+stem, large+prefix+head], top 30, blend | E5b: rrf[bm25+stem, large+prefix+head] (no rerank) | DROPPED | -0.032 [-0.072, +0.006] | -0.026 | +0.013 | 1 of 5 | -0.044 / -0.038 | -0.039 / -0.033 | 0.040 |
+| E6d: bge-reranker-base on rrf[bm25+stem, large+prefix+head], top 30, blend | hybrid | CANDIDATE | +0.068 [+0.028, +0.109] | +0.077 | +0.076 | 4 of 5 | +0.056 / +0.063 | +0.069 / +0.078 | 0.040 |
+| E6d: bge-reranker-base on rrf[bm25+stem, large+prefix+head], top 30, blend | hybrid+stem+prefix | CANDIDATE | +0.042 [-0.000, +0.086] | +0.051 | +0.058 | 5 of 5 | +0.025 / +0.032 | +0.032 / +0.041 | 0.040 |
 <!-- summary:end -->
 
 ## E0: hybrid+stem+prefix vs hybrid (carried over from Step 17)
@@ -1510,3 +1522,291 @@ Pooled base nDCG@10 0.630, variant 0.704.
 Pooled base nDCG@10 0.681, variant 0.704.
 
 Build and ranking wall time: 0.2 min (embeddings cached on disk afterwards).
+
+## E6a: bge-ft on rrf[bm25+stem, large+prefix+head], top 30, replace
+
+**Decisions:** vs hybrid: PENDING_GRADING; vs hybrid+stem+prefix: PENDING_GRADING; vs E5b: rrf[bm25+stem, large+prefix+head] (no rerank): PENDING_GRADING.
+
+- What changed: data/processed/ft_reranker_bge reorders the top 30 of rrf[bm25+stem, large+prefix+head]; mode replace (sorted by cross-encoder score alone). Hits beyond depth 30 keep their first-stage order.
+- Parameters: model=data/processed/ft_reranker_bge, first_stage=rrf[bm25+stem, large+prefix+head], depth=30, mode=replace, alpha=-, max_length=512
+
+### vs hybrid
+
+**PENDING_GRADING.** unjudged@10 is 0.065, above 0.05; grade the pairs in results/step18_unjudged.csv, then re-judge.
+
+- Pooled over 57 queries: nDCG@10 unjudged=0 -0.004, condensed +0.006, Recall@20 +0.014.
+- Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.068, +0.056].
+- Folds won: 4 of 5.
+- Without q55: nDCG@10 gain -0.007 (unjudged=0) / +0.004 (condensed).
+- Leave-top-2-out gain: -0.022 / -0.012; top gainers: q01 +0.506, q39 +0.464.
+- unjudged@10: variant 0.065, base 0.000.
+
+| fold | n | base nDCG | variant nDCG | gain | base cond | variant cond | gain | won |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 12 | 0.563 | 0.616 | +0.053 | 0.563 | 0.634 | +0.071 | yes |
+| 2 | 12 | 0.677 | 0.706 | +0.030 | 0.677 | 0.707 | +0.030 | yes |
+| 3 | 11 | 0.519 | 0.522 | +0.003 | 0.519 | 0.529 | +0.010 | yes |
+| 4 | 11 | 0.653 | 0.660 | +0.007 | 0.653 | 0.679 | +0.026 | yes |
+| 5 | 11 | 0.607 | 0.483 | -0.124 | 0.607 | 0.492 | -0.115 |  |
+
+Pooled base nDCG@10 0.604, variant 0.600.
+
+### vs hybrid+stem+prefix
+
+**PENDING_GRADING.** unjudged@10 is 0.065, above 0.05; grade the pairs in results/step18_unjudged.csv, then re-judge.
+
+- Pooled over 57 queries: nDCG@10 unjudged=0 -0.030, condensed -0.020, Recall@20 -0.003.
+- Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.092, +0.030].
+- Folds won: 2 of 5.
+- Without q55: nDCG@10 gain -0.044 (unjudged=0) / -0.033 (condensed).
+- Leave-top-2-out gain: -0.051 / -0.040; top gainers: q55 +0.753, q39 +0.341.
+- unjudged@10: variant 0.065, base 0.000.
+
+| fold | n | base nDCG | variant nDCG | gain | base cond | variant cond | gain | won |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 12 | 0.607 | 0.616 | +0.009 | 0.607 | 0.634 | +0.027 | yes |
+| 2 | 12 | 0.650 | 0.706 | +0.056 | 0.650 | 0.707 | +0.057 | yes |
+| 3 | 11 | 0.560 | 0.522 | -0.038 | 0.560 | 0.529 | -0.031 |  |
+| 4 | 11 | 0.744 | 0.660 | -0.084 | 0.744 | 0.679 | -0.065 |  |
+| 5 | 11 | 0.588 | 0.483 | -0.105 | 0.588 | 0.492 | -0.097 |  |
+
+Pooled base nDCG@10 0.630, variant 0.600.
+
+### vs E5b: rrf[bm25+stem, large+prefix+head] (no rerank)
+
+**PENDING_GRADING.** unjudged@10 is 0.065, above 0.05; grade the pairs in results/step18_unjudged.csv, then re-judge.
+
+- Pooled over 57 queries: nDCG@10 unjudged=0 -0.104, condensed -0.097, Recall@20 -0.049.
+- Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.176, -0.037].
+- Folds won: 1 of 5.
+- Without q55: nDCG@10 gain -0.114 (unjudged=0) / -0.107 (condensed).
+- Leave-top-2-out gain: -0.122 / -0.114; top gainers: q55 +0.484, q39 +0.296.
+- unjudged@10: variant 0.065, base 0.021.
+
+| fold | n | base nDCG | variant nDCG | gain | base cond | variant cond | gain | won |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 12 | 0.609 | 0.616 | +0.007 | 0.615 | 0.634 | +0.018 | yes |
+| 2 | 12 | 0.770 | 0.706 | -0.064 | 0.770 | 0.707 | -0.063 |  |
+| 3 | 11 | 0.656 | 0.522 | -0.134 | 0.662 | 0.529 | -0.133 |  |
+| 4 | 11 | 0.782 | 0.660 | -0.121 | 0.782 | 0.679 | -0.102 |  |
+| 5 | 11 | 0.704 | 0.483 | -0.221 | 0.708 | 0.492 | -0.216 |  |
+
+Pooled base nDCG@10 0.704, variant 0.600.
+
+Wall time of the scoring pass (shared by E1a to E1h): 40.7 min for 1710 new pairs, 0.73 pairs/s, batch 8, 6 torch threads, on a machine shared with other jobs.
+
+## E6b: bge-ft on rrf[bm25+stem, large+prefix+head], top 30, blend
+
+**Decisions:** vs hybrid: CANDIDATE; vs hybrid+stem+prefix: CANDIDATE; vs E5b: rrf[bm25+stem, large+prefix+head] (no rerank): DROPPED.
+
+- What changed: data/processed/ft_reranker_bge reorders the top 30 of rrf[bm25+stem, large+prefix+head]; mode blend (alpha 0.5: 0.5 x min-max cross-encoder score + 0.5 x min-max first-stage score). Hits beyond depth 30 keep their first-stage order.
+- Parameters: model=data/processed/ft_reranker_bge, first_stage=rrf[bm25+stem, large+prefix+head], depth=30, mode=blend, alpha=0.5, max_length=512
+
+### vs hybrid
+
+**CANDIDATE.** gain +0.088 / +0.095, wins 5 of 5 folds, survives leave-top-2-out; a candidate only, since passing CV is not evidence of a real gain (E0 passed CV and failed held-out in Step 17).
+
+- Pooled over 57 queries: nDCG@10 unjudged=0 +0.088, condensed +0.095, Recall@20 +0.084.
+- Bootstrap 95% interval of the unjudged=0 gain (information only): [+0.046, +0.131].
+- Folds won: 5 of 5.
+- Without q55: nDCG@10 gain +0.089 (unjudged=0) / +0.096 (condensed).
+- Leave-top-2-out gain: +0.077 / +0.084; top gainers: q15 +0.391, q40 +0.389.
+- unjudged@10: variant 0.018, base 0.000.
+
+| fold | n | base nDCG | variant nDCG | gain | base cond | variant cond | gain | won |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 12 | 0.563 | 0.645 | +0.083 | 0.563 | 0.652 | +0.089 | yes |
+| 2 | 12 | 0.677 | 0.765 | +0.088 | 0.677 | 0.765 | +0.088 | yes |
+| 3 | 11 | 0.519 | 0.603 | +0.084 | 0.519 | 0.614 | +0.095 | yes |
+| 4 | 11 | 0.653 | 0.790 | +0.137 | 0.653 | 0.804 | +0.150 | yes |
+| 5 | 11 | 0.607 | 0.657 | +0.050 | 0.607 | 0.660 | +0.054 | yes |
+
+Pooled base nDCG@10 0.604, variant 0.692.
+
+### vs hybrid+stem+prefix
+
+**CANDIDATE.** gain +0.063 / +0.069, wins 5 of 5 folds, survives leave-top-2-out; a candidate only, since passing CV is not evidence of a real gain (E0 passed CV and failed held-out in Step 17).
+
+- Pooled over 57 queries: nDCG@10 unjudged=0 +0.063, condensed +0.069, Recall@20 +0.067.
+- Bootstrap 95% interval of the unjudged=0 gain (information only): [+0.024, +0.105].
+- Folds won: 5 of 5.
+- Without q55: nDCG@10 gain +0.052 (unjudged=0) / +0.059 (condensed).
+- Leave-top-2-out gain: +0.044 / +0.051; top gainers: q55 +0.651, q21 +0.491.
+- unjudged@10: variant 0.018, base 0.000.
+
+| fold | n | base nDCG | variant nDCG | gain | base cond | variant cond | gain | won |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 12 | 0.607 | 0.645 | +0.039 | 0.607 | 0.652 | +0.045 | yes |
+| 2 | 12 | 0.650 | 0.765 | +0.115 | 0.650 | 0.765 | +0.115 | yes |
+| 3 | 11 | 0.560 | 0.603 | +0.043 | 0.560 | 0.614 | +0.054 | yes |
+| 4 | 11 | 0.744 | 0.790 | +0.046 | 0.744 | 0.804 | +0.059 | yes |
+| 5 | 11 | 0.588 | 0.657 | +0.069 | 0.588 | 0.660 | +0.072 | yes |
+
+Pooled base nDCG@10 0.630, variant 0.692.
+
+### vs E5b: rrf[bm25+stem, large+prefix+head] (no rerank)
+
+**DROPPED.** gain -0.011 (unjudged=0) / -0.007 (condensed) is not above 0.01.
+
+- Pooled over 57 queries: nDCG@10 unjudged=0 -0.011, condensed -0.007, Recall@20 +0.021.
+- Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.047, +0.023].
+- Folds won: 2 of 5.
+- Without q55: nDCG@10 gain -0.018 (unjudged=0) / -0.014 (condensed).
+- Leave-top-2-out gain: -0.024 / -0.020; top gainers: q55 +0.382, q29 +0.312.
+- unjudged@10: variant 0.018, base 0.021.
+
+| fold | n | base nDCG | variant nDCG | gain | base cond | variant cond | gain | won |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 12 | 0.609 | 0.645 | +0.036 | 0.615 | 0.652 | +0.036 | yes |
+| 2 | 12 | 0.770 | 0.765 | -0.005 | 0.770 | 0.765 | -0.005 |  |
+| 3 | 11 | 0.656 | 0.603 | -0.053 | 0.662 | 0.614 | -0.047 |  |
+| 4 | 11 | 0.782 | 0.790 | +0.009 | 0.782 | 0.804 | +0.022 | yes |
+| 5 | 11 | 0.704 | 0.657 | -0.047 | 0.708 | 0.660 | -0.048 |  |
+
+Pooled base nDCG@10 0.704, variant 0.692.
+
+Wall time of the scoring pass (shared by E1a to E1h): 40.7 min for 1710 new pairs, 0.73 pairs/s, batch 8, 6 torch threads, on a machine shared with other jobs.
+
+## E6c: bge-reranker-base on rrf[bm25+stem, large+prefix+head], top 30, replace
+
+**Decisions:** vs hybrid: PENDING_GRADING; vs hybrid+stem+prefix: PENDING_GRADING; vs E5b: rrf[bm25+stem, large+prefix+head] (no rerank): PENDING_GRADING.
+
+- What changed: BAAI/bge-reranker-base reorders the top 30 of rrf[bm25+stem, large+prefix+head]; mode replace (sorted by cross-encoder score alone). Hits beyond depth 30 keep their first-stage order.
+- Parameters: model=BAAI/bge-reranker-base, first_stage=rrf[bm25+stem, large+prefix+head], depth=30, mode=replace, alpha=-, max_length=512
+
+### vs hybrid
+
+**PENDING_GRADING.** unjudged@10 is 0.104, above 0.05; grade the pairs in results/step18_unjudged.csv, then re-judge.
+
+- Pooled over 57 queries: nDCG@10 unjudged=0 -0.037, condensed +0.002, Recall@20 +0.010.
+- Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.091, +0.017].
+- Folds won: 2 of 5.
+- Without q55: nDCG@10 gain -0.040 (unjudged=0) / -0.001 (condensed).
+- Leave-top-2-out gain: -0.053 / -0.019; top gainers: q01 +0.458, q39 +0.369.
+- unjudged@10: variant 0.104, base 0.000.
+
+| fold | n | base nDCG | variant nDCG | gain | base cond | variant cond | gain | won |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 12 | 0.563 | 0.608 | +0.045 | 0.563 | 0.666 | +0.104 | yes |
+| 2 | 12 | 0.677 | 0.602 | -0.074 | 0.677 | 0.642 | -0.034 |  |
+| 3 | 11 | 0.519 | 0.553 | +0.034 | 0.519 | 0.588 | +0.069 | yes |
+| 4 | 11 | 0.653 | 0.586 | -0.067 | 0.653 | 0.631 | -0.022 |  |
+| 5 | 11 | 0.607 | 0.480 | -0.127 | 0.607 | 0.493 | -0.114 |  |
+
+Pooled base nDCG@10 0.604, variant 0.567.
+
+### vs hybrid+stem+prefix
+
+**PENDING_GRADING.** unjudged@10 is 0.104, above 0.05; grade the pairs in results/step18_unjudged.csv, then re-judge.
+
+- Pooled over 57 queries: nDCG@10 unjudged=0 -0.063, condensed -0.024, Recall@20 -0.007.
+- Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.122, -0.002].
+- Folds won: 1 of 5.
+- Without q55: nDCG@10 gain -0.078 (unjudged=0) / -0.038 (condensed).
+- Leave-top-2-out gain: -0.084 / -0.049; top gainers: q55 +0.777, q06 +0.267.
+- unjudged@10: variant 0.104, base 0.000.
+
+| fold | n | base nDCG | variant nDCG | gain | base cond | variant cond | gain | won |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 12 | 0.607 | 0.608 | +0.001 | 0.607 | 0.666 | +0.060 | yes |
+| 2 | 12 | 0.650 | 0.602 | -0.048 | 0.650 | 0.642 | -0.008 |  |
+| 3 | 11 | 0.560 | 0.553 | -0.007 | 0.560 | 0.588 | +0.028 |  |
+| 4 | 11 | 0.744 | 0.586 | -0.158 | 0.744 | 0.631 | -0.113 |  |
+| 5 | 11 | 0.588 | 0.480 | -0.108 | 0.588 | 0.493 | -0.096 |  |
+
+Pooled base nDCG@10 0.630, variant 0.567.
+
+### vs E5b: rrf[bm25+stem, large+prefix+head] (no rerank)
+
+**PENDING_GRADING.** unjudged@10 is 0.104, above 0.05; grade the pairs in results/step18_unjudged.csv, then re-judge.
+
+- Pooled over 57 queries: nDCG@10 unjudged=0 -0.136, condensed -0.101, Recall@20 -0.053.
+- Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.204, -0.072].
+- Folds won: 0 of 5.
+- Without q55: nDCG@10 gain -0.148 (unjudged=0) / -0.112 (condensed).
+- Leave-top-2-out gain: -0.156 / -0.123; top gainers: q55 +0.508, q56 +0.291.
+- unjudged@10: variant 0.104, base 0.021.
+
+| fold | n | base nDCG | variant nDCG | gain | base cond | variant cond | gain | won |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 12 | 0.609 | 0.608 | -0.002 | 0.615 | 0.666 | +0.051 |  |
+| 2 | 12 | 0.770 | 0.602 | -0.167 | 0.770 | 0.642 | -0.128 |  |
+| 3 | 11 | 0.656 | 0.553 | -0.103 | 0.662 | 0.588 | -0.073 |  |
+| 4 | 11 | 0.782 | 0.586 | -0.195 | 0.782 | 0.631 | -0.151 |  |
+| 5 | 11 | 0.704 | 0.480 | -0.224 | 0.708 | 0.493 | -0.216 |  |
+
+Pooled base nDCG@10 0.704, variant 0.567.
+
+Wall time of the scoring pass (shared by E1a to E1h): 7.6 min for 183 new pairs, 0.53 pairs/s, batch 8, 6 torch threads, on a machine shared with other jobs.
+
+## E6d: bge-reranker-base on rrf[bm25+stem, large+prefix+head], top 30, blend
+
+**Decisions:** vs hybrid: CANDIDATE; vs hybrid+stem+prefix: CANDIDATE; vs E5b: rrf[bm25+stem, large+prefix+head] (no rerank): DROPPED.
+
+- What changed: BAAI/bge-reranker-base reorders the top 30 of rrf[bm25+stem, large+prefix+head]; mode blend (alpha 0.5: 0.5 x min-max cross-encoder score + 0.5 x min-max first-stage score). Hits beyond depth 30 keep their first-stage order.
+- Parameters: model=BAAI/bge-reranker-base, first_stage=rrf[bm25+stem, large+prefix+head], depth=30, mode=blend, alpha=0.5, max_length=512
+
+### vs hybrid
+
+**CANDIDATE.** gain +0.068 / +0.077, wins 4 of 5 folds, survives leave-top-2-out; a candidate only, since passing CV is not evidence of a real gain (E0 passed CV and failed held-out in Step 17).
+
+- Pooled over 57 queries: nDCG@10 unjudged=0 +0.068, condensed +0.077, Recall@20 +0.076.
+- Bootstrap 95% interval of the unjudged=0 gain (information only): [+0.028, +0.109].
+- Folds won: 4 of 5.
+- Without q55: nDCG@10 gain +0.069 (unjudged=0) / +0.078 (condensed).
+- Leave-top-2-out gain: +0.056 / +0.063; top gainers: q24 +0.403, q39 +0.390.
+- unjudged@10: variant 0.040, base 0.000.
+
+| fold | n | base nDCG | variant nDCG | gain | base cond | variant cond | gain | won |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 12 | 0.563 | 0.646 | +0.084 | 0.563 | 0.661 | +0.098 | yes |
+| 2 | 12 | 0.677 | 0.715 | +0.038 | 0.677 | 0.723 | +0.047 | yes |
+| 3 | 11 | 0.519 | 0.637 | +0.118 | 0.519 | 0.643 | +0.124 | yes |
+| 4 | 11 | 0.653 | 0.766 | +0.113 | 0.653 | 0.778 | +0.124 | yes |
+| 5 | 11 | 0.607 | 0.594 | -0.013 | 0.607 | 0.598 | -0.009 |  |
+
+Pooled base nDCG@10 0.604, variant 0.672.
+
+### vs hybrid+stem+prefix
+
+**CANDIDATE.** gain +0.042 / +0.051, wins 5 of 5 folds, survives leave-top-2-out; a candidate only, since passing CV is not evidence of a real gain (E0 passed CV and failed held-out in Step 17).
+
+- Pooled over 57 queries: nDCG@10 unjudged=0 +0.042, condensed +0.051, Recall@20 +0.058.
+- Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.000, +0.086].
+- Folds won: 5 of 5.
+- Without q55: nDCG@10 gain +0.032 (unjudged=0) / +0.041 (condensed).
+- Leave-top-2-out gain: +0.025 / +0.032; top gainers: q55 +0.627, q24 +0.403.
+- unjudged@10: variant 0.040, base 0.000.
+
+| fold | n | base nDCG | variant nDCG | gain | base cond | variant cond | gain | won |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 12 | 0.607 | 0.646 | +0.040 | 0.607 | 0.661 | +0.054 | yes |
+| 2 | 12 | 0.650 | 0.715 | +0.065 | 0.650 | 0.723 | +0.073 | yes |
+| 3 | 11 | 0.560 | 0.637 | +0.077 | 0.560 | 0.643 | +0.083 | yes |
+| 4 | 11 | 0.744 | 0.766 | +0.022 | 0.744 | 0.778 | +0.033 | yes |
+| 5 | 11 | 0.588 | 0.594 | +0.006 | 0.588 | 0.598 | +0.009 | yes |
+
+Pooled base nDCG@10 0.630, variant 0.672.
+
+### vs E5b: rrf[bm25+stem, large+prefix+head] (no rerank)
+
+**DROPPED.** gain -0.032 (unjudged=0) / -0.026 (condensed) is not above 0.01.
+
+- Pooled over 57 queries: nDCG@10 unjudged=0 -0.032, condensed -0.026, Recall@20 +0.013.
+- Bootstrap 95% interval of the unjudged=0 gain (information only): [-0.072, +0.006].
+- Folds won: 1 of 5.
+- Without q55: nDCG@10 gain -0.039 (unjudged=0) / -0.033 (condensed).
+- Leave-top-2-out gain: -0.044 / -0.038; top gainers: q55 +0.358, q24 +0.273.
+- unjudged@10: variant 0.040, base 0.021.
+
+| fold | n | base nDCG | variant nDCG | gain | base cond | variant cond | gain | won |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 12 | 0.609 | 0.646 | +0.037 | 0.615 | 0.661 | +0.045 | yes |
+| 2 | 12 | 0.770 | 0.715 | -0.055 | 0.770 | 0.723 | -0.047 |  |
+| 3 | 11 | 0.656 | 0.637 | -0.019 | 0.662 | 0.643 | -0.019 |  |
+| 4 | 11 | 0.782 | 0.766 | -0.016 | 0.782 | 0.778 | -0.004 |  |
+| 5 | 11 | 0.704 | 0.594 | -0.111 | 0.708 | 0.598 | -0.110 |  |
+
+Pooled base nDCG@10 0.704, variant 0.672.
+
+Wall time of the scoring pass (shared by E1a to E1h): 7.6 min for 183 new pairs, 0.53 pairs/s, batch 8, 6 torch threads, on a machine shared with other jobs.
