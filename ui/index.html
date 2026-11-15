@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LabelLens - Medical Product Packaging and Label Compliance</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Mandatory Demo Banner Across Every View -->
+    <header class="demo-banner">
+      <span class="demo-banner-badge">DEMO</span>
+      <span>DEMO MODE: Sample data for course evaluation. Not for clinical use.</span>
+    </header>
+
+    <!-- App Top Navigation Bar -->
+    <nav class="app-header">
+      <div class="header-left">
+        <a href="#" class="brand-logo" id="brandLogo">
+          <div class="brand-logo-mark">LL</div>
+          <span>LabelLens</span>
+        </a>
+
+        <div class="nav-links">
+          <a href="#" class="nav-link active" id="navPortal">Overview</a>
+          <a href="#" class="nav-link" id="navPublic">Scan & Understand</a>
+          <a href="#" class="nav-link" id="navProfessional">Professional Workspace</a>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <a href="#" class="text-sm text-muted" style="text-decoration: none;">Help</a>
+        
+        <!-- Professional Workspace User Avatar Stub (mock: professional/session/me.json) -->
+        <div class="user-badge hidden" id="headerUserBadge">
+          <div class="user-avatar">JD</div>
+          <div class="text-xs">
+            <span class="font-semibold" style="display: block;">Demo Editor</span>
+            <span class="text-muted">editor</span>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="main-content">
+      
+      <!-- ============================================================== -->
+      <!-- ENTRY PORTAL VIEW: Two Clear Entry Points                     -->
+      <!-- ============================================================== -->
+      <section id="viewPortal">
+        <div style="text-align: center; max-width: 760px; margin: 32px auto 20px auto;">
+          <h1>Medical Packaging Intelligence</h1>
+          <p class="text-muted" style="margin-top: 12px; font-size: 1.05rem;">
+            Unified information retrieval, automated regulatory compliance checks, and artwork change management.
+          </p>
+        </div>
+
+        <div class="portal-grid">
+          <!-- Entry Point 1: Public Medicine Mode -->
+          <div class="portal-card" id="portalEntryPublic">
+            <div>
+              <div class="flex-between">
+                <span class="badge badge-teal">Public Medicine Mode</span>
+                <span class="text-xs text-muted">21 CFR 201, 208, 211</span>
+              </div>
+              <h2 style="margin-top: 16px;">Scan & Understand</h2>
+              <p class="text-muted text-sm" style="margin-top: 8px;">
+                Designed for patients and caregivers. Scan prescription packaging, verify text against official FDA reference labels, and receive plain-language answers with cited regulatory evidence.
+              </p>
+
+              <div class="portal-badge-row">
+                <span class="badge badge-teal">Photo Extraction</span>
+                <span class="badge badge-blue">Reference Matching</span>
+                <span class="badge badge-warning">Citations & Abstention</span>
+              </div>
+            </div>
+
+            <div style="margin-top: 24px;">
+              <div class="notice-banner notice-warning" style="padding: 10px; margin-bottom: 16px;">
+                <div class="notice-icon" style="width: 18px; height: 18px; font-size: 0.75rem;">i</div>
+                <div class="notice-text" style="font-size: 0.78rem;">
+                  Authenticity not verified. Based on a reference label match.
+                </div>
+              </div>
+              <button class="btn btn-primary" style="width: 100%;" type="button">
+                Open Public Mode
+              </button>
+            </div>
+          </div>
+
+          <!-- Entry Point 2: Professional Device Workspace -->
+          <div class="portal-card" id="portalEntryProfessional">
+            <div>
+              <div class="flex-between">
+                <span class="badge badge-blue">Professional Workspace</span>
+                <span class="text-xs text-muted">21 CFR 801, 820, 830</span>
+              </div>
+              <h2 style="margin-top: 16px;">Device Label Compliance</h2>
+              <p class="text-muted text-sm" style="margin-top: 8px;">
+                Designed for regulatory affairs and packaging engineers. End-to-end device label review, change impact assessment, deterministic template artwork draft generation, closed-loop verification, and audit trail.
+              </p>
+
+              <div class="portal-badge-row">
+                <span class="badge badge-blue">Label Inspection</span>
+                <span class="badge badge-purple">Change Impact</span>
+                <span class="badge badge-test">UDI / GS1 [TEST]</span>
+                <span class="badge badge-draft">Draft Templates</span>
+              </div>
+            </div>
+
+            <div style="margin-top: 24px;">
+              <div class="text-xs text-muted" style="margin-bottom: 16px;">
+                Signed in as: <strong>Demo Editor (JD)</strong> | Role: <strong>editor</strong>
+              </div>
+              <button class="btn btn-primary" style="width: 100%;" type="button">
+                Open Professional Workspace
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- PUBLIC VIEW: Scan, Understand, and Ask                         -->
+      <!-- ============================================================== -->
+      <section id="viewPublic" class="hidden">
+        <!-- Notice banner on every public result -->
+        <div class="notice-banner notice-warning">
+          <div class="notice-icon">i</div>
+          <div>
+            <div class="notice-title">Authenticity not verified</div>
+            <div class="notice-text">This information is based on a reference label match and may not confirm that your product is genuine.</div>
+          </div>
+        </div>
+
+        <!-- Public Sub-navigation -->
+        <div class="flex-row" style="margin-bottom: 24px; border-bottom: 1px solid var(--color-border); padding-bottom: 12px; gap: 12px;">
+          <button class="btn btn-sm btn-secondary public-nav-btn" data-screen="P1 Scan and Understand">1. Scan & Understand</button>
+          <button class="btn btn-sm btn-secondary public-nav-btn active" data-screen="P2 Product information">2. Product information</button>
+          <button class="btn btn-sm btn-secondary public-nav-btn" data-screen="P3 Ask about this label">3. Ask about this label</button>
+        </div>
+
+        <!-- Dynamic Container Driven by data.js and state-switcher.js -->
+        <div id="publicDynamicContent">
+          <!-- Populated by app.js -->
+        </div>
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- PROFESSIONAL VIEW: Sidebar + Workspace                         -->
+      <!-- ============================================================== -->
+      <section id="viewProfessional" class="hidden">
+        <div class="workspace-layout">
+          <!-- Left Workspace Sidebar -->
+          <aside class="workspace-sidebar">
+            <div class="sidebar-section-title">Navigation</div>
+            <a class="sidebar-link" data-screen="D1 Products">
+              <span>📦</span> Products
+            </a>
+            <a class="sidebar-link active" data-screen="D4 Inspect">
+              <span>🔍</span> Inspect
+            </a>
+            <a class="sidebar-link" data-screen="D5 Evidence">
+              <span>📚</span> Evidence
+            </a>
+            <a class="sidebar-link" data-screen="D6 Changes">
+              <span>🔄</span> Changes
+            </a>
+            <a class="sidebar-link" data-screen="D9 History">
+              <span>🕒</span> History
+            </a>
+
+            <div class="sidebar-section-title" style="margin-top: 12px;">Workflows</div>
+            <a class="sidebar-link" data-screen="D2 Template setup">
+              <span>📐</span> Template setup
+            </a>
+            <a class="sidebar-link" data-screen="D3 Upload or scan">
+              <span>📤</span> Upload or scan
+            </a>
+            <a class="sidebar-link" data-screen="D7 Review">
+              <span>✅</span> Review & approve
+            </a>
+            <a class="sidebar-link" data-screen="D8 Export">
+              <span>📥</span> Export package
+            </a>
+            <a class="sidebar-link" data-screen="D10 Print verification">
+              <span>🖨️</span> Print verification
+            </a>
+          </aside>
+
+          <!-- Main Dynamic Workspace Content -->
+          <div id="professionalDynamicContent">
+            <!-- Populated by app.js -->
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Central Data Layer -->
+  <script src="js/data.js"></script>
+  <!-- Floating Dev State Switcher -->
+  <script src="js/state-switcher.js"></script>
+  <!-- Main Application Script -->
+  <script src="js/app.js"></script>
+</body>
+</html>
