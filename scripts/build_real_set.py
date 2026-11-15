@@ -72,6 +72,11 @@ FIELDS = (
 )
 TRUTH_FIELDS = ("product_name", "ndc", "strength", "manufacturer", "labeler", "lot", "expiry")
 Fetch = Callable[[str], bytes]
+GIT_ATTRIBUTES = (
+    "# Downloaded XML is original evidence: preserve every byte, including whitespace.\n"
+    "source/*.xml -text -whitespace\nimages/* -text\n*.json text eol=lf\n"
+    "truth.csv text eol=lf\n*.md text eol=lf\n"
+)
 
 
 class DownloadError(RuntimeError):
@@ -351,12 +356,13 @@ def truth_row(record: dict[str, Any]) -> dict[str, str]:
 def write_snapshot(output: Path, manifest: dict[str, Any]) -> None:
     """Save the manifest and CSV from the same records, never from independent lists."""
     output.mkdir(parents=True, exist_ok=True)
+    (output / ".gitattributes").write_text(GIT_ATTRIBUTES, encoding="utf-8")
     for record in manifest["labels"]:
         row = truth_row(record)
         record["fields_available"] = [field for field in TRUTH_FIELDS if row[field]]
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     with (output / "truth.csv").open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=FIELDS)
+        writer = csv.DictWriter(handle, fieldnames=FIELDS, lineterminator="\n")
         writer.writeheader()
         writer.writerows(truth_row(record) for record in manifest["labels"])
 

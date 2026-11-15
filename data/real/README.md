@@ -46,6 +46,7 @@ computed from these files without additional annotations.
 - `images/`: unmodified original JPEG, PNG or GIF package-artwork images.
 - `source/`: unmodified SPL XML from each selected versioned ZIP.
 - `candidates.json`: frozen seeded candidate order and discovery URLs.
+- `.gitattributes`: preserves original XML/image bytes across Git checkouts and fixes metadata line endings to LF.
 
 A selected record's `media_id`, `section_id` and `section_text` make its image
 association inspectable. In the XML, inspect `setId` and `versionNumber`, the
@@ -150,7 +151,7 @@ Executed offline dataset tests:
 
 ```text
 /opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider tests/test_real_set.py
-16 passed in 0.58s
+17 passed in 0.70s
 ```
 
 These checks open every image, verify hashes and source/CSV agreement, reject
@@ -161,3 +162,10 @@ the complete 60-record set was validated locally. No OCR or barcode decoding was
 run on these real images. The existing device/photo evaluator is not changed;
 this source-backed medicine set needs its own evaluation mapping and any desired
 pixel/symbol annotations before scoring those tasks.
+
+The final portability check simulates Git `core.autocrlf=true` on a temporary
+repository and confirms mixed-ending source XML survives staging and checkout
+byte for byte. Source XML is exempt from whitespace cleanup because its original
+bytes are evidence; its hashes remain checked. The generated CSV uses LF on all
+platforms. This is a Git line-ending simulation on macOS, not a Windows runtime
+test. The builder and rebuilder emit the same dataset-local Git attributes.

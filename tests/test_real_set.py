@@ -112,6 +112,7 @@ def test_collect_validate_and_byte_identical_rebuild(bundle: bytes, tmp_path: Pa
     output = tmp_path / "dataset"
     manifest = builder.collect(output, 1, 42, fetch)
     assert manifest["complete"]
+    assert b"\r\n" not in (output / "truth.csv").read_bytes()
     assert manifest["labels"][0]["fields_available"] == ["product_name", "ndc", "strength", "labeler"]
     summary = builder.validate_dataset(output)
     assert summary["labels"] == 1 and summary["ocr_run"] is False
@@ -238,3 +239,38 @@ def test_unverified_fields_cannot_be_marked_as_pixel_truth(bundle: bytes, tmp_pa
     builder.write_snapshot(tmp_path, manifest)
     with pytest.raises(ValueError, match="pixel-verification"):
         builder.validate_dataset(tmp_path)
+
+
+def test_git_windows_line_endings_preserve_source_bytes(tmp_path: Path) -> None:
+    """Simulate Git autocrlf=true without claiming execution on a Windows host."""
+    import shutil
+    import subprocess
+
+    executable = shutil.which("git")
+    if executable is None:
+        pytest.skip("Git is needed for the checkout line-ending simulation")
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    subtree = repo / "data" / "real"
+    source = subtree / "source" / "fixture.xml"
+    source.parent.mkdir(parents=True)
+    original = b"<original>  \r\n  source bytes \n</original>\r\n"
+    source.write_bytes(original)
+    attributes = Path("data/real/.gitattributes").read_bytes()
+    assert attributes == builder.GIT_ATTRIBUTES.encode("utf-8")
+    (subtree / ".gitattributes").write_bytes(attributes)
+    subprocess.run([executable, "init", "-q", str(repo)], check=True, capture_output=True)
+    subprocess.run(
+        [executable, "-C", str(repo), "-c", "core.autocrlf=true", "add", "."], check=True, capture_output=True
+    )
+    stored = subprocess.run(
+        [executable, "-C", str(repo), "show", ":data/real/source/fixture.xml"], check=True, capture_output=True
+    ).stdout
+    assert stored == original
+    checkout = tmp_path / "checkout"
+    subprocess.run(
+        [executable, "-C", str(repo), "-c", "core.autocrlf=true", "checkout-index", "--all", f"--prefix={checkout}/"],
+        check=True,
+        capture_output=True,
+    )
+    assert (checkout / "data/real/source/fixture.xml").read_bytes() == original
