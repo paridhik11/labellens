@@ -13,6 +13,11 @@ from typing import Mapping
 import numpy as np
 import zxingcpp
 
+from src.common.schemas import IdentifierRequired
+
+# GS1 General Specifications 26.0: sections 3.2, 7.8 (separators),
+# 7.9 (check digits), 7.11 (character set 82), and 7.12 (date century).
+# https://ref.gs1.org/standards/genspecs/26.0.0/
 GROUP_SEPARATOR = "\x1d"
 VARIABLE_CHARACTERS = frozenset(
     string.ascii_letters + string.digits + "!\"%&'()*+,-./:;<=>?_"
@@ -20,7 +25,7 @@ VARIABLE_CHARACTERS = frozenset(
 AI_ORDER = ("01", "17", "10", "21")
 FIXED_LENGTHS = {"01": 14, "17": 6}
 REQUIRED_AIS = ("01", "17", "10")
-_HRI_PATTERN = re.compile(r"(?<!\\)\((01|17|10|21)\)")
+_HRI_PATTERN = re.compile(r"(?<!\\)\(([0-9]{2,4})\)")
 
 
 class GS1Symbology(StrEnum):
@@ -74,7 +79,9 @@ def validate_gtin(value: str) -> None:
         raise ValueError("AI 01 has an invalid check digit")
 
 
-def validate_expiry(value: str, *, healthcare: bool = True) -> date:
+def validate_expiry(
+    value: str, *, healthcare: bool = True, reference_date: date | None = None
+) -> date:
     """Validate AI 17 YYMMDD, returning the interpreted calendar date.
 
     Healthcare expiry dates must use a real day, per GS1 General
@@ -83,7 +90,11 @@ def validate_expiry(value: str, *, healthcare: bool = True) -> date:
     """
     if not isinstance(value, str) or len(value) != 6 or not value.isascii() or not value.isdigit():
         raise ValueError("AI 17 requires exactly six ASCII digits in YYMMDD form")
-    year, month, day = 2000 + int(value[:2]), int(value[2:4]), int(value[4:])
+    # GS1 section 7.12: 49 years in the past through 50 in the future.
+    reference_year = (reference_date or date.today()).year
+    first_year = reference_year - 49
+    year = first_year + (int(value[:2]) - first_year) % 100
+    month, day = int(value[2:4]), int(value[4:])
     if day == 0 and healthcare:
         raise ValueError("AI 17 day 00 is not permitted for regulated healthcare products")
     if day == 0:
@@ -104,7 +115,7 @@ def validate_elements(
         raise ValueError("GS1 elements must be a mapping of AI strings to values")
     unsupported = set(elements) - set(AI_ORDER)
     if unsupported:
-        raise ValueError(f"Unsupported GS1 AIs: {', '.join(sorted(unsupported))}")
+        raise ValueError(f"Unsupported GS1 AIs: {', '.join(sorted(map(str, unsupported)))}")
     normalized: dict[str, str] = {}
     for ai in AI_ORDER:
         if ai not in elements:
@@ -154,6 +165,8 @@ def parse_gs1(payload: str, *, healthcare: bool = True) -> dict[str, str]:
         values: dict[str, str] = {}
         for index, match in enumerate(matches):
             ai = match.group(1)
+            if ai not in AI_ORDER:
+                raise ValueError(f"Unsupported AI {ai}")
             if ai in values:
                 raise ValueError(f"Duplicate AI {ai}")
             start = match.end()
@@ -187,6 +200,8 @@ def parse_gs1(payload: str, *, healthcare: bool = True) -> dict[str, str]:
             offset = end
             if offset < len(payload):
                 offset += 1
+                if offset == len(payload):
+                    raise ValueError("Trailing GS separator has no following AI")
         values[ai] = value
     return validate_elements(values, healthcare=healthcare)
 
@@ -209,13 +224,18 @@ def encode_gs1(
     symbology: GS1Symbology = GS1Symbology.DATA_MATRIX,
     *,
     scale: int = 5,
+    test_data: bool = False,
 ) -> EncodedBarcode:
     """Encode and decode-check a GS1 DataMatrix or GS1-128 barcode."""
+    if not elements.get("01"):
+        raise IdentifierRequired("Enter the allocated GTIN for AI 01")
     normalized = validate_elements(elements)
+    if normalized["01"] == "00000000000000" and not test_data:
+        raise IdentifierRequired("All-zero GTIN is permitted only with test_data=True")
     missing = set(REQUIRED_AIS) - set(normalized)
     if missing:
         raise ValueError(f"Missing required GS1 AIs: {', '.join(sorted(missing))}")
-    if scale < 1:
+    if isinstance(scale, bool) or not isinstance(scale, int) or scale < 1:
         raise ValueError("Barcode scale must be at least 1")
     if not isinstance(symbology, GS1Symbology):
         symbology = GS1Symbology(symbology)
@@ -226,10 +246,14 @@ def encode_gs1(
     barcode = zxingcpp.create_barcode(_writer_hri(normalized), barcode_format, gs1=True)
     image = np.asarray(barcode.to_image(scale=scale, add_hrt=True, add_quiet_zones=True))
     decoded = zxingcpp.read_barcodes(image)
-    if len(decoded) != 1 or decoded[0].content_type != zxingcpp.ContentType.GS1:
+    if (
+        len(decoded) != 1
+        or decoded[0].content_type != zxingcpp.ContentType.GS1
+        or decoded[0].format != barcode_format
+    ):
         raise RuntimeError("Generated barcode failed the GS1 decode self-check")
     decoded_values = parse_gs1(decoded[0].bytes.decode("latin-1"))
-    if decoded_values != normalized:
+    if decoded_values != normalized or decoded[0].bytes != build_element_string(normalized).encode("ascii"):
         raise RuntimeError("Generated barcode decoded to values different from the input")
     svg = barcode.to_svg(scale=scale, add_hrt=True, add_quiet_zones=True)
     return EncodedBarcode(symbology, normalized, build_hri(normalized), image, svg)
@@ -238,13 +262,18 @@ def encode_gs1(
 def decide_barcode(
     old_elements: Mapping[str, str] | str | None,
     new_values: Mapping[str, str | None],
-    *,
     confirmed: Mapping[str, bool] | None = None,
+    *,
     old_symbology: GS1Symbology = GS1Symbology.DATA_MATRIX,
     new_symbology: GS1Symbology = GS1Symbology.DATA_MATRIX,
 ) -> BarcodeDecisionResult:
     """Return KEEP, REGENERATE or NEEDS_INPUT without inventing identifiers."""
     confirmed = confirmed or {}
+    try:
+        old_symbology = GS1Symbology(old_symbology)
+        new_symbology = GS1Symbology(new_symbology)
+    except ValueError:
+        return BarcodeDecisionResult(BarcodeAction.NEEDS_INPUT, "Unsupported barcode symbology")
     if old_elements is None:
         old: dict[str, str] | None = None
     else:
@@ -263,7 +292,7 @@ def decide_barcode(
     except ValueError as error:
         return BarcodeDecisionResult(BarcodeAction.NEEDS_INPUT, f"New barcode values are invalid: {error}")
     if old == new and old_symbology == new_symbology:
-        return BarcodeDecisionResult(BarcodeAction.KEEP, "All encoded values are unchanged")
+        return BarcodeDecisionResult(BarcodeAction.KEEP, "Encoded values and symbology are unchanged")
     if old == new:
         return BarcodeDecisionResult(
             BarcodeAction.REGENERATE,
@@ -283,5 +312,5 @@ def decide_barcode(
                 BarcodeAction.NEEDS_INPUT,
                 f"Changed AI values require confirmation: {', '.join(unconfirmed)}",
             )
-    message = "Confirmed barcode data changed and all required values are present"
+    message = "All required barcode values are present and encoded changes are confirmed"
     return BarcodeDecisionResult(BarcodeAction.REGENERATE, message)
