@@ -1,47 +1,69 @@
-# Real label photos (to be added by Pari)
+# Real phone photos and LLM-labelled transcriptions
 
-This folder is empty on purpose. Every CV number in this repo so far comes from synthetic labels made by
-`src/gen`. Synthetic results do not show how the pipeline behaves on a real printed label photographed with
-a phone. This folder is where that check will live. No photo and no transcription here was made by the
-coding agent, and none may be.
+Parth must capture about 10 actual phone photos of labels he can photograph and
+share. The coding agent cannot take physical photos or substitute downloaded
+artwork for them. No photos have been supplied in this folder yet.
 
-## What to add
+This workflow follows Paridhi's clarification: the agent transcribes fields
+in-session and marks them **LLM-labelled**. Parth then spot-checks three photos,
+marks any wrong values and reports the result. The previous human-only
+transcription instructions are superseded by this procedure.
 
-1. About 10 phone photos of printed labels, as `.jpg`, `.jpeg` or `.png`, directly in this folder.
-   - Use labels you are allowed to photograph and share. Printed copies of our own synthetic test labels
-     are the safest choice (they carry the DRAFT mark and the all-zero test identifier).
-   - Vary the conditions: flat and angled, good light and a visible glare spot, one with a finger on an edge.
-   - Do not crop or edit the photos.
-2. One file `transcriptions.csv` in this folder, typed by hand while looking at the printed label
-   (not copied from any program output). One row per photo, three fields each.
+## Capture and module separation
 
-## Format of `transcriptions.csv`
+Keep original, unedited `.jpg`, `.jpeg` or `.png` photos. Vary angle and lighting
+without replacing real captures with synthetic images. For a device evaluation,
+use actual device labels. Do not mix medicine photos into its result table.
+Medicine photos, if used, belong in a separate folder and a separate run with
+`--folder`; that folder needs its own transcription and provenance files.
 
-A header row, then one row per photo. The first column is `filename`. Every other column is a field name
-from this list: `product_name`, `manufacturer`, `manufacturer_address`, `model`, `lot`, `expiry`, `serial`.
-Pick the same three for every photo if you can, for example:
+## Transcription filename and fields
+
+The evaluator already reads **transcriptions.csv**, not labels.csv. No evaluator
+filename change is necessary. Use these four columns only:
 
 ```csv
 filename,product_name,lot,expiry
-photo_01.jpg,<product name exactly as printed>,<lot value>,<expiry value>
 ```
 
-Rules for typing the values:
+The agent reads the three fields directly from each supplied photo. Preserve
+case, spaces and punctuation. For lot and expiry, omit the printed keys such as
+`LOT:` and `EXP:`. Leave a value blank when it is absent or unreadable; do not
+copy it from a product website, source artwork or another photo.
 
-- Type exactly what is printed, including capital letters, spaces and hyphens.
-- For `model`, `lot`, `expiry` and `serial` type only the value, not the printed key. For a label that
-  shows `LOT: ABC123`, type `ABC123`.
-- Leave a cell empty if the field is not on the label or cannot be read by eye. Empty cells are skipped.
+Do not add provenance columns to this CSV: the current evaluator treats every
+additional column as another field to score. Store provenance separately in a
+local `annotations.json` with, for each filename:
 
-## How to evaluate
+- module: `device` or `medicine`;
+- label_source: `LLM-labelled`;
+- uncertainty for each field;
+- human spot-check status, reviewer and corrections, only after Parth supplies them.
 
-From the repo root, in the CV environment:
+AI transcriptions do not become human ground truth just because they were saved
+to CSV. Keep their origin recorded after a human correction.
 
-```bash
-python -m src.cv.eval_real
+## Three-photo spot-check
+
+Parth selects and checks three photos against the in-session transcriptions.
+Record which photos were checked, which fields were wrong and any corrected
+values. Do not fill a human reviewer name or a successful-check count without
+his actual feedback. Report both photos with any error out of 3, and incorrect
+fields out of the fields actually checked. Until feedback arrives, the result
+is **NOT_RUN**, not zero errors.
+
+## Evaluation
+
+```sh
+/opt/anaconda3/envs/labellens-cv/bin/python -m src.cv.eval_real
 ```
 
-With no photos or no CSV it prints that there is nothing to evaluate and stops. With both, it runs the
-blind extraction mode (no template knowledge) with post-correction on every transcribed photo and prints,
-per field, the number of exact matches and the character error rate. Report those numbers next to the
-synthetic ones, never mixed with them.
+Without photos and transcriptions it prints that there is nothing to evaluate.
+With inputs, it runs blind extraction with post-correction and reports exact
+matches and character errors per field. Save the real output in the requested
+report. Label any scores against AI references as LLM-reference results and
+report the human spot-check separately. Keep device/medicine and real/synthetic
+results separate.
+
+New photos, transcriptions and provenance files remain local under the repository
+ignore rules. Reports may contain counts and errors without publishing the photos.

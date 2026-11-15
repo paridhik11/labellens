@@ -603,3 +603,11 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its CV step 16 to 
 4. **How I verified it:** Fast suite: `358 passed, 3 deselected in 36.75s`; generator plus verifier tests: `59 passed in 35.24s`; Ruff: `All checks passed!`. Contract mock tests are included. Background jobs logged results and were checked once after completion.
 5. **What you should check yourself:** Named SVG groups, sterile text, missing/stale/failed check rejection and API alias conflicts. Full commands are in the report.
 6. **What I am unsure about or assumed:** Manifest and Label-snapshot hashes represent different references and require explicit mapping. Synthetic symbol rendering is not real-device detection accuracy. The new device-symbol set and real-photo human spot-check remain unfinished.
+
+## Parth next Task 4: photo provenance procedure, inputs pending
+1. **What I did:** Updated the photo instructions for in-session LLM-labelled transcriptions and a three-photo spot-check by Parth. Confirmed the evaluator already reads transcriptions.csv.
+2. **Files changed:** `data/real_photos/README.md`, `reports/parth_task4.md` and this log.
+3. **How it works:** Keep the CSV to filename/product_name/lot/expiry; preserve module, AI origin, uncertainty and actual human feedback in a separate local annotations file. Device and medicine results stay separate.
+4. **How I verified it:** `python -m src.cv.eval_real` printed that no photos/transcriptions were available. Direct folder check: 0 photos. No real-photo OCR or accuracy calculation ran.
+5. **What you should check yourself:** Capture the photos, then spot-check three actual AI transcriptions and identify errors. Do not add metadata columns that the current evaluator would score as label fields.
+6. **What I am unsure about or assumed:** Task 4 remains incomplete. Physical capture and human spot-check require Parth's inputs; their result is NOT_RUN, not zero errors.
