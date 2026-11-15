@@ -189,6 +189,35 @@ class Job(Base):
     created_at: Mapped[str] = mapped_column(String)
 
 
+class ChangeAssessment(Base):
+    """One stored assessment of a change (Step 22). Append-only: confirming appends the confirmed assessment."""
+
+    __tablename__ = "change_assessments"
+
+    seq: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    assessment_id: Mapped[str] = mapped_column(String, unique=True)
+    change_id: Mapped[str] = mapped_column(ForeignKey("change_requests.change_id"), index=True)
+    parent_assessment_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    confirmed: Mapped[bool] = mapped_column(Boolean, default=False)
+    payload: Mapped[dict[str, Any]] = mapped_column(JSON)  # parser, items, confirmed_items, citations, warnings, ...
+    created_by: Mapped[str] = mapped_column(String)
+    created_at: Mapped[str] = mapped_column(String)
+
+
+class ChangeConfirmation(Base):
+    """A person confirmed the parsed change and some checklist decisions (Step 22). Append-only."""
+
+    __tablename__ = "change_confirmations"
+
+    seq: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    confirmation_id: Mapped[str] = mapped_column(String, unique=True)
+    change_id: Mapped[str] = mapped_column(ForeignKey("change_requests.change_id"), index=True)
+    assessment_id: Mapped[str] = mapped_column(String)  # the assessment the person was shown
+    decisions: Mapped[list[dict[str, str]]] = mapped_column(JSON)
+    created_by: Mapped[str] = mapped_column(String)
+    created_at: Mapped[str] = mapped_column(String)
+
+
 class Review(Base):
     """An approval record: approve, return or reject one exact label version."""
 
@@ -207,6 +236,8 @@ class Review(Base):
     artifact_sha256: Mapped[str] = mapped_column(String)
     check_id: Mapped[str | None] = mapped_column(ForeignKey("check_results.check_id"), nullable=True)
     decided_at: Mapped[str] = mapped_column(String)
+    # Step 22 (CR-18): the change's latest assessment when the review was recorded. Null for changes without one.
+    assessment_id: Mapped[str | None] = mapped_column(String, nullable=True)
 
 
 class PublishedPage(Base):
@@ -250,6 +281,8 @@ IMMUTABLE_TABLES: tuple[str, ...] = (
     "check_results",
     "extractions",
     "jobs",
+    "change_assessments",
+    "change_confirmations",
     "reviews",
     "published_pages",
     "audit_events",

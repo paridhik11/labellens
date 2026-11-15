@@ -128,6 +128,32 @@ def test_every_real_response_conforms_to_openapi(run: Run, tmp_path, monkeypatch
     c("assessChange", 403, "POST", "/changes", user=REVIEWER, json={"product_id": PRODUCT_ID, "edits": EDIT})
     c("assessChange", 401, "POST", "/changes", user=None, json={"product_id": PRODUCT_ID, "edits": EDIT})
 
+    # change assessment and confirmation (Step 22c)
+    made = c("assessChange", 201, "POST", "/changes", json={"product_id": PRODUCT_ID, "edits": [
+        {"field": "lot", "new_value": "LOT777"}]})
+    made_id = made.json()["change"]["change_id"]
+    items = made.json()["affected"]
+    c("assessChange", 201, "POST", "/changes", json={"product_id": PRODUCT_ID, "raw_text": "Change the lot to LOT778"})
+    c("assessChange", 201, "POST", "/changes", json={"product_id": PRODUCT_ID, "edits": [
+        {"field": "colour", "new_value": "red"}]})  # parser not_implemented
+    c("assessChange", 422, "POST", "/changes", json={"product_id": PRODUCT_ID, "edits": [
+        {"field": "lot", "new_value": "A"}, {"field": "lot", "new_value": "B"}]})  # duplicate_field
+    c("listAffectedLabels", 200, "GET", f"/changes/{made_id}/affected")
+    c("listAffectedLabels", 200, "GET", f"/changes/{CHANGE_ID}/affected")  # mock: no stored assessment
+    c("listAffectedLabels", 404, "GET", "/changes/chg_missing/affected")
+    c("listAffectedLabels", 401, "GET", f"/changes/{made_id}/affected", user=None)
+    decisions = [{"impact_id": i["impact_id"], "user_decision": "confirmed"} for i in items]
+    confirm_body = {"parse_confirmed": True, "decisions": decisions}
+    c("confirmChange", 200, "POST", f"/changes/{made_id}/confirm", json=confirm_body)
+    c("confirmChange", 200, "POST", f"/changes/{CHANGE_ID}/confirm", json=confirm_body)  # mock
+    c("confirmChange", 401, "POST", f"/changes/{made_id}/confirm", user=None, json=confirm_body)
+    c("confirmChange", 403, "POST", f"/changes/{made_id}/confirm", user=REVIEWER, json=confirm_body)
+    c("confirmChange", 404, "POST", "/changes/chg_missing/confirm", json=confirm_body)
+    c("confirmChange", 422, "POST", f"/changes/{made_id}/confirm", json={**confirm_body, "parse_confirmed": False})
+    nothing = c("assessChange", 201, "POST", "/changes", json={"product_id": PRODUCT_ID, "edits": [
+        {"field": "colour", "new_value": "blue"}]})
+    c("confirmChange", 409, "POST", f"/changes/{nothing.json()['change']['change_id']}/confirm", json=confirm_body)
+
     # reviews: error shapes first, then a self-approval, a reject, and an approval that is later voided
     url = f"/label-versions/{L3}/reviews"
     approve = {"decision": "approve", "artifact_sha256": L3_SHA256, "check_id": "chk_0003"}

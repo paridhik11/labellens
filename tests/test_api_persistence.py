@@ -97,6 +97,14 @@ def test_every_immutable_table_rejects_update_and_delete(session):
         job_id="job_00000001", kind="inspect", state="queued", created_by="usr_demo_editor",
         created_at="2026-11-12T16:00:00Z",
     ))
+    session.add(models.ChangeAssessment(
+        assessment_id="asm_00000001", change_id=CHANGE_ID, confirmed=False, payload={"parser": "rules", "items": []},
+        created_by="usr_demo_editor", created_at="2026-11-12T16:00:00Z",
+    ))
+    session.add(models.ChangeConfirmation(
+        confirmation_id="cfm_00000001", change_id=CHANGE_ID, assessment_id="asm_00000001", decisions=[],
+        created_by="usr_demo_editor", created_at="2026-11-12T16:00:00Z",
+    ))
     session.commit()
     for table in models.IMMUTABLE_TABLES:
         first_col = inspect(session.get_bind()).get_columns(table)[0]["name"]

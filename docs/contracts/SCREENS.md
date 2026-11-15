@@ -102,6 +102,7 @@ Proposed change, affected items with suggestions, current against draft preview,
 |---|---|---|
 | success (assessment) | `assessChange` 201 | `professional/changes/assess_success.json` |
 | success (confirmed checklist) | `confirmChange` 200, every item confirmed or dismissed | `professional/changes/confirm_success.json` |
+| rules (assessment, barcode waits for confirmation) | `assessChange` 201 with `parser: rules` | `professional/changes/assess_rules.json` |
 | needs_review (assessment) | `assessChange` with a NEEDS_HUMAN_REVIEW reason | `professional/changes/assess_needs_review.json` |
 | success (affected list) | `listAffectedLabels` | `professional/changes/affected_success.json` |
 | loading (generate) | `generateArtwork` 202, then `getJob` | `professional/changes/generate_loading.json` |

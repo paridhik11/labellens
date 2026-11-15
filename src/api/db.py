@@ -73,6 +73,7 @@ def init_db(engine: Engine) -> None:
 # Columns added after Step 20 to tables that may already exist in a developer's database file.
 ADDED_COLUMNS: dict[str, dict[str, str]] = {
     "check_results": {"needs_human_count": "INTEGER", "coverage": "JSON", "retrieval_config": "JSON"},
+    "reviews": {"assessment_id": "VARCHAR"},
 }
 
 
@@ -81,6 +82,8 @@ def _add_missing_columns(engine: Engine) -> None:
     with engine.begin() as conn:
         for table, columns in ADDED_COLUMNS.items():
             existing = {row[1] for row in conn.exec_driver_sql(f"PRAGMA table_info({table})")}
+            if not existing:  # the table does not exist yet (create_all makes it with every column)
+                continue
             for name, sql_type in columns.items():
                 if name not in existing:
                     conn.exec_driver_sql(f"ALTER TABLE {table} ADD COLUMN {name} {sql_type}")

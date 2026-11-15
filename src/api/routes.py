@@ -14,7 +14,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from src.api import checks, views
+from src.api import changes, checks, views
 from src.api.errors import ApiError
 from src.api.models import (
     ChangeRequest,
@@ -27,6 +27,7 @@ from src.api.models import (
     User,
 )
 from src.api.requests import (
+    ChangeConfirmCreate,
     ChangeCreate,
     InspectCreate,
     ProductCreate,
@@ -36,10 +37,7 @@ from src.api.requests import (
 )
 from src.api.reviews import record_review
 from src.api.store import (
-    PRODUCT_RECORD_FIELDS,
-    create_change,
     create_product,
-    current_product_version,
     get_user,
     register_template,
 )
@@ -58,6 +56,8 @@ REAL_OPERATIONS = frozenset(
         "listLabelVersions",
         "getLabelVersion",
         "assessChange",
+        "confirmChange",
+        "listAffectedLabels",
         "getChange",
         "listReviews",
         "reviewArtwork",
@@ -68,12 +68,6 @@ REAL_OPERATIONS = frozenset(
         "searchEvidence",
     }
 )
-PARSER_NOT_IMPLEMENTED = "not_implemented"
-NOT_CHECKED = (
-    "NEEDS_HUMAN_REVIEW: impact analysis and evidence retrieval are not implemented for this change. "
-    "The affected list is empty because nothing was checked, not because nothing is affected."
-)
-
 router = APIRouter()
 
 
@@ -218,43 +212,46 @@ def get_label_version(
 
 @router.post("/changes", operation_id="assessChange", status_code=201, tags=["device"])
 def assess_change(
-    body: ChangeCreate, session: Session = Depends(get_session), user: User = Depends(writer)
+    body: ChangeCreate, request: Request, session: Session = Depends(get_session), user: User = Depends(writer)
 ) -> dict[str, Any]:
-    """Create a structured change from `edits`.
+    """Parse a change (structured `edits`, or `raw_text` through the rules parser), create it and assess its impact.
 
-    Plain text is not parsed (422 parser_not_implemented). The impact analysis does not exist either, so the
-    response has `parser: not_implemented`, an empty affected list and a NEEDS_HUMAN_REVIEW message, so
-    "not checked" cannot be mistaken for "nothing affected".
+    The response has `parser: rules` (or `llm`). It keeps `parser: not_implemented` when nothing could be assessed,
+    and says so, so an empty affected list is never mistaken for "nothing is affected" (docs/CHANGE_SPEC.md).
     """
-    if not body.edits:
-        raise ApiError(
-            422,
-            "parser_not_implemented",
-            "Plain-language changes are not parsed yet. Send structured `edits` instead.",
-        )
-    record = current_product_version(session, body.product_id)
-    first, rest = body.edits[0], body.edits[1:]
-    old_value = first.old_value
-    if old_value is None:
-        old_value = str(getattr(record, first.field)) if first.field in PRODUCT_RECORD_FIELDS else ""
-    change = create_change(
-        session,
-        user.user_id,
-        body.product_id,
-        first.field,
-        first.new_value,
-        old_value,
-        body.raw_text,
-        edits=[e.model_dump(exclude_none=True) for e in rest],
+    return changes.create_assessed_change(
+        session, user.user_id, body, request.app.state.checker_settings, request.app.state.edit_provider
     )
-    return {
-        "change": views.change_json(session, change),
-        "affected": [],
-        "citations": [],
-        "checklist_complete": False,
-        "parser": PARSER_NOT_IMPLEMENTED,
-        "needs_human_review": NOT_CHECKED,
-    }
+
+
+@router.post("/changes/{change_id}/confirm", operation_id="confirmChange", tags=["device"])
+def confirm_change(
+    change_id: str, body: ChangeConfirmCreate, request: Request, session: Session = Depends(get_session),
+    user: User = Depends(writer),
+) -> Any:
+    """Confirm the parsed change and the checklist decisions (append-only). No stored assessment: the mock."""
+    if session.get(ChangeRequest, change_id) is None:
+        raise ApiError(404, "not_found", f"No change {change_id!r}.")
+    if changes.latest_assessment(session, change_id) is None:
+        from src.api.mock_server import mock_response  # imported here: mock_server imports this module
+
+        return mock_response("confirmChange", request)
+    return changes.confirm_change(session, user.user_id, change_id, body)
+
+
+@router.get("/changes/{change_id}/affected", operation_id="listAffectedLabels", tags=["device"])
+def list_affected_labels(
+    change_id: str, request: Request, session: Session = Depends(get_session), _: User = Depends(current_user)
+) -> Any:
+    """Items of the latest stored assessment with their current decisions. A change without one keeps the mock."""
+    if session.get(ChangeRequest, change_id) is None:
+        raise ApiError(404, "not_found", f"No change {change_id!r}.")
+    row = changes.latest_assessment(session, change_id)
+    if row is None:
+        from src.api.mock_server import mock_response
+
+        return mock_response("listAffectedLabels", request)
+    return {"change_id": change_id, "items": changes.affected_items(session, row)}
 
 
 @router.get("/changes/{change_id}", operation_id="getChange", tags=["device"])
