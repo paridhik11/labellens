@@ -167,7 +167,9 @@ R/gamma/sterile_r, plus generic sterile artwork. The source method and symbol mu
 agree. No change automatically carries an approval into the new draft.
 
 - `KEEP`: exact existing barcode element, matrix and module size are reused;
-  no encoder is called. A text-only address change or EO-to-gamma change keeps it.
+  no encoder is called. Actual GS1 content type and raw bytes are checked,
+  so plain symbols containing GS1-looking text are rejected. A text-only
+  address change or EO-to-gamma change keeps the barcode.
 - `REGENERATE`: every changed encoded field requires its matching explicit flag:
   confirmed_gtin_change, confirmed_expiry_change, confirmed_lot_change or
   confirmed_serial_change. The replacement is decoded and compared before return.

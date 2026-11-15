@@ -128,6 +128,14 @@ def from_template(
         test_data,
     )
     validate_label(label)
+    if reuse_barcode is not None:
+        pixels = np.array([[0 if bit == "1" else 255 for bit in row] for row in reuse_barcode.matrix], dtype=np.uint8)
+        decoded = zxingcpp.read_barcodes(np.repeat(np.repeat(pixels, 4, axis=0), 4, axis=1))
+        if (
+            len(decoded) != 1 or decoded[0].content_type != zxingcpp.ContentType.GS1
+            or decoded[0].bytes != build_element_string(gs1_elements).encode("ascii")
+        ):
+            raise ValueError("Reused barcode must be GS1 with the exact requested encoded bytes")
     return label
 
 

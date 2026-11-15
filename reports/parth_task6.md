@@ -1,12 +1,12 @@
 # Parth Task 6: structured revision engine
 
 ## 1. What I did
-Implemented and reviewed the local revision engine. It copies the source template and record, increments versions, applies structured text changes and produces a new draft export snapshot. Unchanged barcodes reuse the exact element/matrix; confirmed encoded changes regenerate and decode-check. Missing inputs produce no artwork, and old versions remain unchanged.
+Implemented and reviewed the local revision engine. It copies the source template and record, increments versions, applies structured text changes and produces a new draft export snapshot. Unchanged barcodes reuse the exact element/matrix; confirmed encoded changes regenerate and decode-check. Missing inputs produce no artwork.
 
 ## 2. Files created or changed
 - `src/gen/revise.py`: revision result, identity/staleness checks, field/symbol updates, audit log and render guard.
 - `src/export/template.py`: validated reuse of an existing barcode without encoding it again.
-- `tests/test_revise.py`: 34 cases, including all decisions and PDF/SVG integration.
+- `tests/test_revise.py`: 35 cases, including actual GS1-type validation and PDF/SVG integration.
 - Generator README: usage and supported scope.
 - `docs/PARTH_WORK_SUMMARY.md`: durable deferred-photo note and revision status.
 - This report and learning log: actual verification and limits.
@@ -22,12 +22,13 @@ Changing an address keeps the existing barcode. Changing a lot requires confirme
 ........................................................................ [ 52%]
 ........................................................................ [ 70%]
 ........................................................................ [ 87%]
-..................................................                       [100%]
-410 passed, 3 deselected in 106.14s (0:01:46)
+...................................................                      [100%]
+411 passed, 3 deselected in 106.93s (0:01:46)
 
 /opt/anaconda3/envs/labellens-cv/bin/python -m ruff check --no-cache src tests
 All checks passed!
 ```
+Review caught plain-text barcode acceptance; the regression passed after correction.
 Both GS1 formats decoded to the revised lot from independently rasterized 600-DPI PDFs. A local synthetic review run produced:
 ```text
 keep_address DRAFT KEEP PDF/SVG present

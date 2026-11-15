@@ -309,3 +309,19 @@ def test_both_formats_reuse_and_export_confirmed_changes(
     with Image.open(tmp_path / "print.png") as image:
         decoded = zxingcpp.read_barcodes(np.asarray(image.convert("RGB")))
     assert len(decoded) == 1 and parse_gs1(decoded[0].bytes.decode("ascii")) == {**AIS, "10": "LOT002"}
+
+
+def test_reuse_rejects_plain_text_that_looks_like_gs1(source: tuple[dict, ProductRecord, Label]) -> None:
+    """A text DataMatrix with parenthesized AIs cannot be reused as a GS1 symbol."""
+    template, record, label = source
+    original = next(e for e in label.elements if e.kind == "barcode")
+    code = zxingcpp.create_barcode(original.payload, zxingcpp.BarcodeFormat.DataMatrix, gs1=False)
+    pixels = np.asarray(code.to_image(scale=1, add_hrt=False, add_quiet_zones=True))
+    read = zxingcpp.read_barcodes(np.repeat(np.repeat(pixels, 4, axis=0), 4, axis=1))[0]
+    assert read.text == original.payload and read.content_type != zxingcpp.ContentType.GS1
+    matrix = tuple("".join("1" if pixel == 0 else "0" for pixel in row) for row in pixels)
+    altered = replace(original, matrix=matrix,
+                      module_mm=min(original.bbox_mm[2] / pixels.shape[1], original.bbox_mm[3] / pixels.shape[0]))
+    with pytest.raises(ValueError, match="GS1"):
+        adapter.from_template(template, record_fields(record), AIS, version_id="v4", actor="parth",
+                              reason="Reject plain text", test_data=True, reuse_barcode=altered)

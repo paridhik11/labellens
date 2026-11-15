@@ -67,9 +67,14 @@ Build a reproducible synthetic medical-device label workflow and a computer-visi
   confirmed encoded changes, and returns no artwork for NEEDS_INPUT. Missing
   allocated identifiers are never supplied by the engine. A sterilization
   method change updates its bound synthetic symbol without changing the barcode.
+- Actual GS1 content type and raw bytes are checked when reusing a barcode;
+  a plain DataMatrix containing GS1-looking text is rejected.
 - New PDF/SVG outputs remain drafts with the named groups. Layout and barcode
   checks run; OCR and symbol detection for revisions are NOT_RUN. Application
   storage, trusted confirmation/authorization and publication remain separate.
+
+Task 6 verification: **411 passed, 3 deselected**, with both formats decoded
+from 600-DPI revised PDFs. See [Task 6 report](../reports/parth_task6.md).
 
 ## Fresh-seed results
 
