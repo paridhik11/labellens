@@ -133,15 +133,15 @@ def normalise_truth(truth: dict[str, Any]) -> tuple[dict[str, tuple[float, ...]]
     return present, [], {"case": "main", "condition": truth["condition"], "style": "outline", "split": "orig"}
 
 
-def _prepare_one(job: tuple[str, str, str]) -> str:
+def _prepare_one(job: tuple[str, str, str, bool]) -> str:
     """Straighten one image and cache it as an npz file (worker for the process pool)."""
-    root, relative, cache_dir = job
+    root, relative, cache_dir, straighten_it = job
     target = Path(cache_dir) / (relative.replace("/", "__") + ".npz")
     if target.exists():
         return relative
     with Image.open(Path(root) / relative) as photo:
         image = np.asarray(photo.convert("RGB"))
-    corrected, inverse = straighten(image)
+    corrected, inverse = straighten(image) if straighten_it else (image, None)
     target.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(
         target, corrected=corrected, inverse=np.zeros((3, 3)) if inverse is None else inverse,
@@ -154,7 +154,9 @@ def load_dataset(root: Path, *, workers: int = 4) -> list[Item]:
     """Load (and cache the straightened form of) every image in a generated dataset."""
     manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
     cache_dir = root / "_corrected"
-    jobs = [(str(root), entry["image"], str(cache_dir)) for entry in manifest["files"]]
+    # Real photos (``"straighten": false`` in the manifest) are used as they are: no label boundary is assumed.
+    flag = bool(manifest.get("straighten", True))
+    jobs = [(str(root), entry["image"], str(cache_dir), flag) for entry in manifest["files"]]
     todo = [job for job in jobs if not (cache_dir / (job[1].replace("/", "__") + ".npz")).exists()]
     if todo:
         with ProcessPoolExecutor(max_workers=workers) as pool:

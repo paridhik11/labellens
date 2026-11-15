@@ -1,0 +1,42 @@
+{
+  "frozen_at_commit": "7ee37e9",
+  "note": "Chosen on the dev styles only. Held-out styles and real artwork are scored once with exactly these settings.",
+  "detectors": {
+    "v1_blind": {
+      "module": "src.cv.symbols.detect_symbols_blind",
+      "settings": "defaults"
+    },
+    "v2_sil": {
+      "rule": "silhouette IoU with train-style bank",
+      "sil_threshold": 0.8,
+      "sil_margin": 0.0,
+      "bank": "train styles t1 to t8"
+    },
+    "v2_cnn": {
+      "rule": "CNN probability for the name >= threshold",
+      "threshold": 0.5,
+      "weights": "data/models/symbols_cnn.npz",
+      "weights_sha256": "368e8995562459c171f1b7bf4afb0236bb65766c20f10b8e777c5b0603d51f7c",
+      "training": "4000 procedural crops per class + crops mined from styled_train (seed 13), 25 epochs, seed 0"
+    },
+    "v2_sil_and_cnn": {
+      "rule": "both accept; score is the smaller"
+    },
+    "v2_sift": {
+      "kp_inliers": 8,
+      "kp_margin": 0
+    },
+    "v2_orb": {
+      "kp_inliers": 6,
+      "kp_margin": 0
+    }
+  },
+  "candidate_finder": "src/cv/symbols_v2/candidates.py defaults (work short side 600, closings 3 and 9, size 4.5% to 30% of short side, aspect 0.5 to 2, ink share 0.10 to 0.97)",
+  "anchor_rule": "not used (phase 5 verdict)",
+  "datasets": {
+    "styled_heldout": "seed 12, 6 held-out styles, random layout",
+    "styled_heldout_anch": "seed 22, anchored layout",
+    "real_artwork": "seed 31, 14 Wikimedia Commons drawings",
+    "external_original_style": "fresh100 to fresh102 and freshneg100 to freshneg102 (original artwork and alt_style)"
+  }
+}
