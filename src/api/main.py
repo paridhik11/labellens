@@ -1,6 +1,7 @@
 """FastAPI entry point.
 
-Real endpoints (routes.py) use SQLite. Run with `uvicorn src.api.main:app`.
+Real endpoints (routes.py) use SQLite. Every other operation of docs/contracts/openapi.yaml serves its mock JSON
+with the header `X-Mock: true` (mock_server.py). Run with `uvicorn src.api.main:app`.
 
 Environment: LABELLENS_DB_URL (default sqlite:///data/api/labellens.db), LABELLENS_SEED=0 to skip the demo seed.
 """
@@ -17,6 +18,7 @@ from fastapi.responses import JSONResponse
 
 from src.api.db import init_db, make_engine, make_session_factory
 from src.api.errors import ApiError
+from src.api.mock_server import register_mocks
 from src.api.routes import router
 from src.api.seed import seed_demo
 
@@ -53,6 +55,7 @@ def create_app(db_url: str | None = None, seed: bool | None = None) -> FastAPI:
         return {"status": "ok"}
 
     app.include_router(router)
+    register_mocks(app)
     return app
 
 
