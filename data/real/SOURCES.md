@@ -1,6 +1,6 @@
 # Real-label sources and module separation
 
-This catalog currently records the legacy 60 medicine-artwork downloads. Every entry is tagged `medicine` and excluded from device evaluation. These are not the new device/symbol benchmark. Symbol crops and tags are not yet provided for this catalog.
+The legacy section records 60 medicine-artwork downloads. Every legacy entry is tagged `medicine` and excluded from device evaluation. These are not the new device/symbol benchmark. Symbol crops and tags are not provided for the legacy medicine catalog.
 
 Images, XML, manifests, CSV files and derived crops stay local. Only this sources list is versioned under `data/real/`. Original file checksums and download URLs are retained in the local manifest. The existing fetch/rebuild script is `scripts/build_real_set.py`; its medicine collection must not be used as the device evaluation.
 
@@ -78,3 +78,1066 @@ Rights: no blanket open license has been established for company-contributed art
 ## Outstanding work
 
 Collect about 20 actual medical-device labels with the target symbols. Include medicine packaging only when relevant symbols are present, tag its module separately and exclude it from device metrics. Any automated symbol tags must say `LLM-labelled`, with uncertainty. No device-symbol count or accuracy is claimed here.
+
+
+## Reviewed DailyMed device-symbol collection (2026-11-16)
+
+Rebuild from a clean checkout with the CV dependencies installed:
+
+```sh
+python scripts/real/fetch_dailymed.py
+# Recheck saved fingerprints and regenerate crops without network:
+python scripts/real/fetch_dailymed.py --offline
+```
+
+The originals, source ZIPs, crops and annotations.json are saved in ignored
+`data/real/devices/`. Every annotation is **LLM-labelled**, visually assigned in this
+session, not human truth. Coordinates are original-image pixels `[left, top, right, bottom]`,
+with right/bottom excluded. No exhaustive absence labels, OCR, detector evaluation or
+accuracy claim is supplied. All selected originals contain a visually reviewed symbol.
+Counts: 20 images from 17 SPL records in eight label families, with 44 crops.
+Fourteen crops have a side below 25 original pixels and are explicitly marked small;
+this pixel threshold is a resolution flag, not a measured accuracy or quality score.
+This is a development collection: similar manufacturer layouts must be grouped before
+any train/test split. Repeated panels inside an image are counted once. Example-only Centurion
+artworks were excluded from the final catalog. Blank or sample lot/date fields
+in published artwork are not transcribed as real production values.
+Drug-eluting implants and combination kits remain device-classified artwork here;
+separate medicine-component panels were excluded after visual review.
+
+No open license has been established for these company artworks. Public availability
+is not a public-domain determination. Source: National Library of Medicine;
+[rights policy](https://www.nlm.nih.gov/web_policies.html#copyright).
+
+| Local image | Product | Family | Module | Symbols annotated | Exact source ZIP | Rights |
+|---|---|---|---|---|---|---|
+| `devices/images/device_01.jpg` | KeragelT | Molecular Biologicals | device | manufacturer, expiry, sterile_r | [v6](https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=03158b35-ce56-4652-8723-ab57fa292268&version=6) | not established; company artwork |
+| `devices/images/device_02.jpg` | StrataXRT | Stratpharma | device | manufacturer, sterile_r | [v2](https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=1659f62b-02fd-4dd0-8092-41e2a7b34d6b&version=2) | not established; company artwork |
+| `devices/images/device_03.jpg` | Pressure activated safety lancets | Care Living | device | expiry, consult_instructions | [v2](https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=d491f12b-f766-4c59-a92b-bcb465699ed0&version=2) | not established; company artwork |
+| `devices/images/device_04.jpg` | StrataMark | Stratpharma | device | manufacturer, consult_instructions | [v1](https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=274312bf-5db7-4512-accf-9bace6865171&version=1) | not established; company artwork |
+| `devices/images/device_05.jpg` | Keramatrix | Molecular Biologicals | device | expiry, manufacturer, sterile_r | [v3](https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=2a20cd23-bdcc-453e-a72c-de7c123b3db8&version=3) | not established; company artwork |
+| `devices/images/device_06.jpg` | Wiley Spinal | Epimed | device | sterile_eo, expiry | [v1](https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=2ddbb193-4e4f-4ff5-bac1-41d7b8e91260&version=1) | not established; company artwork |
+| `devices/images/device_07.jpg` | ACL10SPSL12 | Clint | device | sterile_eo, do_not_reuse | [v1](https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=3344ac69-fa69-4f91-ae08-b875574e6b08&version=1) | not established; company artwork |
+| `devices/images/device_08.jpg` | StrataTriz | Stratpharma | device | manufacturer, consult_instructions | [v1](https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=50f7848d-9fd4-4529-a567-1256888aa137&version=1) | not established; company artwork |
+| `devices/images/device_09.jpg` | Keroxx | Molecular Biologicals | device | manufacturer, sterile_r, expiry | [v1](https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=584f247b-1a6d-4082-82e8-a17d8015ff1b&version=1) | not established; company artwork |
+| `devices/images/device_10.jpg` | ACL10SP | Clint | device | sterile_eo, do_not_reuse | [v1](https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=6527c5bc-8c8a-4c43-b7ac-03ad05801cf4&version=1) | not established; company artwork |
+| `devices/images/device_11.jpg` | PROPEL | Intersect ENT | device | sterile_r, expiry, do_not_reuse | [v15](https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=6befbf16-3f60-4ce8-94ec-5ce6a2b7f4e1&version=15) | not established; company artwork |
+| `devices/images/device_12.jpg` | PROPEL mini | Intersect ENT | device | sterile_r, expiry | [v15](https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=6befbf16-3f60-4ce8-94ec-5ce6a2b7f4e1&version=15) | not established; company artwork |
+| `devices/images/device_13.jpg` | PROPEL contour | Intersect ENT | device | sterile_r, expiry | [v15](https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=6befbf16-3f60-4ce8-94ec-5ce6a2b7f4e1&version=15) | not established; company artwork |
+| `devices/images/device_14.jpg` | V49663C-25 spinal kit | Smiths Medical | device | sterile_eo, manufacturer | [v2](https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=6e04f24a-a4ca-4e84-b3b3-7deba0b9cad0&version=2) | not established; company artwork |
+| `devices/images/device_15.jpg` | StrataGRT | Stratpharma | device | manufacturer, sterile_r | [v2](https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=732ad204-c969-40db-95c7-e5da5801f910&version=2) | not established; company artwork |
+| `devices/images/device_16.jpg` | ACL5SP | Clint | device | sterile_eo, do_not_reuse | [v1](https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=7a85a79e-a0b9-4e51-9dc2-01a6e3e0b2a5&version=1) | not established; company artwork |
+| `devices/images/device_17.jpg` | ACL17SPG | Clint | device | sterile_eo, expiry | [v4](https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=88f6e5e4-0179-41aa-854b-a148fe49fe58&version=4) | not established; company artwork |
+| `devices/images/device_18.jpg` | StrataCTX | Stratpharma | device | manufacturer, sterile_r | [v1](https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=e5f966d7-71d1-4324-ab02-3c841bd702f5&version=1) | not established; company artwork |
+| `devices/images/device_19.jpg` | Aceso Ag dressing | NBGS | device | sterile_eo, do_not_reuse | [v3](https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=ebff5325-d1d3-4f14-b575-9ccf9ab53896&version=3) | not established; company artwork |
+| `devices/images/device_20.jpg` | Aceso Ag dressing carton | NBGS | device | sterile_eo, do_not_reuse | [v3](https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=ebff5325-d1d3-4f14-b575-9ccf9ab53896&version=3) | not established; company artwork |
+
+### Rebuild catalog and original-pixel annotations
+
+The collector reads this JSON directly; no untracked manifest is needed to rebuild.
+
+<!-- device-catalog -->
+```json
+[
+  {
+    "id": "device_01",
+    "product": "KeragelT",
+    "family": "Molecular Biologicals",
+    "module": "device",
+    "condition": "artwork_scan",
+    "setid": "03158b35-ce56-4652-8723-ab57fa292268",
+    "version": "6",
+    "member": "keragelt-01.jpg",
+    "size_px": [
+      851,
+      1451
+    ],
+    "url": "https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=03158b35-ce56-4652-8723-ab57fa292268&version=6",
+    "source_page": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=03158b35-ce56-4652-8723-ab57fa292268",
+    "archive_sha256": "dcda848cd1a1b5d6fb1243ea50b3446bf077580f2fd7007f317ceca76bab3cfd",
+    "image_sha256": "631ad126867570a885a5ef05faf48220a182c97a66bd75232ea22603ee221094",
+    "rights": "Open license not established; company-contributed artwork. Source: National Library of Medicine.",
+    "notes": "Partial symbol annotations; related layouts are not independent samples.",
+    "symbols": [
+      {
+        "name": "manufacturer",
+        "bbox_xyxy_px": [
+          493,
+          1192,
+          537,
+          1247
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "at least 25 original pixels on each side"
+      },
+      {
+        "name": "expiry",
+        "bbox_xyxy_px": [
+          86,
+          1136,
+          111,
+          1177
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "at least 25 original pixels on each side"
+      },
+      {
+        "name": "sterile_r",
+        "bbox_xyxy_px": [
+          116,
+          1218,
+          165,
+          1241
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text. Method letter read visually; verify at original resolution.",
+        "resolution_note": "small: one side below 25 original pixels"
+      }
+    ]
+  },
+  {
+    "id": "device_02",
+    "product": "StrataXRT",
+    "family": "Stratpharma",
+    "module": "device",
+    "condition": "artwork_scan",
+    "setid": "1659f62b-02fd-4dd0-8092-41e2a7b34d6b",
+    "version": "2",
+    "member": "StrataXRT Box Label.jpg",
+    "size_px": [
+      1350,
+      974
+    ],
+    "url": "https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=1659f62b-02fd-4dd0-8092-41e2a7b34d6b&version=2",
+    "source_page": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=1659f62b-02fd-4dd0-8092-41e2a7b34d6b",
+    "archive_sha256": "50fc68adae83cfe0a6dc9f52fdbe28395108a133adc413ddfd5d6d25bf31ca36",
+    "image_sha256": "163d389694730750609e5d8e0fe4769e084bc4d6d66c3cf829346bc6454752b1",
+    "rights": "Open license not established; company-contributed artwork. Source: National Library of Medicine.",
+    "notes": "Partial symbol annotations; related layouts are not independent samples.",
+    "symbols": [
+      {
+        "name": "manufacturer",
+        "bbox_xyxy_px": [
+          460,
+          597,
+          479,
+          616
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "small: one side below 25 original pixels"
+      },
+      {
+        "name": "sterile_r",
+        "bbox_xyxy_px": [
+          317,
+          604,
+          349,
+          619
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text. Method letter read visually; verify at original resolution.",
+        "resolution_note": "small: one side below 25 original pixels"
+      }
+    ]
+  },
+  {
+    "id": "device_03",
+    "product": "Pressure activated safety lancets",
+    "family": "Care Living",
+    "module": "device",
+    "condition": "artwork_scan",
+    "setid": "d491f12b-f766-4c59-a92b-bcb465699ed0",
+    "version": "2",
+    "member": "label pic.jpg",
+    "size_px": [
+      1179,
+      769
+    ],
+    "url": "https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=d491f12b-f766-4c59-a92b-bcb465699ed0&version=2",
+    "source_page": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=d491f12b-f766-4c59-a92b-bcb465699ed0",
+    "archive_sha256": "efd4d216d36c82989261ece519ad3f34b34d46c5c7b04eca221c166df6a7db8e",
+    "image_sha256": "afad644b78a8ff47615ac449efaecb59245131d4d2b0abd44b9f3d5912d6dcd2",
+    "rights": "Open license not established; company-contributed artwork. Source: National Library of Medicine.",
+    "notes": "Partial symbol annotations; related layouts are not independent samples.",
+    "symbols": [
+      {
+        "name": "expiry",
+        "bbox_xyxy_px": [
+          403,
+          751,
+          420,
+          768
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "small: one side below 25 original pixels"
+      },
+      {
+        "name": "consult_instructions",
+        "bbox_xyxy_px": [
+          439,
+          465,
+          456,
+          481
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "small: one side below 25 original pixels"
+      }
+    ]
+  },
+  {
+    "id": "device_04",
+    "product": "StrataMark",
+    "family": "Stratpharma",
+    "module": "device",
+    "condition": "artwork_scan",
+    "setid": "274312bf-5db7-4512-accf-9bace6865171",
+    "version": "1",
+    "member": "StrataMark 50g box.jpg",
+    "size_px": [
+      2805,
+      1976
+    ],
+    "url": "https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=274312bf-5db7-4512-accf-9bace6865171&version=1",
+    "source_page": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=274312bf-5db7-4512-accf-9bace6865171",
+    "archive_sha256": "70bc139b9482d7839adf251e1bc8a7a66e16cd1c4f786b3565030d5f256c55bf",
+    "image_sha256": "b51a49cdf0222ed5dc7b62762afa5d1834631a718ea3218df423d1b73e7fd02a",
+    "rights": "Open license not established; company-contributed artwork. Source: National Library of Medicine.",
+    "notes": "Partial symbol annotations; related layouts are not independent samples.",
+    "symbols": [
+      {
+        "name": "manufacturer",
+        "bbox_xyxy_px": [
+          1163,
+          1002,
+          1221,
+          1056
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "at least 25 original pixels on each side"
+      },
+      {
+        "name": "consult_instructions",
+        "bbox_xyxy_px": [
+          775,
+          997,
+          859,
+          1081
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "at least 25 original pixels on each side"
+      }
+    ]
+  },
+  {
+    "id": "device_05",
+    "product": "Keramatrix",
+    "family": "Molecular Biologicals",
+    "module": "device",
+    "condition": "artwork_scan",
+    "setid": "2a20cd23-bdcc-453e-a72c-de7c123b3db8",
+    "version": "3",
+    "member": "keramatrix-01.jpg",
+    "size_px": [
+      981,
+      699
+    ],
+    "url": "https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=2a20cd23-bdcc-453e-a72c-de7c123b3db8&version=3",
+    "source_page": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=2a20cd23-bdcc-453e-a72c-de7c123b3db8",
+    "archive_sha256": "6e6658f861121033e94fbd60c125c0be8d796e718c8833aee63b753a4758de82",
+    "image_sha256": "844759181a8fc5301094cea884e03ba3fe7e8115269bc5bb114891dab2cca194",
+    "rights": "Open license not established; company-contributed artwork. Source: National Library of Medicine.",
+    "notes": "Partial symbol annotations; related layouts are not independent samples.",
+    "symbols": [
+      {
+        "name": "expiry",
+        "bbox_xyxy_px": [
+          40,
+          386,
+          82,
+          458
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "at least 25 original pixels on each side"
+      },
+      {
+        "name": "manufacturer",
+        "bbox_xyxy_px": [
+          756,
+          603,
+          796,
+          649
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "at least 25 original pixels on each side"
+      },
+      {
+        "name": "sterile_r",
+        "bbox_xyxy_px": [
+          82,
+          476,
+          164,
+          503
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text. Method letter read visually; verify at original resolution.",
+        "resolution_note": "at least 25 original pixels on each side"
+      }
+    ]
+  },
+  {
+    "id": "device_06",
+    "product": "Wiley Spinal",
+    "family": "Epimed",
+    "module": "device",
+    "condition": "artwork_scan",
+    "setid": "2ddbb193-4e4f-4ff5-bac1-41d7b8e91260",
+    "version": "1",
+    "member": "_0826141950_002.jpg",
+    "size_px": [
+      1700,
+      2200
+    ],
+    "url": "https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=2ddbb193-4e4f-4ff5-bac1-41d7b8e91260&version=1",
+    "source_page": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=2ddbb193-4e4f-4ff5-bac1-41d7b8e91260",
+    "archive_sha256": "b5a9f4fae01340e7d4ff5309b3811e3070accce02757fc37b60c4c5b1ce7e395",
+    "image_sha256": "f5c47723d6d0157c1afe3d3fda71572fb66e6f583eb2f67c1d8b81474896a9b3",
+    "rights": "Open license not established; company-contributed artwork. Source: National Library of Medicine.",
+    "notes": "Partial symbol annotations; related layouts are not independent samples.",
+    "symbols": [
+      {
+        "name": "sterile_eo",
+        "bbox_xyxy_px": [
+          628,
+          270,
+          748,
+          322
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text. Method letter read visually; verify at original resolution.",
+        "resolution_note": "at least 25 original pixels on each side"
+      },
+      {
+        "name": "expiry",
+        "bbox_xyxy_px": [
+          408,
+          864,
+          442,
+          922
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "at least 25 original pixels on each side"
+      }
+    ]
+  },
+  {
+    "id": "device_07",
+    "product": "ACL10SPSL12",
+    "family": "Clint",
+    "module": "device",
+    "condition": "artwork_scan",
+    "setid": "3344ac69-fa69-4f91-ae08-b875574e6b08",
+    "version": "1",
+    "member": "ACL10SPSL12.jpg",
+    "size_px": [
+      2550,
+      1650
+    ],
+    "url": "https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=3344ac69-fa69-4f91-ae08-b875574e6b08&version=1",
+    "source_page": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=3344ac69-fa69-4f91-ae08-b875574e6b08",
+    "archive_sha256": "2f19462043fd003673a259ef69c67b6b43bf4420fb3752a663604d355ac1b1d1",
+    "image_sha256": "80de1d61da3fe473b3ae295475204ef4a2c0f977e55bbd52cfa4d225d9f60acc",
+    "rights": "Open license not established; company-contributed artwork. Source: National Library of Medicine.",
+    "notes": "Partial symbol annotations; related layouts are not independent samples. Two duplicate printed panels count as one source image; only one panel annotated.",
+    "symbols": [
+      {
+        "name": "sterile_eo",
+        "bbox_xyxy_px": [
+          763,
+          1013,
+          899,
+          1064
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text. Method letter read visually; verify at original resolution.",
+        "resolution_note": "at least 25 original pixels on each side"
+      },
+      {
+        "name": "do_not_reuse",
+        "bbox_xyxy_px": [
+          589,
+          1006,
+          644,
+          1064
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "at least 25 original pixels on each side"
+      }
+    ]
+  },
+  {
+    "id": "device_08",
+    "product": "StrataTriz",
+    "family": "Stratpharma",
+    "module": "device",
+    "condition": "artwork_scan",
+    "setid": "50f7848d-9fd4-4529-a567-1256888aa137",
+    "version": "1",
+    "member": "StratTriz 20g box.jpg",
+    "size_px": [
+      2757,
+      1795
+    ],
+    "url": "https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=50f7848d-9fd4-4529-a567-1256888aa137&version=1",
+    "source_page": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=50f7848d-9fd4-4529-a567-1256888aa137",
+    "archive_sha256": "8e3969435ff9c7ba59036c9c1544a1db99a028b13653dd64ff506ec67c7048f5",
+    "image_sha256": "090b3d459ef36d31afb2ff8fe992f202f9ad1413b02c05af72d78c0dbf289008",
+    "rights": "Open license not established; company-contributed artwork. Source: National Library of Medicine.",
+    "notes": "Partial symbol annotations; related layouts are not independent samples.",
+    "symbols": [
+      {
+        "name": "manufacturer",
+        "bbox_xyxy_px": [
+          1105,
+          895,
+          1160,
+          948
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "at least 25 original pixels on each side"
+      },
+      {
+        "name": "consult_instructions",
+        "bbox_xyxy_px": [
+          742,
+          895,
+          822,
+          963
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "at least 25 original pixels on each side"
+      }
+    ]
+  },
+  {
+    "id": "device_09",
+    "product": "Keroxx",
+    "family": "Molecular Biologicals",
+    "module": "device",
+    "condition": "artwork_scan",
+    "setid": "584f247b-1a6d-4082-82e8-a17d8015ff1b",
+    "version": "1",
+    "member": "keroxx-01.jpg",
+    "size_px": [
+      979,
+      986
+    ],
+    "url": "https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=584f247b-1a6d-4082-82e8-a17d8015ff1b&version=1",
+    "source_page": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=584f247b-1a6d-4082-82e8-a17d8015ff1b",
+    "archive_sha256": "ee3341b14b4190f37b8825677d4883c8d639ce81e1af9795eab6d66ddf334a2b",
+    "image_sha256": "5380389b506756bb2fe17be49b4476a6c25bb9f1a3ecbfc1aa8fbe65708e7f92",
+    "rights": "Open license not established; company-contributed artwork. Source: National Library of Medicine.",
+    "notes": "Partial symbol annotations; related layouts are not independent samples.",
+    "symbols": [
+      {
+        "name": "manufacturer",
+        "bbox_xyxy_px": [
+          349,
+          300,
+          378,
+          333
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "at least 25 original pixels on each side"
+      },
+      {
+        "name": "sterile_r",
+        "bbox_xyxy_px": [
+          654,
+          140,
+          732,
+          171
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text. Method letter read visually; verify at original resolution.",
+        "resolution_note": "at least 25 original pixels on each side"
+      },
+      {
+        "name": "expiry",
+        "bbox_xyxy_px": [
+          543,
+          186,
+          569,
+          223
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "at least 25 original pixels on each side"
+      }
+    ]
+  },
+  {
+    "id": "device_10",
+    "product": "ACL10SP",
+    "family": "Clint",
+    "module": "device",
+    "condition": "artwork_scan",
+    "setid": "6527c5bc-8c8a-4c43-b7ac-03ad05801cf4",
+    "version": "1",
+    "member": "ACL10SP.jpg",
+    "size_px": [
+      2550,
+      1650
+    ],
+    "url": "https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=6527c5bc-8c8a-4c43-b7ac-03ad05801cf4&version=1",
+    "source_page": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=6527c5bc-8c8a-4c43-b7ac-03ad05801cf4",
+    "archive_sha256": "1d35801105427860844bfe1b9c244dfe309d190aa3338b02f5effa78874399d4",
+    "image_sha256": "d1c166e3ccdbce5d109756bce9e72c08f9f18eb2468ddb97dc86233611db1a18",
+    "rights": "Open license not established; company-contributed artwork. Source: National Library of Medicine.",
+    "notes": "Partial symbol annotations; related layouts are not independent samples. Two duplicate printed panels count as one source image; only one panel annotated.",
+    "symbols": [
+      {
+        "name": "sterile_eo",
+        "bbox_xyxy_px": [
+          675,
+          1043,
+          797,
+          1089
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text. Method letter read visually; verify at original resolution.",
+        "resolution_note": "at least 25 original pixels on each side"
+      },
+      {
+        "name": "do_not_reuse",
+        "bbox_xyxy_px": [
+          533,
+          1041,
+          586,
+          1092
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "at least 25 original pixels on each side"
+      }
+    ]
+  },
+  {
+    "id": "device_11",
+    "product": "PROPEL",
+    "family": "Intersect ENT",
+    "module": "device",
+    "condition": "artwork_scan",
+    "setid": "6befbf16-3f60-4ce8-94ec-5ce6a2b7f4e1",
+    "version": "15",
+    "member": "image-4.jpg",
+    "size_px": [
+      445,
+      302
+    ],
+    "url": "https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=6befbf16-3f60-4ce8-94ec-5ce6a2b7f4e1&version=15",
+    "source_page": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=6befbf16-3f60-4ce8-94ec-5ce6a2b7f4e1",
+    "archive_sha256": "f864bf8bfc2d7c758907e51772ea7eee5f5cd74b91c48640f0cfae252c5f6565",
+    "image_sha256": "e8244757ddd1fccd1e342b918618c5e8bb95c467c0631a6df2e267d60a218814",
+    "rights": "Open license not established; company-contributed artwork. Source: National Library of Medicine.",
+    "notes": "Partial symbol annotations; related layouts are not independent samples. Drug-eluting device kit, classified MEDICAL DEVICE by SPL; sample lot/date values.",
+    "symbols": [
+      {
+        "name": "sterile_r",
+        "bbox_xyxy_px": [
+          100,
+          194,
+          142,
+          210
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text. Method letter read visually; verify at original resolution.",
+        "resolution_note": "small: one side below 25 original pixels"
+      },
+      {
+        "name": "expiry",
+        "bbox_xyxy_px": [
+          8,
+          214,
+          23,
+          233
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "small: one side below 25 original pixels"
+      },
+      {
+        "name": "do_not_reuse",
+        "bbox_xyxy_px": [
+          258,
+          168,
+          284,
+          196
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "at least 25 original pixels on each side"
+      }
+    ]
+  },
+  {
+    "id": "device_12",
+    "product": "PROPEL mini",
+    "family": "Intersect ENT",
+    "module": "device",
+    "condition": "artwork_scan",
+    "setid": "6befbf16-3f60-4ce8-94ec-5ce6a2b7f4e1",
+    "version": "15",
+    "member": "image-5a.jpg",
+    "size_px": [
+      542,
+      363
+    ],
+    "url": "https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=6befbf16-3f60-4ce8-94ec-5ce6a2b7f4e1&version=15",
+    "source_page": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=6befbf16-3f60-4ce8-94ec-5ce6a2b7f4e1",
+    "archive_sha256": "f864bf8bfc2d7c758907e51772ea7eee5f5cd74b91c48640f0cfae252c5f6565",
+    "image_sha256": "4004ff02db4db306be77d9bd7d8f2f166bc1f86314ffa6d0d2eecf4569df34dc",
+    "rights": "Open license not established; company-contributed artwork. Source: National Library of Medicine.",
+    "notes": "Partial symbol annotations; related layouts are not independent samples. Drug-eluting device kit, classified MEDICAL DEVICE by SPL; sample lot/date values.",
+    "symbols": [
+      {
+        "name": "sterile_r",
+        "bbox_xyxy_px": [
+          124,
+          231,
+          181,
+          251
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text. Method letter read visually; verify at original resolution.",
+        "resolution_note": "small: one side below 25 original pixels"
+      },
+      {
+        "name": "expiry",
+        "bbox_xyxy_px": [
+          19,
+          255,
+          35,
+          278
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "small: one side below 25 original pixels"
+      }
+    ]
+  },
+  {
+    "id": "device_13",
+    "product": "PROPEL contour",
+    "family": "Intersect ENT",
+    "module": "device",
+    "condition": "artwork_scan",
+    "setid": "6befbf16-3f60-4ce8-94ec-5ce6a2b7f4e1",
+    "version": "15",
+    "member": "image-6a.jpg",
+    "size_px": [
+      519,
+      357
+    ],
+    "url": "https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=6befbf16-3f60-4ce8-94ec-5ce6a2b7f4e1&version=15",
+    "source_page": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=6befbf16-3f60-4ce8-94ec-5ce6a2b7f4e1",
+    "archive_sha256": "f864bf8bfc2d7c758907e51772ea7eee5f5cd74b91c48640f0cfae252c5f6565",
+    "image_sha256": "b94a4d2fcf93f885d987b31665f77b59083eff4bc85fb929a62fcf4e071efee6",
+    "rights": "Open license not established; company-contributed artwork. Source: National Library of Medicine.",
+    "notes": "Partial symbol annotations; related layouts are not independent samples. Drug-eluting device kit, classified MEDICAL DEVICE by SPL; sample lot/date values.",
+    "symbols": [
+      {
+        "name": "sterile_r",
+        "bbox_xyxy_px": [
+          118,
+          229,
+          175,
+          249
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text. Method letter read visually; verify at original resolution.",
+        "resolution_note": "small: one side below 25 original pixels"
+      },
+      {
+        "name": "expiry",
+        "bbox_xyxy_px": [
+          18,
+          251,
+          34,
+          274
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "small: one side below 25 original pixels"
+      }
+    ]
+  },
+  {
+    "id": "device_14",
+    "product": "V49663C-25 spinal kit",
+    "family": "Smiths Medical",
+    "module": "device",
+    "condition": "artwork_scan",
+    "setid": "6e04f24a-a4ca-4e84-b3b3-7deba0b9cad0",
+    "version": "2",
+    "member": "V49663C-25.jpg",
+    "size_px": [
+      1650,
+      844
+    ],
+    "url": "https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=6e04f24a-a4ca-4e84-b3b3-7deba0b9cad0&version=2",
+    "source_page": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=6e04f24a-a4ca-4e84-b3b3-7deba0b9cad0",
+    "archive_sha256": "2c8a7f54dba3b0a65bf3d0d6def1fd44e61b40db2fa79aa66be0be8954bfbc7a",
+    "image_sha256": "fe9dd75ceea70cea8235599ca0516ce5af86d934e448f7fe50fed9471872055b",
+    "rights": "Open license not established; company-contributed artwork. Source: National Library of Medicine.",
+    "notes": "Partial symbol annotations; related layouts are not independent samples.",
+    "symbols": [
+      {
+        "name": "sterile_eo",
+        "bbox_xyxy_px": [
+          720,
+          640,
+          848,
+          684
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text. Method letter read visually; verify at original resolution.",
+        "resolution_note": "at least 25 original pixels on each side"
+      },
+      {
+        "name": "manufacturer",
+        "bbox_xyxy_px": [
+          86,
+          649,
+          117,
+          681
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "at least 25 original pixels on each side"
+      }
+    ]
+  },
+  {
+    "id": "device_15",
+    "product": "StrataGRT",
+    "family": "Stratpharma",
+    "module": "device",
+    "condition": "artwork_scan",
+    "setid": "732ad204-c969-40db-95c7-e5da5801f910",
+    "version": "2",
+    "member": "GRT 20 Box Label.jpg",
+    "size_px": [
+      1228,
+      800
+    ],
+    "url": "https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=732ad204-c969-40db-95c7-e5da5801f910&version=2",
+    "source_page": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=732ad204-c969-40db-95c7-e5da5801f910",
+    "archive_sha256": "6367b10e598df4443ca0242c5656988426fb29fc73328630651df6d200333d47",
+    "image_sha256": "eeb02a371b02794bbc568a9ea7702bf0352c5a246224a16bbfd4732970752adb",
+    "rights": "Open license not established; company-contributed artwork. Source: National Library of Medicine.",
+    "notes": "Partial symbol annotations; related layouts are not independent samples.",
+    "symbols": [
+      {
+        "name": "manufacturer",
+        "bbox_xyxy_px": [
+          493,
+          379,
+          520,
+          404
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "at least 25 original pixels on each side"
+      },
+      {
+        "name": "sterile_r",
+        "bbox_xyxy_px": [
+          315,
+          383,
+          358,
+          404
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text. Method letter read visually; verify at original resolution.",
+        "resolution_note": "small: one side below 25 original pixels"
+      }
+    ]
+  },
+  {
+    "id": "device_16",
+    "product": "ACL5SP",
+    "family": "Clint",
+    "module": "device",
+    "condition": "artwork_scan",
+    "setid": "7a85a79e-a0b9-4e51-9dc2-01a6e3e0b2a5",
+    "version": "1",
+    "member": "ACL5SP.jpg",
+    "size_px": [
+      2550,
+      1650
+    ],
+    "url": "https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=7a85a79e-a0b9-4e51-9dc2-01a6e3e0b2a5&version=1",
+    "source_page": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=7a85a79e-a0b9-4e51-9dc2-01a6e3e0b2a5",
+    "archive_sha256": "8b17d3e0b9c42357af22e21849c31b8fc34b92c129821f0c973f6e7d0c28e15f",
+    "image_sha256": "5d19260c70a632a2fba1ddf04fa10fab81a7d14ef7704480c0baf9be9025c95b",
+    "rights": "Open license not established; company-contributed artwork. Source: National Library of Medicine.",
+    "notes": "Partial symbol annotations; related layouts are not independent samples. Two duplicate printed panels count as one source image; only one panel annotated.",
+    "symbols": [
+      {
+        "name": "sterile_eo",
+        "bbox_xyxy_px": [
+          730,
+          1045,
+          879,
+          1101
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text. Method letter read visually; verify at original resolution.",
+        "resolution_note": "at least 25 original pixels on each side"
+      },
+      {
+        "name": "do_not_reuse",
+        "bbox_xyxy_px": [
+          556,
+          1038,
+          626,
+          1101
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "at least 25 original pixels on each side"
+      }
+    ]
+  },
+  {
+    "id": "device_17",
+    "product": "ACL17SPG",
+    "family": "Clint",
+    "module": "device",
+    "condition": "artwork_scan",
+    "setid": "88f6e5e4-0179-41aa-854b-a148fe49fe58",
+    "version": "4",
+    "member": "ACL17SPG.jpg",
+    "size_px": [
+      1650,
+      1275
+    ],
+    "url": "https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=88f6e5e4-0179-41aa-854b-a148fe49fe58&version=4",
+    "source_page": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=88f6e5e4-0179-41aa-854b-a148fe49fe58",
+    "archive_sha256": "57ddd1dd80b025b48b31528bfabe0e18fa8fd98e6a7a2186ffa1e38b9354024e",
+    "image_sha256": "ef9ed412bac9848a6cbbc84c347ae0e8cd208831206896deb19cae9b335abb6c",
+    "rights": "Open license not established; company-contributed artwork. Source: National Library of Medicine.",
+    "notes": "Partial symbol annotations; related layouts are not independent samples. Side-panel expiry is rotated.",
+    "symbols": [
+      {
+        "name": "sterile_eo",
+        "bbox_xyxy_px": [
+          639,
+          998,
+          764,
+          1044
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text. Method letter read visually; verify at original resolution.",
+        "resolution_note": "at least 25 original pixels on each side"
+      },
+      {
+        "name": "expiry",
+        "bbox_xyxy_px": [
+          1377,
+          464,
+          1426,
+          495
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "at least 25 original pixels on each side"
+      }
+    ]
+  },
+  {
+    "id": "device_18",
+    "product": "StrataCTX",
+    "family": "Stratpharma",
+    "module": "device",
+    "condition": "artwork_scan",
+    "setid": "e5f966d7-71d1-4324-ab02-3c841bd702f5",
+    "version": "1",
+    "member": "StrataCTX Box Label.jpg",
+    "size_px": [
+      1350,
+      970
+    ],
+    "url": "https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=e5f966d7-71d1-4324-ab02-3c841bd702f5&version=1",
+    "source_page": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=e5f966d7-71d1-4324-ab02-3c841bd702f5",
+    "archive_sha256": "889b115d4d0e3a8b8d313ba3e4678224bd1a1e87aa7b5af4553418cc111561de",
+    "image_sha256": "7e913300e642a1db50ea7c71f97a5c77dbdd4e8175b7624e18a668f238d26009",
+    "rights": "Open license not established; company-contributed artwork. Source: National Library of Medicine.",
+    "notes": "Partial symbol annotations; related layouts are not independent samples.",
+    "symbols": [
+      {
+        "name": "manufacturer",
+        "bbox_xyxy_px": [
+          529,
+          524,
+          549,
+          543
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "small: one side below 25 original pixels"
+      },
+      {
+        "name": "sterile_r",
+        "bbox_xyxy_px": [
+          405,
+          532,
+          437,
+          546
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text. Method letter read visually; verify at original resolution.",
+        "resolution_note": "small: one side below 25 original pixels"
+      }
+    ]
+  },
+  {
+    "id": "device_19",
+    "product": "Aceso Ag dressing",
+    "family": "NBGS",
+    "module": "device",
+    "condition": "artwork_scan",
+    "setid": "ebff5325-d1d3-4f14-b575-9ccf9ab53896",
+    "version": "3",
+    "member": "Silicone ag  pouch.jpg",
+    "size_px": [
+      3153,
+      2764
+    ],
+    "url": "https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=ebff5325-d1d3-4f14-b575-9ccf9ab53896&version=3",
+    "source_page": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ebff5325-d1d3-4f14-b575-9ccf9ab53896",
+    "archive_sha256": "1cfcd2e8eb37a72ef4666c02b3533122daa37656b9c5a65bd4692229fbd3ee9a",
+    "image_sha256": "e41488d31e2e589bf399d38e4aa6a941ceb8ea785edf214b4346165d9108d4c1",
+    "rights": "Open license not established; company-contributed artwork. Source: National Library of Medicine.",
+    "notes": "Partial symbol annotations; related layouts are not independent samples.",
+    "symbols": [
+      {
+        "name": "sterile_eo",
+        "bbox_xyxy_px": [
+          1442,
+          1485,
+          1619,
+          1560
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text. Method letter read visually; verify at original resolution.",
+        "resolution_note": "at least 25 original pixels on each side"
+      },
+      {
+        "name": "do_not_reuse",
+        "bbox_xyxy_px": [
+          1769,
+          1482,
+          1846,
+          1563
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "at least 25 original pixels on each side"
+      }
+    ]
+  },
+  {
+    "id": "device_20",
+    "product": "Aceso Ag dressing carton",
+    "family": "NBGS",
+    "module": "device",
+    "condition": "artwork_scan",
+    "setid": "ebff5325-d1d3-4f14-b575-9ccf9ab53896",
+    "version": "3",
+    "member": "Silicone ag box.jpg",
+    "size_px": [
+      4752,
+      3679
+    ],
+    "url": "https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?type=zip&setid=ebff5325-d1d3-4f14-b575-9ccf9ab53896&version=3",
+    "source_page": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ebff5325-d1d3-4f14-b575-9ccf9ab53896",
+    "archive_sha256": "1cfcd2e8eb37a72ef4666c02b3533122daa37656b9c5a65bd4692229fbd3ee9a",
+    "image_sha256": "13781a75fa8d7818a4d488d8953256e43a112d5b8dc65c0e910bbebec9a45a90",
+    "rights": "Open license not established; company-contributed artwork. Source: National Library of Medicine.",
+    "notes": "Partial symbol annotations; related layouts are not independent samples.",
+    "symbols": [
+      {
+        "name": "sterile_eo",
+        "bbox_xyxy_px": [
+          289,
+          2099,
+          483,
+          2178
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "at least 25 original pixels on each side"
+      },
+      {
+        "name": "do_not_reuse",
+        "bbox_xyxy_px": [
+          622,
+          2095,
+          709,
+          2182
+        ],
+        "origin": "LLM-labelled",
+        "uncertainty": "Visual AI interpretation, not human reviewed; box includes small margin and may include adjacent text.",
+        "resolution_note": "at least 25 original pixels on each side"
+      }
+    ]
+  }
+]
+```
+
+## Online photo candidates for Task 4 (supplemental only)
+
+These are ten online photographs, not Parth's captures. None is admitted to the
+three-field evaluation yet. Readability of product_name, lot and expiry has **not**
+been verified from the original pixels, transcriptions are not supplied, and the
+human spot-check is NOT_RUN. Check each original before selecting an evaluation
+subset. The needle-holder pair shows related objects and must not be treated as
+independent evidence. Some candidates depict wrapping materials rather than a
+finished device label and may prove unsuitable. These photographs are separate
+from the DailyMed artwork collection above and the legacy medicine collection.
+
+License and author are taken from each original Commons file page, checked
+2026-11-16. Keep attribution and license links with any local copies or derivatives.
+The listed license covers the photograph; it does not imply endorsement by any
+manufacturer. A photo marked camera unknown is not asserted to be a phone photo.
+No image files are committed, and none of these candidates is claimed as a human
+capture or a completed Task 4 benchmark. Paridhi must accept online substitution
+before it can replace the requested physical captures.
+
+| Candidate / source and original download page | Author | Photo license | Capture / relevance limitation | Module |
+|---|---|---|---|---|
+| [Epidural kit in sterile packaging](https://commons.wikimedia.org/wiki/File:Epidural_kit_in_sterile_packaging.jpg) | Sgroey | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | iPhone 11 metadata; device kit package; three fields unverified | device candidate |
+| [Ethylene oxide sticker](https://commons.wikimedia.org/wiki/File:Ethylene_oxide_sterilisation_sticker_on_box_of_medical_supplies.jpg) | Sgroey | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | Sterilization sticker; product/lot/expiry may be absent; camera not verified here | device candidate |
+| [Curette in sterile packaging](https://commons.wikimedia.org/wiki/File:Curette_in_sterile_packaging.jpg) | Mikael Häggström | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | Device pouch; camera unknown; three fields unverified | device candidate |
+| [Medical disposable packaging](https://commons.wikimedia.org/wiki/File:Medizinische_Einwegverpackung_06.JPG) | Werneuchen | Public-domain dedication by photographer on source page | Disposable materials; three fields unverified | device candidate |
+| [Sterile dental instruments](https://commons.wikimedia.org/wiki/File:Sterile_instruments_ready_for_use.jpg) | Ptrump16 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | Hospital reprocessing label; may use sterilization batch instead of manufacturer lot | device candidate |
+| [MELAfol 502](https://commons.wikimedia.org/wiki/File:MELAfol_502.jpg) | Entrancess | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | Sterilization packaging material; may not suit device-field evaluation | device candidate |
+| [Needle holder 01](https://commons.wikimedia.org/wiki/File:Mikrochirurgischer_Nadelhalter_01.JPG) | Werneuchen | Public-domain dedication by photographer on source page | Related to candidate 02; three fields unverified | device candidate |
+| [Needle holder 02](https://commons.wikimedia.org/wiki/File:Mikrochirurgischer_Nadelhalter_02.JPG) | Werneuchen | Public-domain dedication by photographer on source page | Related to candidate 01; three fields unverified | device candidate |
+| [Sterilization packaging materials](https://commons.wikimedia.org/wiki/File:Packaging_materials_for_sterilisation.jpg) | Ivanhoe | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) | Panasonic DMC-FZ8 camera; wrapping materials, potentially unsuitable | device candidate |
+| [Soviet glass syringe](https://commons.wikimedia.org/wiki/File:Soviet_glass_syringe.png) | im_tau | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | Historical Russian packaging; language and missing lot/expiry may exclude it | device candidate |

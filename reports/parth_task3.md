@@ -1,36 +1,40 @@
-# Parth Task 3: source tracking correction
+# Parth Task 3: pinned device artwork and symbol crops
 
 ## 1. What I did
-Applied Paridhi's clarification to the legacy real-label files. Removed the 60 medicine images and generated dataset files from Git tracking while retaining every file locally. Added a source catalog that tags all 60 entries as medicine and excludes them from device evaluation.
+Collected 20 public device-label artworks from 17 DailyMed records across eight label families. Visually inspected and cropped 44 symbols in six classes, marking every guess LLM-labelled with uncertainty. Excluded medicine-component panels and example-only Centurion artwork. Preserved the old 60 medicine sources separately and kept image binaries local.
 
-## 2. Files changed
-- `.gitignore`: new datasets and phone photos remain local; SOURCES.md is allowed.
-- `data/real/SOURCES.md`: each image/XML path, pinned source URL, module and rights status.
-- `tests/test_real_set.py`: newline simulation uses builder constants, so a clean clone needs no ignored data files.
-- The 125 previously tracked real-set files are untracked, not deleted from disk.
-- This report and `docs/LEARNING_LOG.md`: scope, checks and remaining work.
+## 2. Files created or changed
+- `scripts/real/fetch_dailymed.py`: downloads pinned versions, verifies fingerprints and device metadata, rebuilds crops.
+- `tests/test_device_real_set.py`: offline tests for provenance, coordinates, source identity, retries and reproducibility.
+- `data/real/SOURCES.md`: source URLs, rights, original-pixel boxes and rebuild catalog.
+- This report and `docs/LEARNING_LOG.md`: checks and limitations.
 
 ## 3. How it works
-Only SOURCES.md is tracked under data/real. Existing images and XML retain their original SHA-256 fingerprints. The medicine catalog is not a device-symbol test set. License status is not assumed: company artwork may retain rights, as documented in the catalog.
+A crop is a rectangle copied from the original image. SHA-256 is a file fingerprint: changed downloads fail verification. The catalog alone rebuilds originals and annotations; no hidden local manifest is needed. Counts: manufacturer 9, expiry 9, sterile-R 9, sterile-EO 8, single-use 6, instructions 3. Fourteen crops have a side below 25 original pixels and are flagged small. Annotations cover selected symbols, not every symbol or absence.
 
 ## 4. How I verified it
+Background jobs completed; actual commands and output:
 ```text
-/opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider tests/test_real_set.py
-17 passed in 0.36s
+/opt/anaconda3/envs/labellens-cv/bin/python /tmp/ll_clean_device_checkout_final/scripts/real/fetch_dailymed.py
+{"evaluation": "NOT_RUN", "images": 20, "module": "device", "symbol_crops": 44, "tags": "LLM-labelled"}
+```
+The isolated copy contained only the script and catalog, initially no data. All rebuilt originals and crops matched local bytes. An earlier attempt timed out; bounded retries were added and tested.
+```text
+/opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider -m "not slow"
+........................................................................ [ 19%]
+........................................................................ [ 38%]
+........................................................................ [ 57%]
+........................................................................ [ 77%]
+........................................................................ [ 96%]
+.............                                                            [100%]
+373 passed, 3 deselected in 38.00s
 
-/opt/anaconda3/envs/labellens-cv/bin/python -m ruff check --no-cache src tests
+/opt/anaconda3/envs/labellens-cv/bin/python -m ruff check --no-cache src tests scripts/real
 All checks passed!
 ```
 
-Also checked the index, ignored-file rules and all saved checksums:
-```text
-60 images and 60 XML files remain on disk with unchanged SHA-256 hashes.
-Tracked under data/real: SOURCES.md only.
-New real images and phone photos are ignored.
-```
+## 5. What you should check yourself
+Inspect crop boxes and the small/rotated symbols. Check device/medicine separation and per-source rights. Confirm only SOURCES.md is tracked under data/real.
 
-## 5. What to check yourself
-Open SOURCES.md and verify the medicine tags and exclusion column. Confirm local images remain available but are not staged or tracked.
-
-## 6. Assumptions and remaining work
-This completes tracking cleanup, not the new Task 3 collection: about 20 actual device labels, symbol crops and uncertain LLM-labelled tags remain outstanding. Past Git commits still contain the old files; history was not rewritten. Photos require physical capture by Parth before in-session LLM transcription and a three-photo human spot-check.
+## 6. What I am unsure about or assumed
+All 20 images contain visually identifiable symbol candidates; human review and detector/blind-mode accuracy are NOT_RUN. Related layouts require grouped evaluation. Public availability does not establish an open artwork license. Three slow tests were excluded. No dependencies were added.
