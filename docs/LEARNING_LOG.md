@@ -334,9 +334,9 @@ A sequential log of progress, implementation decisions, worked examples, and ver
 
 ---
 
-_Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 numbering is separate from the retrieval Step 16 above._
+_Appended from a stray root LEARNING_LOG.md (Parth CV track). Its CV step 16 to 18 numbering is separate from the retrieval Step 16 above._
 
-## Step 16: Synthetic Label Generation and CV Draft Workflow
+## CV step 16: Synthetic Label Generation and CV Draft Workflow
 1. **What I did:** Finished seeded three-condition label generation, original-image field and symbol coordinates, template pictogram detection, draft SVG/PDF rendering and evidence-based print verification.
 2. **Files changed:** Scoped `src/gen` and `src/cv` modules/tests/READMEs, two deterministic `data/symbols/device` references, and the generated `results/cv_extract.md` report. Shared schemas and retrieval code were not changed.
 3. **How it works:** Homographies map label slots into distorted images; the extractor maps detections back. Draft manifests contain watermark status, change history, artifact hashes and self-check. Print verification requires an external authorized approval bound to exact manifest bytes.
@@ -344,7 +344,7 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 5. **Check yourself:** Review the new symbol tests, renderer manifest and approval binding, and the condition-specific evaluation table.
 6. **Assumptions:** Findings apply to one synthetic template family; the identifier is a test placeholder and pictograms are not certified ISO artwork.
 
-## Step 17: Hard-Condition Barcode Recovery
+## CV step 17: Hard-Condition Barcode Recovery
 1. **What I did:** Added original-first barcode decoding with rectification and thresholded template-slot recovery. Reduced only the hard blur/noise enough to preserve the barcode pattern while keeping hard rotation, perspective and lighting. Added a regression test requiring at least 80% exact GS1 matches on all 17 seed-42 hard labels.
 2. **Files changed:** `src/cv/barcode.py`, `src/cv/extract.py`, `src/cv/test_barcode.py`, `src/cv/test_extract.py`, `src/gen/augment.py`, `src/gen/generate_dataset.py`, `src/gen/test_generate_dataset.py`, `src/cv/README.md`, `src/gen/README.md`, and `results/cv_extract.md`.
 3. **How it works:** If a full-image decode fails, the label is straightened and the known barcode slot is cropped with a 3 mm margin. Adaptive grayscale thresholding exposes the dark modules for zxing-cpp; returned coordinates are mapped back to the original photo.
@@ -352,7 +352,7 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 5. **Check yourself:** Review `decode_barcode_slot`, the 14-of-17 regression assertion, and the two-seed condition-separated results in `src/cv/README.md`.
 6. **Assumptions:** The score target applies to this synthetic test-device template and fixed seeds. Two seed-42 and one seed-43 hard images still require human review; no identifier authenticity is implied.
 
-## Step 18: Parth's Shareable CV Work README
+## CV step 18: Parth's Shareable CV Work README
 1. **What I did:** Wrote a concise handoff document describing the assigned work, implementation, measured results, reproduction steps, limits and remaining review items.
 2. **Files changed:** `docs/PARTH_WORK_SUMMARY.md` (shareable report for Paridhi) and this learning log (step record).
 3. **How it works:** The report links the relevant code and evaluation report, gives seed-separated barcode results and field-level OCR error rates, and includes commands to reproduce the 51-image run.
@@ -507,3 +507,11 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 4. **Verified:** `python -m pytest -q -p no:cacheprovider src/gen src/cv`: 233 passed in 123.86s. `ruff check --no-cache src/gen src/cv`: All checks passed. Full pytest collection also exposed missing `requests` and `faiss` in this CV Conda environment.
 5. **Check yourself:** Review the fresh-seed table, the old benchmark caveat, and the symbol limitations.
 6. **Assumptions:** Existing historical test output is retained with its environment and Windows Poppler caveat.
+
+## CV step 20: Disambiguated Parth's CV log headings
+1. **What I did:** Renamed the CV track's three old numbered headings so they cannot be confused with retrieval Step 16.
+2. **Files changed:** `docs/LEARNING_LOG.md` (clearer CV-specific numbering and this step record).
+3. **How it works:** The original work entries now use `CV step` prefixes; retrieval Step 16 keeps its existing name.
+4. **Verified:** Scoped CV and generation pytest, Ruff and whitespace checks were run; outputs are in the step report.
+5. **Check yourself:** Confirm retrieval Step 16 remains unchanged and the three CV headings use their new prefixes.
+6. **Assumptions:** Only headings and the explanatory note needed renaming; historical entry text stays intact.
