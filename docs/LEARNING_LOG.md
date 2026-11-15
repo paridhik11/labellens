@@ -499,3 +499,11 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 4. **Verified:** CV suite 258 passed, 1 skipped; root command without CV libraries 111 passed, 1 skipped, 1 deselected; ruff clean. Dev seeds only: very hard false mismatch flags 9 of 33 (template) and 5 of 33 (blind) before and after; real mismatches 68/68 per mode before and after.
 5. **Check yourself:** That the 0.8 threshold changed nothing because every false alarm had confidence 0.876 to 0.999.
 6. **Assumptions:** The threshold was set before measuring and not tuned. Symbol intervals treat the two symbols on a label as independent, so they are somewhat too narrow.
+
+## CV step 19: Corrected the CV handoff claims
+1. **What I did:** Updated the handoff report to address all 12 caveats in `docs/CV_STATUS.md` and use only fresh-seed CV metrics.
+2. **Files changed:** `docs/PARTH_WORK_SUMMARY.md` (corrected results and limits) and this log (step record).
+3. **How it works:** It separates blind and template-assisted results, identifies the synthetic symbol-reference limitation, and reports very-hard results distinctly.
+4. **Verified:** `python -m pytest -q -p no:cacheprovider src/gen src/cv`: 233 passed in 123.86s. `ruff check --no-cache src/gen src/cv`: All checks passed. Full pytest collection also exposed missing `requests` and `faiss` in this CV Conda environment.
+5. **Check yourself:** Review the fresh-seed table, the old benchmark caveat, and the symbol limitations.
+6. **Assumptions:** Existing historical test output is retained with its environment and Windows Poppler caveat.

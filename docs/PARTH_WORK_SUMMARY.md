@@ -1,103 +1,84 @@
 # Parth's LabelLens CV and Synthetic Label Work
 
 **For:** Paridhi  
-**Branch:** [`parth-cv`](https://github.com/paridhik11/labellens/tree/parth-cv)  
-**Latest commit:** [`3c98598`](https://github.com/paridhik11/labellens/commit/3c985984d7cf1df290ac770be16562351157e8e3)
+**Branch:** [parth-gen](https://github.com/paridhik11/labellens/tree/parth-gen)
+**Base work:** CV and template work from `parth-cv`, reviewed and merged to `main`.
 
 ## Project goal
 
-Build a reproducible synthetic medical-device label workflow and a computer-vision baseline that can locate and read fields, decode the GS1 barcode, detect the two template pictograms, and preserve correct positions through distortion. The output must remain clearly marked test draft artwork, must use supplied identifiers rather than invented ones, and must keep results separate for clean, moderate and hard conditions.
+Build a reproducible synthetic medical-device label workflow and a computer-vision baseline for reading fields and GS1 barcodes, locating symbols, and preserving positions through distortion. Generated labels remain test drafts, use supplied identifiers, and are evaluated separately by condition.
 
 ## Work completed
 
-### Synthetic label generation
+### Synthetic labels and augmentation
 
-- Aligned augmentation tests with the actual API: `augment_label` returns the image, source-to-photo transform and label corners; `transform_box` maps slot rectangles into photo coordinates.
-- Extended the test-label builder with varied product, manufacturer, address, model, lot, expiry and serial values. Each base label shares its values across the clean, moderate and hard variants.
-- Added a fixed-seed dataset generator. The default creates 17 base labels across three conditions, for 51 PNGs and matching ground-truth JSON files. The manifest records seeds, paths and self-check counts.
-- Ground truth includes transformed label, text-slot and symbol corners, the homography, GS1 data, change log and self-check. Failed images remain in the dataset for evaluation.
-- Reduced only the hard-condition blur and noise to keep barcode modules readable. Hard rotation, perspective and uneven lighting remain enabled.
+- Aligned augmentation tests with the augmentation API and tested coordinate transforms for label, text and symbol positions.
+- Added fixed-seed label generation with varied product, manufacturer, address, model, lot, expiry and serial values. Each base label has clean, moderate and hard variants with matching ground-truth JSON and a manifest.
+- Ground truth includes transformed corners, homography, GS1 data, change log and self-check. Failed samples remain in evaluation.
+- Added harder synthetic conditions including glare and occlusion. These are controlled synthetic stress cases, not real capture conditions.
 
-### Computer vision and barcode recovery
+### Computer vision and barcode handling
 
-- Added label-boundary detection and perspective correction, OCR with RapidOCR, GS1 AI parsing, template field mapping and an integrated extraction path.
-- Preserved image-coordinate correctness: detected text and barcode positions are mapped back to the original photograph. Symbol positions are likewise mapped back after rectification.
-- Added synthetic template matching for the manufacturer and expiry pictograms. The symbols are generated deterministically from the existing drawing code.
-- Improved hard-condition barcode decoding. The pipeline tries the original image first, then the rectified label, then a locally thresholded crop of the known barcode slot. The recovery is restricted to the current test-device template.
-- Added an automated check that requires at least 14 of the 17 seed-42 hard labels to have an exact GS1 match.
+- Added label-boundary detection, perspective correction, OCR, GS1 parsing, template and blind extraction paths, and coordinates mapped to the original image.
+- Barcode decoding supports blind image search and template-assisted recovery. The template-assisted path uses known barcode-slot information, so its scores should not be presented as blind decoding.
+- Blind symbol search scans the label at multiple scales. Detection still uses references derived from the same synthetic symbol drawing code, so these results do not establish performance on independently drawn or real-world symbols.
+- Added negative cases for absent or incorrect symbols and barcode/text mismatches.
 
-### Draft rendering and print comparison
+### Draft rendering and verification
 
-- Added deterministic SVG, physical-size PDF and 300-DPI preview rendering for the test-device template.
-- Draft packages carry a DRAFT watermark, change log, artifact hashes and OCR/barcode/symbol self-check. Barcode matrices are reused when encoded data is unchanged; changed barcode data requires explicit confirmation.
-- Added print comparison against a reference manifest. Verification requires an authorized approval record bound to that exact manifest and checks artifact hashes. It does not create approvals or publish artwork.
+- Added deterministic SVG, physical-size PDF and preview rendering for the test-device template.
+- Draft output carries DRAFT marking, a change log, artifact hashes and self-check results. Barcode content is retained when unchanged and regenerated only for confirmed changes.
+- Print comparison is bound to an approval record and artifact hash. The verification code does not create approvals or publish artwork.
 
-## Measured results
+## Fresh-seed results
 
-Seed 42 uses 17 images per condition. The score for symbols is the number of expected pictograms with the right name and a bounding-box intersection-over-union (IoU) of at least 0.50. IoU is overlap area divided by the combined area of the expected and predicted boxes.
+The following results are from seeds 100, 101 and 102 in `results/cv_final_eval.md`: 51 synthetic labels per condition and 102 expected symbol instances per condition. All use one synthetic template family.
 
-| Condition | Exact GS1 matches | Label corners within 10 px | Symbol matches | Mean symbol IoU |
-| --- | ---: | ---: | ---: | ---: |
-| Clean | 17/17 (100%) | 17/17 | 34/34 | 0.988 |
-| Moderate | 17/17 (100%) | 17/17 | 34/34 | 0.988 |
-| Hard | 15/17 (88.24%) | 17/17 | 34/34 | 0.990 |
+| Condition | Exact GS1, blind | Exact GS1, template-assisted | Blind symbol matches | Template symbol matches | Corners within 10 px |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Clean | 51/51 | 51/51 | 102/102 | 102/102 | 51/51 |
+| Moderate | 51/51 | 51/51 | 102/102 | 102/102 | 51/51 |
+| Hard | 51/51 | 51/51 | 102/102 | 102/102 | 51/51 |
+| Original hard | 51/51 | 50/51 | 102/102 | 102/102 | 51/51 |
+| Very hard | 43/51 | 44/51 | 93/102 | 93/102 | 51/51 |
 
-An independent seed-43 dataset also decoded 17/17 clean, 17/17 moderate and 16/17 hard barcodes (94.12%). The original whole-image-only baseline decoded 4/17 hard barcodes on seed 42. Repeating seed-42 generation produced 103 byte-identical files.
+“Very hard” includes synthetic glare and occlusion. On that condition, OCR character error rate was 9.35% in blind mode and 3.85% in template mode after format post-correction. Clean, moderate, hard and original-hard post-corrected OCR error rates were 0.00% for both modes. In the variation cases, absent symbols produced 0 false positive detections; the exact counts and confidence intervals are in the evaluation report.
 
-OCR character error rate (CER) on seed 42, by field:
+The older “15/17 hard” figure only applied to an easier, reduced blur/noise setting and is not the result to use for the original hard benchmark. The old “4/17 baseline” comparison mixed settings; the same-image fresh-seed comparisons are reported in `results/cv_final_eval.md`. No seed-42 or seed-43 figures are used here.
 
-| Condition | Product name | Manufacturer | Address | Model | Lot | Expiry |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Clean | 15.15% | 0.00% | 0.00% | 7.14% | 5.26% | 5.10% |
-| Moderate | 1.73% | 0.00% | 0.00% | 6.30% | 2.48% | 0.00% |
-| Hard | 0.00% | 0.00% | 0.00% | 0.42% | 0.00% | 0.00% |
+## Limits and remaining work
 
-All six fields were present in all 17 images per condition. CER counts character insertions, deletions and substitutions without normalizing spaces, punctuation or case.
-
-The exact seed-42 extraction report is in [`results/cv_extract.md`](../results/cv_extract.md). The separate generator self-check and decoder evaluation count a barcode as successful only when exactly one decoded symbol has the expected GS1 fields and values.
+- These results use synthetic artwork from one template family. No real product photo has been evaluated yet.
+- The very-hard barcode result is lower than the other conditions. OCR naming in blind mode is heuristic and performs worse than template mapping under very hard glare and occlusion.
+- Symbol detection is not validated on independent artwork: the references come from the same code as the synthetic symbols, and independently drawn variants were not detected in the fresh evaluation.
+- The test GTIN is an all-zero placeholder, not an allocated GTIN or UDI-DI. No real identifier is fabricated.
+- Pictograms are simplified test artwork, not certified ISO symbols. No reviewer approval was issued and no artwork was published.
+- Cross-platform output bytes are not identical, even though the reported evaluation metrics matched. On Windows without Poppler's `pdftoppm`, one render test fails.
+- The shared schemas and retrieval modules were not changed in the CV work.
 
 ## Verification
 
-Commands were run with the Conda environment's Python 3.12 executable:
+The prior scoped Mac run used the Conda Python 3.12 environment:
 
 ```bash
 /opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q src/gen src/cv
 /opt/anaconda3/envs/labellens-cv/bin/python -m ruff check src/gen src/cv
-/opt/anaconda3/envs/labellens-cv/bin/python -m pip check
 ```
 
-Actual output:
+Output from this handoff update:
 
 ```text
-233 passed in 61.48s (0:01:01)
+233 passed in 123.86s (0:02:03)
 All checks passed!
-No broken requirements found.
 ```
 
-The full evaluation command is:
-
-```bash
-/opt/anaconda3/envs/labellens-cv/bin/python -m src.gen.generate_dataset --output-dir data/synthetic/task1 --seed 42
-/opt/anaconda3/envs/labellens-cv/bin/python -m src.cv.eval_extract --dataset data/synthetic/task1 --output results/cv_extract.md
-```
-
-The generated 51-image dataset is not committed because it is large. The two-seed barcode evaluation used temporary directories; rerun the generator with `--seed 43` for the independent-seed check.
-
-## Important limits and remaining work
-
-- The measured data comes from one synthetic 100 mm by 60 mm test-device template, not real product photographs. It does not include glare or occlusion.
-- Two hard barcodes on seed 42 and one on seed 43 still fail and remain flagged for human review.
-- Both pictograms are simplified synthetic artwork. They are not certified ISO symbols, and all evaluation images contain both symbols.
-- AI 01 uses the existing all-zero test placeholder. It is not an allocated GTIN or UDI-DI.
-- Draft rendering and comparison are local project functionality. No reviewer approval was issued, no artwork was published, and no medical or regulatory compliance claim is made.
-- The repository's shared schemas and retrieval code were not changed in this work.
+The Windows caveat above is recorded in `docs/CV_STATUS.md`. Reproduction commands and all fresh-seed tables are in [`results/cv_final_eval.md`](../results/cv_final_eval.md).
 
 ## Key implementation files
 
-- [`src/gen/generate_dataset.py`](../src/gen/generate_dataset.py): fixed-seed generation and matching ground truth.
-- [`src/gen/augment.py`](../src/gen/augment.py): clean, moderate and hard image effects plus coordinate transforms.
-- [`src/cv/barcode.py`](../src/cv/barcode.py): GS1 parsing and barcode-slot recovery.
-- [`src/cv/extract.py`](../src/cv/extract.py): integrated OCR, barcode, field and symbol extraction.
-- [`src/cv/eval_extract.py`](../src/cv/eval_extract.py): condition-separated evaluation and report generation.
-- [`src/gen/render.py`](../src/gen/render.py) and [`src/cv/verify.py`](../src/cv/verify.py): draft artifact generation and approval-bound comparison.
+- [`src/gen/generate_dataset.py`](../src/gen/generate_dataset.py): fixed-seed synthetic labels and matching ground truth.
+- [`src/gen/augment.py`](../src/gen/augment.py): image effects and coordinate transforms.
+- [`src/cv/barcode.py`](../src/cv/barcode.py) and [`src/cv/barcode_blind.py`](../src/cv/barcode_blind.py): template-assisted and blind barcode paths.
+- [`src/cv/extract.py`](../src/cv/extract.py), [`src/cv/fields.py`](../src/cv/fields.py), and [`src/cv/symbols.py`](../src/cv/symbols.py): extraction, field naming and symbol detection.
+- [`src/gen/render.py`](../src/gen/render.py) and [`src/cv/verify.py`](../src/cv/verify.py): draft rendering and approval-bound print comparison.
 
