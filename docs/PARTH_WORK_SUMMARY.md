@@ -18,7 +18,9 @@ or anyone else. Do not describe photo extraction or Task 4 as fully solved.
   exact product name **1/10**, lot **0/10**, expiry **0/10**. Source:
   [clear-photo results](../results/cv_real_photos_clear.md). No 80% real-photo
   accuracy claim is supported. Do not present dataset selection as a model fix.
-- The three-photo human spot-check is **NOT_RUN**, not zero errors. Images stay
+- The three-photo human spot-check is **DEFERRED / NOT_RUN**, not zero errors.
+  Parth explicitly said he cannot do it now; independent work continues without
+  treating AI labels as human-validated truth. Images stay
   local under `data/real_photos/clear_online/`; source URLs and fingerprints are
   in [SOURCES.md](../data/real/SOURCES.md).
 - The earlier 12-photo convenience set and its separate baseline are preserved
@@ -76,6 +78,138 @@ Build a reproducible synthetic medical-device label workflow and a computer-visi
 Task 6 verification: **411 passed, 3 deselected**, with both formats decoded
 from 600-DPI revised PDFs. See [Task 6 report](../reports/parth_task6.md).
 
+## Current assignment checklist, 2026-11-16
+
+The original Parth guide used different task numbers for generation, extraction
+and measurement. That earlier CV work is described below. This checklist uses
+PARTH_NEXT_TASKS.md plus Paridhi's latest message, including new Tasks 7a and 9.
+This is a local module/data handoff, not a claim that the entire application or
+all real-world validation is finished.
+
+| Task | Implemented and checked | Remaining or flagged |
+|---|---|---|
+| Original synthetic generator/extractor/evaluation | Fixed seeds, varied fields, GS1, transformed ground truth, three difficulty levels, separate blind/template evaluation | One synthetic template family; real performance does not follow from synthetic scores |
+| 1: GS1 module | KEEP, confirmed REGENERATE, NEEDS_INPUT; syntax/decode tests; no identifier invention | Allocation/ownership cannot be established by a check digit |
+| 2: PDF/SVG/QR export | Physical-size PDF; named layer-* and slot-{id} groups; offline published-URL QR; repeated field slots | Physical printer calibration and Windows runtime not validated here |
+| 3: DailyMed real labels | 20 device artworks, 17 records, eight families, 44 LLM-labelled symbol crops; pinned script/catalog rebuild | Human symbol review and detector accuracy NOT_RUN. Legacy 60 medicine artworks excluded from device evaluation; no reviewed medicine-symbol subset claimed |
+| 4: real photos | Ten accepted clear online device photos, 30 AI transcriptions, every photo evaluated | Human spot-check DEFERRED / NOT_RUN; extraction poor, fixes deferred |
+| 5: contract gaps | Sterile/EO/R artwork, SVG groups, approval/check/hash mappings, contract tests | Synthetic pictograms are not certified ISO artwork; app must provide trusted reviewer identity |
+| 6: revisions | New immutable draft versions; field/symbol changes; three barcode outcomes; audit and blocked-output guards | Task 2 snapshots and legacy packages need explicit application mapping; revision OCR/symbol self-checks NOT_RUN |
+| 9: medicine corpus | Ten pinned products, 147 source-text chunks, effective dates and source links; same Chunk keys | Retrieval integration/evaluation belongs to Pari; no src/ir edits |
+| 7a: perspective | Independent template-ratio correction, 90 fresh synthetic images, all-corner scoring | Roughly upright, dominant visible label; not wired into existing extractor; no real-photo geometry evaluation |
+| 7: print verification | Approved-package gate and per-field evidence/confidence; ten-photo provisional comparison | Real approved-print evaluation NOT_RUN without actual approved references; no approvals fabricated |
+
+No Task 8 was supplied. No new backend, UI, shared-schema, retrieval or contract
+implementation was added in this completion pass. Task reports stay under 400
+words. Raw images/XML stay local; the medicine text corpus and provenance are
+versioned so Pari can inspect them directly.
+
+## New medicine corpus (Task 9)
+
+Ten DailyMed product records were fetched at pinned SPL versions. SPL means
+Structured Product Label, the source document format. The builder checks exact
+XML fingerprints, identity, product name, version and effective date. The date
+is the document effectiveTime, not the date downloaded. Data stays separate:
+`data/medicine/corpus.jsonl`, with product metadata and a source catalog.
+
+- 147 unique medicine chunks: labelling 32, warnings 79, dosage 36.
+- A chunk is a source passage of at most 200 words, with 25-word overlap.
+  Rows have exactly the existing shared Chunk fields; module is medicine.
+- Nested sections are included once. Labelling includes indications,
+  description and principal display panels. This is selected coverage, not all
+  possible SPL sections, all medicines or a clinically validated answer system.
+- Online construction and offline rebuild produced SHA-256
+  `2b9dd48d230ee52938c564700d61d6db19ebe68eee4beb285c2c74b601aa018f`.
+- No retrieval ranking, public chatbot answers or medicine matching was tested.
+  Pari can integrate retrieval after reviewing the source metadata. Do not mix
+  these medicine passages with the device dataset or device result tables.
+
+Commands and results: [Task 9](../reports/parth_task9.md).
+Source catalog: [medicine sources](../data/medicine/SOURCES.md).
+
+## New independent perspective module (Task 7a)
+
+`src.cv.perspective.correct_perspective` finds four corners from pixels and maps
+them to the supplied template aspect ratio. It returns corrected pixels, source
+corners and a homography, the coordinate mapping between views. No supported
+boundary returns None. The extractor was not changed to call this module.
+
+Benchmark: seeds 7001, 7002, 7003; ten base labels per seed, each rendered in
+three conditions. Success requires every corner within 10 original-image
+pixels; absent detections remain failures in the denominator.
+
+| Synthetic condition | Detected | Successful corner detection | Success rate |
+|---|---|---|---|
+| Clean | 30/30 | 30/30 | 100% |
+| Moderate | 30/30 | 30/30 | 100% |
+| Hard | 30/30 | 30/30 | 100% |
+
+These are fresh synthetic geometry results from one family, not photo OCR or
+real-world detection accuracy. The module assumes roughly upright labels and
+does not recognize 90/180-degree text orientation. The rectangle height is
+rounded from the requested ratio. It does not recover obscured text.
+
+Reproduce: `python -m scripts.cv_experiments.eval_perspective`.
+Local raw evidence: `data/synthetic/perspective_task7a/evaluation.json`.
+See [Task 7a report](../reports/parth_task7a.md).
+
+## Per-field print verification (Task 7)
+
+The new `src.cv.print_verify.verify_print` checks authorized reviewer evidence,
+a matching passed check_id, exact version and manifest/artifact fingerprints
+before blind OCR. Each field has expected and observed text, an evidence box,
+OCR confidence and MATCH/MISMATCH/NEEDS_HUMAN_REVIEW. Missing, ambiguous or weak
+evidence requires review. Confidence is not a calibrated correctness probability.
+It uses legacy manifest packages; Task 2 Label snapshots need explicit mapping.
+The old verifier and extractor remain unchanged.
+
+The separate `python -m src.cv.print_verify` evaluation compared the clear online
+set with AI transcriptions, without manufacturing approvals:
+
+| Photo field | Exact text | MATCH | MISMATCH | NEEDS_HUMAN_REVIEW |
+|---|---|---|---|---|
+| Product name | 1/10 | 1 | 5 | 4 |
+| Lot | 0/10 | 0 | 0 | 10 |
+| Expiry | 0/10 | 0 | 0 | 10 |
+
+Each mismatch here is a comparison to an AI reading, not a human finding of a
+physical print defect. The photos have no trusted approved source packages, so
+real approved-print accuracy is NOT_RUN. The human spot-check is explicitly
+deferred by Parth. Local evidence for all 30 decisions is in
+`data/real_photos/clear_online/print_comparison_llm.json`.
+See [Task 7 report](../reports/parth_task7.md).
+
+## Contract review and integration handoff
+
+Technical recommendations for CR-2, 3, 4, 5, 9, 10 and 11 are YES, with explicit
+version, confidence, audit and artifact-mapping conditions. These recommendations
+are recorded in [the review](../reports/parth_contract_review.md); they are not
+formal team approval and do not change locked schemas or contracts. Pari still
+owns application integration, trusted authentication, review storage and
+publication. No real approvals have been issued and nothing was published.
+
+## Items that must stay flagged in every future summary
+
+1. DEFERRED: poor real-photo field extraction, with name 1/10, lot 0/10 and
+   expiry 0/10 on the clear set. The 80% real-photo target is not met.
+2. DEFERRED / NOT_RUN: three-photo human spot-check, explicitly deferred by
+   Parth. AI labels stay AI labels; never report zero human errors.
+3. NOT_RUN: human review of the 44 real symbol crops and real-symbol/blind
+   accuracy. The CV detector has only two original synthetic references despite
+   the generator/exporter's broader symbol support. Medicine-symbol artwork
+   is not yet a curated evaluated subset.
+4. NOT_RUN: real approved-print validation. Need real authorized reference
+   packages and corresponding print photos; online product photos do not supply
+   that approval history. No approval records may be invented to close this.
+5. INTEGRATION: independent perspective code, medicine retrieval, API adapters,
+   trusted confirmations, auth, persistence and publication need application
+   work by their owners. Existing extractor is unchanged in this pass.
+6. LIMIT: revision self-check is partial; OCR and symbol detection are NOT_RUN.
+   Synthetic artwork and check-digit validation do not certify label compliance,
+   ISO pictograms, identifiers or authenticity.
+7. NOT_RUN HERE: three slow tests, Windows execution, physical printer calibration
+   and clinical validation. The full fast-suite result is shown separately.
+
 ## Fresh-seed results
 
 The following results are from seeds 100, 101 and 102 in `results/cv_final_eval.md`: 51 synthetic labels per condition and 102 expected symbol instances per condition. All use one synthetic template family.
@@ -104,14 +238,14 @@ The older “15/17 hard” figure only applied to an easier, reduced blur/noise 
 
 ## Verification
 
-The prior scoped Mac run used the Conda Python 3.12 environment:
+Historical scoped Mac verification before the newer tasks used:
 
 ```bash
 /opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q src/gen src/cv
 /opt/anaconda3/envs/labellens-cv/bin/python -m ruff check src/gen src/cv
 ```
 
-Output from this handoff update:
+Historical output, not the current completion-pass test count:
 
 ```text
 233 passed in 123.86s (0:02:03)
@@ -128,3 +262,49 @@ The Windows caveat above is recorded in `docs/CV_STATUS.md`. Reproduction comman
 - [`src/cv/extract.py`](../src/cv/extract.py), [`src/cv/fields.py`](../src/cv/fields.py), and [`src/cv/symbols.py`](../src/cv/symbols.py): extraction, field naming and symbol detection.
 - [`src/gen/render.py`](../src/gen/render.py) and [`src/cv/verify.py`](../src/cv/verify.py): draft rendering and approval-bound print comparison.
 
+
+## Current completion-pass verification
+
+Environment: Mac Apple Silicon, Conda labellens-cv, Python 3.12.
+No dependencies were added. Existing shared schemas, retrieval, API and UI were
+not edited. These executed checks are separate from the earlier frozen metrics.
+
+```text
+/opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider -m "not slow"
+........................................................................ [ 16%]
+........................................................................ [ 33%]
+........................................................................ [ 49%]
+........................................................................ [ 66%]
+........................................................................ [ 82%]
+........................................................................ [ 99%]
+....                                                                     [100%]
+436 passed, 3 deselected in 158.85s (0:02:38)
+
+/opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider src/gen src/cv/test_verify.py tests/test_mock_contracts.py
+142 passed in 125.57s (0:02:05)
+
+/opt/anaconda3/envs/labellens-cv/bin/python -m ruff check --no-cache src tests scripts/real scripts/cv_experiments/eval_perspective.py
+All checks passed!
+```
+
+Existing export/device-set/new-medicine targeted tests additionally reported
+`59 passed in 48.25s`. The device offline rebuilder returned images=20 and
+symbol_crops=44, with evaluation NOT_RUN and tags LLM-labelled. Source photos
+remain local; only their provenance/README is tracked.
+
+## Where the work is delivered
+
+Repository: https://github.com/paridhik11/labellens
+Branch: [parth-gen](https://github.com/paridhik11/labellens/tree/parth-gen).
+Earlier reviewed CV fixes and contracts were merged into main by Pari; the new
+completion-pass work is pushed only to parth-gen and is not claimed merged.
+
+- `6748387`: pinned separate medicine corpus, sources and tests.
+- `fb3090a`: independent perspective module and reproducible geometry benchmark.
+- `c697a85`: per-field print verification and deferred human-review note.
+
+GitHub's minimal environment does not install the full CV stack, so green CI
+is supplemented by the executed Mac Conda checks above. It is not Windows or
+real-photo validation. Task-specific reports are in reports/parth_task1.md
+through parth_task7.md, plus parth_task7a.md and parth_task9.md. The technical
+contract recommendations are in reports/parth_contract_review.md.
