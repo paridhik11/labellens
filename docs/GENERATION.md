@@ -1,5 +1,7 @@
 # Template-based artwork revision and print verification
 
+> Note: `docs/contracts/TEMPLATE_SPEC.md` is authoritative for the template format. Difference: symbol slots there require `symbol_name`, which the example below lacks.
+
 LabelLens proposes revised artwork. A reviewer approves it. Nothing is published automatically.
 
 ## Principle

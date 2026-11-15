@@ -8,7 +8,8 @@ Entities and field meanings are in [`DATA_MODEL.md`](DATA_MODEL.md). Template an
 
 - **JSON everywhere**, except file uploads (`multipart/form-data`) and the files behind export URLs (PDF, SVG).
 - **Errors** use one shape: `{error, message, details?}`, where `error` is a short code such as `not_found`, `hash_mismatch` or `needs_input`.
-- **Long work returns 202 and a Job.** Scans, inspections, generation and re-checks may answer `202` with `{job_id, kind, state, progress}`. The UI polls `GET /jobs/{job_id}` and shows its loading state until `state` is `done` or `failed`. When `done`, `result_url` says where to fetch the result.
+- **Long work returns 202 and a Job envelope.** Scan (`POST /scans`, `POST /public/scans`), generate (`POST /changes/{id}/generate`) and print verify (`POST /label-versions/{id}/print-verifications`) always answer `202` with `{job_id, kind, state, progress}`. Inspect and re-check answer `200` when fast and `202` when slow. The UI polls `GET /jobs/{job_id}` and shows its loading state until `state` is `done` or `failed`. When `done`, `result_url` names the GET endpoint for the result (`/scans/{scan_id}`, `/artworks/{artwork_id}`, `/print-verifications/{verification_id}`, `/public/scans/{scan_id}`).
+- **Users.** A minimal User (`user_id`, `name`, `role`: editor, reviewer or admin) is identified by the `X-User-Id` header, a stub with no login flow. `GET /me` returns it. Public endpoints, `/health`, `/jobs` and `/search` work without the header.
 - **Versions are pinned.** Anything about one artwork uses `version_id`, the id of one immutable LabelVersion. `label_id` is the label family. Reports and published pages keep their `version_id` forever.
 - **Status is derived, never sent.** No endpoint accepts a `status` field. The server computes it from the record trail (DATA_MODEL.md, "Status derivation") and returns `latest_review_id` so the UI can explain it.
 - **Modules never mix.** `/search` requires `module` (`device` or `medicine`). Public endpoints live under `/public` and only use medicine data.
@@ -27,7 +28,7 @@ Entities and field meanings are in [`DATA_MODEL.md`](DATA_MODEL.md). Template an
 | `POST /products/{product_id}/templates` | registerTemplate | Register a template or a new template version | 201 LabelTemplate | 422 CheckResult with layout findings |
 | `GET /templates/{template_id}?version=` | getTemplate | One template version, latest by default | 200 LabelTemplate | 404 |
 | `GET /products/{product_id}/history` | getProductHistory | Audit trail, newest first | 200 AuditEventList | |
-| `POST /scans` | uploadScan | Upload a PDF or image, or a camera capture | 202 Scan | 422 |
+| `POST /scans` | uploadScan | Upload a PDF or image, or a camera capture | 202 Job | 422 |
 | `GET /scans/{scan_id}` | getScan | Scan state; `label_id` and `version_id` once done | 200 Scan | 404 |
 | `GET /labels/{label_id}/versions` | listLabelVersions | L1, L2, L3 of one label family | 200 LabelVersionList | 404 |
 | `GET /label-versions/{version_id}` | getLabelVersion | One version with derived status | 200 LabelVersion | 404 |
@@ -39,20 +40,23 @@ Entities and field meanings are in [`DATA_MODEL.md`](DATA_MODEL.md). Template an
 | `GET /changes/{change_id}` | getChange | A change with derived status | 200 ChangeRequest | 404 |
 | `POST /changes/{change_id}/confirm` | confirmChange | Confirm the parse and the checklist | 200 ChangeAssessment | |
 | `GET /changes/{change_id}/affected` | listAffectedLabels | Affected labels and fields | 200 AffectedLabelList | |
-| `POST /changes/{change_id}/generate` | generateArtwork | Fill the template, render a DRAFT | 201 GeneratedArtwork | 202 Job, 409 NeedsInput, 422 CheckResult |
+| `POST /changes/{change_id}/generate` | generateArtwork | Fill the template, render a DRAFT | 202 Job | 409 NeedsInput or change_closed, 422 CheckResult |
+| `GET /artworks/{artwork_id}` | getArtwork | Result of a generate job | 200 GeneratedArtwork | 404 |
 | `POST /label-versions/{version_id}/recheck` | recheckArtwork | Closed-loop self-check and layout checks | 200 CheckResult (kind `self_check`) | 202 Job |
 | `GET /label-versions/{version_id}/reviews` | listReviews | Review history of a version | 200 ReviewList | |
-| `POST /label-versions/{version_id}/reviews` | reviewArtwork | Approve, return or reject | 201 Review | 403, 409 |
+| `POST /label-versions/{version_id}/reviews` | reviewArtwork | Approve, return or reject | 201 Review | 403 role_forbidden or self_approval_forbidden, 409 |
 | `POST /label-versions/{version_id}/publish` | publishVersion | Publish an approved version | 201 PublishedPage | 409 |
 | `GET /label-versions/{version_id}/exports` | getExports | PDF at physical size, editable SVG, report, QR | 200 ExportPackage | 404 |
 | `GET /label-versions/{version_id}/print-verifications` | listPrintVerifications | Past print checks | 200 | |
-| `POST /label-versions/{version_id}/print-verifications` | verifyPrint | Compare a print photo with the approved version | 201 PrintVerification | 409 not approved |
+| `POST /label-versions/{version_id}/print-verifications` | verifyPrint | Compare a print photo with the approved version | 202 Job | 409 not approved |
+| `GET /print-verifications/{verification_id}` | getPrintVerification | Result of a print verify job | 200 PrintVerification | 404 |
 
 ### Public medicine mode (tag `public`)
 
 | Method and path | operationId | Purpose | Success | Other responses |
 |---|---|---|---|---|
-| `POST /public/scans` | publicScan | Scan packaging, find reference label candidates | 200 PublicMatchResult | 202 Job |
+| `POST /public/scans` | publicScan | Scan packaging, find reference label candidates | 202 Job | |
+| `GET /public/scans/{scan_id}` | getPublicScan | Match candidates (picker when several) | 200 PublicMatchResult | 404 |
 | `POST /public/ask` | askPublic | Ask about the matched label | 200 AnswerResponse (answer or abstain) | |
 | `POST /search` with `module: medicine` | searchEvidence | Shared search endpoint, medicine data only | 200 SearchResponse | |
 
@@ -62,6 +66,7 @@ Entities and field meanings are in [`DATA_MODEL.md`](DATA_MODEL.md). Template an
 |---|---|---|
 | `GET /health` | getHealth | Liveness, already implemented |
 | `GET /jobs/{job_id}` | getJob | Poll a long job; drives every loading state |
+| `GET /me` | getCurrentUser | The user named by the `X-User-Id` header stub |
 
 ## Key rules, with examples
 
@@ -78,7 +83,7 @@ Entities and field meanings are in [`DATA_MODEL.md`](DATA_MODEL.md). Template an
 
 ### Barcode decision and 409 needs_input
 
-`generateArtwork` applies the TEMPLATE_SPEC rule. `KEEP` and `REGENERATE` return `201` with the decision inside `barcode_decision`. If an identifier is missing or an encoded change is unconfirmed, nothing is rendered: the server raises `IdentifierRequired` internally and returns `409`:
+`generateArtwork` applies the TEMPLATE_SPEC rule. `KEEP` and `REGENERATE` start a job, and the finished GeneratedArtwork carries the decision inside `barcode_decision`. If an identifier is missing or an encoded change is unconfirmed, nothing is rendered: the server raises `IdentifierRequired` internally and returns `409`:
 
 ```json
 {"error": "needs_input", "message": "A new UDI-DI is required for this change.",
@@ -91,6 +96,16 @@ Entities and field meanings are in [`DATA_MODEL.md`](DATA_MODEL.md). Template an
 ### Approval
 
 `reviewArtwork` with `decision: approve` must send `check_id` (a CheckResult with `passed: true` for the same `version_id` and `artifact_sha256`) and the exact `artifact_sha256`. A mismatch returns `409 hash_mismatch` or `409 check_not_passed`. `return` and `reject` need a `comment`, and the resulting status is `draft`.
+
+Further rules, all enforced by the server:
+
+| Rule | Effect |
+|---|---|
+| Only `reviewer` or `admin` may review | Otherwise `403 role_forbidden` |
+| The submitter of a change cannot approve it | `approve` by the change's `created_by` gives `403 self_approval_forbidden`. That user may still return or reject. |
+| A new artwork version after approval voids the approval | Generating again creates a new version and a new hash. The old approval no longer counts, and the change needs review again (derived status `draft`, then `checked` once its self-check passes). Reviewing or publishing the old version through this change gives `409 version_superseded`. |
+| Reject is terminal | `closed` becomes `true`. Generate, review and publish on the change give `409 change_closed`. A new change is needed. |
+| Return is not terminal | The editor can regenerate. |
 
 ### The "returned" case
 
@@ -137,3 +152,5 @@ The public corpus is 21 CFR Parts 201, 208 and 211 only. The reference label cor
 6. The `rerank` and `expansion` flags describe planned experiments. No reranker or expansion module exists in `src/ir` yet, so a server may answer `422` for them until one does.
 7. `/search` is shared by both modules but always filtered by `module`. This keeps one retrieval interface (`search(query, k)`) as AGENTS.md requires.
 8. The all-zero sha256 in the review examples is a placeholder in documentation, not a real hash.
+9. `X-User-Id` is trusted as given. It is a development stub, not security. Any real deployment needs a login and session before it is exposed.
+10. Inspect and re-check may answer 200 or 202. Scan, generate and print verify always answer 202.

@@ -109,10 +109,12 @@ Build the GS1 element string from application identifiers (AIs), in this order:
 
 | AI | Meaning | Source | Format |
 |---|---|---|---|
-| (01) | GTIN or UDI-DI | `ProductRecord.udi_di` | 14 digits, valid GS1 mod-10 check digit |
-| (17) | Expiry date | `extra.expiry` (ISO date) | YYMMDD |
-| (10) | Lot | `extra.lot` | up to 20 characters, variable length, followed by a group separator when another AI follows |
-| (21) | Serial | `extra.serial`, where used | up to 20 characters, variable length |
+| (01) | GTIN or UDI-DI | `ProductRecord.udi_di` | `N2+N14`: exactly 14 digits, valid GS1 mod-10 check digit, fixed length (no separator needed) |
+| (17) | Expiry date | `extra.expiry` (ISO date) | `N2+N6`: YYMMDD, fixed length. GS1 allows DD = 00 (meaning the last day of the month), but LabelLens always writes the real day from the ISO date. |
+| (10) | Lot | `extra.lot` | `N2+X..20`: 1 to 20 characters from the GS1 AI encodable character set, variable length, FNC1 or group separator required when another AI follows |
+| (21) | Serial | `extra.serial`, where used | `N2+X..20`: 1 to 20 characters, same character set, variable length, separator required when another AI follows |
+
+Formats were checked on 2026-11-15 against GS1's machine-readable Application Identifier list (`https://ref.gs1.org/ai/GS1_Application_Identifiers.jsonld`). It gives `N2+N14` for (01), `N2+N6` for (17), and `N2+X..20` with separator required for both (10) and (21).
 
 ### Decision
 
@@ -149,6 +151,6 @@ The user picks fonts from the installed list. LabelLens cannot recover an unknow
 3. The named SVG groups are a contract for the renderer. The current renderer on Parth's branch writes the SVG through ReportLab and does not yet emit these group ids. That is a gap for Parth, not something this step changes.
 4. The 6 mm DRAFT band and the 6 pt minimum font size are defaults chosen for the contract. They are not regulatory values, and a product setup may change them.
 5. `product_name` is accepted as an alias of `name` so Parth's fixture validates unchanged.
-6. Lot and serial length limits (20 characters) follow the GS1 general specification for AI (10) and AI (21). They should be confirmed against the current GS1 General Specifications before production use.
+6. The lot and serial limits (20 characters, `N2+X..20`) were confirmed on 2026-11-15 against GS1's published AI list (ref.gs1.org). That list is the machine-readable form of the GS1 General Specifications AI table. I did not read the full General Specifications PDF.
 7. The serial (21) is included only where the product uses serialisation. The payload order (01), (17), (10), (21) follows `GENERATION.md` and Parth's renderer.
 8. The older example in `docs/GENERATION.md` has a symbol slot without `symbol_name`, so it does not pass this spec. I left `GENERATION.md` unchanged because it is outside this step. This spec is the newer contract.

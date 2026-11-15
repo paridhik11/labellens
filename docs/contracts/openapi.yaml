@@ -13,6 +13,8 @@ info:
 servers:
   - url: http://localhost:8000
     description: Local development server (FastAPI, src/api/main.py)
+security:
+  - UserHeader: []
 tags:
   - name: device
     description: Professional workspace for medical device label teams.
@@ -27,6 +29,7 @@ paths:
       tags: [common]
       operationId: getHealth
       summary: Liveness check (already implemented)
+      security: []
       responses:
         "200":
           description: OK
@@ -38,11 +41,31 @@ paths:
                 properties:
                   status: {type: string, const: ok}
 
+  /me:
+    get:
+      tags: [common]
+      operationId: getCurrentUser
+      summary: The user named by the X-User-Id header stub
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/User"}
+        "401":
+          description: Header missing or unknown user
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
   /jobs/{job_id}:
     get:
       tags: [common]
       operationId: getJob
-      summary: Poll a long running job (scan, inspection, generation). Feeds every loading state.
+      summary: Poll a long running job (scan, generate, print verify, slow inspect or re-check). Feeds every loading state.
+      security:
+        - {}
+        - UserHeader: []
       parameters:
         - $ref: "#/components/parameters/JobId"
       responses:
@@ -199,10 +222,10 @@ paths:
                 product_id: {type: string}
       responses:
         "202":
-          description: Accepted; poll the scan or its job
+          description: Accepted. Job envelope; poll GET /jobs/{job_id}. result_url points at GET /scans/{scan_id}.
           content:
             application/json:
-              schema: {$ref: "#/components/schemas/Scan"}
+              schema: {$ref: "#/components/schemas/Job"}
         "422": {$ref: "#/components/responses/Invalid"}
 
   /scans/{scan_id}:
@@ -324,6 +347,9 @@ paths:
       tags: [device, public]
       operationId: searchEvidence
       summary: Retrieve requirement passages (Evidence screen). Module is required and never mixed.
+      security:
+        - {}
+        - UserHeader: []
       requestBody:
         required: true
         content:
@@ -384,6 +410,7 @@ paths:
                     new_value: Gamma irradiation
                     status: draft
                     latest_review_id: rev_0002
+                    closed: false
                     raw_text: Update the sterilization method from ethylene oxide (EO) to gamma irradiation.
                     parse_state: confirmed
                     edits: []
@@ -399,6 +426,7 @@ paths:
                     new_value: Gamma irradiation
                     status: reviewed
                     latest_review_id: rev_0003
+                    closed: false
                     raw_text: Update the sterilization method from ethylene oxide (EO) to gamma irradiation.
                     parse_state: confirmed
                     edits: []
@@ -461,26 +489,47 @@ paths:
                   default: false
                   description: Allows the test placeholder identifier and prints TEST DATA | DRAFT
       responses:
-        "201":
-          description: Draft artwork (barcode decision KEEP or REGENERATE)
-          content:
-            application/json:
-              schema: {$ref: "#/components/schemas/GeneratedArtwork"}
         "202":
-          description: Rendering; poll the job
+          description: |
+            Accepted. Job envelope; poll GET /jobs/{job_id}. When done, result_url points at
+            GET /artworks/{artwork_id} (barcode decision KEEP or REGENERATE). Generating after an approval
+            creates a new version and voids that approval.
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Job"}
         "409":
-          description: Barcode decision NEEDS_INPUT; no artwork is produced (IdentifierRequired)
+          description: |
+            Checked before the job starts. NeedsInput (barcode decision NEEDS_INPUT, IdentifierRequired),
+            or Error change_closed when the change was rejected. No artwork is produced.
           content:
             application/json:
-              schema: {$ref: "#/components/schemas/NeedsInput"}
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/NeedsInput"
+                  - $ref: "#/components/schemas/Error"
         "422":
           description: Layout checks failed before rendering (findings listed)
           content:
             application/json:
               schema: {$ref: "#/components/schemas/CheckResult"}
+
+  /artworks/{artwork_id}:
+    get:
+      tags: [device]
+      operationId: getArtwork
+      summary: A generated DRAFT artwork (the result of a generate job)
+      parameters:
+        - name: artwork_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: Generated artwork
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/GeneratedArtwork"}
+        "404": {$ref: "#/components/responses/NotFound"}
 
   # ---------------------------------------------------------------- re-check, review, publish
   /label-versions/{version_id}/recheck:
@@ -548,19 +597,30 @@ paths:
                     version_id: lbv_exampledevice_carton_l3
                     change_id: chg_0002
                     decision: return
-                    reviewer_id: usr_demo_reviewer
-                    reviewer_role: label_reviewer
+                    user_id: usr_demo_reviewer
+                    reviewer_role: reviewer
                     comment: Sterilization symbol must match the new method before approval.
                     artifact_sha256: "0000000000000000000000000000000000000000000000000000000000000000"
                     resulting_status: draft
                     decided_at: "2026-11-11T14:00:00Z"
         "403":
-          description: Reviewer is not authorized to approve
+          description: |
+            role_forbidden (caller is not reviewer or admin) or self_approval_forbidden (caller created
+            the change and tried to approve it).
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Error"}
+              examples:
+                self_approval:
+                  summary: The submitter of a change cannot approve it
+                  value:
+                    error: self_approval_forbidden
+                    message: The user who submitted this change cannot approve it. Ask another reviewer.
         "409":
-          description: artifact_sha256 or check_id does not match a passed check of this version
+          description: |
+            hash_mismatch or check_not_passed (artifact_sha256 or check_id does not match a passed check of this
+            version), version_superseded (a newer artwork version exists, so review that one), or change_closed
+            (the change was rejected; reject is terminal).
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Error"}
@@ -579,7 +639,7 @@ paths:
             application/json:
               schema: {$ref: "#/components/schemas/PublishedPage"}
         "409":
-          description: No valid approval record for this version
+          description: No valid approval record for this version (none, voided by a newer version, or change_closed)
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Error"}
@@ -638,16 +698,36 @@ paths:
                 photo: {type: string, contentMediaType: application/octet-stream}
                 condition: {$ref: "#/components/schemas/PrintCondition"}
       responses:
-        "201":
-          description: Verification result (match, mismatch or rescan_needed)
+        "202":
+          description: |
+            Accepted. Job envelope; poll GET /jobs/{job_id}. When done, result_url points at
+            GET /print-verifications/{verification_id} (match, mismatch or rescan_needed).
           content:
             application/json:
-              schema: {$ref: "#/components/schemas/PrintVerification"}
+              schema: {$ref: "#/components/schemas/Job"}
         "409":
           description: Version is not approved
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Error"}
+
+  /print-verifications/{verification_id}:
+    get:
+      tags: [device]
+      operationId: getPrintVerification
+      summary: One print verification result
+      parameters:
+        - name: verification_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: Print verification
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/PrintVerification"}
+        "404": {$ref: "#/components/responses/NotFound"}
 
   # ---------------------------------------------------------------- public medicine mode
   /public/scans:
@@ -664,23 +744,39 @@ paths:
               required: [file]
               properties:
                 file: {type: string, contentMediaType: application/octet-stream}
+      security: []
       responses:
         "202":
-          description: Accepted; poll the job
+          description: Accepted. Job envelope; poll GET /jobs/{job_id}. result_url points at GET /public/scans/{scan_id}.
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Job"}
+
+  /public/scans/{scan_id}:
+    get:
+      tags: [public]
+      operationId: getPublicScan
+      summary: Match candidates for a public scan (picker when several)
+      security: []
+      parameters:
+        - name: scan_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
         "200":
-          description: Match candidates (picker when several)
+          description: Match candidates, possibly none
           content:
             application/json:
               schema: {$ref: "#/components/schemas/PublicMatchResult"}
+        "404": {$ref: "#/components/responses/NotFound"}
 
   /public/ask:
     post:
       tags: [public]
       operationId: askPublic
       summary: Ask about the matched label. Answers only from retrieved passages, or abstains.
+      security: []
       requestBody:
         required: true
         content:
@@ -705,6 +801,15 @@ paths:
                     banner: Authenticity not verified. Based on a reference label match.
 
 components:
+  securitySchemes:
+    UserHeader:
+      type: apiKey
+      in: header
+      name: X-User-Id
+      description: |
+        Stub for the signed-in user (a user_id such as usr_demo_editor). There is no login flow in this
+        contract; a later session or login replaces the header without changing the User shape.
+
   parameters:
     ProductId:
       name: product_id
@@ -796,6 +901,15 @@ components:
         error: {type: string, description: Machine readable code, for example not_found or hash_mismatch}
         message: {type: string}
         details: {type: object}
+    User:
+      type: object
+      description: Minimal user (CR-16). Identified by the X-User-Id header stub; no login flow.
+      required: [user_id, name, role]
+      additionalProperties: false
+      properties:
+        user_id: {type: string}
+        name: {type: string}
+        role: {type: string, enum: [editor, reviewer, admin]}
     Job:
       type: object
       required: [job_id, kind, state]
@@ -1194,7 +1308,7 @@ components:
     ChangeRequest:
       type: object
       description: schemas.py ChangeRequest fields plus CR-7 optional fields
-      required: [change_id, product_id, field, new_value, status, parse_state, created_at, created_by]
+      required: [change_id, product_id, field, new_value, status, closed, parse_state, created_at, created_by]
       additionalProperties: false
       properties:
         change_id: {type: string}
@@ -1204,6 +1318,7 @@ components:
         new_value: {type: string}
         status: {$ref: "#/components/schemas/Status"}
         latest_review_id: {type: string}
+        closed: {type: boolean, description: True after a reject. Reject is terminal.}
         raw_text: {type: string}
         parse_state: {type: string, enum: [proposed, confirmed]}
         edits: {type: array, items: {$ref: "#/components/schemas/FieldEdit"}}
@@ -1279,11 +1394,11 @@ components:
           then: {required: [required_identifier]}
     ChangeLogEntry:
       type: object
-      required: [at, actor, reason]
+      required: [at, user_id, reason]
       additionalProperties: false
       properties:
         at: {$ref: "#/components/schemas/Timestamp"}
-        actor: {type: string}
+        user_id: {type: string}
         field: {type: string}
         old_value: {type: string}
         new_value: {type: string}
@@ -1350,7 +1465,7 @@ components:
           then: {required: [comment]}
     Review:
       type: object
-      required: [review_id, label_id, version_id, decision, reviewer_id, reviewer_role, artifact_sha256,
+      required: [review_id, label_id, version_id, decision, user_id, reviewer_role, artifact_sha256,
                  resulting_status, decided_at]
       additionalProperties: false
       properties:
@@ -1359,8 +1474,8 @@ components:
         version_id: {type: string}
         change_id: {type: string}
         decision: {type: string, enum: [approve, return, reject]}
-        reviewer_id: {type: string}
-        reviewer_role: {type: string}
+        user_id: {type: string, description: The reviewer; must not be the change's created_by for an approve}
+        reviewer_role: {type: string, enum: [reviewer, admin]}
         comment: {type: string}
         artifact_sha256: {$ref: "#/components/schemas/Sha256"}
         check_id: {type: string, description: Passed CheckResult of the same version and hash}
@@ -1478,12 +1593,12 @@ components:
     # ------------------------------------------------------------ audit (CR-12)
     AuditEvent:
       type: object
-      required: [event_id, at, actor, action, entity_type, entity_id]
+      required: [event_id, at, user_id, action, entity_type, entity_id]
       additionalProperties: false
       properties:
         event_id: {type: string}
         at: {$ref: "#/components/schemas/Timestamp"}
-        actor: {type: string}
+        user_id: {type: string, description: A user_id, or system for automatic steps}
         action: {type: string}
         entity_type: {type: string}
         entity_id: {type: string}

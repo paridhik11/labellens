@@ -35,7 +35,24 @@ Review *---1 CheckResult                (the passed check that cleared the appro
 LabelVersion 1---* PrintVerification    (only an approved version can be verified)
 LabelVersion 1---* Report, PublishedPage (exports pinned to one version_id)
 Any entity ---* AuditEvent              (append only)
+User 1---* ChangeRequest, Review, AuditEvent (created_by, user_id)
 ```
+
+---
+
+## User
+
+Minimal. There is no login flow in this contract. The API identifies the caller with an `X-User-Id` request header (a stub for a later session or login), and `GET /me` returns the User.
+
+| Field | Type | Req | Maps to | Notes |
+|---|---|---|---|---|
+| `user_id` | string | req | NONE (CR-16) | Prefix `usr_`. All `created_by`, `confirmed_by` and `user_id` fields hold this value. |
+| `name` | string | req | NONE (CR-16) | Display name. Mocks use clearly fake names. |
+| `role` | `editor`, `reviewer`, `admin` | req | NONE (CR-16) | `editor` registers products, uploads, creates changes and generates drafts. `reviewer` approves, returns or rejects. `admin` can do both and manage templates. |
+
+Rules:
+1. Only `reviewer` or `admin` may record a Review. Anyone else gets `403 role_forbidden`.
+2. **The submitter of a change cannot approve it.** If `user_id` of the Review equals `created_by` of the ChangeRequest, an `approve` is refused with `403 self_approval_forbidden`. That user may still `return` or `reject` their own change.
 
 ---
 
@@ -207,6 +224,7 @@ Citation (derived from a `Chunk`, so no text is invented):
 | `new_value` | string | req | `ChangeRequest.new_value` | |
 | `status` | `draft`, `checked`, `reviewed`, `published` | req | `ChangeRequest.status` | Derived, not set by hand. See "Status derivation" below. A returned change shows `draft`. |
 | `latest_review_id` | string | opt | NONE (CR-7) | The Review the status was derived from. |
+| `closed` | boolean | req | NONE (CR-7) | True after a `reject`. Reject is terminal: no further generate, review or publish on this change. A new ChangeRequest is needed. |
 | `raw_text` | string | opt | NONE (CR-7) | Plain-language request as typed. |
 | `parse_state` | `proposed` or `confirmed` | req | NONE (CR-7) | A parser proposes, the user confirms. |
 | `edits` | array of `{field, old_value, new_value}` | opt | NONE (CR-7) | Extra fields beyond the first. |
@@ -248,7 +266,7 @@ Citation (derived from a `Chunk`, so no text is invented):
 
 BarcodeDecision: `decision` (`KEEP`, `REGENERATE`, `NEEDS_INPUT`), `old_payload`, `new_payload` (string, may be empty), `symbology`, `reason`, `required_identifier` (string, set when `NEEDS_INPUT`, for example `udi_di`). Rule text is in `TEMPLATE_SPEC.md`.
 
-ChangeLogEntry: `at`, `actor`, `field`, `old_value`, `new_value`, `reason`, `rules_fired` (array of string), `evidence_chunk_ids` (array of string).
+ChangeLogEntry: `at`, `user_id`, `field`, `old_value`, `new_value`, `reason`, `rules_fired` (array of string), `evidence_chunk_ids` (array of string).
 
 ## Review (approval record)
 
@@ -259,7 +277,8 @@ ChangeLogEntry: `at`, `actor`, `field`, `old_value`, `new_value`, `reason`, `rul
 | `version_id` | string | req | NONE (CR-10) | The exact version reviewed. |
 | `change_id` | string | opt | `ChangeRequest.change_id` | |
 | `decision` | `approve`, `return`, `reject` | req | NONE (CR-10) | |
-| `reviewer_id`, `reviewer_role` | string | req | NONE (CR-10) | Role must be authorized to approve. |
+| `user_id` | string | req | NONE (CR-10, CR-16) | The reviewer. Must not equal the change's `created_by` for an `approve`. |
+| `reviewer_role` | `reviewer` or `admin` | req | NONE (CR-10, CR-16) | Role at decision time, copied from the User. |
 | `comment` | string | req for `return` and `reject` | NONE (CR-10) | |
 | `artifact_sha256` | string | req | NONE (CR-10) | Must equal the GeneratedArtwork hash. Prevents approving something other than what was reviewed. |
 | `check_id` | string | req for `approve` | NONE (CR-10) | The CheckResult that cleared the approval. It must have `passed = true`, the same `version_id` and the same `artifact_sha256`. |
@@ -272,15 +291,23 @@ Publication is a separate request from approval where possible. A label version 
 
 `status` on a ChangeRequest and on a LabelVersion is computed from the record trail, never typed in:
 
+Only the change's **latest artwork version** counts. Reviews and checks of older versions are history, not inputs.
+
 | Condition (checked top to bottom) | Status |
 |---|---|
-| A PublishedPage exists for the version | `published` |
-| Latest Review is `approve` (with a valid `check_id`) | `reviewed` |
-| Latest Review is `return` or `reject` | `draft` |
-| No Review, and the latest CheckResult for the version has `passed = true` | `checked` |
+| A PublishedPage exists for the latest version | `published` |
+| Latest Review of the latest version is `approve` (with a valid `check_id`) | `reviewed` |
+| Latest Review of the latest version is `return` or `reject` | `draft` |
+| No Review of the latest version, and its latest CheckResult has `passed = true` | `checked` |
 | Otherwise | `draft` |
 
-"Latest" means highest `decided_at`. The API returns `latest_review_id` so the UI can show why a change is back at `draft`. A `reject` additionally closes the ChangeRequest to further regeneration.
+"Latest" means highest `decided_at`. The API returns `latest_review_id` so the UI can show why a change is back at `draft`.
+
+Three rules follow from this table:
+
+1. **A new artwork version after approval voids the approval.** Generating again after an `approve` creates a new version with a new `artifact_sha256`. That version has no Review, so the old approval no longer counts and the change goes back to needing review: status `draft` until the new version's self-check passes, then `checked`. The UI shows it as "Needs review". The old approved version stays readable but cannot be published through this change.
+2. **Reject is terminal.** A `reject` sets `closed = true` on the ChangeRequest. Further generate, review or publish calls on that change return `409 change_closed`. Fixing it means creating a new ChangeRequest.
+3. **Return is not terminal.** A `return` leaves the change open, so the editor can regenerate.
 
 ## PrintVerification
 
@@ -306,7 +333,7 @@ Append only. Never updated or deleted.
 |---|---|---|---|---|
 | `event_id` | string | req | NONE (CR-12) | |
 | `at` | timestamp | req | NONE (CR-12) | |
-| `actor` | string | req | NONE (CR-12) | User id, or `system`. |
+| `user_id` | string | req | NONE (CR-12, CR-16) | The User who acted, or `system` for automatic steps (self-check, scheduled crawl). |
 | `action` | string | req | NONE (CR-12) | For example `product.version_created`, `artwork.generated`, `review.approved`, `export.downloaded`. |
 | `entity_type`, `entity_id` | string | req | NONE (CR-12) | |
 | `version_before`, `version_after` | integer | opt | NONE (CR-12) | |
@@ -354,9 +381,11 @@ Separate data, rules and results from the device module.
 3. A returned change shows `draft`, derived from its latest Review, instead of adding a `returned` status, because `ChangeRequest.status` is locked to four values. A `returned` value is deferred to a change request only if the team wants it.
 4. Prefixed opaque ids are acceptable. `schemas.py` only types ids as strings.
 5. The Citation object is derived from the existing `Chunk` fields and a verbatim quote, so no new text source is introduced.
-6. Authorization (who counts as an authorized reviewer) is checked by the server and recorded as `reviewer_role`. This contract does not define the role list.
+6. Authorization uses three roles (editor, reviewer, admin) and an `X-User-Id` header stub. There is no login, password or session in this contract. A real login replaces the header later without changing the User shape.
 7. The abstention score is provisional and may be replaced, which is why `score_name` is a free string.
 8. The public regulation corpus is limited to 21 CFR 201, 208 and 211. The public reference label corpus (DailyMed or openFDA labels, cited with `source_type = label_section`) is not built yet. When it is added, `out_of_scope` handling must be revisited.
 9. Public label-based answers have no abstention validation. Step 16 validated abstention only on CFR medicine chunks, not on answers drawn from a matched product label.
 10. `artifact_sha256` is the hash of the draft manifest, matching how the renderer on Parth's branch (`cv-fixes`, not yet on main) records per-file hashes inside the manifest.
 11. `label_id` is a label family and `version_id` is one immutable version. This reads `LabelExtraction.label_id` plus `LabelExtraction.version` as family plus artwork version.
+12. "Needs review" is a UI label, not a fifth status. After a voided approval the derived status is `draft` or `checked`, as the table shows.
+13. Long operations (scan, generate, print verify, and inspect or re-check when slow) return `202` with a Job envelope and are polled at `GET /jobs/{job_id}` (see `API.md`). Stored entities do not change shape because of this.
