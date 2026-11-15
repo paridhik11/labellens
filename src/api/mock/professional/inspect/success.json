@@ -1,0 +1,64 @@
+{
+  "check_id": "chk_0001",
+  "kind": "inspection",
+  "run_at": "2026-11-10T10:00:00Z",
+  "findings": [
+    {
+      "flag_id": "flg_0001",
+      "kind": "date_format",
+      "severity": "info",
+      "message": "Printed dates use the YYYY-MM-DD format.",
+      "observed": "2028-03-31",
+      "expected": "YYYY-MM-DD",
+      "evidence_chunk_ids": [
+        "fda_21cfr801_s801.18"
+      ],
+      "confidence": 0.93,
+      "needs_human": false,
+      "citations": [
+        {
+          "source_type": "cfr",
+          "chunk_id": "fda_21cfr801_s801.18",
+          "source": "FDA",
+          "section": "801.18",
+          "title": "Format of dates provided on a medical device label.",
+          "url": "https://www.ecfr.gov/current/title-21/section-801.18",
+          "quote": "(a) In general. Whenever the label of a medical device includes a printed expiration date, date of manufacture, or any other date intended to be brought to the"
+        }
+      ],
+      "field": "expiry"
+    },
+    {
+      "flag_id": "flg_0002",
+      "kind": "field_present",
+      "severity": "info",
+      "message": "Manufacturer name and place of business are on the label.",
+      "observed": "Example Devices Ltd, Sample City, Country",
+      "expected": "Example Devices Ltd, 1 Example Road, Sample City, Country",
+      "evidence_chunk_ids": [
+        "fda_21cfr801_s801.1_c1"
+      ],
+      "confidence": 0.88,
+      "needs_human": false,
+      "citations": [
+        {
+          "source_type": "cfr",
+          "chunk_id": "fda_21cfr801_s801.1_c1",
+          "source": "FDA",
+          "section": "801.1",
+          "title": "Medical devices; name and place of business of manufacturer, packer or distributor.",
+          "url": "https://www.ecfr.gov/current/title-21/section-801.1",
+          "quote": "(a) The label of a device in package form shall specify conspicuously the name and place of business of the manufacturer, packer, or distributor. (b) The"
+        }
+      ],
+      "field": "manufacturer_address"
+    }
+  ],
+  "critical_count": 0,
+  "review_count": 0,
+  "info_count": 2,
+  "passed": true,
+  "disclaimer": "Draft generated for review. Not a compliance determination.",
+  "label_id": "lbl_exampledevice_carton",
+  "version_id": "lbv_exampledevice_carton_l2"
+}

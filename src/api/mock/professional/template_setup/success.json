@@ -1,0 +1,125 @@
+{
+  "template_id": "tpl_exampledevice_carton",
+  "version": 1,
+  "product_id": "prd_exampledevice",
+  "size_mm": {
+    "w": 100,
+    "h": 60
+  },
+  "background": "artwork/exampledevice_carton_base.svg",
+  "min_font_pt": 6,
+  "slots": [
+    {
+      "id": "name",
+      "type": "text",
+      "field": "name",
+      "bbox_mm": [
+        5,
+        8,
+        55,
+        7
+      ],
+      "font": "Helvetica",
+      "size_pt": 12,
+      "align": "left",
+      "max_lines": 1
+    },
+    {
+      "id": "ref",
+      "type": "text",
+      "field": "model",
+      "bbox_mm": [
+        62,
+        8,
+        33,
+        6
+      ],
+      "font": "Helvetica",
+      "size_pt": 10,
+      "max_lines": 1
+    },
+    {
+      "id": "sterilization_text",
+      "type": "text",
+      "field": "sterilization",
+      "bbox_mm": [
+        5,
+        17,
+        55,
+        8
+      ],
+      "font": "Helvetica",
+      "size_pt": 8,
+      "max_lines": 2
+    },
+    {
+      "id": "sterile_symbol",
+      "type": "symbol",
+      "field": "sterilization",
+      "symbol_name": "sterile_eo",
+      "bbox_mm": [
+        5,
+        27,
+        18,
+        7
+      ],
+      "min_size_mm": 5
+    },
+    {
+      "id": "expiry",
+      "type": "text",
+      "field": "expiry",
+      "bbox_mm": [
+        62,
+        17,
+        33,
+        6
+      ],
+      "font": "Helvetica",
+      "size_pt": 9,
+      "max_lines": 1
+    },
+    {
+      "id": "lot",
+      "type": "text",
+      "field": "lot",
+      "bbox_mm": [
+        62,
+        24,
+        33,
+        5
+      ],
+      "font": "Helvetica",
+      "size_pt": 8,
+      "max_lines": 1
+    },
+    {
+      "id": "udi_barcode",
+      "type": "barcode",
+      "field": "udi",
+      "symbology": "GS1_DataMatrix",
+      "bbox_mm": [
+        70,
+        31,
+        22,
+        22
+      ]
+    },
+    {
+      "id": "mfr_address",
+      "type": "text",
+      "field": "manufacturer_address",
+      "bbox_mm": [
+        5,
+        47,
+        55,
+        9
+      ],
+      "font": "Helvetica",
+      "size_pt": 7,
+      "max_lines": 2
+    }
+  ],
+  "created_at": "2026-11-01T10:00:00Z",
+  "created_by": "usr_demo_admin"
+}

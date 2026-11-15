@@ -1,0 +1,176 @@
+{
+  "product": {
+    "product_id": "prd_exampledevice",
+    "module": "device",
+    "current_version": 2,
+    "created_at": "2026-11-01T09:00:00Z",
+    "intended_market": [
+      "US"
+    ]
+  },
+  "record": {
+    "product_id": "prd_exampledevice",
+    "version": 2,
+    "name": "ExampleDevice",
+    "model": "ED-100",
+    "manufacturer": "Example Devices Ltd",
+    "manufacturer_address": "1 Example Road, Sample City, Country",
+    "udi_di": "00000000000000",
+    "sterilization": "Ethylene oxide (EO)",
+    "storage": "Store dry, 5 to 25 C",
+    "extra": {
+      "lot": "LOT0001",
+      "expiry": "2028-03-31",
+      "serial": "SN0001"
+    },
+    "created_at": "2026-11-10T09:00:00Z",
+    "created_by": "usr_demo_editor",
+    "source_change_id": "chg_0001",
+    "supersedes_version": 1
+  },
+  "templates": [
+    {
+      "template_id": "tpl_exampledevice_carton",
+      "version": 1,
+      "product_id": "prd_exampledevice",
+      "size_mm": {
+        "w": 100,
+        "h": 60
+      },
+      "background": "artwork/exampledevice_carton_base.svg",
+      "min_font_pt": 6,
+      "slots": [
+        {
+          "id": "name",
+          "type": "text",
+          "field": "name",
+          "bbox_mm": [
+            5,
+            8,
+            55,
+            7
+          ],
+          "font": "Helvetica",
+          "size_pt": 12,
+          "align": "left",
+          "max_lines": 1
+        },
+        {
+          "id": "ref",
+          "type": "text",
+          "field": "model",
+          "bbox_mm": [
+            62,
+            8,
+            33,
+            6
+          ],
+          "font": "Helvetica",
+          "size_pt": 10,
+          "max_lines": 1
+        },
+        {
+          "id": "sterilization_text",
+          "type": "text",
+          "field": "sterilization",
+          "bbox_mm": [
+            5,
+            17,
+            55,
+            8
+          ],
+          "font": "Helvetica",
+          "size_pt": 8,
+          "max_lines": 2
+        },
+        {
+          "id": "sterile_symbol",
+          "type": "symbol",
+          "field": "sterilization",
+          "symbol_name": "sterile_eo",
+          "bbox_mm": [
+            5,
+            27,
+            18,
+            7
+          ],
+          "min_size_mm": 5
+        },
+        {
+          "id": "expiry",
+          "type": "text",
+          "field": "expiry",
+          "bbox_mm": [
+            62,
+            17,
+            33,
+            6
+          ],
+          "font": "Helvetica",
+          "size_pt": 9,
+          "max_lines": 1
+        },
+        {
+          "id": "lot",
+          "type": "text",
+          "field": "lot",
+          "bbox_mm": [
+            62,
+            24,
+            33,
+            5
+          ],
+          "font": "Helvetica",
+          "size_pt": 8,
+          "max_lines": 1
+        },
+        {
+          "id": "udi_barcode",
+          "type": "barcode",
+          "field": "udi",
+          "symbology": "GS1_DataMatrix",
+          "bbox_mm": [
+            70,
+            31,
+            22,
+            22
+          ]
+        },
+        {
+          "id": "mfr_address",
+          "type": "text",
+          "field": "manufacturer_address",
+          "bbox_mm": [
+            5,
+            47,
+            55,
+            9
+          ],
+          "font": "Helvetica",
+          "size_pt": 7,
+          "max_lines": 2
+        }
+      ],
+      "created_at": "2026-11-01T10:00:00Z",
+      "created_by": "usr_demo_admin"
+    }
+  ],
+  "labels": [
+    {
+      "version_id": "lbv_exampledevice_carton_l2",
+      "label_id": "lbl_exampledevice_carton",
+      "product_id": "prd_exampledevice",
+      "artwork_version": 2,
+      "product_version": 2,
+      "template_id": "tpl_exampledevice_carton",
+      "template_version": 1,
+      "kind": "uploaded",
+      "status": "published",
+      "artwork_file": "files/lbv_exampledevice_carton_l2.svg",
+      "draft_watermark": false,
+      "created_at": "2026-11-03T09:00:00Z",
+      "created_by": "usr_demo_editor",
+      "parent_version_id": "lbv_exampledevice_carton_l1"
+    }
+  ]
+}

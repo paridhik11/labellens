@@ -1223,15 +1223,23 @@ components:
       unevaluatedProperties: false
     CheckResult:
       type: object
-      required: [check_id, label_id, version_id, kind, run_at, findings, critical_count, review_count,
-                 info_count, passed]
+      required: [check_id, kind, run_at, findings, critical_count, review_count, info_count, passed]
       additionalProperties: false
+      description: |
+        label_id and version_id are required for inspection and self_check. A template check (registering
+        a template) or a layout check before rendering has no label version yet, so it names template_id.
+      allOf:
+        - if: {properties: {kind: {enum: [inspection, self_check]}}}
+          then: {required: [label_id, version_id]}
+        - if: {properties: {kind: {enum: [template, layout]}}}
+          then: {required: [template_id]}
       properties:
         check_id: {type: string}
         label_id: {type: string}
         version_id: {type: string}
+        template_id: {type: string}
         artifact_sha256: {$ref: "#/components/schemas/Sha256"}
-        kind: {type: string, enum: [inspection, layout, self_check]}
+        kind: {type: string, enum: [inspection, layout, self_check, template]}
         run_at: {$ref: "#/components/schemas/Timestamp"}
         findings: {type: array, items: {$ref: "#/components/schemas/Finding"}}
         critical_count: {type: integer, minimum: 0}

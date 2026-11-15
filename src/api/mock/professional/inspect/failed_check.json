@@ -1,0 +1,70 @@
+{
+  "check_id": "chk_0002",
+  "kind": "inspection",
+  "run_at": "2026-11-10T10:00:00Z",
+  "findings": [
+    {
+      "flag_id": "flg_0003",
+      "kind": "barcode_mismatch",
+      "severity": "critical",
+      "message": "Expiry mismatch: the printed expiry date does not match the date encoded in the barcode.",
+      "observed": "2028-04-30",
+      "expected": "2028-03-31",
+      "evidence_chunk_ids": [
+        "fda_21cfr801_s801.40"
+      ],
+      "confidence": 0.82,
+      "needs_human": true,
+      "citations": [
+        {
+          "source_type": "cfr",
+          "chunk_id": "fda_21cfr801_s801.40",
+          "source": "FDA",
+          "section": "801.40",
+          "title": "Form of a unique device identifier.",
+          "url": "https://www.ecfr.gov/current/title-21/section-801.40",
+          "quote": "The UDI must be presented in two forms:\n\n(1) Easily readable plain-text, and\n\n(2) Automatic identification and data capture (AIDC) technology.\n\n(b) The UDI"
+        }
+      ],
+      "field": "expiry",
+      "bbox": [
+        700.0,
+        300.0,
+        330.0,
+        60.0
+      ]
+    },
+    {
+      "flag_id": "flg_0004",
+      "kind": "date_format",
+      "severity": "info",
+      "message": "Printed dates use the YYYY-MM-DD format.",
+      "observed": "2028-04-30",
+      "expected": "YYYY-MM-DD",
+      "evidence_chunk_ids": [
+        "fda_21cfr801_s801.18"
+      ],
+      "confidence": 0.93,
+      "needs_human": false,
+      "citations": [
+        {
+          "source_type": "cfr",
+          "chunk_id": "fda_21cfr801_s801.18",
+          "source": "FDA",
+          "section": "801.18",
+          "title": "Format of dates provided on a medical device label.",
+          "url": "https://www.ecfr.gov/current/title-21/section-801.18",
+          "quote": "(a) In general. Whenever the label of a medical device includes a printed expiration date, date of manufacture, or any other date intended to be brought to the"
+        }
+      ],
+      "field": "expiry"
+    }
+  ],
+  "critical_count": 1,
+  "review_count": 0,
+  "info_count": 1,
+  "passed": false,
+  "disclaimer": "Draft generated for review. Not a compliance determination.",
+  "label_id": "lbl_exampledevice_carton",
+  "version_id": "lbv_exampledevice_carton_l2"
+}

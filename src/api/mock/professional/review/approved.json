@@ -1,0 +1,14 @@
+{
+  "review_id": "rev_0003",
+  "label_id": "lbl_exampledevice_carton",
+  "version_id": "lbv_exampledevice_carton_l3",
+  "change_id": "chg_0002",
+  "decision": "approve",
+  "user_id": "usr_demo_reviewer",
+  "reviewer_role": "reviewer",
+  "comment": "Text, symbol and barcode checked.",
+  "artifact_sha256": "23f81fcd260e85a1086f09eaf733427f7cbb09becdf887a081ee857dcad90b74",
+  "check_id": "chk_0003",
+  "resulting_status": "reviewed",
+  "decided_at": "2026-11-12T15:00:00Z"
+}

@@ -1,0 +1,7 @@
+{
+  "job_id": "job_gen_0001",
+  "kind": "generate",
+  "state": "processing",
+  "progress": 0.6,
+  "message": "Rendering draft and running self-check"
+}

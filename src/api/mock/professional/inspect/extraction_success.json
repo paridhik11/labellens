@@ -1,0 +1,84 @@
+{
+  "label_id": "lbl_exampledevice_carton",
+  "version": 2,
+  "fields": {
+    "product_name": "ExampleDevice",
+    "model": "ED-100",
+    "sterilization": "STERILE EO",
+    "expiry": "2028-04-30",
+    "lot": "LOT0001",
+    "manufacturer": "Example Devices Ltd",
+    "manufacturer_address": "Sample City, Country"
+  },
+  "warnings": [],
+  "barcodes": [
+    {
+      "type": "DataMatrix",
+      "raw": "]d201000000000000001728033110LOT0001\u001d21SN0001",
+      "parsed": {
+        "01": "00000000000000",
+        "17": "280331",
+        "10": "LOT0001",
+        "21": "SN0001"
+      },
+      "bbox": [
+        980.0,
+        420.0,
+        260.0,
+        260.0
+      ]
+    }
+  ],
+  "symbols": [
+    {
+      "name": "sterile_eo",
+      "iso_ref": "",
+      "bbox": [
+        60.0,
+        330.0,
+        220.0,
+        80.0
+      ],
+      "conf": 0.91
+    },
+    {
+      "name": "manufacturer",
+      "iso_ref": "",
+      "bbox": [
+        60.0,
+        610.0,
+        70.0,
+        70.0
+      ],
+      "conf": 0.88
+    }
+  ],
+  "ocr_blocks": [
+    {
+      "text": "ExampleDevice",
+      "bbox": [
+        60.0,
+        60.0,
+        520.0,
+        90.0
+      ],
+      "conf": 0.97
+    },
+    {
+      "text": "EXP 2028-04-30",
+      "bbox": [
+        700.0,
+        300.0,
+        330.0,
+        60.0
+      ],
+      "conf": 0.95
+    }
+  ],
+  "extraction_id": "ext_0001",
+  "scan_id": "scn_0001",
+  "version_id": "lbv_exampledevice_carton_l2",
+  "confirmed": true,
+  "confirmed_by": "usr_demo_editor",
+  "confirmed_at": "2026-11-10T09:10:00Z"
+}

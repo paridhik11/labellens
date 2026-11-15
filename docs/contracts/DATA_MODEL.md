@@ -175,10 +175,11 @@ One run of the checker, the layout checks or the closed-loop self-check against 
 | Field | Type | Req | Maps to | Notes |
 |---|---|---|---|---|
 | `check_id` | string | req | NONE (CR-5) | |
-| `label_id` | string | req | `LabelExtraction.label_id` | |
-| `version_id` | string | req | NONE (CR-5) | The exact version checked. |
+| `label_id` | string | req for inspection, self_check | `LabelExtraction.label_id` | |
+| `version_id` | string | req for inspection, self_check | NONE (CR-5) | The exact version checked. |
+| `template_id` | string | req for template, layout | NONE (CR-5) | A template check or a pre-render layout check has no label version yet. |
 | `artifact_sha256` | string | opt | NONE (CR-5) | Hash of the artwork checked, set for `self_check` and re-checks of generated artwork. |
-| `kind` | `inspection`, `layout`, `self_check` | req | NONE (CR-5) | |
+| `kind` | `inspection`, `layout`, `self_check`, `template` | req | NONE (CR-5) | |
 | `run_at` | timestamp | req | NONE (CR-5) | |
 | `findings` | array of Finding | req | `Flag` | |
 | `critical_count`, `review_count`, `info_count` | integer | req | NONE (CR-5) | Derived from `findings[].severity`. |

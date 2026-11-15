@@ -1,0 +1,16 @@
+{
+  "error": "needs_input",
+  "message": "This change needs a new UDI-DI. Enter the allocated identifier; LabelLens never creates one.",
+  "barcode_decision": {
+    "decision": "NEEDS_INPUT",
+    "old_payload": "(01)00000000000000(17)280331(10)LOT0001(21)SN0001",
+    "new_payload": "",
+    "symbology": "GS1_DataMatrix",
+    "reason": "Model change ED-100 to ED-200 needs a new device identifier",
+    "required_identifier": "udi_di"
+  },
+  "task": {
+    "task_id": "tsk_0001",
+    "title": "enter allocated identifier"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "artwork_id": "art_0001",
+  "change_id": "chg_0002",
+  "label_id": "lbl_exampledevice_carton",
+  "version_id": "lbv_exampledevice_carton_l3",
+  "template_id": "tpl_exampledevice_carton",
+  "template_version": 1,
+  "svg_url": "files/lbv_exampledevice_carton_l3.svg",
+  "pdf_url": "files/lbv_exampledevice_carton_l3.pdf",
+  "size_mm": {
+    "w": 100,
+    "h": 60
+  },
+  "draft_watermark": true,
+  "test_data": true,
+  "barcode_decision": {
+    "decision": "KEEP",
+    "old_payload": "(01)00000000000000(17)280331(10)LOT0001(21)SN0001",
+    "new_payload": "(01)00000000000000(17)280331(10)LOT0001(21)SN0001",
+    "symbology": "GS1_DataMatrix",
+    "reason": "Encoded data unchanged; sterilization is printed text and a symbol only"
+  },
+  "change_log": [
+    {
+      "at": "2026-11-10T11:00:00Z",
+      "user_id": "usr_demo_editor",
+      "field": "sterilization",
+      "old_value": "Ethylene oxide (EO)",
+      "new_value": "Gamma irradiation",
+      "reason": "Confirmed change chg_0002",
+      "rules_fired": [
+        "barcode_keep_unchanged_payload"
+      ],
+      "evidence_chunk_ids": [
+        "fda_21cfr801_s801.20"
+      ]
+    }
+  ],
+  "layout_problems": [],
+  "self_check_id": "chk_0003",
+  "artifact_sha256": "23f81fcd260e85a1086f09eaf733427f7cbb09becdf887a081ee857dcad90b74",
+  "disclaimer": "Draft generated for review. Not a compliance determination."
+}
