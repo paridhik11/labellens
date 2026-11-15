@@ -6,19 +6,27 @@ cd C:\Users\parid\Downloads\labellens\labellens
 .venv312\Scripts\Activate.ps1
 claude
 ```
-If `claude` is not recognised, add `C:\Users\parid\.local\bin` to PATH (see the chat notes) or run it by full path.
+If `claude` is not recognised, add `C:\Users\parid\.local\bin` to PATH or run it by full path.
 
 First message of a new session:
 ```
-Read CLAUDE.md and docs/TEAM_PLAN.md. Run git status, git log --oneline -5 and python --version. Tell me in 5 lines where we are and what the next step is. Do not change anything yet.
+Read CLAUDE.md and docs/TEAM_PLAN.md. Run git status, git branch and python --version. Tell me in 5 lines where we are and what the next step is. Do not change anything yet.
 ```
 
 ## Daily routine
 1. Pull, activate the venv, start `claude`, send the first message above.
 2. Press Shift+Tab to plan mode. Ask for the next step. Read the plan. Approve or correct.
-3. One step per session. Answer the two quiz questions in your own words before saying "continue".
-4. At the end: ask it to update "Current state" in CLAUDE.md, commit, push, check CI.
+3. One step per session. Read the Step Report (six items, no quiz). Say "continue" when you understand it.
+4. At the end: ask it to update "Current state" in CLAUDE.md and append to `docs/LEARNING_LOG.md`, then commit `step N: short description`, push, check CI.
 5. `/clear` between steps. `/compact` if a long session must continue.
+
+## Rules that matter
+- Docs-only tasks touch nothing under `src/`, `tests/` or `data/`. Say so in the prompt.
+- Work on a branch, never force push. Several branches are checked out in separate worktrees (`step17-opt`, `step20-backend`, `cv-fixes`), so create new branches from `origin/main` and check `git branch` first.
+- Do not edit `src/common/schemas.py`, `src/ir/base.py` or anything in `docs/contracts/` without asking.
+- Relevance grades: the qrels are LLM-assessed (separate `_llm` files, logged in `docs/LLM_GRADER_PROMPT.md`). The agent never writes the human `grade` column or `data/eval/pool_t1.csv`.
+- Label artwork comes from templates, never an image model. Never invent GTIN or UDI-DI values.
+- No em dashes in docs or comments. No Co-Authored-By or Generated-with lines in commits.
 
 ## Getting the most from a Pro plan
 - Plan mode first, so wrong edits do not burn usage.
@@ -29,37 +37,46 @@ Read CLAUDE.md and docs/TEAM_PLAN.md. Run git status, git log --oneline -5 and p
 - Use the claude.ai chat for review and thinking. Paste Claude Code's step report there for a second opinion.
 - Commit after every step so a hit limit loses nothing.
 
+## Where the project is and what to ask next
+
+| Track | Status | Next prompt |
+|---|---|---|
+| Retrieval Steps 16 to 18 | Step 16 abstention, Steps 17 and 18 experiments exist on branches, not merged | Review the branch results, then merge. Do not tune on the held-out half |
+| CV fixes | Merged | Parth continues from `docs/CV_STATUS.md` |
+| Step 19 contracts | Merged | Review CR-1 to CR-16 |
+| Step 20 backend | Phase 0 and 20a done on `step20-backend` | 20b endpoints (below) |
+
 ## Prompts
 
-### Step 10b: queries and no_answer handling
+### Step 20b: endpoints
 ```
-Step 10b. Check data/eval/queries_t1.tsv has 62 rows (qid, query, module, type). Run python -m src.ir.qrels_tool pool and report pooled rows per module. Change eval.py so queries of type no_answer are excluded from the main averages and reported in a separate table. Do not fill any grades. Add tests, commit and push. Plan first.
-```
-
-### Step 11: first real results (after you graded)
-```
-Step 11. I finished grading data/eval/pool_t1.csv for the device queries. Run to-qrels, then eval with --module device and --section-level for tfidf, bm25, dense, hybrid. Show chunk-level and section-level tables with p-values against bm25, the number of unjudged results returned per system, and the 5 queries where hybrid did worst versus bm25. Do not interpret beyond what the numbers show. Plan first.
+Step 20b on branch step20-backend. Read docs/contracts/openapi.yaml, API.md and DATA_MODEL.md. Implement the endpoints for products, templates and label versions in src/api on top of the existing store, following the contract exactly. POST /changes returns "parser": "not_implemented" for now (change the contract and mocks to say so). Add tests per endpoint. Do not touch src/cv, src/gen or src/ir. Plan first, then stop after the step report.
 ```
 
-### Step 12: ablations
+### Step 20c and 20d: mock fallback and response tests
 ```
-Step 12. Add ablation runs: RRF k in 10, 30, 60, 100; fusion weights; BM25 with light stemming; BGE query prefix on and off; chunk size 128, 200, 300 (rebuild and re-pool only if needed, tell me the cost first). Output one markdown table per ablation to results/. Plan first.
-```
-
-### Step 13: corpus expansion
-```
-Step 13. Plan how to add openFDA device and drug label text, one or two FDA labeling guidance documents and the EU MDR labeling annex. For each source check the licence and robots rules and use official APIs. Do not crawl until I approve the plan. New chunks must keep module and source fields.
+Step 20c: add the X-Mock header that serves the matching file from src/api/mock/ (index.json lists them). Step 20d: add tests that validate real responses against openapi.yaml. Plan first, one step at a time.
 ```
 
-### Step 14: query expansion and LTR
+### Checker with evidence
 ```
-Step 14. Implement field-aware query building and a regulatory synonym list (data/eval/synonyms.json) as a retrieval variant, and a LightGBM LambdaMART ranker for T2 product matching with a hand-tuned weights baseline. Evaluate both against the existing systems. Plan first.
-```
-
-### Step 15: checker, data model, template spec, API contract
-```
-Step 15. Implement the checker that produces Flag objects with evidence from T1 retrieval, add the template spec schema from docs/GENERATION.md to src/common/schemas.py (I approve this change), finalise docs/API_CONTRACT.md and create ui/mock/*.json files that match it. Plan first.
+Implement the checker that produces Finding objects (observed, expected, evidence, severity, confidence, needs_human) from T1 retrieval, matching DATA_MODEL.md. Weak evidence becomes needs_human, never a guess. Do not change src/common/schemas.py without asking me. Plan first.
 ```
 
-### Step 16 onward
-Relevance feedback, change parser, T3 impact retrieval, RAG with citation check, template registration, approval flow and database, public mode, PDF report: one prompt each, in the order of `docs/TEAM_PLAN.md`. Parth and Ishanvi use the same routine with their own tasks from Day 6.
+### Change parser and impact
+```
+Implement the natural-language change parser (proposes a structured change that the user confirms) and T3 change impact retrieval. Then wire POST /changes to them. Evaluate T3 with a small rerunnable command and paste the real output. Plan first.
+```
+
+### RAG with citations
+```
+Implement the cited-answer module for the public mode: answers use only retrieved passages, every claim carries a passage id, and weak evidence returns an AbstainedAnswer with one of the four reasons in openapi.yaml. Keep medicine and device data separate. Plan first.
+```
+
+### Generate, review and approve
+```
+Wire the generate endpoint (202 Job) to the renderer in src/gen, then the review endpoints. Every draft carries the DRAFT mark. Approval needs artifact_sha256 and a passed check_id. Never invent GTIN or UDI-DI, raise IdentifierRequired. Plan first.
+```
+
+### Public mode, template registration, PDF report
+One prompt each, in the order of `docs/TEAM_PLAN.md` "v1 build order". Parth and Ishanvi use the same routine with their own tasks from Day 6 (see `docs/TASKS.md`).
