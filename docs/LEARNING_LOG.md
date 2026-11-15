@@ -587,3 +587,11 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 4. **Verified:** held-out 308/384 (80.2%), false positives 27/640 (4.2%); badge style 59/64 where the other detectors score 0.
 5. **Check yourself:** the frozen-threshold commit precedes the held-out run (see `results/heldout_log.jsonl`).
 6. **Assumptions:** Prompts are my wording and untuned.
+
+## Symbols phase 6: real labels
+1. **What I did:** Fetched real pictogram art (Wikimedia, licenses recorded) and DailyMed label images; tested real art on synthetic labels and 3 real symbols on real cartons (labelled by the assistant, not a human).
+2. **Files:** `scripts/symbols/fetch_real_*.py`, `build_real_labels_eval.py`, `src/gen/generate_real_artwork.py`.
+3. **How it works:** Real drawings stand in for artwork the author did not draw; real cartons show the gap to photographs.
+4. **Verified:** real artwork 206/336 (CLIP) down to 0/336 (v1); real cartons 0/3 for every detector (the symbols are 1 to 2% of the image).
+5. **Check yourself:** my box coordinates in `build_real_labels_eval.py`.
+6. **Assumptions:** `data/real/` does not exist here; 3 symbols is not a measurement.

@@ -98,3 +98,73 @@ or 123) and the boost lets text-like blobs through (16% false positives with the
 not help and collapses when the layout is not as assumed. Every label here carries the EXP and manufacturer lines
 whether or not a symbol is printed, so the text does not say whether a symbol is present; only position can. Verdict: report
 the signal, do not use it in the detector.
+
+## Final run: frozen detectors on held-out styles, real artwork and real labels (scored once)
+
+Settings were frozen in `results/symbols_frozen_config.json` (commit 7767100) and `results/symbols_frozen_clip.json`
+(commit 2e3f3cb) before any held-out data was scored. Each dataset was scored in one invocation per detector family;
+`results/heldout_log.jsonl` lists every use (plus one diagnostic on the real labels, proposer recall only).
+Targets: recall >= 0.90 and false positives <= 2%. **No detector meets both on held-out styles.**
+
+### Held-out styles h1 to h6, random placement (384 symbols, 640 absent symbols, four conditions)
+
+| Detector | Recall | False positives |
+| --- | --- | --- |
+| v1 blind template matching | 16/384 (4.2%; 2.6 to 6.7) | 0/640 (0.0%; 0.0 to 0.6) |
+| v2 silhouette bank | 190/384 (49.5%; 44.5 to 54.5) | 16/640 (2.5%; 1.5 to 4.0) |
+| v2 CNN | 244/384 (63.5%; 58.6 to 68.2) | 55/640 (8.6%; 6.7 to 11.0) |
+| v2 silhouette AND CNN | 157/384 (40.9%; 36.1 to 45.9) | 1/640 (0.2%; 0.0 to 0.9) |
+| v2 SIFT | 27/384 (7.0%; 4.9 to 10.0) | 20/640 (3.1%; 2.0 to 4.8) |
+| v2 ORB | 3/384 (0.8%; 0.3 to 2.3) | 211/640 (33.0%; 29.4 to 36.7) |
+| **v2 zero-shot CLIP (threshold 0.4 from dev)** | **308/384 (80.2%; 75.9 to 83.9)** | 27/640 (4.2%; 2.9 to 6.1) |
+
+Recall per held-out style (64 symbols each):
+
+| Style | What is new | silhouette | CNN | CLIP |
+| --- | --- | --- | --- | --- |
+| h1 | gable factory, triangle hourglass, filled | 31 (48.4%) | 61 (95.3%) | 32 (50.0%) |
+| h2 | same shapes, thin outline | 61 (95.3%) | 61 (95.3%) | 63 (98.4%) |
+| h3 | tower factory, framed hourglass, rounded outline | 19 (29.7%) | 29 (45.3%) | 34 (53.1%) |
+| h4 | same shapes, filled | 18 (28.1%) | 32 (50.0%) | 63 (98.4%) |
+| h5 | white-on-black badge | 0 (0.0%) | 0 (0.0%) | 59 (92.2%) |
+| h6 | very heavy rounded strokes | 61 (95.3%) | 61 (95.3%) | 57 (89.1%) |
+
+By condition (96 symbols per condition): silhouette 50, 49, 49, 42; CNN 64, 64, 64, 52; CLIP 80, 80, 77, 71 (clean,
+moderate, hard, very hard). False positives per condition (160 absent each): silhouette 5, 5, 3, 3; CNN 14, 15, 16, 10;
+CLIP 8, 7, 7, 5.
+
+### Held-out styles, symbols beside their text (192 symbols, 320 absent)
+
+v1 5/192 (2.6%), FP 0/320; silhouette 87/192 (45.3%; 38.4 to 52.4), FP 11/320 (3.4%); CNN 124/192 (64.6%; 57.6 to 71.0), FP 23/320
+(7.2%); silhouette AND CNN 83/192, FP 0/320; SIFT 10/192, FP 10/320; ORB 6/192, FP 101/320; **CLIP 148/192 (77.1%; 70.6 to 82.5), FP 16/320 (5.0%; 3.1 to 8.0)**.
+
+### Real artwork (14 Wikimedia Commons drawings) printed on synthetic labels (336 symbols)
+
+| Detector | all | ISO manufacturer (48) | ISO hourglass (48) | generic factory (120) | generic hourglass (120) |
+| --- | --- | --- | --- | --- | --- |
+| v1 | 0/336 (0.0%) | 0 | 0 | 0 | 0 |
+| silhouette | 68 (20.2%; 16.3 to 24.9) | 3 (6.2%) | 3 (6.2%) | 8 (6.7%) | 54 (45.0%) |
+| CNN | 156 (46.4%; 41.2 to 51.8) | 23 (47.9%) | 0 (0.0%) | 61 (50.8%) | 72 (60.0%) |
+| CLIP | 206 (61.3%; 56.0 to 66.4) | 21 (43.8%) | 6 (12.5%) | 100 (83.3%) | 79 (65.8%) |
+
+The ISO use-by hourglass (thin walls, solid sand, no caps) is the hard case for every detector.
+
+### Real label photos (DailyMed; 3 symbols and 4 symbol-free boxes; boxes labelled by the assistant, not a human)
+
+All detectors found 0/3 symbols. The proposer never produced a box near them: the symbols are 8 to 36 px, 1.0% to 2.3% of the
+image short side, below the proposer minimum of 4.5%, and the pregnancy-test manufacturer pictogram is turned 90 degrees.
+False positives on the 4 symbol-free boxes (8 absent slots): v1 0, silhouette 0, CNN 2 (25%), CLIP 0, ORB 7. This is a
+sample of 3, not a measurement of recall.
+
+### External check: original artwork, seeds 100 to 102 (not used for any tuning)
+
+| Set | v1 | v2 silhouette | v2 CNN |
+| --- | --- | --- | --- |
+| clean, moderate, hard (102 symbols each) | 102/102 each | 102/102 each | 102/102 each |
+| very hard (102) | 93 (91.2%; 84.1 to 95.3) | 78 (76.5%; 67.4 to 83.6) | 82 (80.4%; 71.6 to 86.9) |
+| alt_style, independent filled artwork (204) | 0 (0.0%; 0.0 to 1.8) | **204 (100.0%; 98.2 to 100.0)** | **204 (100.0%)** |
+| absent symbols reported (306) | 0 | 0 (0.0%; 0.0 to 1.2) | 0 (0.0%; 0.0 to 1.2) |
+| small (0.6) and large (1.25) symbols (204 each) | 204 each | 204 each | 204 each |
+
+v2 keeps everything v1 gets on clean to hard labels and fixes the independent drawing (0/204 to 204/204), but loses 11 to 15
+points on very hard labels (glare and opaque bars hide part of the symbol and the blob finder then misses it).
