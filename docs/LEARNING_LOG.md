@@ -324,6 +324,42 @@ A sequential log of progress, implementation decisions, worked examples, and ver
 5. **Check yourself:** That the chunk-level "unjudged ranks 11-20" column is 0 in `results/step15_ablations.md`. That the Recall@20 p-values above are uncorrected (36 secondary comparisons, none adjusted). That the two Holm crossings in device section come with small changes in the effect (hybrid_stem +0.044 to +0.036, dense_prefix +0.052 to +0.053), so the flip is mostly the Holm family ordering, not a big effect change.
 6. **Assumptions:** Grades are my judgement under the prompt (lower when unsure), most ranks 11 to 20 chunks are 0 (no_answer queries all 0). The model id was assumed to be `claude-sonnet-5-5` because the command carried a placeholder. 14d and Step 13 left on the older pools by request. CI not checked (gh not logged in).
 
+## Step 16: abstention evaluation for the medicine mode (plus 10 held-out grades)
+1. **What I did:** Graded the 10 unjudged Step 17 held-out pairs (batch 94, `pool_t1_extra3.csv`). Drafted 10 answerable and 10 no_answer medicine queries (`queries_t1_abstain_draft.csv`, no_answer split 7 hard, 3 easy), pooled bm25, dense and hybrid at depth 20 on the medicine index (788 pairs), graded them (batches 95 to 114, claude-sonnet-5-5) and checked that no no_answer query has a grade 2 chunk. Then measured how well the top score and the rank-1 minus rank-2 margin predict answerable vs no_answer.
+2. **Files:** `src/ir/step16_abstain.py` (pool, check, eval), `tests/test_step16_abstain.py` (13 tests), `data/eval/queries_t1_abstain_draft.csv` and `.tsv`, `data/eval/pool_t1_extra3.csv`, `data/eval/pool_t1_abstain.csv`, `data/eval/pool_t1_llm.csv` and `qrels_t1_llm.tsv` (3599 rows), `docs/LLM_GRADER_PROMPT.md` (batches 94 to 114), `results/step16_predeclaration.md`, `results/step16_abstention.md`, `results/step16_notes.md`, `results/step16_pool_listing.csv`, `.gitignore` (unignore results/step16_*).
+3. **How it works:** AUROC is the chance that a random answerable query scores above a random no_answer query (ties count half). The bootstrap resamples each class separately 10,000 times (seed 42). The abstention threshold is chosen leave-one-out: fit on 19 queries, apply to the 20th. The primary score (hybrid top RRF) was committed before any result was computed.
+4. **Results (real):** 0 no_answer queries flipped. Hybrid top AUROC 0.985 [0.930, 1.000], bm25 top 0.940 [0.820, 1.000], dense top 0.900 [0.740, 1.000]; margin scores are weak or inverted (hybrid margin 0.260). Leave-one-out with hybrid top: abstained on 11, precision 0.909, recall 1.0. Fast tests 118 passed, ruff clean.
+5. **Check yourself:** The hard-only and easy-only rows (10 v 7 and 10 v 3; the easy interval is degenerate). That margin rows use a "low means abstain" rule that does not fit them. That the answerable queries were written from section titles, which may make the task easier than real use.
+6. **Assumptions:** Grades are LLM grades (lower when unsure), not human. No cross-encoder exists, so that score was skipped. CI not checked (gh not logged in).
+
+---
+
+_Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 numbering is separate from the retrieval Step 16 above._
+
+## Step 16: Synthetic Label Generation and CV Draft Workflow
+1. **What I did:** Finished seeded three-condition label generation, original-image field and symbol coordinates, template pictogram detection, draft SVG/PDF rendering and evidence-based print verification.
+2. **Files changed:** Scoped `src/gen` and `src/cv` modules/tests/READMEs, two deterministic `data/symbols/device` references, and the generated `results/cv_extract.md` report. Shared schemas and retrieval code were not changed.
+3. **How it works:** Homographies map label slots into distorted images; the extractor maps detections back. Draft manifests contain watermark status, change history, artifact hashes and self-check. Print verification requires an external authorized approval bound to exact manifest bytes.
+4. **Verified:** Conda Python 3.12: 230 scoped tests passed; Ruff clean; pip check found no broken requirements. Full 51-image measurement: barcode 17/17 clean and moderate, 4/17 hard; symbol matches 34/34 in each condition.
+5. **Check yourself:** Review the new symbol tests, renderer manifest and approval binding, and the condition-specific evaluation table.
+6. **Assumptions:** Findings apply to one synthetic template family; the identifier is a test placeholder and pictograms are not certified ISO artwork.
+
+## Step 17: Hard-Condition Barcode Recovery
+1. **What I did:** Added original-first barcode decoding with rectification and thresholded template-slot recovery. Reduced only the hard blur/noise enough to preserve the barcode pattern while keeping hard rotation, perspective and lighting. Added a regression test requiring at least 80% exact GS1 matches on all 17 seed-42 hard labels.
+2. **Files changed:** `src/cv/barcode.py`, `src/cv/extract.py`, `src/cv/test_barcode.py`, `src/cv/test_extract.py`, `src/gen/augment.py`, `src/gen/generate_dataset.py`, `src/gen/test_generate_dataset.py`, `src/cv/README.md`, `src/gen/README.md`, and `results/cv_extract.md`.
+3. **How it works:** If a full-image decode fails, the label is straightened and the known barcode slot is cropped with a 3 mm margin. Adaptive grayscale thresholding exposes the dark modules for zxing-cpp; returned coordinates are mapped back to the original photo.
+4. **Verified:** Full scoped suite: 233 passed. Ruff clean; pip check found no broken requirements. Exact barcode matches: seed 42 clean/moderate/hard = 17/17, 17/17, 15/17; seed 43 = 17/17, 17/17, 16/17. Hard rates are 88.24% and 94.12%. Repeated seed-42 runs produced 103 byte-identical files.
+5. **Check yourself:** Review `decode_barcode_slot`, the 14-of-17 regression assertion, and the two-seed condition-separated results in `src/cv/README.md`.
+6. **Assumptions:** The score target applies to this synthetic test-device template and fixed seeds. Two seed-42 and one seed-43 hard images still require human review; no identifier authenticity is implied.
+
+## Step 18: Parth's Shareable CV Work README
+1. **What I did:** Wrote a concise handoff document describing the assigned work, implementation, measured results, reproduction steps, limits and remaining review items.
+2. **Files changed:** `docs/PARTH_WORK_SUMMARY.md` (shareable report for Paridhi) and this learning log (step record).
+3. **How it works:** The report links the relevant code and evaluation report, gives seed-separated barcode results and field-level OCR error rates, and includes commands to reproduce the 51-image run.
+4. **Verified:** Documentation was checked against the committed `parth-cv` branch, `results/cv_extract.md`, and the recorded Conda test and lint outputs.
+5. **Check yourself:** Review the measured-results tables, reproduction commands, and remaining-work section before sharing.
+6. **Assumptions:** The report is a project handoff, not a regulatory claim; temporary evaluation datasets are not committed.
+
 ## Step 17a + 17b: dev / held-out split and synonym expansion
 1. **What I did:** Split the 57 answerable queries into a development half (29) and a held-out half (28) with seed 42, stratified by query type and spread over both modules (`data/eval/split_t1.json`). Wrote a general regulatory synonym list (`data/eval/synonyms.json`, 19 groups, each tagged `cfr_definition` or `failure_derived`) and an expander that adds the other terms of a group when any term appears in the query. BM25 counts added terms at a lower weight than the user's own words.
 2. **Files changed:** `src/ir/split.py`, `src/ir/expand.py`, `data/eval/split_t1.json`, `data/eval/synonyms.json`, `tests/test_split.py`, `tests/test_expand.py`, this log.
