@@ -377,3 +377,11 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 4. **Verified:** The mapping script found 41 refs, none missing. Em dashes 0. The openapi "returned" example comes in 19c.
 5. **Check yourself:** The status derivation order, the `check_id` rule in Review, and the Parth column values.
 6. **Assumptions:** Public label answers have no abstention validation. The public label corpus is not built. Parth's code is not on main yet.
+
+## Step 19b: template spec
+1. **What I did:** Wrote `docs/contracts/TEMPLATE_SPEC.md`: units (mm from the top left, pt for fonts, the PDF y-flip, SVG viewBox in mm), the template JSON and slot keys, validation rules that become layout findings, the named SVG groups (`layer-background`, `layer-slots`, `slot-{id}`, `layer-watermark`, `layer-review`), and the GS1 barcode rule KEEP, REGENERATE or NEEDS_INPUT, with worked examples.
+2. **Files changed:** `docs/contracts/TEMPLATE_SPEC.md` (new), this log.
+3. **How it works:** A new address leaves the GS1 payload unchanged, so the decision is KEEP and the barcode is reused exactly. A confirmed new lot changes AI (10), so the decision is REGENERATE. A missing UDI-DI gives NEEDS_INPUT and `IdentifierRequired`.
+4. **Verified:** A throwaway script found the spec example OK and Parth's `test_device.json` OK. The GENERATION.md example fails on a missing `symbol_name` (noted, not edited). The placeholder `00000000000000` has a valid mod-10 check digit. The PDF sizes are 283.46 x 170.08 pt. Em dashes 0.
+5. **Check yourself:** The DRAFT band (6 mm) and the 6 pt minimum, the NEEDS_INPUT row for unconfirmed changes, and SVG group rule 2 (watermark removed only with approval).
+6. **Assumptions:** Parth's renderer does not yet emit the named groups. The GS1 lot and serial limits (20 characters) need checking against the current GS1 spec.
