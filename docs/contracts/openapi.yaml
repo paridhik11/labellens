@@ -242,13 +242,16 @@ paths:
               properties:
                 file: {type: string, contentMediaType: application/octet-stream}
                 source: {type: string, enum: [upload, camera]}
-                product_id: {type: string}
+                product_id: {type: string, description: "Required by the real server (CR-20): a scan creates a version of that product's label."}
       responses:
         "202":
           description: Accepted. Job envelope; poll GET /jobs/{job_id}. result_url points at GET /scans/{scan_id}.
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Job"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "403": {$ref: "#/components/responses/Forbidden"}
+        "404": {$ref: "#/components/responses/NotFound"}
         "422": {$ref: "#/components/responses/Invalid"}
 
   /scans/{scan_id}:
@@ -267,6 +270,7 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Scan"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "404": {$ref: "#/components/responses/NotFound"}
 
   /labels/{label_id}/versions:
@@ -317,6 +321,7 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Extraction"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "404": {$ref: "#/components/responses/NotFound"}
 
   /label-versions/{version_id}/extraction/confirm:
@@ -337,6 +342,10 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Extraction"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "403": {$ref: "#/components/responses/Forbidden"}
+        "404": {$ref: "#/components/responses/NotFound"}
+        "422": {$ref: "#/components/responses/Invalid"}
 
   # ---------------------------------------------------------------- inspection and evidence
   /label-versions/{version_id}/inspect:
@@ -1040,7 +1049,9 @@ components:
             (409), label_product_mismatch (409), no_change (422, an edit equals the current value),
             duplicate_field (422), parse_not_confirmed (422), edits_not_supported (422, confirm with edits),
             unknown_impact (422), nothing_to_confirm (409), change_not_confirmed (409, approve before the
-            change was confirmed).
+            change was confirmed). Upload codes (CR-20): unsupported_media_type, file_too_large, image_too_large,
+            invalid_file (all 422 on uploadScan); retake_photo, extractor_unavailable and scan_failed appear in
+            Scan.error and Job.error with state failed. retake_photo carries details {reasons, metrics, thresholds}.
         message: {type: string}
         details: {type: object}
     User:

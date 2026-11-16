@@ -9,12 +9,12 @@ from __future__ import annotations
 from collections.abc import Iterator
 from typing import Any
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, Request, UploadFile
 from fastapi.responses import JSONResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from src.api import changes, checks, views
+from src.api import changes, checks, scans, uploads, views
 from src.api.errors import ApiError
 from src.api.models import (
     ChangeRequest,
@@ -29,6 +29,7 @@ from src.api.models import (
 from src.api.requests import (
     ChangeConfirmCreate,
     ChangeCreate,
+    ExtractionConfirmCreate,
     InspectCreate,
     ProductCreate,
     ProfessionalQuestion,
@@ -55,6 +56,10 @@ REAL_OPERATIONS = frozenset(
         "registerTemplate",
         "getTemplate",
         "getProductHistory",
+        "uploadScan",
+        "getScan",
+        "getExtraction",
+        "confirmExtraction",
         "listLabelVersions",
         "getLabelVersion",
         "assessChange",
@@ -183,6 +188,84 @@ def get_product_history(
         "product_id": product_id,
         "items": [views.audit_json(e) for e in views.product_history(session, product_id)],
     }
+
+
+# ---------------------------------------------------------------- upload, scan, extraction (Step 24a)
+
+
+@router.post("/scans", operation_id="uploadScan", status_code=202, tags=["device"])
+async def upload_scan(
+    request: Request, background: BackgroundTasks, file: UploadFile = File(...),  # noqa: B008
+    source: str = Form(...),
+    product_id: str | None = Form(None), session: Session = Depends(get_session), user: User = Depends(writer),
+) -> JSONResponse:
+    """Accept a PNG, JPEG or PDF of a device label and answer 202 with a Job; the job runs the extractor.
+
+    The file is checked by its first bytes (never its name or Content-Type), capped at 15 MB and 40 megapixels,
+    and stored as uploads/<sha256>.<ext>. `product_id` is required for now: a scan creates a label version,
+    and a version belongs to a product (docs/contracts/SCHEMA_CHANGE_REQUESTS.md, CR-20).
+    """
+    if source not in ("upload", "camera"):
+        raise ApiError(422, "validation_error", "source must be 'upload' or 'camera'.")
+    if not product_id:
+        raise ApiError(422, "validation_error", "product_id is required: a scan creates a version of its label.")
+    views.require_product(session, product_id)
+    data = await file.read(uploads.MAX_BYTES + 1)  # never read more than the cap plus one byte
+    upload = uploads.validate_upload(data)
+    stored = uploads.store_bytes(checks.files_dir(), upload, data)
+    scan = scans.add_scan(session, user.user_id, upload, stored, source, product_id)
+    job = checks.new_job(session, "scan", None, user.user_id, result_url=f"/scans/{scan.scan_id}")
+    scans.advance_scan(session, scan.scan_id, "queued", job_id=job.job_id)
+    background.add_task(scans.run_scan_job, request.app, job.job_id, scan.scan_id, user.user_id)
+    return JSONResponse(checks.job_json(job), status_code=202)
+
+
+@router.get("/scans/{scan_id}", operation_id="getScan", tags=["device"])
+def get_scan(
+    scan_id: str, request: Request, session: Session = Depends(get_session), _: User = Depends(current_user)
+) -> Any:
+    """Scan state. label_id and version_id are set when done. Ids this server never issued fall back to the mock."""
+    row = scans.latest_scan(session, scan_id)
+    if row is not None:
+        return scans.scan_json(row)
+    if scans.REAL_SCAN_ID.match(scan_id):
+        raise ApiError(404, "not_found", f"No scan {scan_id!r}.")
+    from src.api.mock_server import mock_response  # imported here: mock_server imports this module
+
+    return mock_response("getScan", request)
+
+
+@router.get("/label-versions/{version_id}/extraction", operation_id="getExtraction", tags=["device"])
+def get_extraction(
+    version_id: str, request: Request, session: Session = Depends(get_session), _: User = Depends(current_user)
+) -> Any:
+    """The newest extraction of a version that came from a scan, with its unclear fields and confirmation state."""
+    row = scans.scan_extraction(session, version_id)
+    if row is not None:
+        return scans.extraction_json(session, row, request.app.state.checker_settings)
+    if scans.REAL_VERSION_ID.match(version_id) and scans.version_exists(session, version_id):
+        raise ApiError(404, "not_found", f"Version {version_id!r} has no extraction from a scan.")
+    if scans.REAL_VERSION_ID.match(version_id):
+        raise ApiError(404, "not_found", f"No label version {version_id!r}.")
+    from src.api.mock_server import mock_response
+
+    return mock_response("getExtraction", request)
+
+
+@router.post("/label-versions/{version_id}/extraction/confirm", operation_id="confirmExtraction", tags=["device"])
+def confirm_extraction(
+    version_id: str, body: ExtractionConfirmCreate, request: Request, session: Session = Depends(get_session),
+    user: User = Depends(writer),
+) -> Any:
+    """Confirm or correct the extracted fields (append-only: a new extraction row and a confirmation row)."""
+    row = scans.scan_extraction(session, version_id)
+    if row is not None:
+        return scans.confirm_extraction(session, user.user_id, row, body.fields, request.app.state.checker_settings)
+    if scans.REAL_VERSION_ID.match(version_id):
+        raise ApiError(404, "not_found", f"Version {version_id!r} has no extraction from a scan.")
+    from src.api.mock_server import mock_response
+
+    return mock_response("confirmExtraction", request)
 
 
 @router.get("/labels/{label_id}/versions", operation_id="listLabelVersions", tags=["device"])

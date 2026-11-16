@@ -19,6 +19,7 @@ from src.api.seed import CHANGE_ID, L3_SHA256, LABEL_ID, PRODUCT_ID, TEMPLATE_ID
 from src.api.store import add_check_result, add_label_version
 from tests.checker_api_helpers import install
 from tests.openapi_helpers import conformance_errors, documented_statuses, find_operation
+from tests.upload_helpers import jpeg_bytes, passing_gate, png_bytes, rejecting_gate
 
 EDITOR, REVIEWER, ADMIN = "usr_demo_editor", "usr_demo_reviewer", "usr_demo_admin"
 L3 = "lbv_exampledevice_carton_l3"
@@ -61,6 +62,36 @@ def test_every_real_response_conforms_to_openapi(run: Run, tmp_path, monkeypatch
     sf = run.client.app.state.session_factory
     c = run.check
     install(run.client, tmp_path, monkeypatch)  # stub extractor and bm25 retrieval: no CV libraries needed
+    run.client.app.state.quality_gate = passing_gate
+
+    # upload, scan, extraction (Step 24a)
+    form = {"source": "upload", "product_id": PRODUCT_ID}
+    sent = c("uploadScan", 202, "POST", "/scans", files={"file": ("a.png", png_bytes(), "image/png")}, data=form)
+    scan_url = sent.json()["result_url"]
+    scan = c("getScan", 200, "GET", scan_url).json()
+    assert scan["state"] == "done"
+    c("getScan", 401, "GET", scan_url, user=None)
+    c("getScan", 404, "GET", "/scans/scn_00000000")
+    ext_url = f"/label-versions/{scan['version_id']}/extraction"
+    c("getExtraction", 200, "GET", ext_url)
+    c("getExtraction", 401, "GET", ext_url, user=None)
+    c("getExtraction", 404, "GET", "/label-versions/lbv_00000000/extraction")
+    c("confirmExtraction", 200, "POST", ext_url + "/confirm", json={"fields": {"lot": "LOT: A1"}})
+    c("confirmExtraction", 401, "POST", ext_url + "/confirm", user=None, json={"fields": {}})
+    c("confirmExtraction", 403, "POST", ext_url + "/confirm", user=REVIEWER, json={"fields": {}})
+    c("confirmExtraction", 404, "POST", "/label-versions/lbv_00000000/extraction/confirm", json={"fields": {}})
+    c("confirmExtraction", 422, "POST", ext_url + "/confirm", json={"fields": {"nonsense": "x"}})
+    c("uploadScan", 401, "POST", "/scans", user=None, files={"file": ("a.png", png_bytes(), "image/png")}, data=form)
+    c("uploadScan", 403, "POST", "/scans", user=REVIEWER, data=form,
+      files={"file": ("a.png", png_bytes(), "image/png")})
+    c("uploadScan", 404, "POST", "/scans", files={"file": ("a.png", png_bytes(), "image/png")},
+      data={"source": "upload", "product_id": "prd_missing"})
+    c("uploadScan", 422, "POST", "/scans", files={"file": ("a.png", b"not an image", "image/png")}, data=form)
+    run.client.app.state.quality_gate = rejecting_gate  # a failed scan (retake_photo) must conform to Scan and Job too
+    failed = c("uploadScan", 202, "POST", "/scans", files={"file": ("b.jpg", jpeg_bytes(), "image/jpeg")}, data=form)
+    assert c("getScan", 200, "GET", failed.json()["result_url"]).json()["error"]["error"] == "retake_photo"
+    assert c("getJob", 200, "GET", f"/jobs/{failed.json()['job_id']}").json()["error"]["error"] == "retake_photo"
+    run.client.app.state.quality_gate = passing_gate
 
     # users
     c("getCurrentUser", 200, "GET", "/me")
@@ -279,5 +310,5 @@ def test_validation_is_not_vacuous(run: Run) -> None:
 def test_every_real_operation_is_in_the_spec_with_a_success_response() -> None:
     for operation_id in REAL_OPERATIONS:
         codes = documented_statuses(operation_id)
-        assert codes & {200, 201}, operation_id
+        assert codes & {200, 201, 202}, operation_id
         assert find_operation(operation_id)["tags"], operation_id

@@ -181,6 +181,12 @@ class SearchCreate(BaseModel):
     retrieval: RetrievalConfig | None = None
 
 
+class ExtractionConfirmCreate(BaseModel):
+    """POST /label-versions/{id}/extraction/confirm. Field names and lengths are checked in scans.confirm_extraction."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    fields: dict[str, str]
 class ProfessionalQuestion(BaseModel):
     """POST /ask (device module). A blank question is a 422."""
 
