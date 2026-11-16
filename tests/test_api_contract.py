@@ -234,6 +234,24 @@ def test_every_real_response_conforms_to_openapi(run: Run, tmp_path, monkeypatch
     c("searchEvidence", 200, "POST", "/search", user=None, json=search)
     c("searchEvidence", 422, "POST", "/search", user=None, json={"query": "x"})
 
+    # ask (Step 23c): fake provider, fixed retrieval
+    from src.rag.provider import NullProvider
+    from src.rag.service import RagService
+    from tests.rag_api_helpers import stub_service
+
+    run.client.app.state.rag = stub_service()
+    pub = {"question": "where does the expiration date go", "product_id": "prd_demo"}
+    c("askPublic", 200, "POST", "/public/ask", user=None, json=pub)
+    c("askPublic", 200, "POST", "/public/ask", user=None, json={**pub, "question": "how much should I take for my cold"})  # noqa: E501
+    c("askPublic", 422, "POST", "/public/ask", user=None, json={"question": "x"})
+    c("askProfessional", 200, "POST", "/ask", user=None, json={"question": "date format on a device label"})
+    c("askProfessional", 200, "POST", "/ask", user=None, json={"question": "should I take two of these"})
+    c("askProfessional", 422, "POST", "/ask", user=None, json={"question": " "})
+    monkeypatch.setattr("src.ir.step18_config.load_system", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("x")))
+    run.client.app.state.rag = RagService(provider=NullProvider())
+    c("askPublic", 503, "POST", "/public/ask", user=None, json=pub)
+    c("askProfessional", 503, "POST", "/ask", user=None, json={"question": "date format"})
+
     # coverage: every documented status of every real operation was validated at least once
     real_in_spec = {op: documented_statuses(op) for op in REAL_OPERATIONS}
     missing = {op: sorted(codes - run.seen[op]) for op, codes in real_in_spec.items() if codes - run.seen[op]}

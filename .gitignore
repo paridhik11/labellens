@@ -42,3 +42,8 @@ data/real_symbols/
 data/real_labels/
 data/models/
 data/real_labels_eval/
+
+# shared built indexes (Step 23): one copy outside any worktree, never committed
+data/cache/
+!results/step23_*
+results/step23_run.log

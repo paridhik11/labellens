@@ -1,0 +1,52 @@
+{
+ "frozen_before_final_run": true,
+ "score_name": "e5b_top_score",
+ "dev_scores": {
+  "q50": 0.03200204813108039,
+  "q51": 0.03177805800756621,
+  "q52": 0.03252247488101534,
+  "q53": 0.03278688524590164,
+  "q54": 0.0315136476426799,
+  "q55": 0.03036576949620428,
+  "q58": 0.032266458495966696,
+  "q59": 0.02844163539403516,
+  "q60": 0.03252247488101534,
+  "ab13": 0.02821869488536155,
+  "ab14": 0.027745885954841176,
+  "ab16": 0.02946236559139785,
+  "ab18": 0.028021349599695006,
+  "ab19": 0.031054405392392875
+ },
+ "dev_auroc": 0.9333333333333333,
+ "dev_answerable": 9,
+ "dev_no_answer": 5,
+ "threshold_candidate": 0.0315136476426799,
+ "dev_answerable_abstained": 2,
+ "gate_usable": true,
+ "threshold": 0.0315136476426799,
+ "primary_condition": "A1",
+ "conditions": {
+  "A1": "qwen2.5:1.5b-instruct-q4_K_M",
+  "A2": "qwen2.5:3b-instruct-q4_K_M",
+  "B": null
+ },
+ "prompt_version": "b4cc61aa4994",
+ "settings": {
+  "k": 5,
+  "max_sentences": 4,
+  "min_overlap": 0.4,
+  "fallback_quotes": 3,
+  "max_tokens": 220,
+  "timeout_s": 120.0,
+  "ollama_url": "http://localhost:11434"
+ },
+ "targets": {
+  "citation_validity_answer": 0.95,
+  "faith_supported_sentence": 0.8,
+  "wrong_answer_no_answer_max": 0.2,
+  "answered_rate_answerable": 0.6
+ },
+ "e5b_settings_sha256": "02ea0a0f76797add3a34e8d3855adb5675c15f25cb1cd3ed456699319d9cbc9c",
+ "advice_queries_sha256": "7e42539879cb2ce1b388e4de8d4f9e3971287cdbddfd3155b74fb047c7cd3436",
+ "rule": "threshold = smallest dev score strictly above every dev no_answer score; gate off if it would abstain on more than half of the dev answerable queries"
+}

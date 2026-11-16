@@ -887,6 +887,34 @@ paths:
                     threshold: null
                     message: I can only explain what the packaging label says. Please ask a pharmacist or doctor.
                     banner: Authenticity not verified. Based on a reference label match.
+        "422": {$ref: "#/components/responses/Invalid"}
+        "503": {$ref: "#/components/responses/Unavailable"}
+
+  /ask:
+    post:
+      tags: [device]
+      operationId: askProfessional
+      summary: Ask a question about the device labeling regulations (21 CFR 8xx). Answers only from retrieved passages, or abstains.
+      description: |
+        Professional twin of askPublic (Step 23, CR-19). Module is fixed to device, so device and medicine
+        content never mix. There is no banner and no matched label. An abstained answer may carry `sources`
+        (CR-18): verbatim passages shown when generation was off or failed verification. They are not an answer.
+      security:
+        - {}
+        - UserHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ProfessionalQuestionRequest"}
+      responses:
+        "200":
+          description: Cited answer or abstention
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ProfessionalAnswerResponse"}
+        "422": {$ref: "#/components/responses/Invalid"}
+        "503": {$ref: "#/components/responses/Unavailable"}
 
 components:
   securitySchemes:
@@ -939,6 +967,11 @@ components:
           schema: {$ref: "#/components/schemas/Error"}
     Forbidden:
       description: The user's role may not do this (role_forbidden)
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/Error"}
+    Unavailable:
+      description: A service the operation needs is not available (retrieval_unavailable)
       content:
         application/json:
           schema: {$ref: "#/components/schemas/Error"}
@@ -1847,9 +1880,51 @@ components:
         score: {type: [number, "null"], description: Null when a scope rule decided, not a score}
         threshold: {type: [number, "null"], description: Null when a scope rule decided, not a score}
         message: {type: string}
+        sources:
+          type: array
+          description: |
+            Optional (CR-18). Verbatim passages shown when no answer was generated or it failed verification.
+            They are not an answer and no claim is made from them.
+          items: {$ref: "#/components/schemas/Citation"}
         banner: {$ref: "#/components/schemas/PublicBanner"}
     AnswerResponse:
       description: Exactly one of the two shapes, told apart by the boolean abstained
       oneOf:
         - $ref: "#/components/schemas/AnsweredAnswer"
         - $ref: "#/components/schemas/AbstainedAnswer"
+    ProfessionalQuestionRequest:
+      type: object
+      required: [question]
+      additionalProperties: false
+      properties:
+        question: {type: string, minLength: 1}
+    ProfessionalAnsweredAnswer:
+      type: object
+      required: [abstained, answer, sources]
+      additionalProperties: false
+      properties:
+        abstained: {type: boolean, const: false}
+        answer: {type: string}
+        sources:
+          type: array
+          minItems: 1
+          items: {$ref: "#/components/schemas/Citation"}
+    ProfessionalAbstainedAnswer:
+      type: object
+      required: [abstained, reason, score_name, score, threshold, message]
+      additionalProperties: false
+      properties:
+        abstained: {type: boolean, const: true}
+        reason: {type: string, enum: [no_evidence, low_confidence, out_of_scope, needs_human_check]}
+        score_name: {type: string, minLength: 1}
+        score: {type: [number, "null"]}
+        threshold: {type: [number, "null"]}
+        message: {type: string}
+        sources:
+          type: array
+          items: {$ref: "#/components/schemas/Citation"}
+    ProfessionalAnswerResponse:
+      description: Exactly one of the two shapes, told apart by the boolean abstained
+      oneOf:
+        - $ref: "#/components/schemas/ProfessionalAnsweredAnswer"
+        - $ref: "#/components/schemas/ProfessionalAbstainedAnswer"

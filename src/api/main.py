@@ -23,6 +23,7 @@ from src.api.mock_server import register_mocks
 from src.api.routes import router
 from src.api.seed import seed_demo
 from src.checker.settings import CheckerSettings
+from src.rag.service import RagService, frozen_threshold
 
 
 def create_app(db_url: str | None = None, seed: bool | None = None) -> FastAPI:
@@ -36,6 +37,7 @@ def create_app(db_url: str | None = None, seed: bool | None = None) -> FastAPI:
         app.state.session_factory = make_session_factory(engine)
         app.state.extractor = extract_with_cv  # tests replace it with a stub
         app.state.checker_settings = CheckerSettings()  # default retrieval: plain hybrid RRF
+        app.state.rag = RagService(threshold=frozen_threshold())  # Step 23: E5b retrieval loads on the first question
         app.state.edit_provider = None  # optional LLM text parser, off by default (src/change/parser.py)
         if seed if seed is not None else os.environ.get("LABELLENS_SEED", "1") != "0":
             with app.state.session_factory() as session:
