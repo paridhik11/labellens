@@ -5,22 +5,35 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import Any, Literal
-
-import cv2
-import numpy as np
-from PIL import Image
+from typing import TYPE_CHECKING, Any, Literal
 
 from src.common.schemas import BarcodeResult, LabelExtraction, OcrBlock
-from src.cv.barcode import decode_barcode_slot, decode_barcodes
-from src.cv.barcode_blind import decode_barcode_slot_enhanced, decode_barcodes_blind
+from src.cv._optional import LazyModule, deferred
 from src.cv.fields import normalise_field, reconcile_with_barcode
-from src.cv.ocr import read_text_default as read_text
-from src.cv.perspective import warp_label
 from src.cv.photo_fields import map_photo_fields
-from src.cv.photo_ocr import PhotoReading, project_blocks, read_photo
-from src.cv.preprocess import _validate_image, find_label_corners, find_label_corners_fallback
-from src.cv.symbols import NAMES, detect_symbols, detect_symbols_blind
+
+if TYPE_CHECKING:
+    import numpy as np
+
+    from src.cv.photo_ocr import PhotoReading
+
+cv2 = LazyModule("cv2")
+np = LazyModule("numpy")
+Image = LazyModule("PIL.Image")
+read_text = deferred("src.cv.ocr", "read_text_default")
+warp_label = deferred("src.cv.perspective", "warp_label")
+read_photo = deferred("src.cv.photo_ocr", "read_photo")
+project_blocks = deferred("src.cv.photo_ocr", "project_blocks")
+_validate_image = deferred("src.cv.preprocess", "_validate_image")
+find_label_corners = deferred("src.cv.preprocess", "find_label_corners")
+find_label_corners_fallback = deferred("src.cv.preprocess", "find_label_corners_fallback")
+decode_barcode_slot = deferred("src.cv.barcode", "decode_barcode_slot")
+decode_barcodes = deferred("src.cv.barcode", "decode_barcodes")
+decode_barcode_slot_enhanced = deferred("src.cv.barcode_blind", "decode_barcode_slot_enhanced")
+decode_barcodes_blind = deferred("src.cv.barcode_blind", "decode_barcodes_blind")
+detect_symbols = deferred("src.cv.symbols", "detect_symbols")
+detect_symbols_blind = deferred("src.cv.symbols", "detect_symbols_blind")
+NAMES = ("manufacturer", "expiry")
 
 TEMPLATE_PATH = Path(__file__).resolve().parents[1] / "gen" / "templates" / "test_device.json"
 Mode = Literal["template", "blind"]

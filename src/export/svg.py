@@ -6,6 +6,8 @@ import base64
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
+from reportlab.pdfbase.pdfmetrics import stringWidth
+
 from src.export.label_model import (
     MM_TO_PT,
     ApprovalRecord,
@@ -14,6 +16,7 @@ from src.export.label_model import (
     primitives,
     validate_approval,
     validate_label,
+    watermark_lines,
     write_artifact,
 )
 
@@ -116,13 +119,13 @@ def render_svg(
                     },
                 )
     watermark = ET.SubElement(root, "g", {"id": "layer-watermark"})
-    if not approved or label.test_data:
+    for index, heading in enumerate(watermark_lines(label, approved)):
+        size = min(8.0, (label.width_mm - 4) * MM_TO_PT / stringWidth(heading, "Helvetica", 1))
         text = ET.SubElement(
-            watermark, "text", {"x": "2", "y": "6", "font-family": "Helvetica", "font-size": str(9 / MM_TO_PT)}
+            watermark, "text", {"x": "2", "y": str(3.5 + 4 * index), "font-family": "Helvetica",
+                                "font-size": str(size / MM_TO_PT)}
         )
-        text.text = (
-            "TEST DATA | DRAFT" if label.test_data and not approved else "TEST DATA" if label.test_data else "DRAFT"
-        )
+        text.text = heading
     review = ET.SubElement(root, "g", {"id": "layer-review"})
     for x, y, w, h in label.review_boxes:
         ET.SubElement(

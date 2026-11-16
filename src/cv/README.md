@@ -583,3 +583,26 @@ frozen input fingerprints in `scripts/cv_experiments/photo_protocol_v1.json`.
 Earlier photo reports are historical baselines. Human spot-check and symbol-crop
 review remain deferred; transcriptions/annotations are LLM-generated, not human
 truth. Real-photo symbol accuracy remains unmeasured. No approval is issued.
+
+## Grouped dev/test review and release decision, 2026-11-16
+
+`photo_split_v2.json` fixes six dev/four test photos, whole-family grouping and
+input fingerprints. Two iterations used dev only. Candidate c50fb4a improved
+exact dev names 1/6 to 2/6; one paired test invocation found regression: name
+0/4 to 0/4, lot 3/4 to 2/4, expiry 1/4 to 0/4. Keep the original photo rules as
+the live default; no test retuning or second scoring occurred. The failed
+candidate remains in Git. See results/cv_split_test.md for counts/intervals.
+All ten originals were previously exposed, not an unseen holdout. Labels are
+LLM-generated; human review is deferred and real-symbol accuracy unmeasured.
+
+For an audit reproduction, archive 740a0ab and c50fb4a into separate directories,
+then run `python -m scripts.cv_experiments.eval_photo_split --partition test
+--output <new-audit-folder> --baseline-root <baseline-archive> --candidate-root
+<candidate-archive> --candidate-revision c50fb4a --report <report-path>`.
+The output folder has a one-use test lock. A study reproduction is not permission
+to tune on the test set. Dev runs use --partition dev and are logged separately.
+
+CV packages are now imported lazily by the extraction entry point. Importing it
+in a web process does not initialize native libraries or OCR models; extraction
+jobs still require the recorded CV dependencies. The blocked-import subprocess
+test covers minimal CI. Neither checker thresholds nor shared schemas changed.

@@ -330,16 +330,13 @@ def _render_package(
             strokeWidth=0.25 * mm,
         )
     )
-    watermark.add(
-        String(
-            5 * mm,
-            height - 3 * mm - 10,
-            "TEST DATA | DRAFT" if test_data else "DRAFT",
-            fontName="Helvetica",
-            fontSize=10,
-            fillColor=black,
-        )
-    )
+    headings = ["DRAFT, not for production"]
+    if test_data:
+        headings.append("TEST DATA | DRAFT")
+    for index, heading in enumerate(headings):
+        size = min(8.0, (width - 4 * mm) / stringWidth(heading, "Helvetica", 1))
+        watermark.add(String(2 * mm, height - (3.5 + 4 * index) * mm, heading,
+                             fontName="Helvetica", fontSize=size, fillColor=black))
     for slot in template_spec["slots"]:
         slot_group = Group()
         slots_layer.add(slot_group)

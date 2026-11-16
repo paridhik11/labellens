@@ -314,6 +314,7 @@ def write_artifact(path: Path, content: bytes, label: Label, approved: bool, che
         "artifact_sha256": hashlib.sha256(content).hexdigest(),
         "status": "APPROVED" if approved else "DRAFT",
         "test_data": label.test_data,
+        "visible_markings": list(watermark_lines(label, approved)),
         "check_id": check_id,
         "change_log": [
             {
@@ -338,3 +339,23 @@ def write_artifact(path: Path, content: bytes, label: Label, approved: bool, che
         path.unlink()
         raise
     return path
+
+
+def watermark_lines(label: Label, approved: bool) -> tuple[str, ...]:
+    """Keep a nonproduction mark on every draft and all unverified/test artwork.
+
+    Every built-in symbol is a simplified, non-certified pictogram. Approval of
+    a test snapshot never certifies these symbols or the placeholder identifier.
+    The existing TEST DATA heading is retained on a separate line when needed.
+    """
+    restricted = label.test_data or any(element.kind in {'symbol', 'image'} for element in label.elements)
+    restricted = restricted or any(
+        element.kind == 'barcode' and parse_gs1(element.payload).get('01') == '00000000000000'
+        for element in label.elements
+    )
+    lines = []
+    if not approved or restricted:
+        lines.append('DRAFT, not for production')
+    if label.test_data:
+        lines.append('TEST DATA' if approved else 'TEST DATA | DRAFT')
+    return tuple(lines)
