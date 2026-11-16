@@ -179,3 +179,11 @@ class SearchCreate(BaseModel):
     k: int = Field(default=10, ge=1, le=50)
     section_level: bool = False
     retrieval: RetrievalConfig | None = None
+
+
+class ExtractionConfirmCreate(BaseModel):
+    """POST /label-versions/{id}/extraction/confirm. Field names and lengths are checked in scans.confirm_extraction."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    fields: dict[str, str]

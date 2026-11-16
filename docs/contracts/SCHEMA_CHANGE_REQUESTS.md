@@ -79,3 +79,9 @@ Rule: the contract follows the merged code for D-2, D-4, D-7 and D-8. For D-3, D
 ## CR-18 Change assessment fields (approved, Step 22)
 
 Additive. `ChangeAssessment.parser` gains `rules` and `llm`; `ChangeAssessment` gains `unassessed_edits` and `assessment_id`; `AffectedLabel` gains `needs_human`, `reason`, `rule_ids` and `barcode_decision`; `Review` gains `assessment_id`; `confirmChange` is real and documents 401, 403, 404, 409, 422. New append-only tables `change_assessments` and `change_confirmations`. `schemas.py` untouched. Does not touch Parth's code.
+
+## CR-19 Upload, scan and extraction errors (additive, Step 24a)
+
+No schema field changes. `uploadScan`, `getScan`, `getExtraction` and `confirmExtraction` now document `401`, `403`, `404` and `422` where they apply, and the Error code list gains the upload codes: `unsupported_media_type`, `file_too_large`, `image_too_large`, `invalid_file` (422 on upload) and `retake_photo`, `extractor_unavailable`, `scan_failed` (inside `Scan.error` and `Job.error` when the state is `failed`). `retake_photo` carries `details: {reasons, metrics, thresholds}` with reasons `blur`, `low_contrast` or `glare`.
+
+Two behaviours the real server fixes where the contract was open: `product_id` is required on upload (a scan creates a label version, which belongs to a product), and file errors use 422 with a specific code, not 413 or 415, so the response set stays small. A confirmation appends a new extraction row (new `extraction_id`) and a confirmation row; `GET extraction` returns the newest row, with `confirmed: true` and no unclear fields after a confirmation.

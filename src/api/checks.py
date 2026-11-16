@@ -45,11 +45,11 @@ def latest_job(session: Session, job_id: str) -> Job | None:
     return session.scalars(select(Job).where(Job.job_id == job_id).order_by(Job.seq.desc())).first()
 
 
-def new_job(session: Session, kind: str, version_id: str, user_id: str) -> Job:
-    """Append the first row of a job (state queued)."""
+def new_job(session: Session, kind: str, version_id: str | None, user_id: str, result_url: str | None = None) -> Job:
+    """Append the first row of a job (state queued). A scan job has no version yet but knows its result_url."""
     row = Job(
         job_id=new_id("job"), kind=kind, state="queued", progress=0.0, version_id=version_id,
-        created_by=user_id, created_at=utcnow(),
+        result_url=result_url, created_by=user_id, created_at=utcnow(),
     )
     session.add(row)
     session.commit()
@@ -100,6 +100,8 @@ def image_path(version: LabelVersion) -> Path:
         path = files_dir() / path
     if path.suffix.lower() in RASTER_SUFFIXES:
         candidates = [path]
+    elif path.suffix.lower() == ".pdf":  # an uploaded PDF is read through the PNG its scan job rendered next to it
+        candidates = [path.with_name(path.stem + ".page1.png")]
     else:  # the renderer package holds label.svg, label.png, label.pdf and manifest.json side by side
         candidates = [path.with_suffix(".png"), path.parent / "label.png"]
     for candidate in candidates:
@@ -108,12 +110,14 @@ def image_path(version: LabelVersion) -> Path:
     raise ApiError(404, "artwork_not_found", f"No image for {version.artwork_file!r} was found on the server.")
 
 
-def store_extraction(session: Session, version: LabelVersion, extraction: LabelExtraction, mode: str) -> Extraction:
-    """Append an extraction row, labelled with the version's label family and artwork version."""
+def store_extraction(
+    session: Session, version: LabelVersion, extraction: LabelExtraction, mode: str, scan_id: str | None = None
+) -> Extraction:
+    """Append an extraction row, labelled with the version's label family and artwork version (and its scan, if any)."""
     fixed = extraction.model_copy(update={"label_id": version.label_id, "version": version.artwork_version})
     row = Extraction(
         extraction_id=new_id("ext"), version_id=version.version_id, label_id=version.label_id, mode=mode,
-        payload=fixed.model_dump(mode="json"), created_at=utcnow(),
+        payload=fixed.model_dump(mode="json"), created_at=utcnow(), scan_id=scan_id,
     )
     session.add(row)
     session.commit()

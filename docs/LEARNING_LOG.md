@@ -731,3 +731,12 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 4. **Verified:** `python -m pytest -q -m "not slow"` -> 544 passed, 4 skipped, 3 deselected; ruff clean.
 5. **Check yourself:** `confirm_change` order of checks, and the `change_not_confirmed` rule in `reviews.py`.
 6. **Assumptions:** Confirm with new edits is refused (a new change is needed). Seeded changes keep mocks.
+
+## Step 24a: real scan upload
+1. **What I did:** Made the four upload operations real: a file is checked by its first bytes, size and pixel count, stored under its hash, and a background job runs a photo-quality gate, then the extractor, then creates the label version. Confirming extracted fields appends rows instead of editing.
+2. **Files:** `src/api/uploads.py`, `scans.py`, `quality.py`, `quality_eval.py`, `routes.py`, `models.py`, `main.py`, `checks.py`, `openapi.yaml`, CR-19, tests, `reports/step24_a.md`.
+3. **How it works:** Like a post office that opens the envelope to see what is really inside (magic bytes), ignores the name written on it, and sends blurry or glare-covered photos back with a reason (`retake_photo`) before anyone tries to read them.
+4. **Verified:** `python -m pytest -q -m "not slow"` and `ruff check src tests` (numbers in the report); gate on dev seeds 200 and 201: 0/170 clean and 0/170 moderate wrongly rejected.
+5. **Check yourself:** `judge` and the three cut-offs in `quality.py`; the order of checks in `validate_upload`; `run_scan_job` (no version is created when the gate rejects).
+6. **Assumptions:** Cut-offs were tuned and measured on the same dev images, so the true false-reject rate on real phone photos is unknown. A glare spot touching the white label is not seen. PDF pages skip the gate.
+
