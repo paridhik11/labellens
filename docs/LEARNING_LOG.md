@@ -334,9 +334,9 @@ A sequential log of progress, implementation decisions, worked examples, and ver
 
 ---
 
-_Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 numbering is separate from the retrieval Step 16 above._
+_Appended from a stray root LEARNING_LOG.md (Parth CV track). Its CV step 16 to 18 numbering is separate from the retrieval Step 16 above._
 
-## Step 16: Synthetic Label Generation and CV Draft Workflow
+## CV step 16: Synthetic Label Generation and CV Draft Workflow
 1. **What I did:** Finished seeded three-condition label generation, original-image field and symbol coordinates, template pictogram detection, draft SVG/PDF rendering and evidence-based print verification.
 2. **Files changed:** Scoped `src/gen` and `src/cv` modules/tests/READMEs, two deterministic `data/symbols/device` references, and the generated `results/cv_extract.md` report. Shared schemas and retrieval code were not changed.
 3. **How it works:** Homographies map label slots into distorted images; the extractor maps detections back. Draft manifests contain watermark status, change history, artifact hashes and self-check. Print verification requires an external authorized approval bound to exact manifest bytes.
@@ -344,7 +344,7 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 5. **Check yourself:** Review the new symbol tests, renderer manifest and approval binding, and the condition-specific evaluation table.
 6. **Assumptions:** Findings apply to one synthetic template family; the identifier is a test placeholder and pictograms are not certified ISO artwork.
 
-## Step 17: Hard-Condition Barcode Recovery
+## CV step 17: Hard-Condition Barcode Recovery
 1. **What I did:** Added original-first barcode decoding with rectification and thresholded template-slot recovery. Reduced only the hard blur/noise enough to preserve the barcode pattern while keeping hard rotation, perspective and lighting. Added a regression test requiring at least 80% exact GS1 matches on all 17 seed-42 hard labels.
 2. **Files changed:** `src/cv/barcode.py`, `src/cv/extract.py`, `src/cv/test_barcode.py`, `src/cv/test_extract.py`, `src/gen/augment.py`, `src/gen/generate_dataset.py`, `src/gen/test_generate_dataset.py`, `src/cv/README.md`, `src/gen/README.md`, and `results/cv_extract.md`.
 3. **How it works:** If a full-image decode fails, the label is straightened and the known barcode slot is cropped with a 3 mm margin. Adaptive grayscale thresholding exposes the dark modules for zxing-cpp; returned coordinates are mapped back to the original photo.
@@ -352,7 +352,7 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 5. **Check yourself:** Review `decode_barcode_slot`, the 14-of-17 regression assertion, and the two-seed condition-separated results in `src/cv/README.md`.
 6. **Assumptions:** The score target applies to this synthetic test-device template and fixed seeds. Two seed-42 and one seed-43 hard images still require human review; no identifier authenticity is implied.
 
-## Step 18: Parth's Shareable CV Work README
+## CV step 18: Parth's Shareable CV Work README
 1. **What I did:** Wrote a concise handoff document describing the assigned work, implementation, measured results, reproduction steps, limits and remaining review items.
 2. **Files changed:** `docs/PARTH_WORK_SUMMARY.md` (shareable report for Paridhi) and this learning log (step record).
 3. **How it works:** The report links the relevant code and evaluation report, gives seed-separated barcode results and field-level OCR error rates, and includes commands to reproduce the 51-image run.
@@ -572,6 +572,186 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 5. **Check yourself:** That the 0.8 threshold changed nothing because every false alarm had confidence 0.876 to 0.999.
 6. **Assumptions:** The threshold was set before measuring and not tuned. Symbol intervals treat the two symbols on a label as independent, so they are somewhat too narrow.
 
+## CV step 19: Corrected the CV handoff claims
+1. **What I did:** Updated the handoff report to address all 12 caveats in `docs/CV_STATUS.md` and use only fresh-seed CV metrics.
+2. **Files changed:** `docs/PARTH_WORK_SUMMARY.md` (corrected results and limits) and this log (step record).
+3. **How it works:** It separates blind and template-assisted results, identifies the synthetic symbol-reference limitation, and reports very-hard results distinctly.
+4. **Verified:** `python -m pytest -q -p no:cacheprovider src/gen src/cv`: 233 passed in 123.86s. `ruff check --no-cache src/gen src/cv`: All checks passed. Full pytest collection also exposed missing `requests` and `faiss` in this CV Conda environment.
+5. **Check yourself:** Review the fresh-seed table, the old benchmark caveat, and the symbol limitations.
+6. **Assumptions:** Existing historical test output is retained with its environment and Windows Poppler caveat.
+
+## CV step 20: Disambiguated Parth's CV log headings
+1. **What I did:** Renamed the CV track's three old numbered headings so they cannot be confused with retrieval Step 16.
+2. **Files changed:** `docs/LEARNING_LOG.md` (clearer CV-specific numbering and this step record).
+3. **How it works:** The original work entries now use `CV step` prefixes; retrieval Step 16 keeps its existing name.
+4. **Verified:** Scoped CV and generation pytest, Ruff and whitespace checks were run; outputs are in the step report.
+5. **Check yourself:** Confirm retrieval Step 16 remains unchanged and the three CV headings use their new prefixes.
+6. **Assumptions:** Only headings and the explanatory note needed renaming; historical entry text stays intact.
+
+## GEN step 1: Parth's schema change request recommendations
+1. **What I did:** Recommended yes for CR-2, CR-3, CR-4, CR-5, CR-9, CR-10 and CR-11 based on their fit with the template, extraction, check, review and print-verification code.
+2. **Files changed:** `docs/LEARNING_LOG.md` (records the recommendations and their scope).
+3. **How it works:** The recommendations add contract records around outputs the code already handles or needs to connect, while keeping `schemas.py` locked.
+4. **Verified:** Compared each request with `docs/contracts/DATA_MODEL.md`, `TEMPLATE_SPEC.md`, `src/gen/render.py`, `src/cv/extract.py` and `src/cv/verify.py`. Ruff passed; the focused contract test could not collect because `jsonschema` is missing from `labellens-cv`.
+5. **Check yourself:** CR-10 requires approval to reference a passed check with the same version and artifact hash; CR-4 adds confirmation state around extraction.
+6. **Assumptions:** These are Parth's technical recommendations, not approval to edit shared schemas.
+
+## GEN step 2: GS1 parsing, validation and barcode generation
+1. **What I did:** Added GS1 validation and serialization for AIs 01, 17, 10 and optional 21. Added `KEEP`, `REGENERATE` and `NEEDS_INPUT` decisions, plus GS1 DataMatrix and GS1-128 rendering with decode-back checks. Changed encoded values require confirmation, and changing symbology requires regeneration. Added tests for both barcode types, invalid fields, confirmation rules and a reproducible 200-payload sample.
+2. **Files changed:** `src/gen/gs1.py` (GS1 module), `tests/test_gs1.py` (behavior and round-trip coverage), this log (step record).
+3. **How it works:** The module builds the barcode, reads it back with zxing-cpp, and compares the decoded data with the requested fields. For healthcare expiry dates it requires a real day, following GS1 General Specifications 26.0, section 3.4.7.
+4. **How I verified it:** Scoped pytest and Ruff passed; exact output is in the step report.
+5. **Check yourself:** The AIs and variable field separator rules, decode-back check in `encode_gs1`, and per-AI change confirmation in `decide_barcode`.
+6. **Assumptions:** GTIN syntax/check digit validation cannot prove allocation or authenticity. The all-zero GTIN remains a test-only placeholder; no identifier allocator was added.
+
+## GEN task 1 review: GS1 completion and boundary checks
+1. **What I did:** Reviewed Task 1 against the original brief and the newer template contract. Fixed unsupported parenthesized AIs, dangling separators, date-century interpretation, missing-identifier handling and explicit test-only GTIN encoding. Extended the requested positional confirmation argument and verified exact decoded bytes and requested barcode type. Added a written requirement-by-requirement review in `src/gen/GS1_REVIEW.md`.
+2. **Files changed:** `src/gen/gs1.py` (review fixes), `tests/test_gs1.py` (boundary and self-check failure tests), `src/gen/GS1_REVIEW.md` (requirements, source links and Windows evidence), this log (step report).
+3. **How it works:** Each output barcode must decode to the exact intended bytes. Changed encoded fields require confirmation according to the newer contract. A missing GTIN raises `IdentifierRequired` in the encoder; an all-zero GTIN requires explicit test mode, and no function invents caller identifiers.
+4. **How I verified it:** `/opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider tests/test_gs1.py` returned `56 passed in 3.17s`; this includes 200 seeded inputs in each of two formats (400 symbols). Ruff returned `All checks passed!`. Windows wheel download through pip succeeded; the review document records the command and output. `/opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider src/gen tests/test_gs1.py` returned `113 passed in 79.10s (0:01:19)`.
+5. **What you should check yourself:** Review placeholder enforcement, confirmation flags and the 49-years-past to 50-years-future date window. Review the source links and Windows test distinction in `src/gen/GS1_REVIEW.md`.
+6. **What I am unsure about or assumed:** A Windows runtime test cannot be executed on this Mac. Reused zxing-cpp because it already supplies image/SVG generation and GS1 decoding; treepoem also needs Ghostscript, while bwip-js adds another runtime or service. No dependency was added. Human-readable data is returned separately for the eventual label renderer; Task 2 handles artwork placement. The newer contract's confirmation rule supersedes the older brief.
+
+## GEN task 2: Physical-size PDF, editable SVG and QR export
+1. **What I did:** Added a separate export module with an immutable millimetre-based label description and an adapter for the existing template/ProductRecord. PDF keeps real text and exact barcode module widths; SVG keeps named contract layers, editable fields and vector barcode rectangles. Added QR PNG/SVG output and simplified sterile symbols. Added check_id-bound approval validation, mandatory draft/test marking, immutable files and change-log/self-check sidecars.
+2. **Files created or changed:** `src/export/label_model.py` (description, layout, approval and audit), `template.py` (contract/ProductRecord adapter), `pdf.py` and `svg.py` (writers), `qr.py` (verified QR artwork), `__init__.py` (package), `README.md` (usage and limitations), `tests/test_export.py` (physical output and failure checks), this log (report). Existing generation, CV, retrieval and shared schemas were not edited.
+3. **How it works:** A 100 x 60 mm label becomes a PDF page of 283.4646 x 170.0787 points. Both writers use the same measured content; bars retain exact module sizes instead of being stretched. Approval can remove DRAFT only when its authorized independent reviewer, version, reference hash and passed check_id agree; test artwork keeps TEST DATA.
+4. **How I verified it:** `/opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider tests/test_export.py tests/test_gs1.py` returned `86 passed in 50.14s`. Ruff returned `All checks passed!`. Tests independently rasterize PDF at 600 dpi, compare a PNG element's bounds to a 1.5-pixel tolerance, check exact vector barcode dimensions/origins, extract PDF text, decode both GS1 formats and QR payloads, and reject invalid layouts and approvals. A 100 x 80 mm test sample was generated and visually inspected at `/tmp/labellens-task2-sample/`.
+5. **What you should check yourself:** Review the named SVG groups and sterile symbol, physical-size PDF and audit sidecars, and the approval/hash/check_id validation. Review the README's distinction between local export checks and a full inspection or physical printer test.
+6. **What I am unsure about or assumed:** Windows Python 3.12 wheel downloads for the already installed ReportLab and zxing-cpp versions succeeded, but Windows execution was not run on this Mac. Background remains null only, the DRAFT band is 9 mm, symbols are simplified test artwork, and text uses standard PDF fonts/printable ASCII. The app supplies trusted authorization and check records; server Review/CheckResult mapping and publication are separate integration work. No dependency was added. Task 3's real-label dataset remains outstanding.
+
+## Pre-Task 3 review: concrete verification of prior work
+1. **What I did:** Re-read Tasks 1 and 2 against the implemented code and tests. Found and fixed auxiliary product fields overriding canonical names/manufacturer in the export adapter. Added a regression test and recorded the review and remaining integration/platform limits in `docs/PARTH_TASK_REVIEW.md`.
+2. **Files changed:** `src/export/template.py` (canonical fields take precedence), `tests/test_export.py` (conflicting-extra-fields regression test), `docs/PARTH_TASK_REVIEW.md` (review evidence), this log.
+3. **How it works:** An extra field called `product_name` can no longer silently replace the ProductRecord's real name in artwork. The barcode continues to use the explicitly supplied identifier.
+4. **How I verified it:** `/opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider tests/test_gs1.py tests/test_export.py` returned `87 passed in 50.71s`. `/opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider src/gen src/cv` returned `233 passed in 114.78s (0:01:54)`. These tests use synthetic/unit inputs, not OCR on the new real set.
+5. **What you should check yourself:** The order of the ProductRecord/extra mapping, the conflicting-name regression test and the review's limits section.
+6. **What I am unsure about or assumed:** Windows execution, physical printing and server approval/publication integration were not tested by these local checks. The review does not turn unit tests into a real-label accuracy claim.
+
+## GEN task 3: DailyMed medicine-artwork reference set
+1. **What I did:** Checked DailyMed's XML, media and versioned-ZIP services and NLM's rights policy, then reported the findings before downloading. Built a seeded, pinned set of 60 original medicine-label images with their same-version XML, manifest, truth CSV, source links and file hashes. Kept labeler separate from manufacturer, retained unknown lot/expiry values as blank and recorded image/panel evidence limits. No OCR was run on the real set.
+2. **Files created or changed:** `scripts/build_real_set.py` (collector, resume, pinned rebuild and offline validation), `tests/test_real_set.py` (source/CSV/image and failure checks), `data/real/` (60 original images, 60 source XML files, manifest, truth, frozen candidates and README), this log (step report).
+3. **How it works:** A package image must be explicitly referenced by the same SPL version's display-panel section; the section must name one package NDC also present in its structured product. Multi-product and ambiguous-image sources are excluded. The manifest pins source versions and checksums, so a rebuild fails if the server supplies different bytes instead of silently changing the reference set.
+4. **How I verified it:** `/opt/anaconda3/envs/labellens-cv/bin/python scripts/build_real_set.py --output data/real --validate` confirmed 60 labels, 44 case-normalized labelers and all image/source/CSV checks. `/opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider tests/test_real_set.py` returned `16 passed in 0.58s`. A live pinned rebuild of three actual records reproduced original XML/image hashes. Reviewed all 60 images in contact sheets. Original image/XML bytes: 27,040,032; whole dataset about 27.5 MB, below 200 MB.
+5. **What you should check yourself:** Open an original image beside its XML and manifest media/section IDs. Inspect the field-coverage table and source/pixel distinction in `data/real/README.md`. Run the offline validator or rebuild into a new folder using the committed manifest.
+6. **What I am unsure about or assumed:** Source name, NDC, strength and labeler are available for 60/60 records; explicit manufacturer, lot and expiry are unverified, not invented. Paired panel text supports 41 names, 60 NDCs, 40 strengths and 10 labelers; these are not verified pixel transcriptions. Artwork is not a phone-photo benchmark, and symbols/barcodes remain unannotated. NLM's policy does not grant a blanket open license to company artwork; source attribution and notices are retained. This step supplies reference data, not a real-image accuracy score or publication approval.
+
+## GEN task 3 portability follow-up
+1. **What I did:** Added dataset-local Git attributes so Windows newline settings cannot change original XML or image bytes. Made generated CSV line endings explicitly LF. Source XML whitespace is retained exactly, with its original hash still verified.
+2. **Files changed:** `data/real/.gitattributes` (source-byte preservation), `scripts/build_real_set.py` (portable snapshot/CSV output), `data/real/truth.csv` (line endings only), `tests/test_real_set.py` (Git checkout simulation), dataset README and this log (evidence and scope).
+3. **How it works:** Git treats original XML/image files as byte-preserved evidence; generated metadata stays readable text with consistent line endings. This prevents a Windows checkout from invalidating the pinned source checksums.
+4. **How I verified it:** `/opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider tests/test_real_set.py` returned `17 passed in 0.70s`. The added test stages and checks out mixed-line-ending XML with `core.autocrlf=true` and compares exact bytes. Source-image/XML hashes and all 60 real records still validate.
+5. **What you should check yourself:** The dataset-local attributes and CSV newline change; original source XML and JPEG files are unchanged.
+6. **What I am unsure about or assumed:** The Git newline setting is simulated on macOS. Actual Windows execution remains untested; this does not claim otherwise.
+
+## Parth next Task 1: GS1 review against the new checklist
+1. **What I did:** Reviewed the existing GS1 decisions and identifier restrictions, then ran the requested generation suite and focused GS1 tests.
+2. **Files changed:** `reports/parth_task1.md` (report under 400 words), this log (review record). No GS1 implementation change was needed.
+3. **How it works:** Unchanged values give KEEP, confirmed changes give REGENERATE, and missing identifiers give NEEDS_INPUT without generating a replacement value.
+4. **How I verified it:** `/opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider src/gen`: `57 passed in 39.59s`; the same command for `tests/test_gs1.py`: `56 passed in 1.62s`. Ran background jobs to a log and checked completed output once.
+5. **What you should check yourself:** The decision table and missing-value tests. Full commands and real output are in the report.
+6. **What I am unsure about or assumed:** Uses the newer contract's encoded-change confirmation rule. macOS software tests do not establish Windows or physical-print performance.
+
+## Parth next Task 2: export completion against the updated checklist
+1. **What I did:** Reviewed PDF/SVG/QR exports and fixed repeated product fields in separate template slots. Added explicit real-template size/group checks and a QR test that forbids network connections.
+2. **Files changed:** `src/export/label_model.py` and `svg.py` (unique IDs with repeated fields), `tests/test_export.py` (acceptance coverage), export README (behavior), `reports/parth_task2.md` (report under 400 words), this log.
+3. **How it works:** Every slot keeps its own `slot-{id}` group; a repeated field alias is emitted once. A 100 x 60 mm sample produced all 9 slot groups and maximum PDF page-size error 0.0000142 mm, below the 0.1 mm requirement. QR encodes its URL without visiting it.
+4. **How I verified it:** `/opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider -m "not slow"`: `336 passed, 3 deselected in 32.04s`. `/opt/anaconda3/envs/labellens-cv/bin/python -m ruff check --no-cache src tests`: `All checks passed!`. Ran background jobs to logs and checked completed results once. Reviewed the sample preview.
+5. **What you should check yourself:** Actual-template PDF dimensions, all SVG slot IDs, repeated-field text and the no-network QR test. Full output and limitations are in the task report.
+6. **What I am unsure about or assumed:** Installed missing packages already declared by the project into the CV environment; no requirements or dependencies were added to the repository. Windows execution, physical printing and later approval-contract integration are separate checks.
+
+## Parth clarification: local-only real data and module separation
+1. **What I did:** Untracked the legacy 60 medicine images and generated dataset files while preserving them locally. Tagged every image medicine in SOURCES.md and excluded the catalog from device evaluation.
+2. **Files changed:** `.gitignore`, `data/real/SOURCES.md`, `tests/test_real_set.py`, `reports/parth_task3.md` and this log; 125 old dataset files untracked.
+3. **How it works:** Only the sources catalog is tracked under data/real. The old fetch/rebuild script remains versioned; local source images/XML retain their original hashes.
+4. **How I verified it:** Real-set tests: `17 passed in 0.36s`; full source/tests Ruff: `All checks passed!`. Verified unchanged hashes for 60 images and 60 XML files and checked the Git index and ignore rules.
+5. **What you should check yourself:** SOURCES.md medicine tags, source links, local files and the index.
+6. **What I am unsure about or assumed:** The new 20-label device/symbol set is not complete. Physical photos require Parth; AI transcriptions will be LLM-labelled, with three photos spot-checked by him. Past commits retain old data because history was not rewritten.
+
+## Parth next Task 5: renderer and approval contract gaps
+1. **What I did:** Added sterile/EO/R artwork and named SVG groups to the original generator. Shared approval validation now requires reviewer role, reference/version binding and a matching passed check before print extraction or watermark removal.
+2. **Files changed:** Generator render/symbol code, export approval/label model, CV verifier, module tests, module READMEs, `reports/parth_task5.md` and this log. Shared schemas and contracts are unchanged.
+3. **How it works:** Local canonical names remain reviewer/reference_sha256; API aliases map explicitly and conflicts fail. The reviewer must be authorized and different from the creator, and check_id/version/reference must all match a passed check. Generator manifests now carry version_id and created_by.
+4. **How I verified it:** Fast suite: `358 passed, 3 deselected in 36.75s`; generator plus verifier tests: `59 passed in 35.24s`; Ruff: `All checks passed!`. Contract mock tests are included. Background jobs logged results and were checked once after completion.
+5. **What you should check yourself:** Named SVG groups, sterile text, missing/stale/failed check rejection and API alias conflicts. Full commands are in the report.
+6. **What I am unsure about or assumed:** Manifest and Label-snapshot hashes represent different references and require explicit mapping. Synthetic symbol rendering is not real-device detection accuracy. The new device-symbol set and real-photo human spot-check remain unfinished.
+
+## Parth next Task 4: photo provenance procedure, inputs pending
+1. **What I did:** Updated the photo instructions for in-session LLM-labelled transcriptions and a three-photo spot-check by Parth. Confirmed the evaluator already reads transcriptions.csv.
+2. **Files changed:** `data/real_photos/README.md`, `reports/parth_task4.md` and this log.
+3. **How it works:** Keep the CSV to filename/product_name/lot/expiry; preserve module, AI origin, uncertainty and actual human feedback in a separate local annotations file. Device and medicine results stay separate.
+4. **How I verified it:** `python -m src.cv.eval_real` printed that no photos/transcriptions were available. Direct folder check: 0 photos. No real-photo OCR or accuracy calculation ran.
+5. **What you should check yourself:** Capture the photos, then spot-check three actual AI transcriptions and identify errors. Do not add metadata columns that the current evaluator would score as label fields.
+6. **What I am unsure about or assumed:** Task 4 remains incomplete. Physical capture and human spot-check require Parth's inputs; their result is NOT_RUN, not zero errors.
+
+## CV step 21: device symbol collection and online photo candidates
+1. **What I did:** Collected 20 device artworks from 17 DailyMed records across eight label families, with 44 visually inspected LLM-labelled symbol crops. Found ten online photograph candidates with original source pages, authors, licenses and suitability limits. Replaced example-only labels before finalizing the set.
+2. **Files created or changed:** `scripts/real/fetch_dailymed.py` (pinned downloader and crop rebuild), `tests/test_device_real_set.py` (offline correctness), `data/real/SOURCES.md` (sources and AI boxes), `reports/parth_task3.md` and `reports/parth_task4.md` (results), this log.
+3. **How it works:** File fingerprints detect changed sources. Original-pixel crop boxes rebuild selected symbols without OCR. Fourteen crops have a side under 25 pixels and are flagged small; this is not an accuracy score. Online photos remain candidates, not Parth captures or a scored benchmark.
+4. **How I verified it:** Isolated empty-data rebuild printed `{"evaluation": "NOT_RUN", "images": 20, "module": "device", "symbol_crops": 44, "tags": "LLM-labelled"}`; all 20 originals and 44 crops matched local bytes. An earlier DailyMed timeout led to bounded retries with a test. `/opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider -m "not slow"`: `373 passed, 3 deselected in 38.00s`. `/opt/anaconda3/envs/labellens-cv/bin/python -m ruff check --no-cache src tests scripts/real`: `All checks passed!`. Exact output appears in the task reports.
+5. **What you should check yourself:** Inspect crop bounds and small/rotated symbols, source rights, module separation and online-photo suitability. Confirm no image binaries are tracked.
+6. **What I am unsure about or assumed:** Symbol tags need human review; detection and blind-mode accuracy are NOT_RUN. Related manufacturer layouts are not independent samples. DailyMed company-artwork licenses are not established. Task 4 still requires accepted inputs, in-session transcription, OCR evaluation and Parth's three-photo spot-check; online substitution needs Paridhi's acceptance. No new dependencies.
+
+## CV step 22: online-photo references and actual blind evaluation
+1. **What I did:** After Parth confirmed Paridhi accepted online substitution, inspected 12 photos. Froze ten readable reference fields across seven images as LLM-labelled before OCR, leaving five images unscored. Saved field-by-field comparisons and actual output; no medicine photos were included.
+2. **Files created or changed:** `src/cv/eval_real.py` (per-photo Markdown report and reference source), `tests/test_real_photo_report.py` (three offline tests), `data/real/SOURCES.md` and photo README (source fingerprints and instructions), `results/cv_real_photos.md`, `reports/parth_task4.md`, this log. Images, CSV and annotations remain ignored local data.
+3. **How it works:** Missing or unreadable references are not successes. Failed extraction remains a miss for readable reference fields. Five files are originals and seven are 1280px server thumbnails, used after Wikimedia recommended standard thumbnails in HTTP 429 responses. Two needle-kit views are correlated; accessory and non-English examples are identified. References were not changed to match OCR output.
+4. **How I verified it:** `/opt/anaconda3/envs/labellens-cv/bin/python -m src.cv.eval_real --folder data/real_photos/online --reference-source LLM-labelled --report results/cv_real_photos.md`: product_name 0/6 exact, lot 0/1, expiry 0/3, with complete real output saved in the results report. Excluding the two packaging accessories, product_name is 0/4; other denominators are unchanged. Fast suite: `376 passed, 3 deselected in 37.57s`. Ruff: `All checks passed!`. Exact commands and output appear in the task report. Long jobs ran in the background to saved logs.
+5. **What you should check yourself:** Photos 04, 06 and 12 have four transcribed values queued for Parth's spot-check. Inspect wrong field/region selection and source-resolution distinctions. No photo binaries should be staged.
+6. **What I am unsure about or assumed:** Real-photo performance is poor. These are small-sample AI-reference results, not human-validated or representative device accuracy. Human spot-check is NOT_RUN, not zero errors. Task 4 remains incomplete pending that feedback. No new dependencies or detector tuning.
+
+## CV step 23: replaced photo inputs with clear three-field labels
+1. **What I did:** Searched again at Parth's request. Attempted 30 image downloads, inspected 29 successes and selected ten device-package photos with product name, lot/batch and expiry readable in the same image. Froze all 30 LLM-labelled values before OCR. Preserved original image bytes and the previous baseline separately.
+2. **Files created or changed:** Local ignored `data/real_photos/clear_online/` (ten originals, transcriptions.csv, annotations.json and REVIEW.md); `data/real/SOURCES.md`, photo README, `results/cv_real_photos_clear.md`, `reports/parth_task4.md`, this log. No application code or dependency changed.
+3. **How it works:** Only actual printed fields supply references. Braisorb LOT is 009; BRRUP130 is a product reference. Printed expiry values take precedence over reseller stickers/handwriting. Dates retain their printed form, including Spanish AGOS and month-only dates. Related Introcan/Ethicon images are identified for grouped future testing.
+4. **How I verified it:** Ten distinct image fingerprints matched downloaded originals, all 30 fields were nonblank and matched frozen annotations, and images were ignored by Git. `/opt/anaconda3/envs/labellens-cv/bin/python -m src.cv.eval_real --folder data/real_photos/clear_online --reference-source LLM-labelled --report results/cv_real_photos_clear.md`: product name 1/10 exact, lot 0/10, expiry 0/10. Fast suite: `376 passed, 3 deselected in 77.03s (0:01:17)`. Ruff: `All checks passed!`. Complete commands and real output are in the task/results reports. Jobs ran in the background to logs.
+5. **What you should check yourself:** Open the local REVIEW.md, inspect all three fields on originals, and spot-check new photos 01, 04 and 08. Confirm no photo binaries are staged.
+6. **What I am unsure about or assumed:** Human review is NOT_RUN. The current request for a clearer downloaded set is fulfilled, while Task 4's human check and the poor extractor remain unresolved. This is a selected catalog/retail development set, not evidence of representative phone accuracy or a model improvement. No new 80% claim. Source image open licenses were not established; images remain local.
+
+## CV step 24: Task 6 revisions and durable deferred-work note
+1. **What I did:** Implemented a structured revision engine that preserves the source, increments template/record versions, applies field/symbol changes and creates a new draft snapshot. KEEP reuses the exact existing barcode element without encoding. Confirmed encoded changes regenerate; blocked inputs have no artwork. Also recorded Parth's explicit instruction to retain deferred-photo limitations in every future summary or handoff Markdown.
+2. **Files created or changed:** `src/gen/revise.py`, `tests/test_revise.py`, `src/export/template.py`, generator README, `docs/PARTH_WORK_SUMMARY.md`, `reports/parth_task6.md`, this log. No common schemas, retrieval code or dependencies changed.
+3. **How it works:** A new address leaves the barcode unchanged. A lot change needs its own confirmation. A model flagged as needing a new identifier cannot reuse the old one; require_label raises IdentifierRequired if none is supplied. Source snapshot/template/record consistency, stale changes, metadata injection, overflow and unsupported edits are checked. New drafts do not inherit approval. EO/gamma updates the bound synthetic symbol with unchanged positions.
+4. **How I verified it:** `/opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider -m "not slow"`: `411 passed, 3 deselected in 106.93s (0:01:46)`. `/opt/anaconda3/envs/labellens-cv/bin/python -m ruff check --no-cache src tests`: `All checks passed!`. Both GS1 formats decoded correctly from 600-DPI revised PDFs. Local review examples demonstrated KEEP, REGENERATE and two NEEDS_INPUT cases; blocked cases contain JSON only. Final review reproduced plain DataMatrix text being accepted as GS1 (DID NOT RAISE ValueError). Added actual GS1-type/raw-byte validation; the new regression then printed 1 passed in 0.17s. Full commands and actual output are in the Task 6 report. Long verification ran in the background to a saved log.
+5. **What you should check yourself:** Local review PDFs and revision.json files in data/synthetic/task6_revision_review, exact barcode reuse, and the prominent required status note in PARTH_WORK_SUMMARY.md.
+6. **What I am unsure about or assumed:** API/storage/trusted authorization integration and publication remain separate. Revision OCR/symbol detection are NOT_RUN. The older renderer's template-migration restriction remains. Photo-extraction fixes are deferred at Parth's request: clear-set exact name 1/10, lot 0/10, expiry 0/10, human spot-check NOT_RUN. Always include these unresolved limits in future summaries until actual new results and feedback replace them. Task 7 has not been completed by this step.
+
+## CV step 25: Task 9 separate medicine corpus and earlier-task review
+
+1. What I did: Rechecked existing export and device-set tests. Downloaded ten pinned DailyMed medicine SPLs and built a separate source-text corpus. Kept retrieval unchanged.
+2. Files created or changed: scripts/real/build_medicine_corpus.py, tests/test_medicine_corpus.py and data/medicine text corpus/catalog/metadata; reports/parth_task9.md records evidence. Original XML and all images remain local.
+3. How it works: A chunk is a short source passage. 147 unique medicine chunks contain labelling 32, warnings 79 and dosage 36. Each product has a source URL, exact SPL version, effective date and fingerprint.
+4. How I verified it: `python -m scripts.real.build_medicine_corpus --offline` returned products=10, chunks=147, corpus_sha256=2b9dd48d230ee52938c564700d61d6db19ebe68eee4beb285c2c74b601aa018f. Online and offline fingerprints matched. Actual Conda fast-suite output: `436 passed, 3 deselected in 158.85s (0:02:38)`. `python -m ruff check --no-cache src tests scripts/real scripts/cv_experiments/eval_perspective.py`: `All checks passed!`. Export/device/medicine targeted suite: `59 passed in 48.25s`.
+5. What you should check yourself: Compare a passage with the source; check effective dates and module=medicine. Rebuild from the pinned catalog.
+6. What I am unsure about or assumed: No retrieval integration/evaluation or clinical validation. Photo extraction deferred: name 1/10, lot 0/10, expiry 0/10; human spot-check explicitly deferred by Parth, NOT_RUN. This does not block the medicine corpus.
+
+## CV step 26: Task 7a standalone template-ratio perspective correction
+
+1. What I did: Added a standalone boundary-to-rectangle correction module. Kept the extractor and existing preprocessing unchanged. Measured fresh synthetic conditions separately.
+2. Files created or changed: src/cv/perspective.py, scripts/cv_experiments/eval_perspective.py, tests/test_perspective.py and reports/parth_task7a.md. CV README explains the independent API.
+3. How it works: A homography maps four detected image corners into a rectangle at the template's width/height ratio. No detection returns None instead of a fabricated boundary.
+4. How I verified it: `/opt/anaconda3/envs/labellens-cv/bin/python -m scripts.cv_experiments.eval_perspective` printed `clean: detected=30/30, within_10px=30/30`, `moderate: detected=30/30, within_10px=30/30`, `hard: detected=30/30, within_10px=30/30`. Seeds 7001 to 7003, ten labels per seed/condition. Conda fast suite: `436 passed, 3 deselected in 158.85s (0:02:38)`. Ruff: `All checks passed!`.
+5. What you should check yourself: Inspect coordinate mapping assertions, fixed aspect ratio and missed-detection denominator. Check that src/cv/extract.py was not changed.
+6. What I am unsure about or assumed: One template family, roughly upright labels, visible boundaries; no real-photo geometry or OCR accuracy claim. Human photo spot-check deferred by Parth, NOT_RUN; real extraction remains name 1/10, lot 0/10, expiry 0/10.
+
+## CV step 27: Task 7 evidence-based field comparison and deferred human review
+
+1. What I did: Added per-field print comparison with OCR evidence confidence. Kept missing or ambiguous observations in review. Ran all ten clear online photos without creating real approval records.
+2. Files created or changed: src/cv/print_verify.py, tests/test_print_verify.py, src/cv/README.md and reports/parth_task7.md. Local print_comparison_llm.json stores all 30 field results. Photo README and Task 4 report record Parth's explicit human-review deferral.
+3. How it works: The approved-package entry checks review authorization, passed check_id and file fingerprints before OCR. The separate evaluator compares against AI readings; it is not approved-print validation.
+4. How I verified it: `/opt/anaconda3/envs/labellens-cv/bin/python -m src.cv.print_verify` produced product_name exact 1/10 (MATCH 1, MISMATCH 5, NEEDS_HUMAN_REVIEW 4), lot exact 0/10 (review 10), expiry exact 0/10 (review 10). Conda fast suite: `436 passed, 3 deselected in 158.85s (0:02:38)`. Separate generation/verifier/mock run: `142 passed in 125.57s (0:02:05)`. Ruff: `All checks passed!`.
+5. What you should check yourself: Inspect missing-confidence behavior, approval-before-OCR ordering and per-photo evidence. Confirm all photo binaries remain untracked.
+6. What I am unsure about or assumed: Parth cannot do the three-photo human spot-check now and explicitly deferred it. It remains NOT_RUN. Approved real-print evaluation lacks trusted reference packages and is NOT_RUN. Photo extraction remains deferred and poor; no 80% real-photo claim. Existing extractor and old verifier are unchanged.
+
+## CV step 28: full handoff and remaining-work flags
+
+1. What I did: Reviewed the original guide, later task checklist and latest message together. Expanded the full work summary with a task-by-task checklist, real executed results and explicit unresolved items. Recorded technical YES recommendations for CR-2, 3, 4, 5, 9, 10 and 11 without editing locked contracts or issuing formal approval.
+2. Files created or changed: docs/PARTH_WORK_SUMMARY.md is the full handoff; reports/parth_contract_review.md records recommendations. Reports for Tasks 1 to 7, 7a and 9 all remain under 400 words.
+3. How it works: Completed implementation, provisional evaluation, deferred human work and application integration have separate statuses. Synthetic geometry success does not turn poor real-photo OCR into a success claim.
+4. How I verified it: No code changed after the executed `436 passed, 3 deselected in 158.85s (0:02:38)` fast suite and `142 passed in 125.57s (0:02:05)` generation/verifier/mock run. Ruff output: `All checks passed!`. Report word counts were checked. GitHub passed medicine commit 6748387 and perspective commit fb3090a; final print and documentation checks are verified after pushing.
+5. What you should check yourself: Open the full task table, flagged-items section and local photo REVIEW.md. Compare source dates and source passages before medicine integration.
+6. What I am unsure about or assumed: Photo extraction and human spot-check remain explicitly deferred; real-symbol accuracy, reviewed medicine-symbol subset and real approved-print validation are not established. Trusted authorization, application adapters, storage, publication and retrieval integration remain with their owners. No Task 8 was supplied. No automatic approvals or publication occurred.
+
 ## Step 20 Phase 0: contract follows merged code (D-2, D-4, D-7, D-8)
 1. **What I did:** Applied Pari's per-item decisions on the 11 differences between the contract and Parth's merged renderer. The contract now follows the code for symbol names (only `manufacturer` and `expiry`), the 9 mm DRAFT band, the layout kinds `clipping` and `overlap`, and two extra limits (barcode module at least 0.25 mm, printable ASCII). D-3, D-5, D-6 and D-9 stay as written and are marked decided gaps for Parth.
 2. **Files:** `docs/contracts/TEMPLATE_SPEC.md`, `DATA_MODEL.md` (also the per-template version rule), `openapi.yaml` (enum on `symbol_name`), `SCHEMA_CHANGE_REQUESTS.md` (decision table), six mock JSON files.
@@ -708,6 +888,38 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 5. **Check yourself:** `format_problem` and the order of conditions in `check_extraction`.
 6. **Assumptions:** A confident misread that still looks valid cannot be caught by format.
 
+## Step 22a: change assessment spec
+1. **What I did:** Wrote `docs/CHANGE_SPEC.md`: edit format, rules parser with an optional off-by-default provider, impact table, barcode decision table, citations, failure cases, API mapping. No code.
+2. **Files:** `docs/CHANGE_SPEC.md`, `reports/step22_a.md`.
+3. **How it works:** A change is a list of (field, old, new) edits. Rules map each field to the template slots it fills, decide what happens to the barcode (KEEP, REGENERATE or NEEDS_INPUT), and hand everything else to a human with a cited requirement where the corpus has one.
+4. **Verified:** nothing run (plan only); no em dashes in the spec.
+5. **Check yourself:** the barcode table (section 5.2) and the rule that only rule-decided items are not needs_human (section 6).
+6. **Assumptions:** Sterilization and storage have no corpus section, so no citation. A model change always waits for a new UDI-DI (no implicit keep).
+
+## Step 22b: src/change
+1. **What I did:** Built the pure rules: field table and value checks, an edit validator, a rules text parser (with an optional provider interface that is off), the GS1 payload builder and barcode decision, the impact rule, and the assessment with citations.
+2. **Files:** `src/change/*.py`, `tests/test_change.py`, `docs/CHANGE_SPEC.md` (decisions applied).
+3. **How it works:** An edit is (field, old, new). A table says which template slots show that field. A lot change alters the barcode text, so the decision is NEEDS_INPUT (confirm_lot) until a person confirms, then REGENERATE. Rules never fill in an identifier.
+4. **Verified:** `python -m pytest -q tests/test_change.py` -> 66 passed, 1 skipped (renderer parity needs zxingcpp); ruff clean.
+5. **Check yourself:** `decide_barcode` in `src/change/barcode.py` and which items get `needs_human=False` in `impact.py`.
+6. **Assumptions:** All four AIs required (as the renderer); a model change always waits for a new UDI-DI.
+
+## Step 22c: wire the API
+1. **What I did:** `POST /changes` now parses, assesses and stores the result; `confirmChange` and `affected` are real; approvals need a confirmed assessment and record its id.
+2. **Files:** `src/api/changes.py`, `routes.py`, `models.py`, `reviews.py`, `views.py`, `requests.py`, `db.py`, `main.py`, `openapi.yaml`, docs, mock, tests.
+3. **How it works:** The assessment is computed once and saved (so the checklist a person confirms is the one they saw). Confirming saves a second assessment where the barcode decision is the confirmed one.
+4. **Verified:** `python -m pytest -q -m "not slow"` -> 544 passed, 4 skipped, 3 deselected; ruff clean.
+5. **Check yourself:** `confirm_change` order of checks, and the `change_not_confirmed` rule in `reviews.py`.
+6. **Assumptions:** Confirm with new edits is refused (a new change is needed). Seeded changes keep mocks.
+
+## CV step 31: integrated perspective and frozen real-photo comparison
+
+1. What I did: Wired perspective into extraction, with template proportions only when known. Added fixed CPU orientation/crop OCR and generic split-key/date mapping. Recorded Pari's acceptance of CR-2,3,4,5,9,10,11. Merged origin/main into parth-gen, preserving both ignore policies and learning-log histories.
+2. Files created or changed: src/cv/extract.py, perspective.py, photo_ocr.py, photo_fields.py; new tests; scripts/cv_experiments/eval_photo_protocol.py and pinned input protocol; contract decisions, README/work summary and reports/parth_photo_fix.md. Paired generated numbers are in results/cv_photo_before_after.md.
+3. How it works: Original/rectified views and quarter-turn/crop reads use pixels only. Generic printed keys and a unique visible date identify lot/expiry. Development used invented text and synthetic labels; candidate c2759e9 was frozen before scoring. Both reported sides ran from isolated archives. A previously exposed cohort is not an unseen holdout.
+4. How I verified it: Conda command `python -m pytest -q -p no:cacheprovider -m "not slow"`: `790 passed, 5 deselected, 1 warning in 127.17s (0:02:07)`. `python -m pytest -q -p no:cacheprovider src/gen src/cv`: `398 passed, 1 skipped in 162.27s (0:02:42)`. `python -m ruff check --no-cache src tests`: `All checks passed!`. Synthetic blind/template integration: `24 passed in 33.48s`. Main's declared FastAPI/HTTPX/SQLAlchemy/scikit-learn dependencies were installed; missing-dependency runs were not passes. Paired photo exact scores: name 1/10 to 1/10, lot 0/10 to 7/10, expiry 0/10 to 3/10; zero candidate extraction exceptions. No scoring-set tuning followed.
+5. What you should check yourself: Original-coordinate tests, fixed hashes/archive reproduction and paired scores. Check that main's optional symbol-v2 selector remains available and default v1 is retained.
+6. What I am unsure about or assumed: Names/expiry remain weak; no 80% real-photo claim. Transcriptions and crop annotations are LLM-generated; human checks deferred. Real-photo symbol accuracy is unmeasured. Pari owns auth, review storage, publication and step-24b snapshot mapping.
 ---
 
 ## Step 23: RAG with citations and abstain

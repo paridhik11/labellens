@@ -230,7 +230,7 @@ Citation (derived from a `Chunk`, so no text is invented):
 | `latest_review_id` | string | opt | NONE (CR-7) | The Review the status was derived from. |
 | `closed` | boolean | req | NONE (CR-7) | True after a `reject`. Reject is terminal: no further generate, review or publish on this change. A new ChangeRequest is needed. |
 | `raw_text` | string | opt | NONE (CR-7) | Plain-language request as typed. |
-| `parse_state` | `proposed` or `confirmed` | req | NONE (CR-7) | A parser proposes, the user confirms. |
+| `parse_state` | `proposed` or `confirmed` | req | NONE (CR-7) | A parser proposes, the user confirms. Derived: `confirmed` once a ChangeConfirmation exists. |
 | `edits` | array of `{field, old_value, new_value}` | opt | NONE (CR-7) | Extra fields beyond the first. |
 | `created_at`, `created_by` | timestamp, string | req | NONE (CR-7) | |
 
@@ -247,7 +247,13 @@ Citation (derived from a `Chunk`, so no text is invented):
 | `title`, `description` | string | req | NONE (CR-8) | Mockup: "Sterilization text". |
 | `suggestion` | `review_suggested`, `edit_required`, `no_change` | req | NONE (CR-8) | |
 | `evidence_chunk_ids` | array of string | req | `Flag.evidence_chunk_ids` | |
-| `user_decision` | `pending`, `confirmed`, `dismissed` | req | NONE (CR-8) | The checklist the user confirms before any artwork changes. |
+| `user_decision` | `pending`, `confirmed`, `dismissed` | req | NONE (CR-8) | The checklist the user confirms before any artwork changes. Derived from the latest ChangeConfirmation. |
+| `needs_human` | boolean | opt | NONE (CR-18) | False only when a rule decided the item and its citation requirement is met (text slot refill, barcode KEEP, confirmed REGENERATE). |
+| `reason` | string | opt | NONE (CR-18) | Plain-language reason. |
+| `rule_ids` | array of string | opt | NONE (CR-18) | `I-TEXT`, `I-SYMBOL`, `I-NOSLOT`, `I-NOBARCODE`, `I-PRINTED-DIFFERS`, `BC-KEEP`, `BC-CONFIRM`, `BC-REGENERATE`, `BC-830-50`, `BC-UNBUILDABLE`, `BC-PLACEHOLDER`, `BC-INVALID`. |
+| `barcode_decision` | BarcodeDecision | opt | NONE (CR-18) | Only on `item_kind` barcode. |
+
+Assessments and confirmations (Step 22, CR-18). An **assessment** (`asm_`) is the stored result of assessing a change: items, citations, warnings, unassessed edits. It is append-only: confirming a change appends the confirmed assessment (`parent_assessment_id` points at the one the person was shown). A **confirmation** (`cfm_`) records the person's checklist decisions. `impact_id` is a hash of the change, label family, slot or kind and field, so it is stable across the two assessments. `Review.assessment_id` is the change's latest assessment at review time, and an approve needs that assessment to be confirmed (`change_not_confirmed`).
 
 ## GeneratedArtwork
 
@@ -285,6 +291,7 @@ ChangeLogEntry: `at`, `user_id`, `field`, `old_value`, `new_value`, `reason`, `r
 | `reviewer_role` | `reviewer` or `admin` | req | NONE (CR-10, CR-16) | Role at decision time, copied from the User. |
 | `comment` | string | req for `return` and `reject` | NONE (CR-10) | |
 | `artifact_sha256` | string | req | NONE (CR-10) | Must equal the GeneratedArtwork hash. Prevents approving something other than what was reviewed. |
+| `assessment_id` | string | opt | NONE (CR-18) | The change's latest assessment when the review was recorded. |
 | `check_id` | string | req for `approve` | NONE (CR-10) | The CheckResult that cleared the approval. It must have `passed = true`, the same `version_id` and the same `artifact_sha256`. |
 | `resulting_status` | `draft`, `checked`, `reviewed`, `published` | req | `ChangeRequest.status` values | |
 | `decided_at` | timestamp | req | NONE (CR-10) | |

@@ -425,7 +425,12 @@ paths:
             schema: {$ref: "#/components/schemas/ChangeCreate"}
       responses:
         "201":
-          description: Proposed structured change with affected items and evidence. While no parser exists, parser is not_implemented and affected is empty.
+          description: |
+            Proposed structured change with affected items, citations and a barcode decision per label.
+            parser is rules (or llm when a provider is switched on). It is not_implemented when nothing in the
+            request could be assessed (for example only unknown fields): affected is then empty because nothing
+            was checked, not because nothing is affected. A plain-language request that cannot be parsed is
+            422 parser_not_implemented. A no-op edit is 422 no_change, a repeated field 422 duplicate_field.
           content:
             application/json:
               schema: {$ref: "#/components/schemas/ChangeAssessment"}
@@ -492,6 +497,11 @@ paths:
       tags: [device]
       operationId: confirmChange
       summary: Confirm the parsed change and the checklist decisions before any artwork changes
+      description: |
+        Appends a confirmation (append-only). The first confirmation also appends the confirmed assessment, where
+        a barcode decision that waited for confirmation (confirm_lot and so on) becomes REGENERATE when nothing
+        else blocks it. Needs an editor or admin. A change without a stored assessment (older changes) keeps the
+        mock response (X-Mock: true).
       parameters:
         - $ref: "#/components/parameters/ChangeId"
       requestBody:
@@ -500,20 +510,32 @@ paths:
           application/json:
             schema: {$ref: "#/components/schemas/ChangeConfirm"}
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "403": {$ref: "#/components/responses/Forbidden"}
+        "404": {$ref: "#/components/responses/NotFound"}
         "200":
-          description: Confirmed change
+          description: Confirmed change with the confirmed assessment
           content:
             application/json:
               schema: {$ref: "#/components/schemas/ChangeAssessment"}
+        "409":
+          description: change_closed (the change was rejected) or nothing_to_confirm (nothing was assessed).
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "422": {$ref: "#/components/responses/Invalid"}
 
   /changes/{change_id}/affected:
     get:
       tags: [device]
       operationId: listAffectedLabels
       summary: Affected labels and fields for a change
+      description: The items of the latest stored assessment with their current user_decision. A change without an assessment keeps the mock response (X-Mock true).
       parameters:
         - $ref: "#/components/parameters/ChangeId"
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "404": {$ref: "#/components/responses/NotFound"}
         "200":
           description: Affected items, possibly empty
           content:
@@ -684,8 +706,9 @@ paths:
         "409":
           description: |
             hash_mismatch or check_not_passed (artifact_sha256 or check_id does not match a passed check of this
-            version), version_superseded (a newer artwork version exists, so review that one), or change_closed
-            (the change was rejected; reject is terminal).
+            version), version_superseded (a newer artwork version exists, so review that one), change_closed
+            (the change was rejected; reject is terminal), or change_not_confirmed (the change has an assessment
+            that nobody confirmed yet).
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Error"}
@@ -1014,7 +1037,10 @@ components:
             without check_id), comment_required (422, return or reject without comment), parser_not_implemented
             (422, plain-language change), artifact_hash_required (422), hash_mismatch (409), check_not_passed
             (409), version_superseded (409), change_closed (409), template_product_mismatch (409), needs_input
-            (409), label_product_mismatch (409).
+            (409), label_product_mismatch (409), no_change (422, an edit equals the current value),
+            duplicate_field (422), parse_not_confirmed (422), edits_not_supported (422, confirm with edits),
+            unknown_impact (422), nothing_to_confirm (409), change_not_confirmed (409, approve before the
+            change was confirmed).
         message: {type: string}
         details: {type: object}
     User:
@@ -1488,6 +1514,12 @@ components:
         suggestion: {type: string, enum: [review_suggested, edit_required, no_change]}
         evidence_chunk_ids: {type: array, items: {type: string}}
         user_decision: {type: string, enum: [pending, confirmed, dismissed]}
+        needs_human: {type: boolean, description: "CR-18. False only when a rule decided the item and its citation requirement is met."}
+        reason: {type: string, description: "CR-18. Plain-language reason for this item."}
+        rule_ids: {type: array, items: {type: string}, description: "CR-18. Rules that fired (I-TEXT, I-SYMBOL, I-NOSLOT, BC-KEEP and so on)."}
+        barcode_decision:
+          description: CR-18. Only on item_kind barcode.
+          $ref: "#/components/schemas/BarcodeDecision"
     AffectedLabelList:
       type: object
       required: [change_id, items]
@@ -1503,17 +1535,30 @@ components:
         change: {$ref: "#/components/schemas/ChangeRequest"}
         parser:
           type: string
-          enum: [not_implemented, mock]
+          enum: [not_implemented, mock, rules, llm]
           description: |
-            not_implemented means nothing was parsed or checked: affected is empty because no impact analysis
-            ran, not because nothing is affected, and checklist_complete is false. mock marks a canned example
-            response. Other values are added when a parser exists.
+            rules: the deterministic parser and impact rules ran. llm: the optional provider proposed the edits
+            (off by default), the impact rules still decide. not_implemented means nothing could be assessed:
+            affected is empty because no impact analysis ran, not because nothing is affected, and
+            checklist_complete is false. mock marks a canned example response.
         affected: {type: array, items: {$ref: "#/components/schemas/AffectedLabel"}}
         citations: {type: array, items: {$ref: "#/components/schemas/Citation"}}
         checklist_complete: {type: boolean, description: True when every affected item is confirmed or dismissed}
         needs_human_review:
           type: string
           description: NEEDS_HUMAN_REVIEW reason when the evidence is weak; absent otherwise
+        unassessed_edits:
+          description: CR-18. Edits that were not assessed (unknown_field, invalid_value, ambiguous_date) and why.
+          type: array
+          items:
+            type: object
+            required: [field, reason, message]
+            additionalProperties: false
+            properties:
+              field: {type: string}
+              reason: {type: string}
+              message: {type: string}
+        assessment_id: {type: string, description: "CR-18. The stored assessment this response shows (asm_...)."}
     ChangeConfirm:
       type: object
       required: [parse_confirmed, decisions]
@@ -1633,6 +1678,7 @@ components:
         comment: {type: string}
         artifact_sha256: {$ref: "#/components/schemas/Sha256"}
         check_id: {type: string, description: Passed CheckResult of the same version and hash}
+        assessment_id: {type: string, description: "CR-18. The change's latest assessment when the review was recorded, if the change has one."}
         resulting_status: {$ref: "#/components/schemas/Status"}
         decided_at: {$ref: "#/components/schemas/Timestamp"}
       allOf:

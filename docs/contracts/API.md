@@ -214,3 +214,12 @@ Limits of the real operations (an older `data/api/labellens.db` gets the new `ch
 8. The all-zero sha256 in the review examples is a placeholder in documentation, not a real hash.
 9. `X-User-Id` is trusted as given. It is a development stub, not security. Any real deployment needs a login and session before it is exposed.
 10. Inspect and re-check may answer 200 or 202. Scan, generate and print verify always answer 202.
+
+## Change assessment (Step 22, CR-18)
+
+- `POST /changes` takes `edits` (structured, canonical field names or aliases) or `raw_text` (rules parser, English sentence shapes listed in `docs/CHANGE_SPEC.md`). Edits win if both are given. 201 `ChangeAssessment` with `parser: rules` or `llm` (the optional provider, off by default), `affected`, `citations`, `unassessed_edits`, `assessment_id`. `parser: not_implemented` when nothing could be assessed (only unknown or invalid edits): `affected` is empty because nothing was checked.
+- Refusals: `422 parser_not_implemented` (text that cannot be parsed without guessing, with `details.status` and `details.issues`), `422 no_change` (new value equals the current value), `422 duplicate_field`.
+- `GET /changes/{id}/affected` returns the stored items with current `user_decision`.
+- `POST /changes/{id}/confirm` appends a confirmation. First confirmation also appends the confirmed assessment, so a barcode decision `NEEDS_INPUT` with `required_identifier: confirm_lot` becomes `REGENERATE` when nothing else blocks it. Errors: 409 `change_closed`, 409 `nothing_to_confirm`, 422 `parse_not_confirmed`, 422 `edits_not_supported`, 422 `unknown_impact`.
+- `POST /label-versions/{id}/reviews` with `approve` returns `409 change_not_confirmed` when the change has an assessment nobody confirmed.
+- A change with no stored assessment (older changes, the seed) keeps the mock for `affected` and `confirm` (`X-Mock: true`).

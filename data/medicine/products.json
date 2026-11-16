@@ -1,0 +1,1025 @@
+[
+  {
+    "product_name": "Pain Relief Extra Strength",
+    "setid": "9fdbaf5e-f88b-4d18-97df-0b2e8dddf377",
+    "version": 3,
+    "effective_date": "2026-11-10",
+    "fetched": "2026-11-16",
+    "xml_sha256": "f0e07ec4c884a666e65725b330fca839797c237446f44ee36847eb334cf35a9a",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=9fdbaf5e-f88b-4d18-97df-0b2e8dddf377&version=3",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "labelling/34067-9/5",
+        "title": "Uses",
+        "chunk_ids": [
+          "dailymed_9fdbaf5e-f88b-4d18-97df-0b2e8dddf377_v3_s5_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/7",
+        "title": "Liver warning",
+        "chunk_ids": [
+          "dailymed_9fdbaf5e-f88b-4d18-97df-0b2e8dddf377_v3_s7_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/8",
+        "title": "Allergy alert",
+        "chunk_ids": [
+          "dailymed_9fdbaf5e-f88b-4d18-97df-0b2e8dddf377_v3_s8_c1"
+        ]
+      },
+      {
+        "section": "warnings/50570-1/9",
+        "title": "Do not use",
+        "chunk_ids": [
+          "dailymed_9fdbaf5e-f88b-4d18-97df-0b2e8dddf377_v3_s9_c1"
+        ]
+      },
+      {
+        "section": "warnings/50569-3/10",
+        "title": "warnings",
+        "chunk_ids": [
+          "dailymed_9fdbaf5e-f88b-4d18-97df-0b2e8dddf377_v3_s10_c1"
+        ]
+      },
+      {
+        "section": "warnings/50568-5/11",
+        "title": "warnings",
+        "chunk_ids": [
+          "dailymed_9fdbaf5e-f88b-4d18-97df-0b2e8dddf377_v3_s11_c1"
+        ]
+      },
+      {
+        "section": "warnings/50566-9/12",
+        "title": "Stop use and ask a doctor if",
+        "chunk_ids": [
+          "dailymed_9fdbaf5e-f88b-4d18-97df-0b2e8dddf377_v3_s12_c1"
+        ]
+      },
+      {
+        "section": "warnings/53414-9/13",
+        "title": "warnings",
+        "chunk_ids": [
+          "dailymed_9fdbaf5e-f88b-4d18-97df-0b2e8dddf377_v3_s13_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/15",
+        "title": "Overdose warning",
+        "chunk_ids": [
+          "dailymed_9fdbaf5e-f88b-4d18-97df-0b2e8dddf377_v3_s15_c1"
+        ]
+      },
+      {
+        "section": "dosage/34068-7/16",
+        "title": "Directions",
+        "chunk_ids": [
+          "dailymed_9fdbaf5e-f88b-4d18-97df-0b2e8dddf377_v3_s16_c1"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/19",
+        "title": "PRINCIPAL DISPLAY PANEL",
+        "chunk_ids": [
+          "dailymed_9fdbaf5e-f88b-4d18-97df-0b2e8dddf377_v3_s19_c1"
+        ]
+      }
+    ]
+  },
+  {
+    "product_name": "Childrens Ibuprofen",
+    "setid": "0faa3b41-a241-4aae-9cc8-e075728ff916",
+    "version": 4,
+    "effective_date": "2026-10-29",
+    "fetched": "2026-11-16",
+    "xml_sha256": "f7c0e0ac3f102efa38418223f88cfab753201c89d9cbe608bccd2f7316c3b874",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0faa3b41-a241-4aae-9cc8-e075728ff916&version=4",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "labelling/34067-9/5",
+        "title": "Uses",
+        "chunk_ids": [
+          "dailymed_0faa3b41-a241-4aae-9cc8-e075728ff916_v4_s5_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/7",
+        "title": "Allergy alert",
+        "chunk_ids": [
+          "dailymed_0faa3b41-a241-4aae-9cc8-e075728ff916_v4_s7_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/8",
+        "title": "Stomach bleeding warning",
+        "chunk_ids": [
+          "dailymed_0faa3b41-a241-4aae-9cc8-e075728ff916_v4_s8_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/9",
+        "title": "Heart attack and stroke warning",
+        "chunk_ids": [
+          "dailymed_0faa3b41-a241-4aae-9cc8-e075728ff916_v4_s9_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/10",
+        "title": "Sore throat warning",
+        "chunk_ids": [
+          "dailymed_0faa3b41-a241-4aae-9cc8-e075728ff916_v4_s10_c1"
+        ]
+      },
+      {
+        "section": "warnings/50570-1/11",
+        "title": "Do not use",
+        "chunk_ids": [
+          "dailymed_0faa3b41-a241-4aae-9cc8-e075728ff916_v4_s11_c1"
+        ]
+      },
+      {
+        "section": "warnings/50569-3/12",
+        "title": "Ask a doctor before use if",
+        "chunk_ids": [
+          "dailymed_0faa3b41-a241-4aae-9cc8-e075728ff916_v4_s12_c1"
+        ]
+      },
+      {
+        "section": "warnings/50568-5/13",
+        "title": "Ask a doctor or pharmacist before use if the child is",
+        "chunk_ids": [
+          "dailymed_0faa3b41-a241-4aae-9cc8-e075728ff916_v4_s13_c1"
+        ]
+      },
+      {
+        "section": "warnings/50567-7/14",
+        "title": "When using this product",
+        "chunk_ids": [
+          "dailymed_0faa3b41-a241-4aae-9cc8-e075728ff916_v4_s14_c1"
+        ]
+      },
+      {
+        "section": "warnings/50566-9/15",
+        "title": "Stop use and ask a doctor if",
+        "chunk_ids": [
+          "dailymed_0faa3b41-a241-4aae-9cc8-e075728ff916_v4_s15_c1"
+        ]
+      },
+      {
+        "section": "warnings/50565-1/16",
+        "title": "warnings",
+        "chunk_ids": [
+          "dailymed_0faa3b41-a241-4aae-9cc8-e075728ff916_v4_s16_c1"
+        ]
+      },
+      {
+        "section": "dosage/34068-7/17",
+        "title": "Directions",
+        "chunk_ids": [
+          "dailymed_0faa3b41-a241-4aae-9cc8-e075728ff916_v4_s17_c1"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/22",
+        "title": "PRINCIPAL DISPLAY PANEL - 120 mL Bottle Carton",
+        "chunk_ids": [
+          "dailymed_0faa3b41-a241-4aae-9cc8-e075728ff916_v4_s22_c1"
+        ]
+      }
+    ]
+  },
+  {
+    "product_name": "Loratadine",
+    "setid": "3881afaf-8d0d-4154-85a8-79a3c7806b49",
+    "version": 6,
+    "effective_date": "2026-10-27",
+    "fetched": "2026-11-16",
+    "xml_sha256": "d715476e8cc48da36ad33b9cfb4a7e6df7aabee88775f45f55b58cbced643b56",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=3881afaf-8d0d-4154-85a8-79a3c7806b49&version=6",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "labelling/34067-9/5",
+        "title": "Uses",
+        "chunk_ids": [
+          "dailymed_3881afaf-8d0d-4154-85a8-79a3c7806b49_v6_s5_c1"
+        ]
+      },
+      {
+        "section": "warnings/50570-1/7",
+        "title": "warnings",
+        "chunk_ids": [
+          "dailymed_3881afaf-8d0d-4154-85a8-79a3c7806b49_v6_s7_c1"
+        ]
+      },
+      {
+        "section": "warnings/50569-3/8",
+        "title": "warnings",
+        "chunk_ids": [
+          "dailymed_3881afaf-8d0d-4154-85a8-79a3c7806b49_v6_s8_c1"
+        ]
+      },
+      {
+        "section": "warnings/50567-7/9",
+        "title": "warnings",
+        "chunk_ids": [
+          "dailymed_3881afaf-8d0d-4154-85a8-79a3c7806b49_v6_s9_c1"
+        ]
+      },
+      {
+        "section": "warnings/50566-9/10",
+        "title": "warnings",
+        "chunk_ids": [
+          "dailymed_3881afaf-8d0d-4154-85a8-79a3c7806b49_v6_s10_c1"
+        ]
+      },
+      {
+        "section": "warnings/53414-9/11",
+        "title": "warnings",
+        "chunk_ids": [
+          "dailymed_3881afaf-8d0d-4154-85a8-79a3c7806b49_v6_s11_c1"
+        ]
+      },
+      {
+        "section": "warnings/50565-1/12",
+        "title": "warnings",
+        "chunk_ids": [
+          "dailymed_3881afaf-8d0d-4154-85a8-79a3c7806b49_v6_s12_c1"
+        ]
+      },
+      {
+        "section": "dosage/34068-7/13",
+        "title": "Directions",
+        "chunk_ids": [
+          "dailymed_3881afaf-8d0d-4154-85a8-79a3c7806b49_v6_s13_c1"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/18",
+        "title": "PRINCIPAL DISPLAY PANEL - 120 mL Bottle Carton",
+        "chunk_ids": [
+          "dailymed_3881afaf-8d0d-4154-85a8-79a3c7806b49_v6_s18_c1"
+        ]
+      }
+    ]
+  },
+  {
+    "product_name": "Omeprazole",
+    "setid": "346141b5-b49d-489a-84eb-18df8b940460",
+    "version": 3,
+    "effective_date": "2026-10-26",
+    "fetched": "2026-11-16",
+    "xml_sha256": "516ea2d452c8e9f63691dbc578e4c8ecdd7d74c1f59df378e93d8879ad876ba3",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=346141b5-b49d-489a-84eb-18df8b940460&version=3",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "labelling/34067-9/5",
+        "title": "Use",
+        "chunk_ids": [
+          "dailymed_346141b5-b49d-489a-84eb-18df8b940460_v3_s5_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/7",
+        "title": "warnings",
+        "chunk_ids": [
+          "dailymed_346141b5-b49d-489a-84eb-18df8b940460_v3_s7_c1"
+        ]
+      },
+      {
+        "section": "warnings/50570-1/8",
+        "title": "Do not use if you have",
+        "chunk_ids": [
+          "dailymed_346141b5-b49d-489a-84eb-18df8b940460_v3_s8_c1"
+        ]
+      },
+      {
+        "section": "warnings/50569-3/9",
+        "title": "warnings",
+        "chunk_ids": [
+          "dailymed_346141b5-b49d-489a-84eb-18df8b940460_v3_s9_c1"
+        ]
+      },
+      {
+        "section": "warnings/50568-5/10",
+        "title": "warnings",
+        "chunk_ids": [
+          "dailymed_346141b5-b49d-489a-84eb-18df8b940460_v3_s10_c1"
+        ]
+      },
+      {
+        "section": "warnings/50566-9/11",
+        "title": "Stop use and ask a doctor if",
+        "chunk_ids": [
+          "dailymed_346141b5-b49d-489a-84eb-18df8b940460_v3_s11_c1"
+        ]
+      },
+      {
+        "section": "warnings/53414-9/12",
+        "title": "warnings",
+        "chunk_ids": [
+          "dailymed_346141b5-b49d-489a-84eb-18df8b940460_v3_s12_c1"
+        ]
+      },
+      {
+        "section": "warnings/50565-1/13",
+        "title": "warnings",
+        "chunk_ids": [
+          "dailymed_346141b5-b49d-489a-84eb-18df8b940460_v3_s13_c1"
+        ]
+      },
+      {
+        "section": "dosage/34068-7/14",
+        "title": "Directions",
+        "chunk_ids": [
+          "dailymed_346141b5-b49d-489a-84eb-18df8b940460_v3_s14_c1"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/19",
+        "title": "PRINCIPAL DISPLAY PANEL - 20 mg Tablet Bottle Carton",
+        "chunk_ids": [
+          "dailymed_346141b5-b49d-489a-84eb-18df8b940460_v3_s19_c1"
+        ]
+      }
+    ]
+  },
+  {
+    "product_name": "FAMOTIDINE",
+    "setid": "446ca466-a43c-0401-e063-6394a90ac0d1",
+    "version": 1,
+    "effective_date": "2025-11-25",
+    "fetched": "2026-11-16",
+    "xml_sha256": "43703e68e50c05fa0c2a4cd33012ef72db67dd85b684209036732b75127e161b",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=446ca466-a43c-0401-e063-6394a90ac0d1&version=1",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "labelling/34067-9/2",
+        "title": "1 INDICATIONS AND USAGE",
+        "chunk_ids": [
+          "dailymed_446ca466-a43c-0401-e063-6394a90ac0d1_v1_s2_c1"
+        ]
+      },
+      {
+        "section": "dosage/34068-7/4",
+        "title": "2.1 Recommended Dosage in Adults",
+        "chunk_ids": [
+          "dailymed_446ca466-a43c-0401-e063-6394a90ac0d1_v1_s4_c1",
+          "dailymed_446ca466-a43c-0401-e063-6394a90ac0d1_v1_s4_c2"
+        ]
+      },
+      {
+        "section": "dosage/34068-7/5",
+        "title": "2.2 Recommended Dosage in Pediatric Patients",
+        "chunk_ids": [
+          "dailymed_446ca466-a43c-0401-e063-6394a90ac0d1_v1_s5_c1",
+          "dailymed_446ca466-a43c-0401-e063-6394a90ac0d1_v1_s5_c2"
+        ]
+      },
+      {
+        "section": "dosage/34068-7/6",
+        "title": "2.3 Recommended Dosage in Adults with Renal Impairment",
+        "chunk_ids": [
+          "dailymed_446ca466-a43c-0401-e063-6394a90ac0d1_v1_s6_c1",
+          "dailymed_446ca466-a43c-0401-e063-6394a90ac0d1_v1_s6_c2"
+        ]
+      },
+      {
+        "section": "dosage/34068-7/7",
+        "title": "2.4 Administration Instructions",
+        "chunk_ids": [
+          "dailymed_446ca466-a43c-0401-e063-6394a90ac0d1_v1_s7_c1"
+        ]
+      },
+      {
+        "section": "warnings/34070-3/9",
+        "title": "4 CONTRAINDICATIONS",
+        "chunk_ids": [
+          "dailymed_446ca466-a43c-0401-e063-6394a90ac0d1_v1_s9_c1"
+        ]
+      },
+      {
+        "section": "warnings/43685-7/11",
+        "title": "5.1 Central Nervous System Adverse Reactions",
+        "chunk_ids": [
+          "dailymed_446ca466-a43c-0401-e063-6394a90ac0d1_v1_s11_c1"
+        ]
+      },
+      {
+        "section": "warnings/43685-7/12",
+        "title": "5.2 Concurrent Gastric Malignancy",
+        "chunk_ids": [
+          "dailymed_446ca466-a43c-0401-e063-6394a90ac0d1_v1_s12_c1"
+        ]
+      },
+      {
+        "section": "labelling/34089-3/26",
+        "title": "11 DESCRIPTION",
+        "chunk_ids": [
+          "dailymed_446ca466-a43c-0401-e063-6394a90ac0d1_v1_s26_c1"
+        ]
+      },
+      {
+        "section": "warnings/34076-0/42",
+        "title": "17 PATIENT COUNSELING INFORMATION",
+        "chunk_ids": [
+          "dailymed_446ca466-a43c-0401-e063-6394a90ac0d1_v1_s42_c1"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/43",
+        "title": "PACKAGE LABEL PRINCIPAL DISPLAY PANEL",
+        "chunk_ids": [
+          "dailymed_446ca466-a43c-0401-e063-6394a90ac0d1_v1_s43_c1"
+        ]
+      }
+    ]
+  },
+  {
+    "product_name": "Amoxicillin",
+    "setid": "2c395111-c9c1-483e-a542-58b935ede689",
+    "version": 2,
+    "effective_date": "2026-09-01",
+    "fetched": "2026-11-16",
+    "xml_sha256": "b28f89e64fe7b5b7a275d84c69bda94154939dca0f62667554404868007d7410",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=2c395111-c9c1-483e-a542-58b935ede689&version=2",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "labelling/34067-9/3",
+        "title": "1 INDICATIONS AND USAGE",
+        "chunk_ids": [
+          "dailymed_2c395111-c9c1-483e-a542-58b935ede689_v2_s3_c1",
+          "dailymed_2c395111-c9c1-483e-a542-58b935ede689_v2_s3_c2",
+          "dailymed_2c395111-c9c1-483e-a542-58b935ede689_v2_s3_c3"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/5",
+        "title": "2.1 Important Administration Instructions",
+        "chunk_ids": [
+          "dailymed_2c395111-c9c1-483e-a542-58b935ede689_v2_s5_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/6",
+        "title": "2.2 Dosage for Adults and Pediatric Patients Aged 3 Months (12 weeks) and Older",
+        "chunk_ids": [
+          "dailymed_2c395111-c9c1-483e-a542-58b935ede689_v2_s6_c1",
+          "dailymed_2c395111-c9c1-483e-a542-58b935ede689_v2_s6_c2"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/7",
+        "title": "2.3 Dosage in Pediatric Patients Aged Less than 12 Weeks (3 months)",
+        "chunk_ids": [
+          "dailymed_2c395111-c9c1-483e-a542-58b935ede689_v2_s7_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/8",
+        "title": "2.4 Dosage for H. pylori Infection in Adults",
+        "chunk_ids": [
+          "dailymed_2c395111-c9c1-483e-a542-58b935ede689_v2_s8_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/9",
+        "title": "2.5 Dosage in Renal Impairment for Adults and Pediatric Patients Aged 3 Months and Older and Weight Greater than 40 kg",
+        "chunk_ids": [
+          "dailymed_2c395111-c9c1-483e-a542-58b935ede689_v2_s9_c1"
+        ]
+      },
+      {
+        "section": "warnings/34070-3/11",
+        "title": "4 CONTRAINDICATIONS",
+        "chunk_ids": [
+          "dailymed_2c395111-c9c1-483e-a542-58b935ede689_v2_s11_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/13",
+        "title": "5.1 Anaphylactic Reactions",
+        "chunk_ids": [
+          "dailymed_2c395111-c9c1-483e-a542-58b935ede689_v2_s13_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/14",
+        "title": "5.2 Severe Cutaneous Adverse Reactions",
+        "chunk_ids": [
+          "dailymed_2c395111-c9c1-483e-a542-58b935ede689_v2_s14_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/15",
+        "title": "5.3 Clostridioides difficile -Associated Diarrhea (CDAD)",
+        "chunk_ids": [
+          "dailymed_2c395111-c9c1-483e-a542-58b935ede689_v2_s15_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/16",
+        "title": "5.4 Development of Drug-Resistant Bacteria",
+        "chunk_ids": [
+          "dailymed_2c395111-c9c1-483e-a542-58b935ede689_v2_s16_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/17",
+        "title": "5.5 Skin Rash in Patients with Mononucleosis",
+        "chunk_ids": [
+          "dailymed_2c395111-c9c1-483e-a542-58b935ede689_v2_s17_c1"
+        ]
+      },
+      {
+        "section": "labelling/34089-3/36",
+        "title": "11 DESCRIPTION",
+        "chunk_ids": [
+          "dailymed_2c395111-c9c1-483e-a542-58b935ede689_v2_s36_c1"
+        ]
+      },
+      {
+        "section": "warnings/34076-0/47",
+        "title": "17 PATIENT COUNSELING INFORMATION",
+        "chunk_ids": [
+          "dailymed_2c395111-c9c1-483e-a542-58b935ede689_v2_s47_c1",
+          "dailymed_2c395111-c9c1-483e-a542-58b935ede689_v2_s47_c2"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/48",
+        "title": "PACKAGE LABEL-PRINCIPAL DISPLAY PANEL - 500 mg (30 Capsule Bottle)",
+        "chunk_ids": [
+          "dailymed_2c395111-c9c1-483e-a542-58b935ede689_v2_s48_c1"
+        ]
+      }
+    ]
+  },
+  {
+    "product_name": "METFORMIN HYDROCHLORIDE",
+    "setid": "d8bd1779-d1c4-4dde-816d-ea72b37bb5cd",
+    "version": 3,
+    "effective_date": "2026-09-02",
+    "fetched": "2026-11-16",
+    "xml_sha256": "fcdd2f811c825f99de3455ecbba04f13db0fe3b4e879a99406ada55dd5ec50ef",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=d8bd1779-d1c4-4dde-816d-ea72b37bb5cd&version=3",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "warnings/34066-1/2",
+        "title": "WARNING: LACTIC ACIDOSIS",
+        "chunk_ids": [
+          "dailymed_d8bd1779-d1c4-4dde-816d-ea72b37bb5cd_v3_s2_c1"
+        ]
+      },
+      {
+        "section": "labelling/34067-9/3",
+        "title": "1 INDICATIONS & USAGE",
+        "chunk_ids": [
+          "dailymed_d8bd1779-d1c4-4dde-816d-ea72b37bb5cd_v3_s3_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/5",
+        "title": "2.1 Adult Dosage",
+        "chunk_ids": [
+          "dailymed_d8bd1779-d1c4-4dde-816d-ea72b37bb5cd_v3_s5_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/6",
+        "title": "2.2 Pediatric Dosage for Metformin Hydrochloride Tablets",
+        "chunk_ids": [
+          "dailymed_d8bd1779-d1c4-4dde-816d-ea72b37bb5cd_v3_s6_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/7",
+        "title": "2.3 Recommendations for Use in Renal Impairment",
+        "chunk_ids": [
+          "dailymed_d8bd1779-d1c4-4dde-816d-ea72b37bb5cd_v3_s7_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/8",
+        "title": "2.4 Discontinuation for Iodinated Contrast Imaging Procedures",
+        "chunk_ids": [
+          "dailymed_d8bd1779-d1c4-4dde-816d-ea72b37bb5cd_v3_s8_c1"
+        ]
+      },
+      {
+        "section": "warnings/34070-3/10",
+        "title": "4 CONTRAINDICATIONS",
+        "chunk_ids": [
+          "dailymed_d8bd1779-d1c4-4dde-816d-ea72b37bb5cd_v3_s10_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/12",
+        "title": "5.1 Lactic Acidosis",
+        "chunk_ids": [
+          "dailymed_d8bd1779-d1c4-4dde-816d-ea72b37bb5cd_v3_s12_c1",
+          "dailymed_d8bd1779-d1c4-4dde-816d-ea72b37bb5cd_v3_s12_c2",
+          "dailymed_d8bd1779-d1c4-4dde-816d-ea72b37bb5cd_v3_s12_c3",
+          "dailymed_d8bd1779-d1c4-4dde-816d-ea72b37bb5cd_v3_s12_c4",
+          "dailymed_d8bd1779-d1c4-4dde-816d-ea72b37bb5cd_v3_s12_c5"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/13",
+        "title": "5.2 Vitamin B12 Deficiency",
+        "chunk_ids": [
+          "dailymed_d8bd1779-d1c4-4dde-816d-ea72b37bb5cd_v3_s13_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/14",
+        "title": "5. 3 Hypoglycemia with Concomitant Use with Insulin and Insulin Secretagogues",
+        "chunk_ids": [
+          "dailymed_d8bd1779-d1c4-4dde-816d-ea72b37bb5cd_v3_s14_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/15",
+        "title": "5.4 Macrovascular Outcomes",
+        "chunk_ids": [
+          "dailymed_d8bd1779-d1c4-4dde-816d-ea72b37bb5cd_v3_s15_c1"
+        ]
+      },
+      {
+        "section": "labelling/34089-3/29",
+        "title": "11 DESCRIPTION",
+        "chunk_ids": [
+          "dailymed_d8bd1779-d1c4-4dde-816d-ea72b37bb5cd_v3_s29_c1"
+        ]
+      },
+      {
+        "section": "warnings/34076-0/40",
+        "title": "17 PATIENT COUNSELING INFORMATION",
+        "chunk_ids": [
+          "dailymed_d8bd1779-d1c4-4dde-816d-ea72b37bb5cd_v3_s40_c1",
+          "dailymed_d8bd1779-d1c4-4dde-816d-ea72b37bb5cd_v3_s40_c2"
+        ]
+      }
+    ]
+  },
+  {
+    "product_name": "Atorvastatin Calcium",
+    "setid": "a519e355-84f0-40d1-b586-e6e8eadb5b0f",
+    "version": 3,
+    "effective_date": "2026-09-17",
+    "fetched": "2026-11-16",
+    "xml_sha256": "92d8443a03132cf30fa3b24032db8b5cdf1d6b33a40f6b13e5889c51141739d6",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=a519e355-84f0-40d1-b586-e6e8eadb5b0f&version=3",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "labelling/34067-9/2",
+        "title": "1 INDICATIONS AND USAGE",
+        "chunk_ids": [
+          "dailymed_a519e355-84f0-40d1-b586-e6e8eadb5b0f_v3_s2_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/4",
+        "title": "2.1 Important Dosage Information",
+        "chunk_ids": [
+          "dailymed_a519e355-84f0-40d1-b586-e6e8eadb5b0f_v3_s4_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/5",
+        "title": "2.2 Recommended Dosage in Adult Patients",
+        "chunk_ids": [
+          "dailymed_a519e355-84f0-40d1-b586-e6e8eadb5b0f_v3_s5_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/6",
+        "title": "2.3 Recommended Dosage in Pediatric Patients 10 Years of Age and Older with HeFH",
+        "chunk_ids": [
+          "dailymed_a519e355-84f0-40d1-b586-e6e8eadb5b0f_v3_s6_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/7",
+        "title": "2.4 Recommended Dosage in Pediatric Patients 10 Years of Age and Older with HoFH",
+        "chunk_ids": [
+          "dailymed_a519e355-84f0-40d1-b586-e6e8eadb5b0f_v3_s7_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/8",
+        "title": "2.5 Dosage Modifications Due to Drug Interactions",
+        "chunk_ids": [
+          "dailymed_a519e355-84f0-40d1-b586-e6e8eadb5b0f_v3_s8_c1"
+        ]
+      },
+      {
+        "section": "warnings/34070-3/10",
+        "title": "4 CONTRAINDICATIONS",
+        "chunk_ids": [
+          "dailymed_a519e355-84f0-40d1-b586-e6e8eadb5b0f_v3_s10_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/12",
+        "title": "5.1 Myopathy and Rhabdomyolysis",
+        "chunk_ids": [
+          "dailymed_a519e355-84f0-40d1-b586-e6e8eadb5b0f_v3_s12_c1",
+          "dailymed_a519e355-84f0-40d1-b586-e6e8eadb5b0f_v3_s12_c2"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/13",
+        "title": "5.2 Immune-Mediated Necrotizing Myopathy",
+        "chunk_ids": [
+          "dailymed_a519e355-84f0-40d1-b586-e6e8eadb5b0f_v3_s13_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/14",
+        "title": "5.3 Hepatic Dysfunction",
+        "chunk_ids": [
+          "dailymed_a519e355-84f0-40d1-b586-e6e8eadb5b0f_v3_s14_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/15",
+        "title": "5.4 Increases in HbA1c and Fasting Serum Glucose Levels",
+        "chunk_ids": [
+          "dailymed_a519e355-84f0-40d1-b586-e6e8eadb5b0f_v3_s15_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/16",
+        "title": "5.5 Increased Risk of Hemorrhagic Stroke in Patients on Atorvastatin Calcium Tablets 80 mg with Recent Hemorrhagic Stroke",
+        "chunk_ids": [
+          "dailymed_a519e355-84f0-40d1-b586-e6e8eadb5b0f_v3_s16_c1"
+        ]
+      },
+      {
+        "section": "labelling/34089-3/32",
+        "title": "11 DESCRIPTION",
+        "chunk_ids": [
+          "dailymed_a519e355-84f0-40d1-b586-e6e8eadb5b0f_v3_s32_c1"
+        ]
+      },
+      {
+        "section": "warnings/34076-0/48",
+        "title": "17 PATIENT COUNSELING INFORMATION",
+        "chunk_ids": [
+          "dailymed_a519e355-84f0-40d1-b586-e6e8eadb5b0f_v3_s48_c1",
+          "dailymed_a519e355-84f0-40d1-b586-e6e8eadb5b0f_v3_s48_c2"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/50",
+        "title": "PRINCIPAL DISPLAY PANEL",
+        "chunk_ids": [
+          "dailymed_a519e355-84f0-40d1-b586-e6e8eadb5b0f_v3_s50_c1"
+        ]
+      }
+    ]
+  },
+  {
+    "product_name": "Levothyroxine Sodium",
+    "setid": "1a2124e6-aea2-40dd-bb8d-52c58405a67e",
+    "version": 1,
+    "effective_date": "2026-10-01",
+    "fetched": "2026-11-16",
+    "xml_sha256": "ad00fde790816333b37c2d046aa645d16c1033160078b76ed40d1c5f4d0025c8",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=1a2124e6-aea2-40dd-bb8d-52c58405a67e&version=1",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "warnings/34066-1/3",
+        "title": "WARNING: NOT FOR TREATMENT OF OBESITY OR FOR WEIGHT LOSS",
+        "chunk_ids": [
+          "dailymed_1a2124e6-aea2-40dd-bb8d-52c58405a67e_v1_s3_c1"
+        ]
+      },
+      {
+        "section": "labelling/34067-9/4",
+        "title": "1 INDICATIONS AND USAGE",
+        "chunk_ids": [
+          "dailymed_1a2124e6-aea2-40dd-bb8d-52c58405a67e_v1_s4_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/6",
+        "title": "2.1 Important Administration Instructions",
+        "chunk_ids": [
+          "dailymed_1a2124e6-aea2-40dd-bb8d-52c58405a67e_v1_s6_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/7",
+        "title": "2.2 Important Considerations for Dosing",
+        "chunk_ids": [
+          "dailymed_1a2124e6-aea2-40dd-bb8d-52c58405a67e_v1_s7_c1",
+          "dailymed_1a2124e6-aea2-40dd-bb8d-52c58405a67e_v1_s7_c2"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/8",
+        "title": "2.3 Recommended Dosage and Titration",
+        "chunk_ids": [
+          "dailymed_1a2124e6-aea2-40dd-bb8d-52c58405a67e_v1_s8_c1",
+          "dailymed_1a2124e6-aea2-40dd-bb8d-52c58405a67e_v1_s8_c2",
+          "dailymed_1a2124e6-aea2-40dd-bb8d-52c58405a67e_v1_s8_c3",
+          "dailymed_1a2124e6-aea2-40dd-bb8d-52c58405a67e_v1_s8_c4"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/9",
+        "title": "2.4 Monitoring TSH and/or Thyroxine (T4) Levels",
+        "chunk_ids": [
+          "dailymed_1a2124e6-aea2-40dd-bb8d-52c58405a67e_v1_s9_c1",
+          "dailymed_1a2124e6-aea2-40dd-bb8d-52c58405a67e_v1_s9_c2"
+        ]
+      },
+      {
+        "section": "warnings/34070-3/11",
+        "title": "4 CONTRAINDICATIONS",
+        "chunk_ids": [
+          "dailymed_1a2124e6-aea2-40dd-bb8d-52c58405a67e_v1_s11_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/13",
+        "title": "5.1 Serious Risks Related to Overtreatment or Undertreatment with Levothyroxine sodium tablets",
+        "chunk_ids": [
+          "dailymed_1a2124e6-aea2-40dd-bb8d-52c58405a67e_v1_s13_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/14",
+        "title": "5.2 Cardiac Adverse Reactions in the Elderly and in Patients with Underlying Cardiovascular Disease",
+        "chunk_ids": [
+          "dailymed_1a2124e6-aea2-40dd-bb8d-52c58405a67e_v1_s14_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/15",
+        "title": "5.3 Myxedema Coma",
+        "chunk_ids": [
+          "dailymed_1a2124e6-aea2-40dd-bb8d-52c58405a67e_v1_s15_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/16",
+        "title": "5.4 Acute Adrenal Crisis in Patients with Concomitant Adrenal Insufficiency",
+        "chunk_ids": [
+          "dailymed_1a2124e6-aea2-40dd-bb8d-52c58405a67e_v1_s16_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/17",
+        "title": "5.5 Worsening of Diabetic Control",
+        "chunk_ids": [
+          "dailymed_1a2124e6-aea2-40dd-bb8d-52c58405a67e_v1_s17_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/18",
+        "title": "5.6 Decreased Bone Mineral Density Associated with Thyroid Hormone Over-Replacement",
+        "chunk_ids": [
+          "dailymed_1a2124e6-aea2-40dd-bb8d-52c58405a67e_v1_s18_c1"
+        ]
+      },
+      {
+        "section": "labelling/34089-3/37",
+        "title": "11 DESCRIPTION",
+        "chunk_ids": [
+          "dailymed_1a2124e6-aea2-40dd-bb8d-52c58405a67e_v1_s37_c1"
+        ]
+      },
+      {
+        "section": "warnings/34076-0/45",
+        "title": "17 PATIENT COUNSELING INFORMATION",
+        "chunk_ids": [
+          "dailymed_1a2124e6-aea2-40dd-bb8d-52c58405a67e_v1_s45_c1",
+          "dailymed_1a2124e6-aea2-40dd-bb8d-52c58405a67e_v1_s45_c2",
+          "dailymed_1a2124e6-aea2-40dd-bb8d-52c58405a67e_v1_s45_c3"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/46",
+        "title": "PACKAGE LABEL.PRINCIPAL DISPLAY PANEL",
+        "chunk_ids": [
+          "dailymed_1a2124e6-aea2-40dd-bb8d-52c58405a67e_v1_s46_c1"
+        ]
+      }
+    ]
+  },
+  {
+    "product_name": "ALBUTEROL SULFATE",
+    "setid": "1810ff8e-d505-bf9c-e063-6394a90a6540",
+    "version": 4,
+    "effective_date": "2026-09-22",
+    "fetched": "2026-11-16",
+    "xml_sha256": "7982bd7ec1de5be710d5aaae536840a6396f1eeddd485735212ef5b786e4ecb1",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=1810ff8e-d505-bf9c-e063-6394a90a6540&version=4",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "labelling/34089-3/3",
+        "title": "DESCRIPTION",
+        "chunk_ids": [
+          "dailymed_1810ff8e-d505-bf9c-e063-6394a90a6540_v4_s3_c1"
+        ]
+      },
+      {
+        "section": "labelling/34067-9/5",
+        "title": "INDICATIONS AND USAGE",
+        "chunk_ids": [
+          "dailymed_1810ff8e-d505-bf9c-e063-6394a90a6540_v4_s5_c1"
+        ]
+      },
+      {
+        "section": "warnings/34070-3/6",
+        "title": "CONTRAINDICATIONS",
+        "chunk_ids": [
+          "dailymed_1810ff8e-d505-bf9c-e063-6394a90a6540_v4_s6_c1"
+        ]
+      },
+      {
+        "section": "warnings/34071-1/7",
+        "title": "WARNINGS",
+        "chunk_ids": [
+          "dailymed_1810ff8e-d505-bf9c-e063-6394a90a6540_v4_s7_c1"
+        ]
+      },
+      {
+        "section": "warnings/34072-9/9",
+        "title": "General",
+        "chunk_ids": [
+          "dailymed_1810ff8e-d505-bf9c-e063-6394a90a6540_v4_s9_c1"
+        ]
+      },
+      {
+        "section": "warnings/34076-0/10",
+        "title": "Information for Patients",
+        "chunk_ids": [
+          "dailymed_1810ff8e-d505-bf9c-e063-6394a90a6540_v4_s10_c1"
+        ]
+      },
+      {
+        "section": "dosage/34068-7/19",
+        "title": "DOSAGE AND ADMINISTRATION",
+        "chunk_ids": [
+          "dailymed_1810ff8e-d505-bf9c-e063-6394a90a6540_v4_s19_c1"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/23",
+        "title": "PACKAGE LABEL-PRINCIPAL DISPLAY PANEL-0.083% (2.5 mg/3 mL)-Pouch Label (1 Vial)",
+        "chunk_ids": [
+          "dailymed_1810ff8e-d505-bf9c-e063-6394a90a6540_v4_s23_c1"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/24",
+        "title": "PACKAGE LABEL-PRINCIPAL DISPLAY PANEL-0.083%(2.5 mg/3 mL)-Pouch Label (5 Vials)",
+        "chunk_ids": [
+          "dailymed_1810ff8e-d505-bf9c-e063-6394a90a6540_v4_s24_c1"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/25",
+        "title": "PACKAGE LABEL-PRINCIPAL DISPLAY PANEL-0.083%(2.5 mg/3 mL)-Container-Carton Label (25 Vials)",
+        "chunk_ids": [
+          "dailymed_1810ff8e-d505-bf9c-e063-6394a90a6540_v4_s25_c1"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/26",
+        "title": "PACKAGE LABEL-PRINCIPAL DISPLAY PANEL-0.083%(2.5 mg/3 mL)-Container-Carton Label (30 Vials)",
+        "chunk_ids": [
+          "dailymed_1810ff8e-d505-bf9c-e063-6394a90a6540_v4_s26_c1"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/27",
+        "title": "PACKAGE LABEL-PRINCIPAL DISPLAY PANEL-0.083%(2.5 mg/3 mL)-Container-Carton Label (60 Vials)",
+        "chunk_ids": [
+          "dailymed_1810ff8e-d505-bf9c-e063-6394a90a6540_v4_s27_c1"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/28",
+        "title": "PACKAGE LABEL-PRINCIPAL DISPLAY PANEL-0.083%(2.5 mg/3 mL)-Container-Carton Label (30 Individually Wrapped Vials)",
+        "chunk_ids": [
+          "dailymed_1810ff8e-d505-bf9c-e063-6394a90a6540_v4_s28_c1"
+        ]
+      }
+    ]
+  }
+]
