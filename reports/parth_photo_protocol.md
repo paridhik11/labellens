@@ -1,9 +1,8 @@
 # Fixed real-photo extraction protocol, 2026-11-16
 
 Frozen before candidate implementation or new per-image scoring inspection.
-Baseline: commit 88f9c9d. Score all ten unchanged clear_online device photos,
-with their unchanged transcriptions.csv. Inputs and package versions are
-fingerprinted in local data/real_photos/protocol_v1/frozen_inputs.json.
+Baseline: 88f9c9d. Score ten unchanged clear_online device photos and
+transcriptions.csv. Fingerprints/package versions: scripts/cv_experiments/photo_protocol_v1.json.
 
 These photographs, AI readings and aggregate baseline scores were seen in
 previous work. This is a fixed previously exposed convenience set, not an unseen
@@ -17,8 +16,7 @@ vocabulary, filenames, reference copying or manual per-image crop/orientation.
 Chosen approach: retain installed RapidOCR CPU models; original-plus-rectified
 views, four deterministic quarter-turns, overlapping text crops and generic
 spatial key/date rules. This addresses unknown orientation, small text, split
-LOT/EXP keys and symbol-only dates without training on ten scoring images or
-adding an external service. Keep template geometry explicit; unknown real-photo
+LOT/EXP keys and symbol-only dates without an external service. Keep template geometry explicit; unknown real-photo
 aspect ratio is inferred from boundaries, never assumed to be 100:60.
 
 Implementation scope: src/cv/perspective.py, extract.py, new photo OCR/field
@@ -32,4 +30,9 @@ count failures as misses. Record runtimes, code/model/input fingerprints and
 all per-photo outcomes. Do not tune after seeing scores; report misses honestly.
 Human spot-check and symbol-crop review remain deferred; references are
 LLM-generated transcriptions, not human ground truth. Real-photo symbol accuracy
-remains unmeasured. Fix implementation defects using synthetic tests, not scores.
+remains unmeasured. Use synthetic tests for implementation defects.
+
+Development-only check: 24 tests passed, including the existing synthetic OCR integration.
+Keep upright orientation when its text score is within 10% of the best; select
+views by populated target fields, total populated fields, then text score.
+These rules were frozen before new real-photo scoring.
