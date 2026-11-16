@@ -41,13 +41,14 @@ Entities and field meanings are in [`DATA_MODEL.md`](DATA_MODEL.md). Template an
 | `GET /changes/{change_id}` | getChange | A change with derived status | 200 ChangeRequest | 404 |
 | `POST /changes/{change_id}/confirm` | confirmChange | Confirm the parse and the checklist | 200 ChangeAssessment | |
 | `GET /changes/{change_id}/affected` | listAffectedLabels | Affected labels and fields | 200 AffectedLabelList | |
-| `POST /changes/{change_id}/generate` | generateArtwork | Fill the template, render a DRAFT | 202 Job | 409 NeedsInput or change_closed, 422 CheckResult |
+| `POST /changes/{change_id}/generate` | generateArtwork | Fill the template, render a DRAFT (real, Step 24b) | 202 Job | 409 NeedsInput, change_closed or change_not_confirmed, 422 CheckResult (layout) or Error, 503 renderer_unavailable |
 | `GET /artworks/{artwork_id}` | getArtwork | Result of a generate job | 200 GeneratedArtwork | 404 |
 | `POST /label-versions/{version_id}/recheck` | recheckArtwork | Closed-loop self-check and layout checks | 200 CheckResult (kind `self_check`) | 202 Job, 404, 409 not_generated |
 | `GET /label-versions/{version_id}/reviews` | listReviews | Review history of a version | 200 ReviewList | |
 | `POST /label-versions/{version_id}/reviews` | reviewArtwork | Approve, return or reject | 201 Review | 403 role_forbidden or self_approval_forbidden, 409 |
 | `POST /label-versions/{version_id}/publish` | publishVersion | Publish an approved version | 201 PublishedPage | 409 |
-| `GET /label-versions/{version_id}/exports` | getExports | PDF at physical size, editable SVG, report, QR | 200 ExportPackage | 404 |
+| `GET /label-versions/{version_id}/exports` | getExports | PDF at physical size, editable SVG, report, QR (real, Step 24b) | 200 ExportPackage | 404 |
+| `GET /artifacts/{artifact_sha256}` | downloadArtifact | One stored file by its sha256 (CR-21) | 200 file bytes | 404, 409 not_published, 422 |
 | `GET /label-versions/{version_id}/print-verifications` | listPrintVerifications | Past print checks | 200 | |
 | `POST /label-versions/{version_id}/print-verifications` | verifyPrint | Compare a print photo with the approved version | 202 Job | 409 not approved |
 | `GET /print-verifications/{verification_id}` | getPrintVerification | Result of a print verify job | 200 PrintVerification | 404 |
@@ -223,3 +224,9 @@ Limits of the real operations (an older `data/api/labellens.db` gets the new `ch
 - `POST /changes/{id}/confirm` appends a confirmation. First confirmation also appends the confirmed assessment, so a barcode decision `NEEDS_INPUT` with `required_identifier: confirm_lot` becomes `REGENERATE` when nothing else blocks it. Errors: 409 `change_closed`, 409 `nothing_to_confirm`, 422 `parse_not_confirmed`, 422 `edits_not_supported`, 422 `unknown_impact`.
 - `POST /label-versions/{id}/reviews` with `approve` returns `409 change_not_confirmed` when the change has an assessment nobody confirmed.
 - A change with no stored assessment (older changes, the seed) keeps the mock for `affected` and `confirm` (`X-Mock: true`).
+
+## Generate and export (Step 24b, CR-21)
+
+`generateArtwork` is real. The request refuses everything it can before a job exists: `change_closed`, `change_not_confirmed` (an assessed change must be confirmed first), `nothing_assessed`, `needs_input` (an encoded value that is not confirmed, a model change without its new `udi_di`, or the placeholder identifier without `test_data`; `task.task_id` is the reason code, for example `task_udi_di` or `task_confirm_lot`), a layout failure (422 CheckResult of kind `layout`), `unsupported_edits` (one generation handles one edit, or a model edit with its new `udi_di`) and `template_required`. An identifier is never invented. The job renders PDF, SVG, a QR and a report, stores each as `artifacts/<sha256>.<ext>` and appends a new draft label version. `GET /artworks/{id}` is its result. `artifact_sha256` is the sha256 of the PDF.
+
+Re-check the generated version with `recheckArtwork` (it reads the PDF back as an image, so the server needs `pypdfium2` and the CV libraries), then approve with that check. The layout check named by `self_check_id` is not accepted for approval. `getExports` lists the stored drafts and `downloadArtifact` serves them after re-hashing. Every stored file carries `DRAFT, not for production` (and `TEST DATA | DRAFT` for test data), the response carries `X-Draft-Mark`, and `draft_watermark` stays true after approval. QR files are served only for a published version, and `publishVersion` is still a mock.

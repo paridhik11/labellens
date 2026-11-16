@@ -290,6 +290,53 @@ class Review(Base):
     assessment_id: Mapped[str | None] = mapped_column(String, nullable=True)
 
 
+class GeneratedArtwork(Base):
+    """One generation run (Step 24b): the draft label version it created and what it was built from. Append-only.
+
+    A regeneration is a new row and a new label version. `artifact_sha256` is the sha256 of the PDF bytes, the
+    same value stored on the label version, and approval binds to it.
+    """
+
+    __tablename__ = "generated_artworks"
+
+    seq: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    artwork_id: Mapped[str] = mapped_column(String, unique=True)
+    change_id: Mapped[str] = mapped_column(ForeignKey("change_requests.change_id"), index=True)
+    label_id: Mapped[str] = mapped_column(String, index=True)
+    version_id: Mapped[str] = mapped_column(ForeignKey("label_versions.version_id"), unique=True)
+    assessment_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    self_check_id: Mapped[str] = mapped_column(String)  # the layout check written with the draft
+    artifact_sha256: Mapped[str] = mapped_column(String)
+    reference_sha256: Mapped[str] = mapped_column(String)  # the renderer's snapshot hash (not the file hash)
+    test_data: Mapped[bool] = mapped_column(Boolean, default=False)
+    size_w: Mapped[float] = mapped_column(Float)
+    size_h: Mapped[float] = mapped_column(Float)
+    barcode_decision: Mapped[dict[str, Any]] = mapped_column(JSON)
+    change_log: Mapped[list[dict[str, Any]]] = mapped_column(JSON)
+    visible_markings: Mapped[list[str]] = mapped_column(JSON)
+    created_by: Mapped[str] = mapped_column(String)
+    created_at: Mapped[str] = mapped_column(String)
+
+
+class Artifact(Base):
+    """One stored file of a generated version (Step 24b), kept as `artifacts/<sha256>.<ext>`. Append-only."""
+
+    __tablename__ = "artifacts"
+    __table_args__ = (
+        UniqueConstraint("version_id", "role"),
+        CheckConstraint("role IN ('pdf','svg','report','qr_png','qr_svg')", name="ck_artifact_role"),
+    )
+
+    seq: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    sha256: Mapped[str] = mapped_column(String, index=True)
+    version_id: Mapped[str] = mapped_column(ForeignKey("label_versions.version_id"), index=True)
+    role: Mapped[str] = mapped_column(String)
+    mime: Mapped[str] = mapped_column(String)
+    ext: Mapped[str] = mapped_column(String)
+    size_bytes: Mapped[int] = mapped_column(Integer)
+    created_at: Mapped[str] = mapped_column(String)
+
+
 class PublishedPage(Base):
     """The page a supplementary QR opens. Pinned to one version_id forever."""
 
@@ -335,6 +382,8 @@ IMMUTABLE_TABLES: tuple[str, ...] = (
     "jobs",
     "change_assessments",
     "change_confirmations",
+    "generated_artworks",
+    "artifacts",
     "reviews",
     "published_pages",
     "audit_events",

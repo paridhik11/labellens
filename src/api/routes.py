@@ -9,16 +9,17 @@ from __future__ import annotations
 from collections.abc import Iterator
 from typing import Any
 
-from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, Request, UploadFile
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, Path, Request, UploadFile
+from fastapi.responses import JSONResponse, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from src.api import changes, checks, scans, uploads, views
+from src.api import artwork, changes, checks, scans, uploads, views
 from src.api.errors import ApiError
 from src.api.models import (
     ChangeRequest,
     CheckResult,
+    GeneratedArtwork,
     LabelTemplate,
     LabelVersion,
     Product,
@@ -30,6 +31,7 @@ from src.api.requests import (
     ChangeConfirmCreate,
     ChangeCreate,
     ExtractionConfirmCreate,
+    GenerateCreate,
     InspectCreate,
     ProductCreate,
     ProfessionalQuestion,
@@ -66,6 +68,10 @@ REAL_OPERATIONS = frozenset(
         "confirmChange",
         "listAffectedLabels",
         "getChange",
+        "generateArtwork",
+        "getArtwork",
+        "getExports",
+        "downloadArtifact",
         "listReviews",
         "reviewArtwork",
         "inspectLabel",
@@ -350,6 +356,64 @@ def get_change(
     if row is None:
         raise ApiError(404, "not_found", f"No change {change_id!r}.")
     return views.change_json(session, row)
+
+
+# ---------------------------------------------------------------- generate, artwork, export (Step 24b)
+
+
+@router.post("/changes/{change_id}/generate", operation_id="generateArtwork", status_code=202, tags=["device"])
+def generate_artwork(
+    change_id: str, body: GenerateCreate, request: Request, background: BackgroundTasks,
+    session: Session = Depends(get_session), user: User = Depends(writer),
+) -> JSONResponse:
+    """Fill the label's template with the confirmed values and answer 202 with a Job; the job renders and stores.
+
+    Everything that can be refused is refused here, before a job exists: closed change, unconfirmed assessment,
+    NEEDS_INPUT (never invents an identifier), layout failure. A new draft version is appended, never an edit.
+    """
+    plan = artwork.prepare(session, request.app.state.artwork_engine, user, change_id, body.label_id, body.test_data)
+    job = checks.new_job(session, "generate", None, user.user_id, result_url=f"/artworks/{plan.artwork_id}")
+    background.add_task(artwork.run_generate_job, request.app, job.job_id, plan)
+    return JSONResponse(checks.job_json(job), status_code=202)
+
+
+@router.get("/artworks/{artwork_id}", operation_id="getArtwork", tags=["device"])
+def get_artwork(
+    artwork_id: str, request: Request, session: Session = Depends(get_session), _: User = Depends(current_user)
+) -> Any:
+    """A generated DRAFT artwork. Ids this server never issued fall back to the mock."""
+    row = session.scalars(select(GeneratedArtwork).where(GeneratedArtwork.artwork_id == artwork_id)).first()
+    if row is not None:
+        return artwork.artwork_json(session, row)
+    if artwork.REAL_ARTWORK_ID.match(artwork_id):
+        raise ApiError(404, "not_found", f"No artwork {artwork_id!r}.")
+    from src.api.mock_server import mock_response
+
+    return mock_response("getArtwork", request)
+
+
+@router.get("/label-versions/{version_id}/exports", operation_id="getExports", tags=["device"])
+def get_exports(
+    version_id: str, request: Request, session: Session = Depends(get_session), _: User = Depends(current_user)
+) -> Any:
+    """PDF, SVG and report of a generated version (the stored drafts, DRAFT mark included)."""
+    version = session.scalars(select(LabelVersion).where(LabelVersion.version_id == version_id)).first()
+    if version is None:
+        if scans.REAL_VERSION_ID.match(version_id):
+            raise ApiError(404, "not_found", f"No label version {version_id!r}.")
+        from src.api.mock_server import mock_response
+
+        return mock_response("getExports", request)
+    return artwork.export_json(session, version)
+
+
+@router.get("/artifacts/{artifact_sha256}", operation_id="downloadArtifact", tags=["device"])
+def download_artifact(
+    artifact_sha256: str = Path(pattern=r"^[0-9a-f]{64}$"), session: Session = Depends(get_session),
+    user: User = Depends(current_user),
+) -> Response:
+    """Download one stored file by its sha256. The file is re-hashed first, so a changed file is never served."""
+    return artwork.download(session, user, artifact_sha256)
 
 
 @router.get("/label-versions/{version_id}/reviews", operation_id="listReviews", tags=["device"])

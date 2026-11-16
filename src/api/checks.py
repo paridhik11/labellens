@@ -107,6 +107,16 @@ def image_path(version: LabelVersion) -> Path:
     for candidate in candidates:
         if candidate.is_file():
             return candidate
+    if version.kind == "generated" and version.pdf_file:  # Step 24b: read the printable PDF back as an image
+        pdf = Path(version.pdf_file)
+        pdf = pdf if pdf.is_absolute() else files_dir() / pdf
+        raster = pdf.with_name(pdf.stem + ".page1.png")
+        if pdf.is_file() and not raster.is_file():
+            from src.api.uploads import render_pdf_page  # raises ExtractorUnavailable without pypdfium2
+
+            render_pdf_page(pdf, raster)
+        if raster.is_file():
+            return raster
     raise ApiError(404, "artwork_not_found", f"No image for {version.artwork_file!r} was found on the server.")
 
 

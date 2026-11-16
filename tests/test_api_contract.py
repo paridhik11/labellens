@@ -283,6 +283,72 @@ def test_every_real_response_conforms_to_openapi(run: Run, tmp_path, monkeypatch
     c("askPublic", 503, "POST", "/public/ask", user=None, json=pub)
     c("askProfessional", 503, "POST", "/ask", user=None, json={"question": "date format"})
 
+    # generate, artwork, exports, download (Step 24b): a fake renderer, so no CV libraries are needed
+    from sqlalchemy import select
+
+    from src.api.models import Artifact
+    from tests.artwork_helpers import FakeEngine
+
+    engine = FakeEngine()
+    run.client.app.state.artwork_engine = engine
+    gen = {"name": "Gen Pump", "udi_di": "00000000000000", "manufacturer": "M", "manufacturer_address": "A",
+           "model": "G1", "extra": {"lot": "L1", "expiry": "2030-06-30", "serial": "S1"}}
+    gen_slots = [
+        {"id": "name", "type": "text", "field": "product_name", "bbox_mm": [5, 12, 60, 6], "size_pt": 12},
+        {"id": "barcode", "type": "barcode", "field": "udi", "symbology": "GS1_DataMatrix",
+         "bbox_mm": [70, 20, 25, 25]},
+    ]
+
+    def gen_family(slots: list[dict]) -> tuple[str, str]:
+        pid = c("registerProduct", 201, "POST", "/products", json=gen).json()["product"]["product_id"]
+        c("registerTemplate", 201, "POST", f"/products/{pid}/templates",
+          json={"size_mm": {"w": 100, "h": 60}, "background": None, "slots": slots})
+        with sf() as session:
+            return pid, add_label_version(session, EDITOR, pid, "uploads/" + "a" * 64 + ".png").label_id
+
+    def gen_change(pid: str, confirm: bool) -> str:
+        made = c("assessChange", 201, "POST", "/changes", json={"product_id": pid, "edits": [
+            {"field": "name", "new_value": "Gen Pump 2"}]})
+        if confirm:
+            decisions = [{"impact_id": i["impact_id"], "user_decision": "confirmed"} for i in made.json()["affected"]]
+            c("confirmChange", 200, "POST", f"/changes/{made.json()['change']['change_id']}/confirm",
+              json={"parse_confirmed": True, "decisions": decisions})
+        return made.json()["change"]["change_id"]
+
+    gen_pid, gen_label = gen_family(gen_slots)
+    gen_body = {"label_id": gen_label, "test_data": True}
+    ready = gen_change(gen_pid, confirm=True)
+    unconfirmed = gen_change(gen_pid, confirm=False)
+    started = c("generateArtwork", 202, "POST", f"/changes/{ready}/generate", json=gen_body)
+    artwork_url = c("getJob", 200, "GET", f"/jobs/{started.json()['job_id']}").json()["result_url"]
+    art = c("getArtwork", 200, "GET", artwork_url).json()
+    c("getArtwork", 401, "GET", artwork_url, user=None)
+    c("getArtwork", 404, "GET", "/artworks/art_00000000")
+    c("generateArtwork", 401, "POST", f"/changes/{ready}/generate", user=None, json=gen_body)
+    c("generateArtwork", 403, "POST", f"/changes/{ready}/generate", user=REVIEWER, json=gen_body)
+    c("generateArtwork", 404, "POST", "/changes/chg_missing/generate", json=gen_body)
+    c("generateArtwork", 409, "POST", f"/changes/{unconfirmed}/generate", json=gen_body)  # change_not_confirmed
+    needs = c("generateArtwork", 409, "POST", f"/changes/{ready}/generate", json={"label_id": gen_label})
+    assert needs.json()["error"] == "needs_input"  # placeholder identifier without test_data: NeedsInput shape
+    bad_pid, bad_label = gen_family([{**gen_slots[0], "bbox_mm": [5, 2, 60, 6]}, gen_slots[1]])
+    c("generateArtwork", 422, "POST", f"/changes/{gen_change(bad_pid, True)}/generate", json={"label_id": bad_label})
+    engine.unavailable = True
+    c("generateArtwork", 503, "POST", f"/changes/{ready}/generate", json=gen_body)
+    engine.unavailable = False
+    exports_url = f"/label-versions/{art['version_id']}/exports"
+    package = c("getExports", 200, "GET", exports_url).json()
+    c("getExports", 401, "GET", exports_url, user=None)
+    c("getExports", 404, "GET", "/label-versions/lbv_00000000/exports")
+    pdf = run.client.get(package["pdf"]["url"], headers=h(EDITOR))  # a file, not JSON: checked by hand
+    assert pdf.status_code == 200 and pdf.headers["content-type"] == "application/pdf" and pdf.headers["X-Draft-Mark"]
+    run.seen["downloadArtifact"].add(200)
+    c("downloadArtifact", 401, "GET", package["pdf"]["url"], user=None)
+    c("downloadArtifact", 404, "GET", "/artifacts/" + "0" * 64)
+    c("downloadArtifact", 422, "GET", "/artifacts/not-a-hash")
+    with sf() as session:
+        qr_sha = session.scalars(select(Artifact).where(Artifact.role == "qr_png")).first().sha256
+    c("downloadArtifact", 409, "GET", f"/artifacts/{qr_sha}")  # not published yet
+
     # coverage: every documented status of every real operation was validated at least once
     real_in_spec = {op: documented_statuses(op) for op in REAL_OPERATIONS}
     missing = {op: sorted(codes - run.seen[op]) for op, codes in real_in_spec.items() if codes - run.seen[op]}

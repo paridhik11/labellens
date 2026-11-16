@@ -100,3 +100,14 @@ Additive. `ChangeAssessment.parser` gains `rules` and `llm`; `ChangeAssessment` 
 No schema field changes. `uploadScan`, `getScan`, `getExtraction` and `confirmExtraction` now document `401`, `403`, `404` and `422` where they apply, and the Error code list gains the upload codes: `unsupported_media_type`, `file_too_large`, `image_too_large`, `invalid_file` (422 on upload) and `retake_photo`, `extractor_unavailable`, `scan_failed` (inside `Scan.error` and `Job.error` when the state is `failed`). `retake_photo` carries `details: {reasons, metrics, thresholds}` with reasons `blur`, `low_contrast` or `glare`.
 
 Two behaviours the real server fixes where the contract was open: `product_id` is required on upload (a scan creates a label version, which belongs to a product), and file errors use 422 with a specific code, not 413 or 415, so the response set stays small. A confirmation appends a new extraction row (new `extraction_id`) and a confirmation row; `GET extraction` returns the newest row, with `confirmed: true` and no unclear fields after a confirmation.
+
+## CR-21 Generate, artwork and export (additive, Step 24b)
+
+New operation `downloadArtifact` (`GET /artifacts/{artifact_sha256}`) that serves a stored file after re-hashing it. `generateArtwork`, `getArtwork` and `getExports` are real and document `401`, `403`, `404`, `503` where they apply, and `409` and `422` list their error codes (`nothing_assessed`, `template_required`, `stale_change`, `barcode_decision_mismatch`, `unsupported_edits`, `unsupported_template`, `template_background_unsupported`, `product_incomplete`, `generation_refused`, `no_artifacts`, `artifact_missing`, `not_published`). No existing field changed shape. Four things the real server fixes where the contract was open:
+
+- `artifact_sha256` is the sha256 of the PDF bytes (it was "the draft manifest"; the merged renderer writes no manifest).
+- `GeneratedArtwork.self_check_id` is a `layout` CheckResult written with the draft. Approval of generated artwork needs a `self_check` (the re-check), and `layout` checks do not count for the derived status, so a fresh draft is `draft`, not `checked`.
+- Stored files keep the DRAFT mark even after approval (no approved variant is rendered), so `draft_watermark` stays true for generated versions.
+- New append-only tables `generated_artworks` and `artifacts`. A generation creates a product version with `source_change_id`, a template version (one per generation) and the draft label version, in one transaction.
+
+`schemas.py` untouched. Does not touch Parth's code. Still open: D-3, D-5 (a template with a background image is refused with `template_background_unsupported`), D-6 and D-9, and rendering an approved variant without the DRAFT band.

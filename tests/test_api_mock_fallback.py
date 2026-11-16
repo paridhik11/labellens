@@ -84,6 +84,10 @@ def test_real_operations_never_carry_x_mock(client) -> None:
         ("POST", "/label-versions/lbv_00000000/extraction/confirm"),
         ("POST", "/public/ask"),
         ("POST", "/ask"),
+        ("POST", "/changes/chg_0002/generate"),
+        ("GET", "/artworks/art_00000000"),
+        ("GET", "/label-versions/lbv_exampledevice_carton_l3/exports"),
+        ("GET", "/artifacts/" + "0" * 64),
     ]
     for method, path in calls:
         response = client.request(method, path, headers=HEADERS, json={} if method == "POST" else None)
