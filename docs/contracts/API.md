@@ -58,7 +58,8 @@ Entities and field meanings are in [`DATA_MODEL.md`](DATA_MODEL.md). Template an
 |---|---|---|---|---|
 | `POST /public/scans` | publicScan | Scan packaging, find reference label candidates | 202 Job | |
 | `GET /public/scans/{scan_id}` | getPublicScan | Match candidates (picker when several) | 200 PublicMatchResult | 404 |
-| `POST /public/ask` | askPublic | Ask about the matched label | 200 AnswerResponse (answer or abstain) | |
+| `POST /public/ask` | askPublic | Ask about the matched label | 200 AnswerResponse (answer or abstain) | 422, 503 |
+| `POST /ask` | askProfessional | Ask about the device regulations (CR-19) | 200 ProfessionalAnswerResponse | 422, 503 |
 | `POST /search` with `module: medicine` | searchEvidence | Shared search endpoint, medicine data only | 200 SearchResponse | |
 
 ### Common
@@ -128,7 +129,7 @@ Further rules, all enforced by the server:
 | `out_of_scope` | Medical advice, dosing for a person, or anything outside 21 CFR 201, 208, 211 and the matched label. |
 | `needs_human_check` | Evidence conflicts or the product match is uncertain. |
 
-`score_name` is a free string (for example `hybrid_top_score`, the Step 16 primary score) so the score can be swapped later without changing the API. `score` and `threshold` are `null` when a scope rule, not a score, made the decision. The banner "Authenticity not verified. Based on a reference label match." is always present.
+Step 23: an abstain with `reason: needs_human_check` may carry `sources`, verbatim passages (CR-18). They are shown when the language model is off or its answer failed verification. They are not an answer. Step 23 reports a score below the threshold as `needs_human_check` with `score_name: e5b_top_score`; `no_evidence` and `low_confidence` are not produced. `score_name` is a free string (for example `hybrid_top_score`, the Step 16 primary score) so the score can be swapped later without changing the API. `score` and `threshold` are `null` when a scope rule, not a score, made the decision. The banner "Authenticity not verified. Based on a reference label match." is always present.
 
 The public corpus is 21 CFR Parts 201, 208 and 211 only. The reference label corpus (DailyMed or openFDA) is not built yet.
 

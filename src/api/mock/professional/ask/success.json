@@ -1,0 +1,15 @@
+{
+  "abstained": false,
+  "answer": "A date on a device label must be written as the year in four digits, then the month and the day in two digits each, separated by hyphens. [1]",
+  "sources": [
+    {
+      "source_type": "cfr",
+      "chunk_id": "fda_21cfr801_s801.18",
+      "source": "FDA",
+      "section": "801.18",
+      "title": "Format of dates provided on a medical device label.",
+      "url": "https://www.ecfr.gov/current/title-21/section-801.18",
+      "quote": "Whenever the label of a medical device includes a printed expiration date, date of manufacture, or any other date intended to be brought to the attention of the user of the device, the date must be presented in the following format:"
+    }
+  ]
+}
