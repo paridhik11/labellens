@@ -11,7 +11,7 @@ from typing import Any
 from src.checker.citations import best_quote
 from src.common.schemas import Chunk
 from src.ir.base import Retriever
-from src.rag.prompt import SYSTEM, build_user
+from src.rag.prompt import PROMPTS, build_user
 from src.rag.provider import Provider, ProviderError, ProviderUnavailable
 from src.rag.scope import out_of_scope
 from src.rag.settings import RagSettings
@@ -119,13 +119,14 @@ def answer_question(
         return done("needs_human_check", cause)
 
     try:
-        raw = provider.generate(SYSTEM, build_user(question, context), max_tokens=cfg.max_tokens)
+        user = build_user(question, context, cfg.prompt)
+        raw = provider.generate(PROMPTS[cfg.prompt][0], user, max_tokens=cfg.max_tokens)
     except ProviderUnavailable:
         return fall_back("provider_off")
     except ProviderError:
         return fall_back("provider_error")
     result.raw = raw
-    if raw.strip().rstrip(".") == NO_ANSWER:
+    if NO_ANSWER in raw.upper():  # also catches "NO_ANSWER [1]" and "No_ANSWER"
         return done("needs_human_check", "no_answer")
     check = verify(raw, context, max_sentences=cfg.max_sentences, min_overlap=cfg.min_overlap)
     result.checks = {"ok": check.ok, "failed": check.failed, "detail": check.detail,

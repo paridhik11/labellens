@@ -48,8 +48,11 @@ class RagService:
         if self._retrievers is None:
             try:
                 from src.ir.step18_config import load_system
+                from src.rag import indexes
 
+                indexes.pull()  # copy built indexes from the shared store, so nothing is rebuilt
                 self._retrievers = load_system()
+                indexes.push()
             except Exception as error:  # cache missing, config hash mismatch, model not installed
                 raise RetrievalUnavailable(f"frozen retrieval is not available: {error}") from error
         return self._retrievers

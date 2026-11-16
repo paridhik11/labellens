@@ -12,6 +12,7 @@ import hashlib
 import json
 import math
 import random
+import re
 from pathlib import Path
 from typing import Any
 
@@ -147,6 +148,64 @@ def cmd_run(args: argparse.Namespace) -> None:
             print(q["qid"], result.outcome, result.cause, result.latency_s, flush=True)
 
 
+class ReplayProvider:
+    """Returns the model text stored in an earlier run, so outcomes can be recomputed without regenerating."""
+
+    def __init__(self, raw_by_question: dict[str, str], name: str) -> None:
+        self.raw, self.name = raw_by_question, name
+
+    def generate(self, system: str, user: str, *, max_tokens: int) -> str:
+        """The stored reply for the question inside the user prompt."""
+        question = user.rsplit("Question: ", 1)[1].rsplit("\n\nAnswer:", 1)[0]
+        return self.raw[question]
+
+
+def cmd_replay(args: argparse.Namespace) -> None:
+    """Recompute a condition's outcomes from the stored model text of run 1 with the current verifier.
+
+    Generation is deterministic (temperature 0, fixed seed) and retrieval is frozen, so this is the same as
+    running again. Latency is carried over from run 1. Used once, after the empty-sentence verifier hole was
+    found in run 1 (docs/RAG_SPEC.md section 14).
+    """
+    cfg = json.loads(CONFIG_PATH.read_text(encoding="utf8"))
+    run1 = [json.loads(line) for line in open(RESULTS / f"step23_run1_{args.cond}.jsonl", encoding="utf8")]
+    provider = ReplayProvider({r["text"]: r["raw"] for r in run1 if r["raw"]}, run1[0]["provider"])
+    service = RagService(provider=provider, threshold=cfg["threshold"])
+    with open(RESULTS / f"step23_run_{args.cond}.jsonl", "w", encoding="utf8") as fh:
+        for q, old in zip(load_queries(), run1, strict=True):
+            assert q["qid"] == old["qid"]
+            result = service.ask(q["text"], q["module"])
+            row = {**q, "condition": args.cond, **dataclasses.asdict(result)}
+            row["latency_s"], row["replayed_from"] = old["latency_s"], "run1"
+            fh.write(json.dumps(row) + "\n")
+    print("replayed", args.cond)
+
+
+LEADING = re.compile(r"((?:\[\d+\])+)\s*([^\[\n]+?[.!?])(?=\s|\[|$)")
+
+
+def lenient_section(cond: str) -> list[str]:
+    """EXPLORATORY, not the frozen result: how many generated answers would verify if markers at the start of a
+    sentence were accepted (moved to the end). Computed after seeing the run-1 outputs."""
+    from src.checker.retrieval import module_chunks
+    from src.rag.verify import verify
+
+    path = RESULTS / f"step23_run1_{cond}.jsonl"
+    if not path.exists():
+        return []
+    gen = [json.loads(line) for line in open(path, encoding="utf8")]
+    gen = [r for r in gen if r["raw"].strip() and "NO_ANSWER" not in r["raw"].upper()]
+    ok = 0
+    for r in gen:
+        chunks = module_chunks(r["module"])
+        context = [chunks[c] for c in r["retrieved"]]
+        fixed = LEADING.sub(lambda m: f"{m.group(2)} {m.group(1)}", r["raw"])
+        cfg = RagSettings()
+        ok += verify(fixed, context, max_sentences=cfg.max_sentences, min_overlap=cfg.min_overlap).ok
+    return [f"### Exploratory, condition {cond}: accept a marker at the start of a sentence (post hoc, not frozen)", "",
+            f"- generated answers that would pass verification: {fmt(ok, len(gen))}. Not faithfulness-graded.", ""]
+
+
 def read_run(cond: str) -> list[dict[str, Any]]:
     """Rows of one finished run."""
     return [json.loads(line) for line in open(RESULTS / f"step23_run_{cond}.jsonl", encoding="utf8")]
@@ -211,7 +270,7 @@ def cmd_regrade_sample(args: argparse.Namespace) -> None:
     print(f"{len(pick)} of {len(ids)} units selected for pass 2")
 
 
-def citation_relevance(rows: list[dict[str, Any]]) -> tuple[int, int, int]:
+def citation_relevance(rows: list[dict[str, Any]], mode: str = "generated") -> tuple[int, int, int]:
     """Cited chunks with qrels grade >= 1, judged cited chunks, unjudged cited chunks (existing LLM qrels only)."""
     qrels: dict[tuple[str, str], int] = {}
     for name in ("qrels_t1_llm.tsv", "qrels_fresh_llm.tsv"):
@@ -220,7 +279,7 @@ def citation_relevance(rows: list[dict[str, Any]]) -> tuple[int, int, int]:
             qrels[(qid, cid)] = int(g)
     rel = judged = unjudged = 0
     for r in rows:
-        if r["outcome"] != "answered":
+        if r["mode"] != mode:
             continue
         for s in r["sources"]:
             g = qrels.get((r["qid"], s["chunk_id"]))
@@ -262,7 +321,7 @@ def condition_section(cond: str) -> list[str]:
             h = [r for r in non if r["half"] == half]
             if h:
                 lines.append(f"  - {half} half: answered {sum(r['outcome'] == 'answered' for r in h)} of {len(h)}")
-        gen = [r for r in sub if r["raw"].strip() and r["raw"].strip().rstrip(".") != "NO_ANSWER"]
+        gen = [r for r in sub if r["raw"].strip() and "NO_ANSWER" not in r["raw"].upper()]
         if gen:
             ok = sum(r["checks"].get("ok", False) for r in gen)
             sent = sum(r["checks"].get("n_sentences", 0) for r in gen)
@@ -278,6 +337,9 @@ def condition_section(cond: str) -> list[str]:
         rel, judged, unjudged = citation_relevance(sub)
         lines.append(f"- citation relevance (cited chunk has LLM qrels grade >= 1; unjudged excluded): "
                      f"{fmt(rel, judged)}, unjudged cited chunks {unjudged}")
+        rel, judged, unjudged = citation_relevance([r for r in sub if r["answerable"]], "extractive")
+        lines.append(f"- extractive passages shown on answerable queries: relevant (qrels grade >= 1) {fmt(rel, judged)}, "  # noqa: E501
+                     f"unjudged {unjudged}")
         lat = [r["latency_s"] for r in sub]
         lines.append(f"- latency seconds, median {pct(lat, .5):.1f}, 90th percentile {pct(lat, .9):.1f}")
         lines.append("")
@@ -333,7 +395,7 @@ def cmd_metrics(args: argparse.Namespace) -> None:
         if (RESULTS / f"step23_run_{cond}.jsonl").exists():
             lines += condition_section(cond)
             if cond != "B":
-                lines += faith_section(cond)
+                lines += faith_section(cond) + lenient_section(cond)
     (RESULTS / "step23_rag.md").write_text("\n".join(lines), encoding="utf8")
     print("\n".join(lines))
 
@@ -358,6 +420,9 @@ def main() -> None:
     p.add_argument("--model", required=True)
     p.set_defaults(fn=cmd_faith_record)
     sub.add_parser("regrade-sample").set_defaults(fn=cmd_regrade_sample)
+    p = sub.add_parser("replay")
+    p.add_argument("cond", choices=["A1", "A2"])
+    p.set_defaults(fn=cmd_replay)
     sub.add_parser("metrics").set_defaults(fn=cmd_metrics)
     args = ap.parse_args()
     args.fn(args)

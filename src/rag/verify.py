@@ -50,14 +50,19 @@ def verify(text: str, chunks: list[Chunk], *, max_sentences: int, min_overlap: f
     """Run the checks of docs/RAG_SPEC.md section 4 in order. NO_ANSWER is handled by the caller."""
     sentences = parse_sentences(text)
     k = len(chunks)
-    result = Verification(ok=False, sentences=sentences, n_sentences=len(sentences))
-    result.n_valid_sentences = sum(bool(s.markers) and all(1 <= m <= k for m in s.markers) for s in sentences)
+    texts = [s for s in sentences if re.search(r"[A-Za-z]", s.text)]  # marker-only pieces are not sentences
+    result = Verification(ok=False, sentences=sentences, n_sentences=len(texts))
+    result.n_valid_sentences = sum(bool(s.markers) and all(1 <= m <= k for m in s.markers) for s in texts)
     if not sentences:
         result.failed, result.detail = "empty", "no sentences"
         return result
     if len(sentences) > max_sentences:
         result.failed, result.detail = "too_long", f"{len(sentences)} sentences"
         return result
+    for s in sentences:
+        if not re.search(r"[A-Za-z]", s.text):
+            result.failed, result.detail = "empty_sentence", "only markers"
+            return result
     for s in sentences:
         if not s.markers:
             result.failed, result.detail = "marker_missing", s.text[:60]
@@ -76,7 +81,7 @@ def verify(text: str, chunks: list[Chunk], *, max_sentences: int, min_overlap: f
         cited: set[str] = set()
         for m in s.markers:
             cited |= set(tokenize(chunks[m - 1].text))
-        if words and len(words & cited) / len(words) < min_overlap:
+        if not words or len(words & cited) / len(words) < min_overlap:
             result.failed, result.detail = "low_overlap", s.text[:60]
             return result
     result.ok = True

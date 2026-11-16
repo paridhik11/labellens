@@ -9,6 +9,7 @@ class RagSettings:
     """k chunks in the context, answer length, grounding guard and provider limits."""
 
     k: int = 5
+    prompt: str = "v1"  # v1 is the frozen run. v2 is an unused experiment (failed a 6-query dev check, spec section 14)
     max_sentences: int = 4
     min_overlap: float = 0.40  # a guess made before any run, frozen in the spec
     fallback_quotes: int = 3

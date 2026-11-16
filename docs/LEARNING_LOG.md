@@ -707,3 +707,14 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 4. **Verified:** new seeds 103 to 105: very hard false mismatches 7/44 to 1/44 (blind) and 8/45 to 1/45 (template); wrong barcodes still 102/102 `barcode_mismatch`; other cases 0/612.
 5. **Check yourself:** `format_problem` and the order of conditions in `check_extraction`.
 6. **Assumptions:** A confident misread that still looks valid cannot be caught by format.
+
+---
+
+## Step 23: RAG with citations and abstain
+
+1. **What I did:** Built `src/rag/` (scope rule, frozen E5b retrieval, score gate, numbered context, provider interface with Ollama, fake and off, verifier, extractive fallback) and made `askPublic` and a new `askProfessional` real in the API (CR-18 optional `sources` on the abstain shape, CR-19 new operation, both additive). Ran the frozen evaluation once on 71 queries and three conditions.
+2. **Files:** `docs/RAG_SPEC.md`, `src/rag/*`, `src/api/{routes,requests,main}.py`, `docs/contracts/{openapi.yaml,API.md,SCHEMA_CHANGE_REQUESTS.md,SCREENS.md}`, `src/api/mock/professional/ask/`, `scripts/build_indexes.py`, `tests/test_rag_*.py`, `tests/test_api_ask.py`, `results/step23_*`.
+3. **How it works:** Rules decide, retrieval cites. A question passes a scope rule, then E5b finds 5 passages, a score gate stops weak matches, the model must end every sentence with a passage number, and a verifier checks every number. If anything fails, the user gets verbatim quotes marked needs_human_check. Never a claim of compliance.
+4. **Verified:** full fast suite and ruff pass. Final run: no generated answer verified in any model (0/27 public, 0/20 professional answered). Both models returned bare numbers. The run found two verifier holes (marker-only sentence, `NO_ANSWER [1]`), fixed and recomputed from stored model text. Scope rule 10/10, 0 false triggers on 61. Extractive mode: 58/75 (public) and 27/51 (device) shown passages have LLM grade >= 1. Faithfulness: not measured, nothing to grade.
+5. **Check yourself:** `src/rag/verify.py` order of checks; `src/rag/pipeline.py` outcome mapping; spec section 14 (what was and was not frozen).
+6. **Assumptions:** The score gate threshold was fitted on 14 dev queries; the final queries are not fresh; LLM grades only; a bigger model or JSON output may fix the format problem and would need a new frozen run.

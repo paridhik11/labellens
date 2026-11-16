@@ -150,3 +150,29 @@ def test_scope_rule_has_no_false_trigger_on_existing_queries() -> None:
     assert len(queries) > 100
     flagged = [q for q, m in queries if out_of_scope(q, m)]
     assert flagged == []
+
+
+def test_marker_only_answer_fails() -> None:
+    """Found in the first final run: a reply that is only markers has no sentence text and must not pass."""
+    for reply in ("[1]", "[1][2]"):
+        r = run(FakeProvider(reply))
+        assert r.outcome == "needs_human_check" and r.checks["failed"] == "empty_sentence" and r.answer is None
+
+
+def test_leading_marker_is_rejected() -> None:
+    r = run(FakeProvider("[1] The expiration date shall appear on the label."))
+    assert r.outcome == "needs_human_check"
+
+
+def test_counts_ignore_marker_only_pieces() -> None:
+    v = verify("[1][2] The date goes here.", list(CHUNKS.values()), max_sentences=4, min_overlap=0.0)
+    assert not v.ok and v.n_sentences == 1 and v.n_valid_sentences == 0
+    assert verify("It is.", list(CHUNKS.values()), max_sentences=4, min_overlap=0.4).failed == "marker_missing"
+    assert verify("It is [1].", list(CHUNKS.values()), max_sentences=4, min_overlap=0.4).failed == "low_overlap"
+
+
+@pytest.mark.parametrize("reply", ["NO_ANSWER [1]", "No_ANSWER", "NO_ANSWER."])
+def test_no_answer_token_anywhere_means_no_answer(reply) -> None:
+    """Found in a dev check of prompt v2: 'NO_ANSWER [1]' used to pass verification as an answer."""
+    r = run(FakeProvider(reply))
+    assert (r.outcome, r.cause, r.sources) == ("needs_human_check", "no_answer", [])
