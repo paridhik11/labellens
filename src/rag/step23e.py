@@ -249,14 +249,14 @@ def cmd_report(_: argparse.Namespace) -> None:
              "Faithfulness grades are LLM grades, not human. Each model run once.", ""]
     qualified: list[tuple[float, float, float, str]] = []
     for tag in cfg["models"]:
-        if not run_path(tag).exists():
+        if not run_path(tag).exists() or len(read_run(tag)) < len(load_queries()):
             lines += [f"## {tag}", "", "- not run", ""]
             continue
         lines += model_section(tag)
         s = stats(tag)
+        fl, rate = faith_section(tag)  # graded for eligible models; ineligible ones only if graded for information
+        lines += fl
         if eligible(s):
-            fl, rate = faith_section(tag)
-            lines += fl
             if rate is not None and rate >= MIN_FAITH:
                 qualified.append((s["answered"] / s["n_ans"], rate, -s["median_s"], tag))
     chosen = max(qualified)[3] if qualified else None
