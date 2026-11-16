@@ -32,7 +32,6 @@
       "change_id": "chg_0002",
       "label_id": "lbl_exampledevice_carton",
       "version_id": "lbv_exampledevice_carton_l2",
-      "slot_id": "sterile_symbol",
       "item_kind": "symbol",
       "title": "Symbol selection",
       "description": "Sterilization symbol may need to change",
@@ -55,5 +54,6 @@
     }
   ],
   "checklist_complete": false,
+  "parser": "mock",
   "needs_human_review": "NEEDS_HUMAN_REVIEW: no retrieved passage names the symbol for gamma irradiation. The corpus has no symbol standard, so a reviewer must choose the symbol."
 }

@@ -70,7 +70,9 @@ paths:
         - $ref: "#/components/parameters/JobId"
       responses:
         "200":
-          description: Job state
+          description: |
+            Job state. Jobs started by inspectLabel and recheckArtwork are real. A job id this server never issued
+            (the scan and generate jobs are still mocks) is answered with the mock job and the header X-Mock.
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Job"}
@@ -83,6 +85,7 @@ paths:
       operationId: listProducts
       summary: List products (Products screen)
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "200":
           description: Products, possibly empty
           content:
@@ -103,6 +106,8 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/ProductDetail"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "403": {$ref: "#/components/responses/Forbidden"}
         "422": {$ref: "#/components/responses/Invalid"}
 
   /products/{product_id}:
@@ -113,6 +118,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/ProductId"
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "200":
           description: Product
           content:
@@ -128,6 +134,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/ProductId"
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "200":
           description: Versions
           content:
@@ -161,11 +168,24 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/LabelTemplate"}
-        "422":
-          description: Template breaks TEMPLATE_SPEC validation rules (findings listed)
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "403": {$ref: "#/components/responses/Forbidden"}
+        "404": {$ref: "#/components/responses/NotFound"}
+        "409":
+          description: template_product_mismatch (the template_id belongs to another product)
           content:
             application/json:
-              schema: {$ref: "#/components/schemas/CheckResult"}
+              schema: {$ref: "#/components/schemas/Error"}
+        "422":
+          description: |
+            Template breaks TEMPLATE_SPEC validation rules (CheckResult with layout findings), or the request has
+            the wrong shape (Error validation_error). The real server checks the shape only, not yet the layout rules.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/CheckResult"
+                  - $ref: "#/components/schemas/Error"
 
   /templates/{template_id}:
     get:
@@ -182,6 +202,7 @@ paths:
           required: false
           schema: {type: integer, minimum: 1}
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "200":
           description: Template
           content:
@@ -197,11 +218,13 @@ paths:
       parameters:
         - $ref: "#/components/parameters/ProductId"
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "200":
           description: Events, newest first
           content:
             application/json:
               schema: {$ref: "#/components/schemas/AuditEventList"}
+        "404": {$ref: "#/components/responses/NotFound"}
 
   # ---------------------------------------------------------------- upload, scan, extraction
   /scans:
@@ -257,6 +280,7 @@ paths:
           required: true
           schema: {type: string}
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "200":
           description: Versions, oldest first
           content:
@@ -272,6 +296,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/VersionId"
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "200":
           description: Label version
           content:
@@ -337,10 +362,34 @@ paths:
             application/json:
               schema: {$ref: "#/components/schemas/CheckResult"}
         "202":
-          description: Running; poll the job
+          description: |
+            Running. The version has no stored extraction yet, so a job reads the image, stores the extraction and
+            runs the checker. Poll GET /jobs/{job_id}; result_url is /check-results/{check_id}.
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Job"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "404": {$ref: "#/components/responses/NotFound"}
+        "422": {$ref: "#/components/responses/Invalid"}
+
+  /check-results/{check_id}:
+    get:
+      tags: [device]
+      operationId: getCheckResult
+      summary: One stored check result (the result_url of a finished inspect or re-check job)
+      parameters:
+        - name: check_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: The CheckResult
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/CheckResult"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "404": {$ref: "#/components/responses/NotFound"}
 
   /search:
     post:
@@ -376,10 +425,18 @@ paths:
             schema: {$ref: "#/components/schemas/ChangeCreate"}
       responses:
         "201":
-          description: Proposed structured change with affected items and evidence
+          description: |
+            Proposed structured change with affected items, citations and a barcode decision per label.
+            parser is rules (or llm when a provider is switched on). It is not_implemented when nothing in the
+            request could be assessed (for example only unknown fields): affected is then empty because nothing
+            was checked, not because nothing is affected. A plain-language request that cannot be parsed is
+            422 parser_not_implemented. A no-op edit is 422 no_change, a repeated field 422 duplicate_field.
           content:
             application/json:
               schema: {$ref: "#/components/schemas/ChangeAssessment"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "403": {$ref: "#/components/responses/Forbidden"}
+        "404": {$ref: "#/components/responses/NotFound"}
         "422": {$ref: "#/components/responses/Invalid"}
 
   /changes/{change_id}:
@@ -394,6 +451,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/ChangeId"
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "200":
           description: Change request
           content:
@@ -439,6 +497,11 @@ paths:
       tags: [device]
       operationId: confirmChange
       summary: Confirm the parsed change and the checklist decisions before any artwork changes
+      description: |
+        Appends a confirmation (append-only). The first confirmation also appends the confirmed assessment, where
+        a barcode decision that waited for confirmation (confirm_lot and so on) becomes REGENERATE when nothing
+        else blocks it. Needs an editor or admin. A change without a stored assessment (older changes) keeps the
+        mock response (X-Mock: true).
       parameters:
         - $ref: "#/components/parameters/ChangeId"
       requestBody:
@@ -447,20 +510,32 @@ paths:
           application/json:
             schema: {$ref: "#/components/schemas/ChangeConfirm"}
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "403": {$ref: "#/components/responses/Forbidden"}
+        "404": {$ref: "#/components/responses/NotFound"}
         "200":
-          description: Confirmed change
+          description: Confirmed change with the confirmed assessment
           content:
             application/json:
               schema: {$ref: "#/components/schemas/ChangeAssessment"}
+        "409":
+          description: change_closed (the change was rejected) or nothing_to_confirm (nothing was assessed).
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "422": {$ref: "#/components/responses/Invalid"}
 
   /changes/{change_id}/affected:
     get:
       tags: [device]
       operationId: listAffectedLabels
       summary: Affected labels and fields for a change
+      description: The items of the latest stored assessment with their current user_decision. A change without an assessment keeps the mock response (X-Mock true).
       parameters:
         - $ref: "#/components/parameters/ChangeId"
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "404": {$ref: "#/components/responses/NotFound"}
         "200":
           description: Affected items, possibly empty
           content:
@@ -546,10 +621,17 @@ paths:
             application/json:
               schema: {$ref: "#/components/schemas/CheckResult"}
         "202":
-          description: Running; poll the job
+          description: Running; same job flow as inspectLabel (result_url is /check-results/{check_id})
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Job"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "404": {$ref: "#/components/responses/NotFound"}
+        "409":
+          description: not_generated (only generated artwork with an artifact_sha256 can be re-checked)
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
 
   /label-versions/{version_id}/reviews:
     get:
@@ -559,6 +641,8 @@ paths:
       parameters:
         - $ref: "#/components/parameters/VersionId"
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "404": {$ref: "#/components/responses/NotFound"}
         "200":
           description: Reviews, possibly empty
           content:
@@ -583,6 +667,9 @@ paths:
                   comment: Sterilization symbol must match the new method before approval.
                   artifact_sha256: "0000000000000000000000000000000000000000000000000000000000000000"
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "404": {$ref: "#/components/responses/NotFound"}
+        "422": {$ref: "#/components/responses/Invalid"}
         "201":
           description: Review recorded
           content:
@@ -619,8 +706,9 @@ paths:
         "409":
           description: |
             hash_mismatch or check_not_passed (artifact_sha256 or check_id does not match a passed check of this
-            version), version_superseded (a newer artwork version exists, so review that one), or change_closed
-            (the change was rejected; reject is terminal).
+            version), version_superseded (a newer artwork version exists, so review that one), change_closed
+            (the change was rejected; reject is terminal), or change_not_confirmed (the change has an assessment
+            that nobody confirmed yet).
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Error"}
@@ -844,6 +932,16 @@ components:
       content:
         application/json:
           schema: {$ref: "#/components/schemas/Error"}
+    Unauthorized:
+      description: X-User-Id header missing or user unknown (unknown_user)
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/Error"}
+    Forbidden:
+      description: The user's role may not do this (role_forbidden)
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/Error"}
 
   schemas:
     # ------------------------------------------------------------ shared primitives
@@ -898,7 +996,18 @@ components:
       required: [error, message]
       additionalProperties: false
       properties:
-        error: {type: string, description: Machine readable code, for example not_found or hash_mismatch}
+        error:
+          type: string
+          description: |
+            Machine readable code. Codes used: not_found, validation_error, unknown_user (401, header missing
+            or user unknown), role_forbidden (403), self_approval_forbidden (403), check_required (422, approve
+            without check_id), comment_required (422, return or reject without comment), parser_not_implemented
+            (422, plain-language change), artifact_hash_required (422), hash_mismatch (409), check_not_passed
+            (409), version_superseded (409), change_closed (409), template_product_mismatch (409), needs_input
+            (409), label_product_mismatch (409), no_change (422, an edit equals the current value),
+            duplicate_field (422), parse_not_confirmed (422), edits_not_supported (422, confirm with edits),
+            unknown_impact (422), nothing_to_confirm (409), change_not_confirmed (409, approve before the
+            change was confirmed).
         message: {type: string}
         details: {type: object}
     User:
@@ -965,7 +1074,14 @@ components:
         udi_di: {type: string, description: Leave empty if not yet allocated; never filled in by LabelLens}
         sterilization: {type: string}
         storage: {type: string}
-        extra: {type: object, additionalProperties: {type: string}}
+        extra:
+          type: object
+          additionalProperties: {type: string}
+          description: |
+            Free text fields. Two keys are read by the checker: `ref` (a reference number, used when `model` is empty)
+            and `rx_only` (the string `true` when the device is prescription only, so the checker looks for the Rx
+            statement of 21 CFR 801.109). The registration form should offer `rx_only` as a checkbox.
+          examples: [{ref: "EX-100", rx_only: "true"}]
         intended_market: {type: array, items: {type: string}}
     Product:
       type: object
@@ -1023,7 +1139,7 @@ components:
         size_pt: {type: number, exclusiveMinimum: 0}
         align: {type: string, enum: [left, center, right]}
         max_lines: {type: integer, minimum: 1}
-        symbol_name: {type: string}
+        symbol_name: {type: string, enum: [manufacturer, expiry]}
         symbology: {type: string, enum: [GS1_DataMatrix, GS1-128]}
         min_size_mm: {type: number, exclusiveMinimum: 0}
       allOf:
@@ -1220,7 +1336,20 @@ components:
             citations: {type: array, items: {$ref: "#/components/schemas/Citation"}}
             field: {type: string}
             bbox: {$ref: "#/components/schemas/PixelBox"}
+            rule_id: {type: string, description: "Checker rule that raised the finding, for example B-EXP (docs/CHECKER_SPEC.md). Absent on layout findings (CR-17)"}
       unevaluatedProperties: false
+    RuleOutcome:
+      type: object
+      required: [rule_id, outcome]
+      additionalProperties: false
+      description: |
+        What one checker rule concluded (CR-17). Findings list only problems, so coverage is how a client
+        sees which rules ran and why a rule did not decide. A rule with outcome needs_human may or may not have a
+        finding: a symbol the detector found is not confirmed as a pass, so it stays needs_human with no finding.
+      properties:
+        rule_id: {type: string}
+        outcome: {type: string, enum: [pass, fail, needs_human, not_applicable, not_checked]}
+        reason: {type: string}
     CheckResult:
       type: object
       required: [check_id, kind, run_at, findings, critical_count, review_count, info_count, passed]
@@ -1230,7 +1359,7 @@ components:
         a template) or a layout check before rendering has no label version yet, so it names template_id.
       allOf:
         - if: {properties: {kind: {enum: [inspection, self_check]}}}
-          then: {required: [label_id, version_id]}
+          then: {required: [label_id, version_id, needs_human_count, coverage]}
         - if: {properties: {kind: {enum: [template, layout]}}}
           then: {required: [template_id]}
       properties:
@@ -1245,7 +1374,10 @@ components:
         critical_count: {type: integer, minimum: 0}
         review_count: {type: integer, minimum: 0}
         info_count: {type: integer, minimum: 0}
-        passed: {type: boolean, description: True when critical_count is 0}
+        passed: {type: boolean, description: True when critical_count is 0. It does not mean the label is compliant}
+        needs_human_count: {type: integer, minimum: 0, description: "Number of coverage entries with outcome needs_human (CR-17). Passed can be true while this is above 0, so show both"}
+        coverage: {type: array, items: {$ref: "#/components/schemas/RuleOutcome"}, description: "One entry per checker rule (CR-17). Findings contain only problems"}
+        retrieval_config: {type: object, description: "Retrieval settings the citations were found with (method, module, k, rrf_k, stem, prefix)"}
         disclaimer: {type: string}
 
     # ------------------------------------------------------------ search
@@ -1349,6 +1481,12 @@ components:
         suggestion: {type: string, enum: [review_suggested, edit_required, no_change]}
         evidence_chunk_ids: {type: array, items: {type: string}}
         user_decision: {type: string, enum: [pending, confirmed, dismissed]}
+        needs_human: {type: boolean, description: "CR-18. False only when a rule decided the item and its citation requirement is met."}
+        reason: {type: string, description: "CR-18. Plain-language reason for this item."}
+        rule_ids: {type: array, items: {type: string}, description: "CR-18. Rules that fired (I-TEXT, I-SYMBOL, I-NOSLOT, BC-KEEP and so on)."}
+        barcode_decision:
+          description: CR-18. Only on item_kind barcode.
+          $ref: "#/components/schemas/BarcodeDecision"
     AffectedLabelList:
       type: object
       required: [change_id, items]
@@ -1358,16 +1496,36 @@ components:
         items: {type: array, items: {$ref: "#/components/schemas/AffectedLabel"}}
     ChangeAssessment:
       type: object
-      required: [change, affected, citations, checklist_complete]
+      required: [change, affected, citations, checklist_complete, parser]
       additionalProperties: false
       properties:
         change: {$ref: "#/components/schemas/ChangeRequest"}
+        parser:
+          type: string
+          enum: [not_implemented, mock, rules, llm]
+          description: |
+            rules: the deterministic parser and impact rules ran. llm: the optional provider proposed the edits
+            (off by default), the impact rules still decide. not_implemented means nothing could be assessed:
+            affected is empty because no impact analysis ran, not because nothing is affected, and
+            checklist_complete is false. mock marks a canned example response.
         affected: {type: array, items: {$ref: "#/components/schemas/AffectedLabel"}}
         citations: {type: array, items: {$ref: "#/components/schemas/Citation"}}
         checklist_complete: {type: boolean, description: True when every affected item is confirmed or dismissed}
         needs_human_review:
           type: string
           description: NEEDS_HUMAN_REVIEW reason when the evidence is weak; absent otherwise
+        unassessed_edits:
+          description: CR-18. Edits that were not assessed (unknown_field, invalid_value, ambiguous_date) and why.
+          type: array
+          items:
+            type: object
+            required: [field, reason, message]
+            additionalProperties: false
+            properties:
+              field: {type: string}
+              reason: {type: string}
+              message: {type: string}
+        assessment_id: {type: string, description: "CR-18. The stored assessment this response shows (asm_...)."}
     ChangeConfirm:
       type: object
       required: [parse_confirmed, decisions]
@@ -1487,6 +1645,7 @@ components:
         comment: {type: string}
         artifact_sha256: {$ref: "#/components/schemas/Sha256"}
         check_id: {type: string, description: Passed CheckResult of the same version and hash}
+        assessment_id: {type: string, description: "CR-18. The change's latest assessment when the review was recorded, if the change has one."}
         resulting_status: {$ref: "#/components/schemas/Status"}
         decided_at: {$ref: "#/components/schemas/Timestamp"}
       allOf:

@@ -360,6 +360,78 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its CV step 16 to 
 5. **Check yourself:** Review the measured-results tables, reproduction commands, and remaining-work section before sharing.
 6. **Assumptions:** The report is a project handoff, not a regulatory claim; temporary evaluation datasets are not committed.
 
+## Step 17a + 17b: dev / held-out split and synonym expansion
+1. **What I did:** Split the 57 answerable queries into a development half (29) and a held-out half (28) with seed 42, stratified by query type and spread over both modules (`data/eval/split_t1.json`). Wrote a general regulatory synonym list (`data/eval/synonyms.json`, 19 groups, each tagged `cfr_definition` or `failure_derived`) and an expander that adds the other terms of a group when any term appears in the query. BM25 counts added terms at a lower weight than the user's own words.
+2. **Files changed:** `src/ir/split.py`, `src/ir/expand.py`, `data/eval/split_t1.json`, `data/eval/synonyms.json`, `tests/test_split.py`, `tests/test_expand.py`, this log.
+3. **How it works:** "address of the maker on the box" fires the maker group and the box group and adds manufacturer, labeler, package and carton. Held-out is scored once after tuning on dev, so the headline number is not fitted to the queries.
+4. **Verified:** `pytest -m "not slow"`: 105 passed; `ruff check src tests`: clean; `python -m src.ir.expand --check`: PASS (every cfr_definition group has a CFR section containing at least two of its terms). Nothing was run for retrieval quality yet.
+5. **Check yourself:** The failure_derived groups, which are not independent of the queries; terms that occur in no chunk (maker, barcode, expiry date, repack); the split file against the type counts.
+6. **Assumptions:** No stemming, so word forms are listed explicitly. Source tags reflect how I came to write each group.
+
+## Step 17c + 17d: part-aware boost and cross-encoder reranker
+1. **What I did:** Built `PartBoostRetriever` (each CFR part becomes one pseudo-document, BM25 picks the query's top parts, chunks from those parts get their rank score multiplied by 1 + beta) and `CrossEncoderReranker` (re-orders hybrid's top 50 with the cached MiniLM-L6 cross-encoder, either by its score alone or fused with the base rank by RRF). Neither is tuned yet.
+2. **Files changed:** `src/ir/partboost.py`, `src/ir/rerank.py`, `tests/test_partboost.py`, `tests/test_rerank.py`, this log.
+3. **How it works:** Part boost with beta 0.25: a topic-part chunk at rank 6 (1/66 x 1.25 = 0.0189) overtakes an other-part chunk at rank 1 (1/61 = 0.0164); beta 0 changes nothing. The reranker reads the query and one chunk together, so it sees how they match, unlike dense retrieval.
+4. **Verified:** `pytest -m "not slow"`: 116 passed; ruff clean; real model run offline (HF_HUB_OFFLINE=1, no download), 5 dev device queries only: 200 pairs in 16.7 s = 12 pairs/s; model load plus first query 28 s.
+5. **Check yourself:** The part rankings printed for dev queries (801 often wins even when 830 is the topic, e.g. q03), and that the reranker never downloads (offline flag set).
+6. **Assumptions:** Top part chosen by plain BM25 on pseudo-documents, no length tuning; chunks truncated to 512 tokens; no quality claim made yet.
+
+## Step 17e (part 1): tuning on the dev half, finalists written for grading
+1. **What I did:** Ran 58 variants (query expansion with all groups and with CFR-definition groups only, part boost with BM25 part scoring and with the summed-RRF top-3 vote scoring, cross-encoder rerank in two modes, and the combinations whose parts passed the gain rule) on the 29 dev queries only. Reported nDCG@10 with unjudged as 0 and condensed, plus the unjudged share, and wrote the finalists' unjudged top-10 rows to `results/step17_unjudged.csv` (263 rows, 138 unique query-chunk pairs). Nothing was graded and no qrels file was touched.
+2. **Files changed:** `src/ir/step17_report.py`, `tests/test_step17_report.py`, `src/ir/partboost.py` (vote scoring option), `src/ir/rerank.py` (shared score cache), `.gitignore` (track results/step17_*), `results/step17_dev.md`, `results/step17_unjudged.csv`, this log.
+3. **Key finding:** The expansion gain on dev (bm25 +0.030) comes entirely from the 5 dev queries that motivated the failure-derived groups. Without them the difference is -0.002 (all groups) and +0.002 (CFR-only groups). So there is no independent evidence yet that expansion helps.
+4. **Verified:** `pytest tests/test_step17_report.py`: 6 passed; ruff clean; the run printed `[58 variants, 223s]`. Dev baselines: bm25 0.602, hybrid 0.589. Part boost with BM25 part scoring: never a gain (best +0.003). Vote scoring on hybrid: +0.014 (top 2, beta 0.25), CI [-0.008, +0.038]. Rerank rrf: +0.030 (without motivating queries +0.012); replace: -0.008 but condensed 0.650 with 21% unjudged.
+5. **Check yourself:** The last column of each table in `results/step17_dev.md`, the Leak check paragraph, and the finalists table.
+6. **Assumptions:** Gain rule of 0.01 on both numbers, fixed before the run. Dev-only intervals are descriptive because settings were chosen on the same queries.
+
+## Step 17e (part 2): merge main, re-run dev with the Step 15c grades, stemming and BGE prefix
+1. **What I did:** Merged main into `step17-opt` (one conflict, this log, kept both sides). `qrels_t1_llm.tsv` on main was last rebuilt in Step 15a4 (1554 pairs) while `pool_t1_llm.csv` holds 2531 graded pairs (Step 15c adds 977), so I built the qrels in memory from the pool CSV, the same row-for-row copy `to-qrels` makes, and wrote no qrels file. Re-ran the 29-query dev tuning with the new variants bm25+stem, dense+prefix, hybrid+stem, hybrid+prefix and hybrid+stem+prefix under the same 0.01 gain rule, and fixed a bug that had built only the four-way combination.
+2. **Files changed:** `src/ir/step17_report.py` (stem and prefix flags, `combo_spec`, in-memory qrels), `tests/test_step17_report.py`, `results/step17_dev.md`, `results/step17_unjudged.csv`, this log.
+3. **Result (dev, nDCG@10, new qrels):** bm25 0.561, hybrid 0.548, dense 0.490. hybrid+stem+prefix 0.608 (+0.060), the best of the new base variants; bm25+stem 0.571 (+0.010, not above the threshold). Expansion with all groups gains +0.028 to +0.053 but only +0.002 to +0.006 once the 5 motivating dev queries are dropped; CFR-only expansion gains +0.007 to +0.011. Best combination: hybrid+stem+prefix+exp(0.3,all,dense)+pb(top 1, beta 0.1) 0.644 (+0.095, excluding motivating queries +0.062).
+4. **Verified:** `pytest -m "not slow"` and `ruff check src tests` (see the report); the run printed `[63 variants, 333s]`. Unjudged pairs remaining for the finalists: 13 rows, 11 unique query-chunk pairs.
+5. **Check yourself:** The qrels line at the top of `results/step17_dev.md`, the notes that say which components passed the gain rule, and that bm25+stem sits exactly on the threshold.
+6. **Assumptions:** Stemming and the prefix are tuned on dev like everything else; their combinations with expansion, part boost and rerank were not tuned jointly.
+
+## Step 17f: the one held-out run of the frozen config
+1. **What I did:** Froze the Step 17 settings in `data/eval/step17_config.json` (settings hash 33c3a6e6395c, data-file hashes, main commit 8ca3478, qrels 2801 rows, sha recorded), merged main for the rebuilt qrels, and ran `python -m src.ir.step17_heldout` once on the 28 held-out queries (19 device, 9 medicine). The runner refuses to run if the config, the data hashes or the qrels hash differ, or if the report exists.
+2. **Files changed:** `src/ir/step17_config.py`, `src/ir/step17_heldout.py`, their tests, `data/eval/step17_config.json`, `results/step17_heldout.md`, `results/step17_unjudged_heldout.csv`, this log, `CLAUDE.md`.
+3. **Result (LLM qrels, nDCG@10, held-out):** None of the three pre-declared primaries is significant after Holm (all Holm p = 1.0 or 0.74). P1 bm25+expansion(all) vs bm25: +0.033 [-0.010, +0.105], and it is almost entirely q55 (+0.948 on one query); without q15, q24, q55 it is +0.004. P2 full combination vs hybrid: +0.026 [-0.030, +0.083], 14 wins 10 losses. P3 hybrid+stem+prefix vs hybrid: -0.010 [-0.074, +0.049]. On dev the same variants were +0.034, +0.095 and +0.060, so the dev gains shrank or vanished on held-out. Secondary and descriptive: bm25+stem +0.048 [+0.004, +0.100] and dense+prefix +0.042 [+0.011, +0.075] (both seen by the Step 15b ablation on all 62 queries); hybrid+rr(rrf) +0.009; CFR-only expansion +0.002 to +0.004.
+4. **Verified:** `pytest -m "not slow"`: 146 passed; ruff clean; run printed `[13 variants x 2 halves, 327s]`. Held-out unjudged pairs: 14 rows, 10 unique (query, chunk) pairs, in `results/step17_unjudged_heldout.csv`; nothing graded; config unchanged.
+5. **Check yourself:** The per-query movers under the primaries table, the 'without q15, q24, q55' table, and the dev-vs-held-out contrast table at the end of `results/step17_heldout.md`.
+6. **Assumptions:** Held-out n=28 gives wide intervals, medicine n=9 supports no claim on its own, and hybrid's own held-out score (0.663) is much higher than on dev (0.548), which leaves less room for gains.
+
+## Step 18a: CV harness, section lookup, fresh candidates
+1. **What I did:** Built 5-fold stratified folds over the 57 answerable queries (`data/eval/cv_folds.json`, seed 42) and a CV harness (`src/ir/step18_cv.py`) that applies the keep rule (gain above 0.01 on both nDCG@10 lists, at least 3 of 5 folds, survives leaving out the top 2 queries, PENDING_GRADING if unjudged@10 above 0.05), writes `results/step18_experiments.md` and accumulates unjudged pairs in `results/step18_unjudged.csv`. Added exact section-number lookup (`src/ir/section_lookup.py`, not wired into any evaluation). Built 60 fresh candidate queries (30 web_faq from verified FDA Q&A documents with source URLs, 30 chunk_derived written in-session, at most 2 rare content words copied) in `data/eval/fresh_candidates.csv`, plus `data/eval/finetune_exclusions.json` (171 chunks). Nothing was retrieved or scored with the fresh queries.
+2. **Files changed:** `src/ir/step18_cv.py`, `src/ir/section_lookup.py`, `src/ir/draft_queries.py`, their tests, `data/eval/cv_folds.json`, `fresh_*` files, `finetune_exclusions.json`, `results/step18_*`, `.gitignore`, this log.
+3. **Result:** E0 (hybrid+stem+prefix vs hybrid) is KEPT narrowly: +0.026 on both lists, 3 of 5 folds, +0.013 after removing the top 2 queries, bootstrap interval [-0.013, +0.062].
+4. **Verified:** `pytest -m "not slow"`: 180 passed; ruff clean.
+5. **Check yourself:** `results/step18_experiments.md` E0, the copied_words column of `fresh_candidates.csv`, and the leak-guard list.
+6. **Assumptions:** Words in 5% or more of chunks count as common vocabulary for the copy rule. 6 of 30 web questions were confirmed through WebFetch, the other 24 verbatim in extracted PDF text.
+
+## Step 18b: bge-reranker-base on two first stages
+1. **What I did:** Downloaded BAAI/bge-reranker-base (1.13 GB, 87 s, weights, tokenizer and config only) after checking disk (723 GB free). Scored the top 50 of plain hybrid and of hybrid+stem+prefix once (3415 new pairs, cached on disk) and evaluated 8 variants, E1a to E1h: first stage x depth 30 or 50 x mode replace or blend (blend = 0.5 x min-max cross-encoder score + 0.5 x min-max first-stage score). Every variant is reported against plain hybrid and against hybrid+stem+prefix, and KEPT is now CANDIDATE.
+2. **Files changed:** `src/ir/step18_rerank.py`, `src/ir/rerank.py` (blend mode), `src/ir/step18_cv.py` (two bases, summary table, CANDIDATE), `src/ir/draft_queries.py` (target part, overlap checks, no-answer split), tests, `data/eval/fresh_*`, `results/step18_*`.
+3. **Result:** Replace mode never helps (-0.003 to -0.068 vs the bases; top-50 replace has unjudged@10 about 0.11, so it is PENDING_GRADING). Blend helps against plain hybrid (+0.028 to +0.043, candidate in 4 of 4 blend rows vs hybrid) but not against hybrid+stem+prefix (+0.002 to +0.018, all DROPPED). Best, E1f (hybrid+stem+prefix, top 30, blend): +0.018 [-0.019, +0.058] vs hybrid+stem+prefix, Recall@20 +0.022, 3 of 5 folds, but the gain is q55 (+0.708) and q39 (+0.380); without them it is -0.002.
+4. **Verified:** `pytest -m "not slow"`: 188 passed; ruff clean. Scoring wall time 71.7 min (0.80 pairs/s, 6 threads, batch 8, machine shared with other jobs), about 1.1x my 64-minute estimate. 104 unjudged pairs (mostly from top-50 replace) are in `results/step18_unjudged.csv`.
+5. **Check yourself:** The summary table at the top of `results/step18_experiments.md`, and the E1f section for q55 and q39.
+6. **Assumptions:** Blend alpha fixed at 0.5 (learned weights belong to experiment 5). Chunks truncated to 512 tokens. MedCPT held until you approve its download.
+
+## Step 18c: heading enrichment, bigger embedders, ensembles, MedCPT (plus pre-18c checks)
+1. **What I did:** Reconciled the unjudged count (the CSV had 104 unique pairs; "124" was the sum of per-variant counts for the two top-50 replace variants, whose pairs overlap). Found that no chunk exceeds 512 tokens (max 454 under the reranker tokenizer, 407 under the BERT one), so truncation never applied. Merged origin/main (qrels 3599 rows), re-ran the baselines (hybrid 0.604 / 0.747 and hybrid+stem+prefix 0.630 / 0.764 nDCG@10 / Recall@20 are identical under old and new qrels; E0 and E1 decisions unchanged) and wrote `results/step17_heldout_update.md` (P1 +0.054, P2 +0.035, P3 -0.010 on held-out with the new qrels, all from q15, q24 and q55; the 25-query tables are identical). Then ran 17 experiments: heading and part number prepended for indexing (E2a to E2f), bge-base and bge-large and two ensembles (E3a to E3f), MedCPT bi-encoder and cross-encoder (E4a to E4e), each against plain hybrid and hybrid+stem+prefix with a without-q55 column.
+2. **Files changed:** `src/ir/fusion.py`, `src/ir/medcpt.py`, `src/ir/step18_systems.py`, `src/ir/step18_variants.py`, `src/ir/step17_heldout_update.py`, `src/ir/step18_cv.py` (without-q55 column), `src/ir/step18_rerank.py` (stage, depth and letter options), tests, `results/step18_*`, `results/step17_heldout_update.md`.
+3. **Result vs hybrid+stem+prefix (nDCG@10 gain, unjudged=0, CV over 57 queries):** bge-large with stem+prefix E3d +0.051 [+0.024, +0.079], 5 of 5 folds, +0.052 without q55; heading prepended on both sides E2f +0.043 [+0.013, +0.075], 5 of 5 folds; heading on the dense side E2e +0.037, 5 of 5 folds; ensembles E3e +0.023, E3f +0.027; bge-base E3b +0.020. MedCPT bi-encoder hurts (-0.050 and -0.056, PENDING_GRADING at unjudged@10 0.07 to 0.09); MedCPT cross-encoder blend +0.009 (dropped). These are candidates, not confirmed: Step 17's stem+prefix passed CV and failed held-out.
+4. **Verified:** `pytest -m "not slow"`: 214 passed; ruff clean; the new systems reproduce the Step 17 hybrid rankings on all 57 queries. Wall times: enrichment and bge-base group 27 min, bge-large 37 min (bge-base embedding 12 min, MedCPT article encoder 9 min), MedCPT cross-encoder 25.7 min for 2850 pairs (1.85 pairs/s). 200 unjudged pairs are in `results/step18_unjudged.csv`.
+5. **Check yourself:** The summary table at the top of `results/step18_experiments.md`, E3d and E2f against the without-q55 and leave-top-2 columns, and that nothing here was graded.
+6. **Agreed for later (not started):** 18d adds fine-tuning of bge-reranker-base on about 150 in-session synthetic queries with hard negatives from bm25 and dense top 20 minus the positive, query-grouped CV, excluding `finetune_exclusions.json` chunks, with fresh web_faq as the honest test reported apart from chunk_derived. 18-abs adds an abstention track (positives q45 to q61; negatives the 10 Step 16 no_answer queries plus fresh_no_answer_candidates once pooled and graded; scores cross-encoder top, top minus rank-2, z-avg of bm25 and dense top, and a leave-one-out logistic regression; AUROC with a class-wise bootstrap CI, targets AUROC 0.90 and LOO precision 0.80; half of each class held out and scored once at 18f; `results/step18_abstain.md`, no Step 16 files touched). All accumulated unjudged pairs are graded once at 18f.
+
+## Step 18d: best together, fine-tuned reranker, abstention dev half
+1. **What I did:** Combined bge-large with heading enrichment (E5a both sides, E5b dense side only; Recall@20 did not drop against bge-large alone, so both were run because they share one embedding). E5b wins: nDCG@10 0.704 (+0.074 over hybrid+stem+prefix, CI [+0.037, +0.112], 5 of 5 folds, +0.070 without q55; Recall@20 +0.045). E5a is PENDING_GRADING (unjudged@10 0.058). Wrote and validated 150 synthetic training queries in-session from chunks outside `finetune_exclusions.json`, built groups with 3 hard negatives each from bm25 and dense top 20 (same section as the positive excluded), and fine-tuned bge-reranker-base (word embeddings frozen, listwise softmax loss, 120 train and 30 validation queries split by section, 2 epochs). Started the abstention track on the dev half only.
+2. **Files changed:** `src/ir/synth_queries.py`, `src/ir/step18_finetune.py`, `src/ir/step18_abstain.py`, `src/ir/step18_rerank.py` (`--sys-id`, scores only the deepest depth), `src/ir/step18_systems.py` (E5a, E5b), tests, `data/eval/synth_*`, `data/eval/abstain_split.json`, `results/step18_*`.
+3. **Result:** Fine-tuning helps the reranker but does not make it beat its own first stage. Validation top-1 of the positive among its hard negatives: 0.567 before, 0.767 after epoch 1, 0.733 after epoch 2 (epoch 1 saved). On E5b's top 30, the fine-tuned reranker in blend mode is -0.011 [-0.047, +0.023] against E5b without a reranker (DROPPED; nDCG@10 about 0.693) and the off-the-shelf reranker is -0.032; replace mode is -0.104 (fine-tuned) and -0.136 (off-the-shelf), PENDING_GRADING at unjudged@10 0.065 and 0.104. Fine-tuning is worth +0.021 (blend) and +0.032 (replace) over the off-the-shelf model on the same candidates, and the fine-tuned blend gains +0.021 Recall@20 over E5b. Abstention dev half (9 answerable, 5 no_answer): ce_top AUROC 0.889 [0.667, 1.000], zavg 0.911, leave-one-out logistic regression precision 0.800 and recall 0.800; no score meets both targets, and the intervals are very wide.
+4. **Verified:** `pytest -m "not slow"`: 226 passed; ruff clean. Wall times: best together 36.6 min, fine-tuning 45.5 min (21.8 s per step, estimate was 60 to 90 min), scoring E5b top 30 with the fine-tuned model 40.7 min, with the off-the-shelf model 7.6 min (cached pairs reused). The fresh set was not scored.
+5. **Check yourself:** The E5b and E6 rows of the summary table in `results/step18_experiments.md`, the training log `results/run18d_train.log` (ignored by git), and `results/step18_abstain.md`.
+6. **Assumptions:** The only known positive of a synthetic query is its source chunk, so a hard negative may in fact be relevant (same-section chunks are removed to reduce this). Epoch chosen on 30 validation groups, so the choice is noisy. Test half of the abstention split and the fresh set (web_faq and chunk_derived reported separately) are scored once at 18f.
+
 ---
 
 ## Step 19a: data model and schema change requests (branch step19-contracts)
@@ -679,3 +751,163 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its CV step 16 to 
 4. How I verified it: No code changed after the executed `436 passed, 3 deselected in 158.85s (0:02:38)` fast suite and `142 passed in 125.57s (0:02:05)` generation/verifier/mock run. Ruff output: `All checks passed!`. Report word counts were checked. GitHub passed medicine commit 6748387 and perspective commit fb3090a; final print and documentation checks are verified after pushing.
 5. What you should check yourself: Open the full task table, flagged-items section and local photo REVIEW.md. Compare source dates and source passages before medicine integration.
 6. What I am unsure about or assumed: Photo extraction and human spot-check remain explicitly deferred; real-symbol accuracy, reviewed medicine-symbol subset and real approved-print validation are not established. Trusted authorization, application adapters, storage, publication and retrieval integration remain with their owners. No Task 8 was supplied. No automatic approvals or publication occurred.
+
+## Step 20 Phase 0: contract follows merged code (D-2, D-4, D-7, D-8)
+1. **What I did:** Applied Pari's per-item decisions on the 11 differences between the contract and Parth's merged renderer. The contract now follows the code for symbol names (only `manufacturer` and `expiry`), the 9 mm DRAFT band, the layout kinds `clipping` and `overlap`, and two extra limits (barcode module at least 0.25 mm, printable ASCII). D-3, D-5, D-6 and D-9 stay as written and are marked decided gaps for Parth.
+2. **Files:** `docs/contracts/TEMPLATE_SPEC.md`, `DATA_MODEL.md` (also the per-template version rule), `openapi.yaml` (enum on `symbol_name`), `SCHEMA_CHANGE_REQUESTS.md` (decision table), six mock JSON files.
+3. **How it works:** A "contract" is the written promise the UI builds against. When code and promise disagree, someone must pick which one moves; this step records that pick per item.
+4. **Verified:** `python -m pytest -q tests/test_mock_contracts.py` gave 83 passed.
+5. **Check yourself:** The decision table at the end of `SCHEMA_CHANGE_REQUESTS.md`; the mock slots `name` and `ref` now start at y = 10 mm.
+6. **Assumptions:** D-7 is only partly decided (other kind names such as `font_too_small` still differ). The sterilization symbol impact item no longer names a slot, because that symbol cannot be a slot yet.
+
+## Step 20a: persistence layer and review rules
+1. **What I did:** Built the SQLite store with SQLAlchemy: users, products and versions, templates, label versions, change requests, check results, reviews, published pages and audit events. Every table except users rejects UPDATE and DELETE through database triggers, so an edit is always a new row. Status is never stored; `src/api/status.py` computes it from reviews and checks, and `src/api/reviews.py` enforces the review rules (role, no self approval, hash and passed check for approve, comment for return and reject, reject is terminal, a newer version voids an approval).
+2. **Files:** `src/api/db.py`, `models.py`, `errors.py`, `store.py`, `status.py`, `reviews.py`, `seed.py`, `tests/test_api_persistence.py`, `.gitignore` (local db folder), `.github/workflows/ci.yml` (installs sqlalchemy).
+3. **How it works:** Think of a ledger. You never erase a line, you add a new one, and "what is the status now" is answered by reading the latest relevant lines. A trigger is a rule inside the database that refuses the erase attempt even if our own code tried it.
+4. **Verified:** `python -m pytest -q tests/test_api_persistence.py` gave 20 passed; `python -m pytest -q -m "not slow"` gave 238 passed, 1 skipped, 1 deselected; `ruff check src tests` clean.
+5. **Check yourself:** The order of checks in `record_review`; `label_version_status` versus `change_status` (only the change's latest version counts); the trigger loop in `init_db`.
+6. **Assumptions:** No separate GeneratedArtwork table (its hash and change link are columns on `label_versions`); `closed` and `resulting_status` are computed on read; template versions count per template_id inside a product; unknown user is 401; role checks for non-review writes wait for the endpoints (20b).
+
+## Step 20b: real endpoints and role checks
+1. **What I did:** Turned 15 operations of `openapi.yaml` into real FastAPI endpoints on the SQLite store: me, products, templates, label versions, version history, changes, reviews and the audit log. Editors and admins register products, templates and changes; reviewers and admins review; everything else is a 403 `role_forbidden`. `POST /changes` stores a structured change but answers `parser: not_implemented`, an empty affected list, `checklist_complete: false` and a NEEDS_HUMAN_REVIEW message, so "not checked" cannot look like "clean".
+2. **Files:** `src/api/routes.py`, `views.py` (database rows to contract JSON, status computed there), `requests.py` (request shapes), `main.py` (app factory, error handlers), `store.py` (extra edits on a change), `docs/contracts/` (parser field, error codes, roles, the "currently approved" sentence, 401 and 404 and 422 responses), two mocks (`parser: mock`), `tests/test_api_endpoints.py`, CI and `pyproject.toml` (fastapi, httpx, Depends lint rule).
+3. **How it works:** The header `X-User-Id` names the caller; a small dependency looks the user up and checks the role before the handler runs. "Currently approved" is read from the change status, because an old version keeps showing as approved in its own record after a newer version voids the approval.
+4. **Verified:** `python -m pytest -q tests/test_api_endpoints.py` gave 26 passed; full fast suite 264 passed, 1 skipped, 1 deselected; `ruff check src tests` clean.
+5. **Check yourself:** `REAL_OPERATIONS` in `routes.py`; the four forbidden-role cases in the parametrized test; the new Error codes table in `docs/contracts/API.md`.
+6. **Assumptions:** `registerTemplate` validates the shape only (no layout findings yet); plain-text changes are refused with 422 `parser_not_implemented`; `listAffectedLabels` stays a mock; a missing header and an unknown user share the code `unknown_user`; `old_value` defaults to the record's current value for a known field.
+
+## Step 20c: mock fallback
+1. **What I did:** Every operation that is not real now serves its mock JSON with the response header `X-Mock: true`. `?mock_state=<state or file name>` picks another mock of the same operation (for example `empty`). Three operations had no mock (confirm extraction, confirm change, publish), so I added one each.
+2. **Files:** `src/api/mock_server.py`, `src/api/main.py`, three new mock files, `src/api/mock/index.json`, `docs/contracts/SCREENS.md`, `tests/test_api_mock_fallback.py`.
+3. **How it works:** The server reads `openapi.yaml`, and for each operation not in `REAL_OPERATIONS` it registers a route that returns the chosen mock file. The route handler takes only the request, so FastAPI never tries to parse a body.
+4. **Verified:** `python -m pytest -q tests/test_api_mock_fallback.py` gave 26 passed (one test per non-real operation checks the header, status and body); full fast suite 295 passed, 1 skipped, 1 deselected.
+5. **Check yourself:** `NOT_MOCKED` and `pick_entry` in `mock_server.py`; the test that real operations never carry the header.
+6. **Assumptions:** The default mock is chosen by state order success, loading, approved, empty; mock routes do not check the user header.
+
+## Step 20d: contract tests against openapi.yaml
+1. **What I did:** One scripted run calls every real operation and every status the spec documents for it, and validates each response body against its schema in `openapi.yaml`. It fails if a status is undocumented, so I added the missing 401, 404 and 422 responses to the spec. A last check requires that every documented status of every real operation was seen.
+2. **Files:** `tests/openapi_helpers.py`, `tests/test_api_contract.py`, `docs/contracts/openapi.yaml`, `docs/LEARNING_LOG.md`, `CLAUDE.md`.
+3. **How it works:** A schema is a machine-checkable description of a response. A passing test means the server's real answers match the promise the UI builds on; a second test breaks copies of real responses to prove the check can fail.
+4. **Verified:** `python -m pytest -q tests/test_api_contract.py` gave 3 passed; full fast suite 298 passed, 1 skipped, 1 deselected; `ruff check src tests` clean; live smoke with uvicorn and a file database: `/health`, `/me`, `/products` real, `POST /public/ask` returned `x-mock: true`.
+5. **Check yourself:** The coverage assertion at the end of `test_every_real_response_conforms_to_openapi`; the oneOf on the `registerTemplate` 422 response.
+6. **Assumptions:** Only JSON responses are validated; the layout-findings CheckResult variant of the template 422 is validated by the mock tests, because the real server cannot produce it yet.
+
+## Step 18f: freeze E5b, grade, score once, final summary
+1. **What I did:** Froze E5b (stemmed BM25 plus bge-large with query prefix and heading text, fused by RRF) in `data/eval/step18_config.json` with a hash. Graded the 242 accumulated unjudged pairs and the 424 pooled pairs of the 30 web_faq fresh queries with the frozen grader, then scored the fresh set and the abstention test split once each.
+2. **Files:** `data/eval/step18_config.json`, `src/ir/step18_config.py`, `src/ir/step18_final.py`, `results/step18_fresh_web.md`, `results/step18_abstain_test.md`, `results/step18_final.md`, grade files `pool_fresh_*`, `qrels_fresh_llm.tsv`, `src/ir/step18_abstain.py` (test path fix).
+3. **How it works:** The fresh queries were not used to choose anything, so their score is an honest test. A gain interval that includes 0 means the data cannot tell the two systems apart.
+4. **Verified:** config check reports "config intact"; fresh set nDCG@10 plain hybrid 0.701, hybrid+stem+prefix 0.762, E5b 0.783; E5b over hybrid+stem+prefix +0.021 [-0.011, +0.054]. Abstention test best AUROC 0.800 (targets not met).
+5. **Check yourself:** the pool-depth caveat on Recall@20 in `results/step18_final.md`; that chunk_derived queries are unscored.
+6. **Assumptions:** LLM grades only; 30 queries; abstention test has 13 queries. The first test run crashed on a bug (z-scores fitted on dev features missing in test mode), no output was written, and I fixed it before the single scored run.
+
+## Step 21a: checker spec
+1. **What I did:** Wrote `docs/CHECKER_SPEC.md`: 16 rules, severities, when a rule says needs_human instead of a verdict, citation procedure and the evaluation plan.
+2. **Files:** `docs/CHECKER_SPEC.md`, `reports/step21_a.md`.
+3. **How it works:** Rules decide, retrieval only cites. A citation is a real chunk from an accepted section with a verbatim quote, or nothing.
+4. **Verified:** The needed chunks (801.1, 801.15, 801.18, 801.20, 801.40, 801.109, 830.20) exist in `regs.jsonl`.
+5. **Check yourself:** The rule table severities and the section 9 decisions.
+6. **Assumptions:** GS1 check digit has only indirect support in the corpus; `extra.rx_only` marks prescription devices.
+
+## Step 21b: checker and evaluation
+1. **What I did:** Implemented `src/checker/` and evaluated it on injected errors, dev seeds 200 and 201 first, then seeds 300 to 302 once with rules and queries frozen.
+2. **Files:** `src/checker/*`, `tests/test_checker_*.py`, `results/step21_checker_{dev,final}.md`.
+3. **How it works:** One injected error should give one flag of its own kind. A wrongly formatted date switches off the barcode date comparison so it is not flagged twice.
+4. **Verified:** Final: recall 51/51 in every condition (blind hard wrong_name confident 50/51), false alarm 0/51 [0.00, 0.07] per condition, every quote verbatim.
+5. **Check yourself:** `runner.py` precedence rules; the table of rules that never fired in the evaluation.
+6. **Assumptions:** Saturated results on easy synthetic data say little about real labels; symbol outcomes are needs_human by design.
+
+## Step 21c: real inspect, recheck, jobs, search
+1. **What I did:** Made inspectLabel, recheckArtwork, getJob, getCheckResult and searchEvidence real, with append-only `extractions` and `jobs` tables and `needs_human_count` plus `coverage` on CheckResult (CR-17).
+2. **Files:** `src/api/*`, `docs/contracts/*`, four mocks, `tests/test_api_checker.py`.
+3. **How it works:** The first inspect is a 202 job that extracts then checks; later ones are 200. CV libraries are imported only inside the job.
+4. **Verified:** Fast suite 354 passed; slow hybrid tests 2 passed; every new status validated against openapi.yaml.
+5. **Check yourself:** `_start_check` in `routes.py`.
+6. **Assumptions:** An SVG artwork is read through the PNG beside it; scan and generate jobs remain mocks.
+
+## Symbols phase 0: baseline
+1. **What I did:** Built a harness that runs only the symbol detector on whole labels (same boundary finding and straightening as the extractor) and scores IoU >= 0.5 with Wilson intervals. Regenerated seeds 100 to 102 and re-ran the current blind detector.
+2. **Files:** `src/cv/symbol_eval.py`, `scripts/symbols/baseline.py`, `scripts/symbols/gen_baseline.sh`, `results/symbols_experiments.md`, `reports/symbols_phase0.md`.
+3. **How it works:** Like testing a smoke alarm by itself instead of the whole building: same room, no other equipment.
+4. **Verified:** very hard 93/102, independent drawings 0/204, absent symbols reported 0/306, all equal to `results/cv_final_eval.md`.
+5. **Check yourself:** `straighten()` in the harness mirrors `extract_label_modes`; scoring counts a symbol as found only at IoU >= 0.5.
+6. **Assumptions:** OCR and barcode steps are skipped because they do not affect symbols.
+
+## Symbols phase 1: style library
+1. **What I did:** Wrote 16 pictogram styles (train, dev, held-out), a whole-label generator, and fetched real Wikimedia artwork and DailyMed label images with URLs and licenses recorded.
+2. **Files:** `src/gen/symbol_styles.py`, `generate_styled.py`, `generate_real_artwork.py`, `scripts/symbols/fetch_real_*.py`, tests, `docs/SYMBOLS_V2.md`.
+3. **How it works:** Like holding back whole fonts instead of random letters when testing a reader: the test styles share no shape family with the training ones.
+4. **Verified:** `pytest src/gen/test_symbol_styles.py` 150 passed; old detector on dev styles 4/256.
+5. **Check yourself:** split rules in `test_splits_are_disjoint_and_complete`; the tight truth box in `glyph_quad`.
+6. **Assumptions:** One author drew all styles; only 2 real labels contain the pictograms.
+
+## Symbols phase 2: detector v2 without learning
+1. **What I did:** Candidate blobs anywhere on the label, scored by silhouette overlap with train-style references, or SIFT/ORB keypoints; exposed as `detect_symbols_v2` and `extract_label(symbol_detector="v2")`.
+2. **Files:** `src/cv/symbols_v2/*`, `src/cv/extract.py`, tests, `scripts/symbols/sweep.py`, `dev_table.py`.
+3. **How it works:** Fill in the holes of a drawing so a line drawing and a solid one have the same blob shape, then ask "how much do the blobs overlap".
+4. **Verified:** dev recall 241/256 (94.1%) with 1/480 false positives, against 4/256 for the old detector; keypoints 14 to 15%.
+5. **Check yourself:** `make_rule` thresholds; the margin over the best wrong class (distractors are in the bank).
+6. **Assumptions:** Settings tuned on dev only.
+
+## Symbols phase 3: learned classifier
+1. **What I did:** Trained a small CPU CNN on randomly drawn pictograms (seen shape families only) plus crops mined from train labels, to classify candidate blobs.
+2. **Files:** `src/cv/symbols_v2/cnn.py`, `train_data.py`, `src/gen/symbol_procedural.py`, `src/cv/test_symbols_cnn.py`, `requirements-cv.txt` (torch, CPU).
+3. **How it works:** Show the network thousands of jittered drawings through the same blur and noise the real pipeline sees, then ask it to name each blob.
+4. **Verified:** `pytest src/cv/test_symbols_cnn.py` 3 passed; dev recall 241/256 (94.1%), false positives 0/480.
+5. **Check yourself:** training excludes badge mode and the dev and held-out families (`symbol_procedural.py` docstring and test).
+6. **Assumptions:** Same recall as the silhouette bank on dev, so held-out decides.
+
+## Symbols phase 5: text-anchor rule
+1. **What I did:** Used OCR lines (EXP, the line above the address) as anchors and tested "boost" and "gate" rules with the silhouette and CNN scorers.
+2. **Files:** `src/cv/symbols_v2/anchors.py`, `detector.py` (`make_anchor_rule`), `scripts/symbols/anchor_eval.py`, anchored layout generator.
+3. **How it works:** A symbol is expected next to its text; accept weaker evidence if it is close to the text, or demand closeness.
+4. **Verified:** anchored dev: +0 to +1 symbols, boost 52/320 false positives with silhouette; random layout gate 4/256.
+5. **Check yourself:** relaxed thresholds (0.6, 0.2) were fixed before the run.
+6. **Assumptions:** Synthetic layout; verdict: not used in the detector.
+
+## Symbols phase 4: zero-shot CLIP
+1. **What I did:** Because the CNN missed 0.90 on held-out styles, ran CLIP ViT-B/32 zero-shot on candidate crops with text prompts; threshold 0.4 frozen on dev.
+2. **Files:** `src/cv/symbols_v2/clip_zero_shot.py`, `scripts/symbols/clip_eval.py`, `results/symbols_frozen_clip.json`.
+3. **How it works:** Ask a model that has seen images and captions "is this more like a factory, an hourglass or a warning sign?", with no training on our drawings.
+4. **Verified:** held-out 308/384 (80.2%), false positives 27/640 (4.2%); badge style 59/64 where the other detectors score 0.
+5. **Check yourself:** the frozen-threshold commit precedes the held-out run (see `results/heldout_log.jsonl`).
+6. **Assumptions:** Prompts are my wording and untuned.
+
+## Symbols phase 6: real labels
+1. **What I did:** Fetched real pictogram art (Wikimedia, licenses recorded) and DailyMed label images; tested real art on synthetic labels and 3 real symbols on real cartons (labelled by the assistant, not a human).
+2. **Files:** `scripts/symbols/fetch_real_*.py`, `build_real_labels_eval.py`, `src/gen/generate_real_artwork.py`.
+3. **How it works:** Real drawings stand in for artwork the author did not draw; real cartons show the gap to photographs.
+4. **Verified:** real artwork 206/336 (CLIP) down to 0/336 (v1); real cartons 0/3 for every detector (the symbols are 1 to 2% of the image).
+5. **Check yourself:** my box coordinates in `build_real_labels_eval.py`.
+6. **Assumptions:** `data/real/` does not exist here; 3 symbols is not a measurement.
+
+## Symbols phase 7: lot and expiry format check
+1. **What I did:** `check_extraction` now treats a printed lot or expiry that lost its LOT or EXP key, has impossible characters, or is not a valid calendar date as a damaged reading: `needs_human_review`, never `barcode_mismatch`.
+2. **Files:** `src/cv/consistency.py`, `src/cv/eval_v2.py` (records old and new flags), `tests/test_cv_text_rules.py`, `scripts/symbols/phase7_report.py`.
+3. **How it works:** Before calling two things different, check that the thing you read is a lot or a date at all; a smudged "2O27-13-45" is not evidence the print is wrong.
+4. **Verified:** new seeds 103 to 105: very hard false mismatches 7/44 to 1/44 (blind) and 8/45 to 1/45 (template); wrong barcodes still 102/102 `barcode_mismatch`; other cases 0/612.
+5. **Check yourself:** `format_problem` and the order of conditions in `check_extraction`.
+6. **Assumptions:** A confident misread that still looks valid cannot be caught by format.
+
+## Step 22a: change assessment spec
+1. **What I did:** Wrote `docs/CHANGE_SPEC.md`: edit format, rules parser with an optional off-by-default provider, impact table, barcode decision table, citations, failure cases, API mapping. No code.
+2. **Files:** `docs/CHANGE_SPEC.md`, `reports/step22_a.md`.
+3. **How it works:** A change is a list of (field, old, new) edits. Rules map each field to the template slots it fills, decide what happens to the barcode (KEEP, REGENERATE or NEEDS_INPUT), and hand everything else to a human with a cited requirement where the corpus has one.
+4. **Verified:** nothing run (plan only); no em dashes in the spec.
+5. **Check yourself:** the barcode table (section 5.2) and the rule that only rule-decided items are not needs_human (section 6).
+6. **Assumptions:** Sterilization and storage have no corpus section, so no citation. A model change always waits for a new UDI-DI (no implicit keep).
+
+## Step 22b: src/change
+1. **What I did:** Built the pure rules: field table and value checks, an edit validator, a rules text parser (with an optional provider interface that is off), the GS1 payload builder and barcode decision, the impact rule, and the assessment with citations.
+2. **Files:** `src/change/*.py`, `tests/test_change.py`, `docs/CHANGE_SPEC.md` (decisions applied).
+3. **How it works:** An edit is (field, old, new). A table says which template slots show that field. A lot change alters the barcode text, so the decision is NEEDS_INPUT (confirm_lot) until a person confirms, then REGENERATE. Rules never fill in an identifier.
+4. **Verified:** `python -m pytest -q tests/test_change.py` -> 66 passed, 1 skipped (renderer parity needs zxingcpp); ruff clean.
+5. **Check yourself:** `decide_barcode` in `src/change/barcode.py` and which items get `needs_human=False` in `impact.py`.
+6. **Assumptions:** All four AIs required (as the renderer); a model change always waits for a new UDI-DI.
+
+## Step 22c: wire the API
+1. **What I did:** `POST /changes` now parses, assesses and stores the result; `confirmChange` and `affected` are real; approvals need a confirmed assessment and record its id.
+2. **Files:** `src/api/changes.py`, `routes.py`, `models.py`, `reviews.py`, `views.py`, `requests.py`, `db.py`, `main.py`, `openapi.yaml`, docs, mock, tests.
+3. **How it works:** The assessment is computed once and saved (so the checklist a person confirms is the one they saw). Confirming saves a second assessment where the barcode decision is the confirmed one.
+4. **Verified:** `python -m pytest -q -m "not slow"` -> 544 passed, 4 skipped, 3 deselected; ruff clean.
+5. **Check yourself:** `confirm_change` order of checks, and the `change_not_confirmed` rule in `reviews.py`.
+6. **Assumptions:** Confirm with new edits is refused (a new change is needed). Seeded changes keep mocks.

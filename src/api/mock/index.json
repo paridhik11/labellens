@@ -155,6 +155,15 @@
       "schemas_py": "ChangeRequest"
     },
     {
+      "file": "professional/changes/assess_rules.json",
+      "screen": "D6 Changes",
+      "state": "rules",
+      "operationId": "assessChange",
+      "status": 201,
+      "schema": "ChangeAssessment",
+      "schemas_py": "ChangeRequest"
+    },
+    {
       "file": "professional/changes/affected_success.json",
       "screen": "D6 Changes",
       "state": "success",
@@ -413,6 +422,32 @@
       "operationId": "askPublic",
       "status": 200,
       "schema": "AnswerResponse"
+    },
+    {
+      "file": "professional/inspect/extraction_confirmed.json",
+      "screen": "D4 Inspect",
+      "state": "success",
+      "operationId": "confirmExtraction",
+      "status": 200,
+      "schema": "Extraction",
+      "schemas_py": "LabelExtraction"
+    },
+    {
+      "file": "professional/changes/confirm_success.json",
+      "screen": "D6 Changes",
+      "state": "success",
+      "operationId": "confirmChange",
+      "status": 200,
+      "schema": "ChangeAssessment",
+      "schemas_py": "ChangeRequest"
+    },
+    {
+      "file": "professional/export/publish_success.json",
+      "screen": "D8 Export",
+      "state": "success",
+      "operationId": "publishVersion",
+      "status": 201,
+      "schema": "PublishedPage"
     }
   ]
 }

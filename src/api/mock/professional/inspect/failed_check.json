@@ -7,14 +7,14 @@
       "flag_id": "flg_0003",
       "kind": "barcode_mismatch",
       "severity": "critical",
-      "message": "Expiry mismatch: the printed expiry date does not match the date encoded in the barcode.",
+      "message": "Printed expiry differs from the barcode.",
       "observed": "2028-04-30",
       "expected": "2028-03-31",
       "evidence_chunk_ids": [
         "fda_21cfr801_s801.40"
       ],
       "confidence": 0.82,
-      "needs_human": true,
+      "needs_human": false,
       "citations": [
         {
           "source_type": "cfr",
@@ -32,39 +32,98 @@
         300.0,
         330.0,
         60.0
-      ]
-    },
-    {
-      "flag_id": "flg_0004",
-      "kind": "date_format",
-      "severity": "info",
-      "message": "Printed dates use the YYYY-MM-DD format.",
-      "observed": "2028-04-30",
-      "expected": "YYYY-MM-DD",
-      "evidence_chunk_ids": [
-        "fda_21cfr801_s801.18"
       ],
-      "confidence": 0.93,
-      "needs_human": false,
-      "citations": [
-        {
-          "source_type": "cfr",
-          "chunk_id": "fda_21cfr801_s801.18",
-          "source": "FDA",
-          "section": "801.18",
-          "title": "Format of dates provided on a medical device label.",
-          "url": "https://www.ecfr.gov/current/title-21/section-801.18",
-          "quote": "(a) In general. Whenever the label of a medical device includes a printed expiration date, date of manufacture, or any other date intended to be brought to the"
-        }
-      ],
-      "field": "expiry"
+      "rule_id": "B-EXP"
     }
   ],
   "critical_count": 1,
   "review_count": 0,
-  "info_count": 1,
+  "info_count": 0,
   "passed": false,
   "disclaimer": "Draft generated for review. Not a compliance determination.",
   "label_id": "lbl_exampledevice_carton",
-  "version_id": "lbv_exampledevice_carton_l2"
+  "version_id": "lbv_exampledevice_carton_l2",
+  "coverage": [
+    {
+      "rule_id": "X-HEALTH",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "P-NAME",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "P-REF",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "P-MFR",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "P-ADDR",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "P-UDI",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "B-READ",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "B-GS1",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "B-LOT",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "B-EXP",
+      "outcome": "fail",
+      "reason": "Printed expiry differs from the barcode."
+    },
+    {
+      "rule_id": "D-FMT",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "R-UDI",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "R-NAMEPLACE",
+      "outcome": "pass",
+      "reason": "address completeness is not checked"
+    },
+    {
+      "rule_id": "R-RX",
+      "outcome": "not_applicable",
+      "reason": "product is not registered as prescription only (extra.rx_only)"
+    },
+    {
+      "rule_id": "S-MFR",
+      "outcome": "needs_human",
+      "reason": "detected, but the symbol detector is untrusted; a detection is not a pass"
+    },
+    {
+      "rule_id": "S-EXP",
+      "outcome": "needs_human",
+      "reason": "detected, but the symbol detector is untrusted; a detection is not a pass"
+    }
+  ],
+  "needs_human_count": 2
 }

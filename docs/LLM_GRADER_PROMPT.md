@@ -224,3 +224,58 @@ A dry run of `next-batch` gives batch 52 (the first batch of this pool).
 | 112 | 33 (abstain rows 674 to 706) | ab18 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 32 zero, 1 one, 0 two |
 | 113 | 40 (abstain rows 707 to 746) | ab19 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 38 zero, 2 one, 0 two |
 | 114 | 42 (abstain rows 747 to 788) | ab20 | claude-sonnet-5-5 | 2026-11-14 | Abstention pool (Step 16). Grades: 40 zero, 2 one, 0 two. Pool total 788 rows: 722 zero, 46 one, 20 two |
+| 115 | 18 (extra4 rows 3600 to 3617) | q01, q02, q03, q05 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 15 zero, 3 one, 0 two |
+| 116 | 15 (extra4 rows 3618 to 3632) | q06, q07, q08, q09 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 13 zero, 1 one, 1 two |
+| 117 | 17 (extra4 rows 3633 to 3649) | q10, q11, q12 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 14 zero, 3 one, 0 two |
+| 118 | 18 (extra4 rows 3650 to 3667) | q13, q14 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 13 zero, 5 one, 0 two |
+| 119 | 15 (extra4 rows 3668 to 3682) | q15, q16, q17, q18 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 13 zero, 2 one, 0 two |
+| 120 | 14 (extra4 rows 3683 to 3696) | q19, q20, q21 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 11 zero, 3 one, 0 two |
+| 121 | 13 (extra4 rows 3697 to 3709) | q22, q23 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 13 zero, 0 one, 0 two |
+| 122 | 17 (extra4 rows 3710 to 3726) | q24, q25 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 15 zero, 2 one, 0 two |
+| 123 | 18 (extra4 rows 3727 to 3744) | q26, q27, q28, q29 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 17 zero, 1 one, 0 two |
+| 124 | 10 (extra4 rows 3745 to 3754) | q30, q31 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 10 zero, 0 one, 0 two |
+| 125 | 15 (extra4 rows 3755 to 3769) | q32, q33, q34 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 15 zero, 0 one, 0 two |
+| 126 | 11 (extra4 rows 3770 to 3780) | q35, q36, q37 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 10 zero, 1 one, 0 two |
+| 127 | 12 (extra4 rows 3781 to 3792) | q39, q40 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 12 zero, 0 one, 0 two |
+| 128 | 14 (extra4 rows 3793 to 3806) | q45, q46 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 9 zero, 5 one, 0 two |
+| 129 | 16 (extra4 rows 3807 to 3822) | q47, q48, q49, q50, q51 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 7 zero, 5 one, 4 two |
+| 130 | 16 (extra4 rows 3823 to 3838) | q54, q55, q57, q58, q59, q60 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 15 zero, 1 one, 0 two |
+| 131 | 3 (extra4 rows 3839 to 3841) | q61 | claude-sonnet-5-5 | 2026-11-15 | Step 18f accumulated unjudged pool (pool_t1_extra4.csv). Grades: 2 zero, 1 one, 0 two |
+
+### Fresh set grades (Step 18f)
+
+Graded with the frozen prompt above, into `data/eval/pool_fresh_llm.csv` (batch numbers restart at 1 in that file). The pool is the top 10 of plain hybrid, hybrid+stem+prefix and E5b for the 60 fresh queries (query and passage only; the grader sees no system or source information). The same model wrote the chunk_derived fresh queries.
+
+| Batch | Rows | Queries | Model id (as `/model` shows) | Date | Notes |
+|---|---|---|---|---|---|
+| 1 | 21 (fresh rows 1 to 21) | fc01 | claude-sonnet-5-5 | 2026-11-15 | Grades: 17 zero, 3 one, 1 two |
+| 2 | 17 (fresh rows 22 to 38) | fw01 | claude-sonnet-5-5 | 2026-11-16 | Grades: 15 zero, 1 one, 1 two |
+| 3 | 12 (fresh rows 39 to 50) | fw02 | claude-sonnet-5-5 | 2026-11-16 | Grades: 9 zero, 1 one, 2 two |
+| 4 | 13 (fresh rows 51 to 63) | fw03 | claude-sonnet-5-5 | 2026-11-16 | Grades: 9 zero, 3 one, 1 two |
+| 5 | 13 (fresh rows 64 to 76) | fw04 | claude-sonnet-5-5 | 2026-11-16 | Grades: 11 zero, 1 one, 1 two |
+| 6 | 13 (fresh rows 77 to 89) | fw05 | claude-sonnet-5-5 | 2026-11-16 | Grades: 10 zero, 2 one, 1 two |
+| 7 | 11 (fresh rows 90 to 100) | fw06 | claude-sonnet-5-5 | 2026-11-16 | Grades: 9 zero, 1 one, 1 two |
+| 8 | 16 (fresh rows 101 to 116) | fw07 | claude-sonnet-5-5 | 2026-11-16 | Grades: 14 zero, 1 one, 1 two |
+| 9 | 17 (fresh rows 117 to 133) | fw08 | claude-sonnet-5-5 | 2026-11-16 | Grades: 16 zero, 0 one, 1 two |
+| 10 | 18 (fresh rows 134 to 151) | fw09 | claude-sonnet-5-5 | 2026-11-16 | Grades: 13 zero, 3 one, 2 two |
+| 11 | 14 (fresh rows 152 to 165) | fw10 | claude-sonnet-5-5 | 2026-11-16 | Grades: 13 zero, 1 one, 0 two |
+| 12 | 13 (fresh rows 166 to 178) | fw11 | claude-sonnet-5-5 | 2026-11-16 | Grades: 6 zero, 5 one, 2 two |
+| 13 | 14 (fresh rows 179 to 192) | fw12 | claude-sonnet-5-5 | 2026-11-16 | Grades: 13 zero, 0 one, 1 two |
+| 14 | 16 (fresh rows 193 to 208) | fw13 | claude-sonnet-5-5 | 2026-11-16 | Grades: 8 zero, 6 one, 2 two |
+| 15 | 13 (fresh rows 209 to 221) | fw14 | claude-sonnet-5-5 | 2026-11-16 | Grades: 11 zero, 1 one, 1 two |
+| 16 | 19 (fresh rows 222 to 240) | fw15 | claude-sonnet-5-5 | 2026-11-16 | Grades: 13 zero, 4 one, 2 two |
+| 17 | 13 (fresh rows 241 to 253) | fw16 | claude-sonnet-5-5 | 2026-11-16 | Grades: 3 zero, 7 one, 3 two |
+| 18 | 11 (fresh rows 254 to 264) | fw17 | claude-sonnet-5-5 | 2026-11-16 | Grades: 3 zero, 6 one, 2 two |
+| 19 | 16 (fresh rows 265 to 280) | fw18 | claude-sonnet-5-5 | 2026-11-16 | Grades: 8 zero, 6 one, 2 two |
+| 20 | 16 (fresh rows 281 to 296) | fw19 | claude-sonnet-5-5 | 2026-11-16 | Grades: 10 zero, 4 one, 2 two |
+| 21 | 14 (fresh rows 297 to 310) | fw20 | claude-sonnet-5-5 | 2026-11-16 | Grades: 12 zero, 1 one, 1 two |
+| 22 | 13 (fresh rows 311 to 323) | fw21 | claude-sonnet-5-5 | 2026-11-16 | Grades: 10 zero, 1 one, 2 two |
+| 23 | 12 (fresh rows 324 to 335) | fw22 | claude-sonnet-5-5 | 2026-11-16 | Grades: 8 zero, 4 one, 0 two |
+| 24 | 12 (fresh rows 336 to 347) | fw23 | claude-sonnet-5-5 | 2026-11-16 | Grades: 10 zero, 1 one, 1 two |
+| 25 | 15 (fresh rows 348 to 362) | fw24 | claude-sonnet-5-5 | 2026-11-16 | Grades: 13 zero, 2 one, 0 two |
+| 26 | 12 (fresh rows 363 to 374) | fw25 | claude-sonnet-5-5 | 2026-11-16 | Grades: 10 zero, 2 one, 0 two |
+| 27 | 19 (fresh rows 375 to 393) | fw26 | claude-sonnet-5-5 | 2026-11-16 | Grades: 16 zero, 2 one, 1 two |
+| 28 | 12 (fresh rows 394 to 405) | fw27 | claude-sonnet-5-5 | 2026-11-16 | Grades: 9 zero, 2 one, 1 two |
+| 29 | 12 (fresh rows 406 to 417) | fw28 | claude-sonnet-5-5 | 2026-11-16 | Grades: 8 zero, 3 one, 1 two |
+| 30 | 12 (fresh rows 418 to 429) | fw29 | claude-sonnet-5-5 | 2026-11-16 | Grades: 9 zero, 2 one, 1 two |
+| 31 | 16 (fresh rows 430 to 445) | fw30 | claude-sonnet-5-5 | 2026-11-16 | Grades: 13 zero, 2 one, 1 two |

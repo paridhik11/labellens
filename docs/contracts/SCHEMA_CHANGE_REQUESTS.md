@@ -27,7 +27,7 @@ Other requests retain their existing status.
 | CR-2 | `LabelTemplate` and `Slot` (size in mm, background, slots with bbox in mm, font, size, alignment, max lines, symbology, symbol name) | Template setup, generation | New `Slot` and `LabelTemplate` models matching `docs/GENERATION.md` and Parth's `src/gen/templates/test_device.json`. | OpenAPI `LabelTemplate` and `Slot`. | yes |
 | CR-3 | `LabelVersion`: `version_id`, `kind`, `artwork_version`, `status`, files, `draft_watermark`, `parent_version_id`, template reference | Inspect, History, Export | New `LabelVersion` model. | OpenAPI `LabelVersion`. `label_id` and `artwork_version` reuse the `LabelExtraction` naming. | yes |
 | CR-4 | `Scan` and extraction wrapper: `scan_id`, `source`, `state`, `version_id`, `unclear_fields`, confirmation fields | Upload or scan, Inspect | New `Scan`. Optional `confirmed` fields on `LabelExtraction`. | OpenAPI `Scan` and `Extraction`, where `Extraction` embeds every `LabelExtraction` field unchanged. | yes |
-| CR-5 | `CheckResult`: kind, `version_id`, `artifact_sha256`, run time, counts, `passed` | Inspect, self-check, re-check, approval | New `CheckResult` model with `findings: list[Flag]`. | OpenAPI `CheckResult`. `passed` is defined as zero critical findings. | yes |
+| CR-5 | `CheckResult`: kind, `version_id`, `artifact_sha256`, run time, counts, `passed` (CR-17 adds `needs_human_count` and `coverage`) | Inspect, self-check, re-check, approval | New `CheckResult` model with `findings: list[Flag]`. | OpenAPI `CheckResult`. `passed` is defined as zero critical findings. | yes |
 | CR-6 | Regulation citation on a finding: `Flag` only has `evidence_chunk_ids`, no section, title, URL, quote or source type. Also no `field` or `bbox` on a flag. | Findings with regulation citations, Evidence screen, public answers | Optional `citations: list[Citation]`, `field: str`, `bbox` on `Flag`, and a new `Citation` model built from `Chunk` with `source_type: Literal["cfr", "label_section"]`. | OpenAPI `Finding` = `Flag` fields plus optional `citations`, `field`, `bbox`. The mock test checks `evidence_chunk_ids` exist in the corpus and that each `cfr` quote is a substring of its chunk text. | no |
 | CR-7 | `ChangeRequest` holds one field edit only. No plain-language text, parse state, multiple edits, audit fields or link to the Review its status came from. | Assess a change, Review | Optional `raw_text`, `parse_state`, `edits`, `latest_review_id`, `closed` (true after a reject, which is terminal), `created_at`, `created_by` on `ChangeRequest`. | OpenAPI `ChangeRequest` = existing six fields plus the optional ones. First edit stays in `field`, `old_value`, `new_value`. | no |
 | CR-8 | `AffectedLabel` (impact item), including the `version_id` it was assessed on | Change Impact screen, list affected labels and fields | New `AffectedLabel` model. | OpenAPI `AffectedLabel`. | no |
@@ -39,6 +39,7 @@ Other requests retain their existing status.
 | CR-14 | `ChangeRequest.status` has no `returned` or `rejected` value | Review and approve | Either add `returned` or keep the current rule: status is derived from the latest Review, so a return or reject shows `draft` with `latest_review_id` (see "Status derivation" in `DATA_MODEL.md`). | Current rule. No change needed unless the team prefers an explicit status. | no |
 | CR-15 | `Report` and `PublishedPage` pinned to a `version_id` | Export, published product page and QR | New small models with a required, never-changing `version_id`. | OpenAPI `Report` and `PublishedPage`. | no |
 | CR-16 | Minimal `User` (`user_id`, `name`, `role`: editor, reviewer, admin) and the rule that the submitter of a change cannot approve it | Review, audit, every write | New `User` model. No login model: the API uses an `X-User-Id` header stub. | OpenAPI `User`, `GET /me`, security scheme `UserHeader`. | no |
+| CR-17 | `CheckResult.needs_human_count` and `CheckResult.coverage` (list of `RuleOutcome`: `rule_id`, `outcome`, `reason`), `Finding.rule_id`, and the product registration key `extra.rx_only` (Step 21) | Inspect, re-check, Review screen, checker | Additive. `schemas.py` is not edited: the checker uses a `Finding` subclass of `Flag` in `src/checker/models.py`. If the team wants the fields in `schemas.py`, add `rule_id` to `Flag` and a `RuleOutcome` model. `rx_only` needs no change, it lives in `ProductRecord.extra`. | OpenAPI `RuleOutcome`, `CheckResult`, `Finding`, `ProductCreate.extra`. | no |
 
 ## Why not edit schemas.py now
 
@@ -69,3 +70,25 @@ The mock test does not import `src/cv` or `src/gen`, so it still passes. Compari
 | D-9 | Named SVG groups | `layer-background`, `layer-slots`, `slot-{id}`, `layer-watermark`, `layer-review` | Not emitted (ReportLab SVG without these ids) | Already listed as a gap in TEMPLATE_SPEC assumption 3 |
 | D-10 | Barcode decision names | `KEEP`, `REGENERATE`, `NEEDS_INPUT` | `barcode_action` `reused` or `generated`. NEEDS_INPUT is an `IdentifierRequired` or `ValueError` | Matches, as described in CR-9 |
 | D-11 | Test placeholder | `00000000000000` with `test_data` | Same, and refused without `test_mode` | Matches |
+
+### Decisions on D-1 to D-11 (Step 20 Phase 0, decided by Pari)
+
+Rule: the contract follows the merged code for D-2, D-4, D-7 and D-8. For D-3, D-5, D-6 and D-9 the contract stays as written and the difference is a documented gap in Parth's code. D-1, D-10 and D-11 already match. Only `docs/contracts` and `src/api/mock` changed. `src/cv` and `src/gen` are untouched.
+
+| # | Decision | What changed or what stays | Owner |
+|---|---|---|---|
+| D-1 | Matches | Nothing. | none |
+| D-2 | Contract follows code | `symbol_name` is `manufacturer` or `expiry` only, minimum 5 mm (TEMPLATE_SPEC, DATA_MODEL, an enum in `openapi.yaml`). The mock templates replace the `sterile_eo` slot with an `mfr_symbol` slot (`manufacturer`), and the sterilization symbol impact item no longer points at a slot. Sterilization and other symbols are future work for Parth. | Parth (future symbols) |
+| D-3 | Documented difference, decided | Contract keeps `background` as a path or `null`. The renderer rejects non-null backgrounds for now. Parth fixes it. | Parth |
+| D-4 | Contract follows code | DRAFT band is the top 9 mm. The mock template slots `name` and `ref` moved from y = 8 to y = 10 mm, and the failed-check mock says 9 mm. | none |
+| D-5 | Documented difference, decided | Contract keeps one `artifact_sha256` string, the sha256 of the manifest file. His per-file hash dict stays internal and he maps it to that single hash. | Parth |
+| D-6 | Documented difference, decided | Contract keeps `Review` with `user_id`, `reviewer_role`, `artifact_sha256`, `check_id`. His approval record lacks `check_id` and uses other names, so he adds them. | Parth |
+| D-7 | Contract follows code, partly | `clipping` and `overlap` replace `slot_out_of_bounds` and `slot_overlap` (TEMPLATE_SPEC, failed-check mock). The other kind names (`font_too_small`, `required_field_empty`, `symbol_too_small`, `barcode_too_small`) still differ from the code and are not decided yet. | open |
+| D-8 | Contract follows code | TEMPLATE_SPEC adds: barcode module at least 0.25 mm (kind `barcode_size`) and printable ASCII only (kind `unsupported_characters`). Both kind names are the code's. | none |
+| D-9 | Documented difference, decided | Contract keeps `layer-*` and `slot-{id}` groups. Parth emits them. | Parth |
+| D-10 | Matches | Nothing. | none |
+| D-11 | Matches | Nothing. | none |
+
+## CR-18 Change assessment fields (approved, Step 22)
+
+Additive. `ChangeAssessment.parser` gains `rules` and `llm`; `ChangeAssessment` gains `unassessed_edits` and `assessment_id`; `AffectedLabel` gains `needs_human`, `reason`, `rule_ids` and `barcode_decision`; `Review` gains `assessment_id`; `confirmChange` is real and documents 401, 403, 404, 409, 422. New append-only tables `change_assessments` and `change_confirmations`. `schemas.py` untouched. Does not touch Parth's code.

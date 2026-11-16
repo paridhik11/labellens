@@ -1,0 +1,61 @@
+{
+  "change": {
+    "change_id": "chg_0002",
+    "product_id": "prd_exampledevice",
+    "field": "lot",
+    "old_value": "LOT001",
+    "new_value": "LOT002",
+    "status": "draft",
+    "closed": false,
+    "raw_text": "Change the lot to LOT002.",
+    "parse_state": "proposed",
+    "edits": [],
+    "created_at": "2026-11-10T09:00:00Z",
+    "created_by": "usr_demo_editor"
+  },
+  "affected": [
+    {
+      "impact_id": "imp_0b4c9a11",
+      "change_id": "chg_0002",
+      "label_id": "lbl_exampledevice_carton",
+      "version_id": "lbv_exampledevice_carton_l2",
+      "slot_id": "udi_barcode",
+      "item_kind": "barcode",
+      "title": "Barcode: NEEDS_INPUT",
+      "description": "The payload changes (lot). Confirm the change before a new barcode is drawn.",
+      "suggestion": "review_suggested",
+      "evidence_chunk_ids": [
+        "fda_21cfr801_s801.40"
+      ],
+      "user_decision": "pending",
+      "needs_human": true,
+      "reason": "The payload changes (lot). Confirm the change before a new barcode is drawn.",
+      "rule_ids": [
+        "BC-CONFIRM"
+      ],
+      "barcode_decision": {
+        "decision": "NEEDS_INPUT",
+        "old_payload": "(01)00000000000000(17)281231(10)LOT001(21)SN001",
+        "new_payload": "(01)00000000000000(17)281231(10)LOT002(21)SN001",
+        "symbology": "GS1_DataMatrix",
+        "reason": "The payload changes (lot). Confirm the change before a new barcode is drawn.",
+        "required_identifier": "confirm_lot"
+      }
+    }
+  ],
+  "citations": [
+    {
+      "source_type": "cfr",
+      "chunk_id": "fda_21cfr801_s801.40",
+      "source": "FDA",
+      "section": "801.40",
+      "title": "Form of a unique device identifier.",
+      "url": "https://www.ecfr.gov/current/title-21/section-801.40",
+      "quote": "(b) The UDI must include a device identifier segment. Whenever a device label includes a lot or batch number, a serial number, a manufacturing date, an expiration date"
+    }
+  ],
+  "checklist_complete": false,
+  "parser": "rules",
+  "assessment_id": "asm_0001",
+  "needs_human_review": "NEEDS_HUMAN_REVIEW: 1 of 1 items need a person to decide."
+}

@@ -1,6 +1,6 @@
 # API (contract, Step 19c)
 
-The machine-readable contract is [`openapi.yaml`](openapi.yaml) (OpenAPI 3.1, JSON Schema 2020-12). This page explains it for people. If the two disagree, `openapi.yaml` wins and this page gets fixed. Nothing here is implemented yet: `src/api/main.py` only serves `GET /health`.
+The machine-readable contract is [`openapi.yaml`](openapi.yaml) (OpenAPI 3.1, JSON Schema 2020-12). This page explains it for people. If the two disagree, `openapi.yaml` wins and this page gets fixed. Step 20 implements part of it: the operations marked real in "Implementation status" below run against SQLite, and every other operation serves its mock JSON with the header `X-Mock: true`.
 
 Entities and field meanings are in [`DATA_MODEL.md`](DATA_MODEL.md). Template and barcode rules are in [`TEMPLATE_SPEC.md`](TEMPLATE_SPEC.md). Shapes missing from `src/common/schemas.py` are listed in [`SCHEMA_CHANGE_REQUESTS.md`](SCHEMA_CHANGE_REQUESTS.md).
 
@@ -8,7 +8,7 @@ Entities and field meanings are in [`DATA_MODEL.md`](DATA_MODEL.md). Template an
 
 - **JSON everywhere**, except file uploads (`multipart/form-data`) and the files behind export URLs (PDF, SVG).
 - **Errors** use one shape: `{error, message, details?}`, where `error` is a short code such as `not_found`, `hash_mismatch` or `needs_input`.
-- **Long work returns 202 and a Job envelope.** Scan (`POST /scans`, `POST /public/scans`), generate (`POST /changes/{id}/generate`) and print verify (`POST /label-versions/{id}/print-verifications`) always answer `202` with `{job_id, kind, state, progress}`. Inspect and re-check answer `200` when fast and `202` when slow. The UI polls `GET /jobs/{job_id}` and shows its loading state until `state` is `done` or `failed`. When `done`, `result_url` names the GET endpoint for the result (`/scans/{scan_id}`, `/artworks/{artwork_id}`, `/print-verifications/{verification_id}`, `/public/scans/{scan_id}`).
+- **Long work returns 202 and a Job envelope.** Scan (`POST /scans`, `POST /public/scans`), generate (`POST /changes/{id}/generate`) and print verify (`POST /label-versions/{id}/print-verifications`) always answer `202` with `{job_id, kind, state, progress}`. Inspect and re-check answer `200` when the version already has a stored extraction (only the rules run) and `202` when the extraction must be computed first (Step 21). The UI polls `GET /jobs/{job_id}` and shows its loading state until `state` is `done` or `failed`. When `done`, `result_url` names the GET endpoint for the result (`/scans/{scan_id}`, `/artworks/{artwork_id}`, `/print-verifications/{verification_id}`, `/public/scans/{scan_id}`).
 - **Users.** A minimal User (`user_id`, `name`, `role`: editor, reviewer or admin) is identified by the `X-User-Id` header, a stub with no login flow. `GET /me` returns it. Public endpoints, `/health`, `/jobs` and `/search` work without the header.
 - **Versions are pinned.** Anything about one artwork uses `version_id`, the id of one immutable LabelVersion. `label_id` is the label family. Reports and published pages keep their `version_id` forever.
 - **Status is derived, never sent.** No endpoint accepts a `status` field. The server computes it from the record trail (DATA_MODEL.md, "Status derivation") and returns `latest_review_id` so the UI can explain it.
@@ -34,7 +34,8 @@ Entities and field meanings are in [`DATA_MODEL.md`](DATA_MODEL.md). Template an
 | `GET /label-versions/{version_id}` | getLabelVersion | One version with derived status | 200 LabelVersion | 404 |
 | `GET /label-versions/{version_id}/extraction` | getExtraction | Text, barcodes, symbols, unclear fields | 200 Extraction | 404 |
 | `POST /label-versions/{version_id}/extraction/confirm` | confirmExtraction | "Confirm extraction" with corrections | 200 Extraction | |
-| `POST /label-versions/{version_id}/inspect` | inspectLabel | Compare with the record and retrieved requirements | 200 CheckResult (kind `inspection`) | 202 Job |
+| `POST /label-versions/{version_id}/inspect` | inspectLabel | Compare with the record and retrieved requirements | 200 CheckResult (kind `inspection`) | 202 Job, 404, 422 |
+| `GET /check-results/{check_id}` | getCheckResult | One stored check result (the `result_url` of a finished inspect or re-check job) | 200 CheckResult | 404 |
 | `POST /search` | searchEvidence | Evidence retrieval for one module | 200 SearchResponse | 422 |
 | `POST /changes` | assessChange | Parse a change, list affected items and evidence | 201 ChangeAssessment | 422 |
 | `GET /changes/{change_id}` | getChange | A change with derived status | 200 ChangeRequest | 404 |
@@ -42,7 +43,7 @@ Entities and field meanings are in [`DATA_MODEL.md`](DATA_MODEL.md). Template an
 | `GET /changes/{change_id}/affected` | listAffectedLabels | Affected labels and fields | 200 AffectedLabelList | |
 | `POST /changes/{change_id}/generate` | generateArtwork | Fill the template, render a DRAFT | 202 Job | 409 NeedsInput or change_closed, 422 CheckResult |
 | `GET /artworks/{artwork_id}` | getArtwork | Result of a generate job | 200 GeneratedArtwork | 404 |
-| `POST /label-versions/{version_id}/recheck` | recheckArtwork | Closed-loop self-check and layout checks | 200 CheckResult (kind `self_check`) | 202 Job |
+| `POST /label-versions/{version_id}/recheck` | recheckArtwork | Closed-loop self-check and layout checks | 200 CheckResult (kind `self_check`) | 202 Job, 404, 409 not_generated |
 | `GET /label-versions/{version_id}/reviews` | listReviews | Review history of a version | 200 ReviewList | |
 | `POST /label-versions/{version_id}/reviews` | reviewArtwork | Approve, return or reject | 201 Review | 403 role_forbidden or self_approval_forbidden, 409 |
 | `POST /label-versions/{version_id}/publish` | publishVersion | Publish an approved version | 201 PublishedPage | 409 |
@@ -107,6 +108,8 @@ Further rules, all enforced by the server:
 | Reject is terminal | `closed` becomes `true`. Generate, review and publish on the change give `409 change_closed`. A new change is needed. |
 | Return is not terminal | The editor can regenerate. |
 
+"Currently approved" must be read from the change status (`status` is `reviewed`), never from a version's own status, because a newer version voids an earlier approval and the old version still shows as approved in its own record.
+
 ### The "returned" case
 
 `openapi.yaml` has a `returned` example under `GET /changes/{change_id}` and under the `201` of `POST /label-versions/{version_id}/reviews`. The change shows `status: draft` with `latest_review_id: rev_0002`, and that Review has `decision: return`. The status is not stored. It is read off the latest Review.
@@ -128,6 +131,62 @@ Further rules, all enforced by the server:
 `score_name` is a free string (for example `hybrid_top_score`, the Step 16 primary score) so the score can be swapped later without changing the API. `score` and `threshold` are `null` when a scope rule, not a score, made the decision. The banner "Authenticity not verified. Based on a reference label match." is always present.
 
 The public corpus is 21 CFR Parts 201, 208 and 211 only. The reference label corpus (DailyMed or openFDA) is not built yet.
+
+## Roles and error codes
+
+The caller is the user named by the `X-User-Id` header. Reads need a known user. Writes check the role:
+
+| Operation | Allowed roles | Otherwise |
+|---|---|---|
+| `registerProduct`, `registerTemplate`, `assessChange` | `editor`, `admin` | `403 role_forbidden` |
+| `reviewArtwork` | `reviewer`, `admin` | `403 role_forbidden` |
+
+Error codes (body `{error, message, details?}`):
+
+| Code | Status | When |
+|---|---|---|
+| `unknown_user` | 401 | `X-User-Id` header missing or no such user |
+| `role_forbidden` | 403 | The user's role may not do this |
+| `self_approval_forbidden` | 403 | The submitter of a change tried to approve it |
+| `not_found` | 404 | Unknown product, template, label, version, change, check result or job |
+| `validation_error` | 422 | Request body has the wrong shape |
+| `check_required` | 422 | Approve without a `check_id` |
+| `comment_required` | 422 | Return or reject without a comment |
+| `parser_not_implemented` | 422 | `POST /changes` with `raw_text` only. Send structured `edits`. |
+| `artifact_hash_required` | 422 | Generated artwork without its `artifact_sha256` |
+| `hash_mismatch` | 409 | `artifact_sha256` is not the version's hash |
+| `check_not_passed` | 409 | `check_id` is missing, failed, or belongs to another version or hash |
+| `version_superseded` | 409 | A newer artwork version exists for the change |
+| `change_closed` | 409 | The change was rejected |
+| `template_product_mismatch` | 409 | The `template_id` belongs to another product |
+| `label_product_mismatch` | 409 | The `label_id` belongs to another product |
+| `needs_input` | 409 | Generate needs an identifier (see above) |
+| `not_generated` | 409 | `recheckArtwork` on a version that is not generated artwork with an `artifact_sha256` |
+
+### Inspection and coverage (Step 21)
+
+`inspectLabel` and `recheckArtwork` run the checker described in [`../CHECKER_SPEC.md`](../CHECKER_SPEC.md): rules decide, retrieval cites, no LLM. A `CheckResult` of kind `inspection` or `self_check` carries:
+
+- `findings`: **only problems**. A rule that passed raises nothing.
+- `coverage`: one entry per rule (`rule_id`, `outcome` of `pass`, `fail`, `needs_human`, `not_applicable` or `not_checked`, `reason`), so "no finding" is never mistaken for "checked and fine".
+- `needs_human_count`: the number of coverage entries with outcome `needs_human`.
+- `passed`: still zero critical findings. It can be `true` while `needs_human_count` is above 0 (for example while the symbol detector is untrusted, every label has two symbol outcomes that need a person), so show both numbers. Passed is never a compliance verdict.
+- `retrieval_config`: the settings the citations were found with.
+
+The first inspect of a version starts a job (the extraction is computed with the CV extractor in blind mode and stored in the append-only `extractions` table). The job's states are rows of the append-only `jobs` table. Later inspects of the same version answer `200` at once. A job that cannot finish ends in state `failed` with an `error` such as `extractor_unavailable` (CV libraries not installed on the server), `artwork_not_found` (no image for the version) or `check_failed`. Job ids this server issues look like `job_1a2b3c4d`, and an unknown id of that form is `404`. Any other id (the scan and generate jobs are still mocks) is answered with the mock job and the header `X-Mock`.
+
+A generated version's artwork is an SVG. The checker reads the rendered `label.png` that the renderer writes next to it. `recheckArtwork` copies the version's `artifact_sha256` into the self-check, so the approval rules of Step 20 (passed check, same version, same hash) work on it. The layout half of the re-check (text overflow and the like) is produced when artwork is generated, which is not real yet, so a real self-check holds checker findings only.
+
+`/search` is real: bm25, tfidf, dense or hybrid RRF over one module's chunks, with one citation per hit. `rerank` and `expansion` answer `422` because no reranker or query expansion exists in `src/ir`.
+
+## Implementation status (Step 20 and 21)
+
+| Operation | Status |
+|---|---|
+| `getHealth`, `getCurrentUser`, `listProducts`, `registerProduct`, `getProduct`, `listProductVersions`, `registerTemplate`, `getTemplate`, `getProductHistory`, `listLabelVersions`, `getLabelVersion`, `assessChange`, `getChange`, `listReviews`, `reviewArtwork`, `inspectLabel`, `recheckArtwork`, `getJob`, `getCheckResult`, `searchEvidence` | Real (SQLite, retrieval). |
+| Every other operation | Mock JSON, response header `X-Mock: true`. `?mock_state=<state>` picks another mock of the same operation. |
+
+Limits of the real operations (an older `data/api/labellens.db` gets the new `check_results` columns added on start; delete it to re-seed): `registerTemplate` validates the shape only, so the layout findings (`422 CheckResult`) are not produced yet. `assessChange` stores a structured change and answers `parser: not_implemented` with an empty `affected` list, `checklist_complete: false` and a `needs_human_review` message, so an unchecked change cannot be mistaken for a clean one. `listAffectedLabels` is a mock until an impact analysis exists.
 
 ## Mapping from the old draft
 
@@ -154,3 +213,12 @@ The public corpus is 21 CFR Parts 201, 208 and 211 only. The reference label cor
 8. The all-zero sha256 in the review examples is a placeholder in documentation, not a real hash.
 9. `X-User-Id` is trusted as given. It is a development stub, not security. Any real deployment needs a login and session before it is exposed.
 10. Inspect and re-check may answer 200 or 202. Scan, generate and print verify always answer 202.
+
+## Change assessment (Step 22, CR-18)
+
+- `POST /changes` takes `edits` (structured, canonical field names or aliases) or `raw_text` (rules parser, English sentence shapes listed in `docs/CHANGE_SPEC.md`). Edits win if both are given. 201 `ChangeAssessment` with `parser: rules` or `llm` (the optional provider, off by default), `affected`, `citations`, `unassessed_edits`, `assessment_id`. `parser: not_implemented` when nothing could be assessed (only unknown or invalid edits): `affected` is empty because nothing was checked.
+- Refusals: `422 parser_not_implemented` (text that cannot be parsed without guessing, with `details.status` and `details.issues`), `422 no_change` (new value equals the current value), `422 duplicate_field`.
+- `GET /changes/{id}/affected` returns the stored items with current `user_decision`.
+- `POST /changes/{id}/confirm` appends a confirmation. First confirmation also appends the confirmed assessment, so a barcode decision `NEEDS_INPUT` with `required_identifier: confirm_lot` becomes `REGENERATE` when nothing else blocks it. Errors: 409 `change_closed`, 409 `nothing_to_confirm`, 422 `parse_not_confirmed`, 422 `edits_not_supported`, 422 `unknown_impact`.
+- `POST /label-versions/{id}/reviews` with `approve` returns `409 change_not_confirmed` when the change has an assessment nobody confirmed.
+- A change with no stored assessment (older changes, the seed) keeps the mock for `affected` and `confirm` (`X-Mock: true`).

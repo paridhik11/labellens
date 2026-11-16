@@ -83,6 +83,7 @@ Label image with highlighted boxes, extracted fields, findings with observed and
 |---|---|---|
 | success (extraction) | `getExtraction` | `professional/inspect/extraction_success.json` |
 | needs_review (extraction) | `getExtraction` with `unclear_fields` ("Confirm extraction") | `professional/inspect/extraction_needs_review.json` |
+| success (confirmed extraction) | `confirmExtraction` 200, unclear fields resolved | `professional/inspect/extraction_confirmed.json` |
 | loading | `inspectLabel` 202, then `getJob` | `professional/inspect/loading.json` |
 | success (inspection) | `inspectLabel` 200, `passed: true` | `professional/inspect/success.json` |
 | failed_check | `inspectLabel` 200, expiry mismatch, needs review | `professional/inspect/failed_check.json` |
@@ -100,6 +101,8 @@ Proposed change, affected items with suggestions, current against draft preview,
 | State | Endpoint | Mock |
 |---|---|---|
 | success (assessment) | `assessChange` 201 | `professional/changes/assess_success.json` |
+| success (confirmed checklist) | `confirmChange` 200, every item confirmed or dismissed | `professional/changes/confirm_success.json` |
+| rules (assessment, barcode waits for confirmation) | `assessChange` 201 with `parser: rules` | `professional/changes/assess_rules.json` |
 | needs_review (assessment) | `assessChange` with a NEEDS_HUMAN_REVIEW reason | `professional/changes/assess_needs_review.json` |
 | success (affected list) | `listAffectedLabels` | `professional/changes/affected_success.json` |
 | loading (generate) | `generateArtwork` 202, then `getJob` | `professional/changes/generate_loading.json` |
@@ -125,6 +128,7 @@ Proposed change, affected items with suggestions, current against draft preview,
 |---|---|---|
 | success (draft) | `getExports` on an unreviewed version: DRAFT watermark, no QR | `professional/export/draft.json` |
 | approved | `getExports` on a published version: PDF, SVG, report, QR | `professional/export/approved.json` |
+| success (published) | `publishVersion` 201, page pinned to the version | `professional/export/publish_success.json` |
 
 ### D9. History
 

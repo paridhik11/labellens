@@ -33,3 +33,4 @@ pytest
 ruff
 pyyaml
 jsonschema
+httpx

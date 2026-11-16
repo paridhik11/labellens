@@ -1,0 +1,139 @@
+{
+ "name": "E5b",
+ "frozen_after": "18d, before the fresh set and the abstention test split were scored",
+ "system": {
+  "name": "rrf[bm25+stem, large+prefix+head]",
+  "bm25": {
+   "stem": true,
+   "heading_prepended": false
+  },
+  "dense": [
+   {
+    "model": "BAAI/bge-large-en-v1.5",
+    "query_prefix": "Represent this sentence for searching relevant passages: ",
+    "heading_prepended": true
+   }
+  ],
+  "medcpt": false
+ },
+ "comparators": {
+  "plain hybrid": {
+   "name": "rrf[bm25, small]",
+   "bm25": {
+    "stem": false,
+    "heading_prepended": false
+   },
+   "dense": [
+    {
+     "model": "BAAI/bge-small-en-v1.5",
+     "query_prefix": "",
+     "heading_prepended": false
+    }
+   ],
+   "medcpt": false
+  },
+  "hybrid+stem+prefix": {
+   "name": "rrf[bm25+stem, small+prefix]",
+   "bm25": {
+    "stem": true,
+    "heading_prepended": false
+   },
+   "dense": [
+    {
+     "model": "BAAI/bge-small-en-v1.5",
+     "query_prefix": "Represent this sentence for searching relevant passages: ",
+     "heading_prepended": false
+    }
+   ],
+   "medcpt": false
+  }
+ },
+ "parameters": {
+  "fusion": {
+   "type": "rrf",
+   "k": 60,
+   "weights": "equal",
+   "fetch_k": "max(3k, 50)"
+  },
+  "enrichment_template": "21 CFR Part {part}, section {section}: {title}. {text}",
+  "depth": 50,
+  "modules": "each query is searched in its own module's chunks",
+  "bm25": {
+   "k1": 1.5,
+   "b": 0.75,
+   "index": "light stemming, stopwords removed"
+  }
+ },
+ "selected_on": {
+  "method": "5-fold stratified cross-validation, 57 answerable queries, seed 42",
+  "rule": "gain above 0.01 on both nDCG@10 lists, at least 3 of 5 folds won, survives leave-top-2-out",
+  "caveat": "chosen among about 20 ideas on these queries; CV numbers are optimistic and the fresh set is the honest test",
+  "cv_rows": [
+   {
+    "exp_id": "E5b",
+    "base": "hybrid",
+    "decision": "CANDIDATE",
+    "gain_ndcg": 0.09936923739472392,
+    "gain_cond": 0.10254155119777152,
+    "gain_recall20": 0.0626470829847887,
+    "ci_lo": 0.05743146510332592,
+    "ci_hi": 0.1414062328676759,
+    "folds_won": 5,
+    "k": 5,
+    "top2_ndcg": 0.08762036988793764,
+    "wo_ndcg": 0.10756541724849464,
+    "unj10": 0.02105263157894737
+   },
+   {
+    "exp_id": "E5b",
+    "base": "hybrid+stem+prefix",
+    "decision": "CANDIDATE",
+    "gain_ndcg": 0.0738047227713221,
+    "gain_cond": 0.07697703657436969,
+    "gain_recall20": 0.04528479595287482,
+    "ci_lo": 0.03662510372299606,
+    "ci_hi": 0.11223066375855381,
+    "folds_won": 5,
+    "k": 5,
+    "top2_ndcg": 0.06037031384579271,
+    "wo_ndcg": 0.07032015938609901,
+    "unj10": 0.02105263157894737
+   },
+   {
+    "exp_id": "E5b",
+    "base": "E3d: rrf[bm25+stem, large+prefix]",
+    "decision": "CANDIDATE",
+    "gain_ndcg": 0.02233282539480276,
+    "gain_cond": 0.023281728196622074,
+    "gain_recall20": 0.012530067880809289,
+    "ci_lo": -0.0014654619107107743,
+    "ci_hi": 0.0478954979728828,
+    "folds_won": 4,
+    "k": 5,
+    "top2_ndcg": 0.011565144919908284,
+    "wo_ndcg": 0.01853924490471903,
+    "unj10": 0.02105263157894737
+   }
+  ]
+ },
+ "data_files": {
+  "corpus": "4a817ad1e06a4c09cc9f8ac724bca63cd30aa8c65367a90752b9d13ec0ca0df6",
+  "cv_folds": "a1eeeb64e9cbb7698c44b8a4b8ecfe9779a2192e31c8ea9657236870873ca891",
+  "fresh_candidates": "f14e7023d6d44c983873fd53a274da289177b8ebfbfd5d5c673cf821478262d1",
+  "finetune_exclusions": "5427717ba59dab187fafce5e256fce9bc8c4dcd33df1674ef213385cf810e072",
+  "abstain_split": "eaeba42cba3dde01a75df4de813ac4dc80a18e1aa4f4aae589992649e658dbb5"
+ },
+ "cache_files": {
+  "device": {
+   "BAAI/bge-large-en-v1.5": "data/processed/dense_cache_BAAI_bge-large-en-v1.5_d35fe47017e9e95c.npy",
+   "BAAI/bge-large-en-v1.5 (ids)": "data/processed/dense_cache_BAAI_bge-large-en-v1.5_d35fe47017e9e95c.json"
+  },
+  "medicine": {
+   "BAAI/bge-large-en-v1.5": "data/processed/dense_cache_BAAI_bge-large-en-v1.5_5e218ac32d9c5db5.npy",
+   "BAAI/bge-large-en-v1.5 (ids)": "data/processed/dense_cache_BAAI_bge-large-en-v1.5_5e218ac32d9c5db5.json"
+  }
+ },
+ "how_to_load": "from src.ir.step18_config import load_system; load_system()",
+ "how_to_rebuild_cache": "python -m src.ir.step18_config rebuild-cache  (about 37 min of CPU)",
+ "settings_sha256": "02ea0a0f76797add3a34e8d3855adb5675c15f25cb1cd3ed456699319d9cbc9c"
+}

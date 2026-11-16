@@ -83,7 +83,7 @@ Exactly the fields of `ProductRecord`, plus version metadata. Immutable once wri
 | `udi_di` | string | opt | `ProductRecord.udi_di` | Allocated by the company. Empty means "not yet entered". |
 | `sterilization` | string | opt | `ProductRecord.sterilization` | |
 | `storage` | string | opt | `ProductRecord.storage` | |
-| `extra` | object of string | opt | `ProductRecord.extra` | Free fields such as `ref`. |
+| `extra` | object of string | opt | `ProductRecord.extra` | Free fields. Two keys are read by the checker (docs/CHECKER_SPEC.md): `ref` (reference number, used when `model` is empty) and `rx_only` (the string `true` when the device is prescription only). **`rx_only` is a product registration field**: the registration form offers it as a checkbox, and with it set the checker looks for the Rx statement of 21 CFR 801.109. |
 | `created_at` | timestamp | req | NONE (CR-1) | |
 | `created_by` | string (user id) | req | NONE (CR-1) | |
 | `source_change_id` | string | opt | NONE (CR-1) | The ChangeRequest that produced this version. Empty for the first version. |
@@ -113,7 +113,7 @@ Slot:
 | `bbox_mm` | array of 4 numbers `[x, y, w, h]` | req | Millimetres from the top left corner. Not pixels, so it differs from `OcrBlock.bbox`. |
 | `font`, `size_pt`, `align`, `max_lines` | string, number, string, integer | text only | |
 | `symbology` | string | barcode only | `GS1_DataMatrix` or `GS1-128` (the strings the current renderer on Parth's branch accepts). |
-| `symbol_name` | string | symbol only | Reference symbol to draw, for example `manufacturer`. |
+| `symbol_name` | `manufacturer` or `expiry` | symbol only | Reference symbol to draw. Only these two are supported for now, each at least 5 mm. Sterilization and other symbols are future work (see D-2). |
 
 ## LabelVersion
 
@@ -183,7 +183,9 @@ One run of the checker, the layout checks or the closed-loop self-check against 
 | `run_at` | timestamp | req | NONE (CR-5) | |
 | `findings` | array of Finding | req | `Flag` | |
 | `critical_count`, `review_count`, `info_count` | integer | req | NONE (CR-5) | Derived from `findings[].severity`. |
-| `passed` | boolean | req | NONE (CR-5) | True when zero critical findings (GENERATION.md "Pass means zero critical flags"). |
+| `passed` | boolean | req | NONE (CR-5) | True when zero critical findings (GENERATION.md "Pass means zero critical flags"). It does not mean the label is compliant, and it can be true while `needs_human_count` is above 0. |
+| `needs_human_count` | integer | req for inspection, self_check | NONE (CR-17) | Number of `coverage` entries with outcome `needs_human`. Shown beside Passed on the Review screen ("3 items need a human"). |
+| `coverage` | array of RuleOutcome | req for inspection, self_check | NONE (CR-17) | One entry per checker rule: `rule_id`, `outcome` (`pass`, `fail`, `needs_human`, `not_applicable`, `not_checked`), `reason`. `findings` contain only problems, so `coverage` is how a client sees which rules ran. |
 
 ## Finding (a Flag with regulation citations)
 
@@ -201,6 +203,7 @@ One run of the checker, the layout checks or the closed-loop self-check against 
 | `citations` | array of Citation | opt | NONE (CR-6) | Regulation citation details, below. |
 | `field` | string | opt | NONE (CR-6) | Field or slot the finding is about. |
 | `bbox` | array of 4 numbers | opt | NONE (CR-6) | Box on the original image for highlighting. |
+| `rule_id` | string | opt | NONE (CR-17) | Checker rule that raised the finding (for example `B-EXP`). Absent on layout findings. |
 
 Citation (derived from a `Chunk`, so no text is invented):
 
@@ -227,7 +230,7 @@ Citation (derived from a `Chunk`, so no text is invented):
 | `latest_review_id` | string | opt | NONE (CR-7) | The Review the status was derived from. |
 | `closed` | boolean | req | NONE (CR-7) | True after a `reject`. Reject is terminal: no further generate, review or publish on this change. A new ChangeRequest is needed. |
 | `raw_text` | string | opt | NONE (CR-7) | Plain-language request as typed. |
-| `parse_state` | `proposed` or `confirmed` | req | NONE (CR-7) | A parser proposes, the user confirms. |
+| `parse_state` | `proposed` or `confirmed` | req | NONE (CR-7) | A parser proposes, the user confirms. Derived: `confirmed` once a ChangeConfirmation exists. |
 | `edits` | array of `{field, old_value, new_value}` | opt | NONE (CR-7) | Extra fields beyond the first. |
 | `created_at`, `created_by` | timestamp, string | req | NONE (CR-7) | |
 
@@ -244,7 +247,13 @@ Citation (derived from a `Chunk`, so no text is invented):
 | `title`, `description` | string | req | NONE (CR-8) | Mockup: "Sterilization text". |
 | `suggestion` | `review_suggested`, `edit_required`, `no_change` | req | NONE (CR-8) | |
 | `evidence_chunk_ids` | array of string | req | `Flag.evidence_chunk_ids` | |
-| `user_decision` | `pending`, `confirmed`, `dismissed` | req | NONE (CR-8) | The checklist the user confirms before any artwork changes. |
+| `user_decision` | `pending`, `confirmed`, `dismissed` | req | NONE (CR-8) | The checklist the user confirms before any artwork changes. Derived from the latest ChangeConfirmation. |
+| `needs_human` | boolean | opt | NONE (CR-18) | False only when a rule decided the item and its citation requirement is met (text slot refill, barcode KEEP, confirmed REGENERATE). |
+| `reason` | string | opt | NONE (CR-18) | Plain-language reason. |
+| `rule_ids` | array of string | opt | NONE (CR-18) | `I-TEXT`, `I-SYMBOL`, `I-NOSLOT`, `I-NOBARCODE`, `I-PRINTED-DIFFERS`, `BC-KEEP`, `BC-CONFIRM`, `BC-REGENERATE`, `BC-830-50`, `BC-UNBUILDABLE`, `BC-PLACEHOLDER`, `BC-INVALID`. |
+| `barcode_decision` | BarcodeDecision | opt | NONE (CR-18) | Only on `item_kind` barcode. |
+
+Assessments and confirmations (Step 22, CR-18). An **assessment** (`asm_`) is the stored result of assessing a change: items, citations, warnings, unassessed edits. It is append-only: confirming a change appends the confirmed assessment (`parent_assessment_id` points at the one the person was shown). A **confirmation** (`cfm_`) records the person's checklist decisions. `impact_id` is a hash of the change, label family, slot or kind and field, so it is stable across the two assessments. `Review.assessment_id` is the change's latest assessment at review time, and an approve needs that assessment to be confirmed (`change_not_confirmed`).
 
 ## GeneratedArtwork
 
@@ -282,6 +291,7 @@ ChangeLogEntry: `at`, `user_id`, `field`, `old_value`, `new_value`, `reason`, `r
 | `reviewer_role` | `reviewer` or `admin` | req | NONE (CR-10, CR-16) | Role at decision time, copied from the User. |
 | `comment` | string | req for `return` and `reject` | NONE (CR-10) | |
 | `artifact_sha256` | string | req | NONE (CR-10) | Must equal the GeneratedArtwork hash. Prevents approving something other than what was reviewed. |
+| `assessment_id` | string | opt | NONE (CR-18) | The change's latest assessment when the review was recorded. |
 | `check_id` | string | req for `approve` | NONE (CR-10) | The CheckResult that cleared the approval. It must have `passed = true`, the same `version_id` and the same `artifact_sha256`. |
 | `resulting_status` | `draft`, `checked`, `reviewed`, `published` | req | `ChangeRequest.status` values | |
 | `decided_at` | timestamp | req | NONE (CR-10) | |
@@ -303,6 +313,8 @@ Only the change's **latest artwork version** counts. Reviews and checks of older
 | Otherwise | `draft` |
 
 "Latest" means highest `decided_at`. The API returns `latest_review_id` so the UI can show why a change is back at `draft`.
+
+"Currently approved" must be read from the change status (`status` is `reviewed`), never from a version's own status, because a newer version voids an earlier approval and the old version still shows as approved in its own record.
 
 Three rules follow from this table:
 
@@ -368,7 +380,7 @@ Separate data, rules and results from the device module.
 ## Version history rules
 
 1. **Append only.** An edit to a product, template, label, change or review inserts a new row with the next version number. No UPDATE of content columns. Status columns on the newest label row may move forward through `draft`, `checked`, `reviewed`, `published`, and each move writes an AuditEvent.
-2. **Version numbers are per entity family and gapless.** Product versions 1, 2, 3 for a product. Artwork versions L1, L2, L3 for a label family. Template versions per template.
+2. **Version numbers are per entity family and gapless.** Product versions 1, 2, 3 for a product. Artwork versions L1, L2, L3 for a label family. **Template versions are numbered per template inside one product:** a `template_id` belongs to exactly one product and never moves to another. Registering a template with a new `template_id` creates version 1. Registering with an existing `template_id` of the same product creates the next version (2, 3, ...), so each template_id has versions 1..n with no gaps. A product may have several templates (for example a carton and a pouch), each with its own counter. Registering an existing `template_id` under a different product is refused.
 3. **A version records its inputs.** A LabelVersion stores the `product_version` and `template_version` it was built from. A GeneratedArtwork stores the `change_id`. This lets the History screen replay what produced each artwork.
 4. **Published and approved versions are immutable.** A fix is a new version that supersedes the old one. The old one stays readable.
 5. **Approval binds to bytes and to a check.** A Review stores `artifact_sha256` and the `check_id` of the passed CheckResult that cleared it. If the artwork changes, the hash changes and the earlier approval no longer applies.

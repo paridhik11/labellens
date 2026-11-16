@@ -46,7 +46,7 @@
           "field": "name",
           "bbox_mm": [
             5,
-            8,
+            10,
             55,
             7
           ],
@@ -61,7 +61,7 @@
           "field": "model",
           "bbox_mm": [
             62,
-            8,
+            10,
             33,
             6
           ],
@@ -84,10 +84,10 @@
           "max_lines": 2
         },
         {
-          "id": "sterile_symbol",
+          "id": "mfr_symbol",
           "type": "symbol",
-          "field": "sterilization",
-          "symbol_name": "sterile_eo",
+          "field": "manufacturer",
+          "symbol_name": "manufacturer",
           "bbox_mm": [
             5,
             27,
