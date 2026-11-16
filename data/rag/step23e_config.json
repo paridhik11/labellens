@@ -1,0 +1,80 @@
+{
+ "frozen_before_run": true,
+ "queries_file": "data/eval/fresh_rag_e.tsv",
+ "queries_sha256": "d31fa7125bc4435d34323ae1636e794c64796e9234b8a86a64b1acb893559675",
+ "n_answerable": 30,
+ "n_no_answer": 10,
+ "models": [
+  "qwen2.5:1.5b-instruct-q4_K_M",
+  "qwen2.5:3b-instruct-q4_K_M"
+ ],
+ "temperature": 0,
+ "seed": 42,
+ "num_ctx": 4096,
+ "prompt_version": "v3",
+ "prompt_sha256": "cc0c987ab476",
+ "schema": {
+  "type": "object",
+  "properties": {
+   "no_answer": {
+    "type": "boolean"
+   },
+   "sentences": {
+    "type": "array",
+    "items": {
+     "type": "object",
+     "properties": {
+      "text": {
+       "type": "string"
+      },
+      "sources": {
+       "type": "array",
+       "items": {
+        "type": "integer"
+       }
+      }
+     },
+     "required": [
+      "text",
+      "sources"
+     ]
+    }
+   }
+  },
+  "required": [
+   "no_answer",
+   "sentences"
+  ]
+ },
+ "settings": {
+  "k": 5,
+  "prompt": "v3",
+  "output": "json",
+  "max_sentences": 4,
+  "min_overlap": 0.4,
+  "fallback_quotes": 3,
+  "max_tokens": 300,
+  "timeout_s": 120.0,
+  "ollama_url": "http://localhost:11434"
+ },
+ "threshold": 0.0315136476426799,
+ "rag_config_sha256": "2ccb259ab916e5151b520f88e9c4853d80777508987cdebbdf222c60ced7f9a5",
+ "e5b_settings_sha256": "02ea0a0f76797add3a34e8d3855adb5675c15f25cb1cd3ed456699319d9cbc9c",
+ "pilot": {
+  "note": "3 smoke queries (not the fresh set), median s of 3: qwen1.5b 33.0, qwen3b 59.6, llama3.2:3b 70.3, gemma3:4b 72.1. Rule: run only models with pilot median <= 60 s, so llama3.2:3b and gemma3:4b are not run (speed). All four returned parseable JSON.",
+  "medians_s": {
+   "qwen2.5:1.5b": 33.0,
+   "qwen2.5:3b": 59.6,
+   "llama3.2:3b": 70.3,
+   "gemma3:4b": 72.1
+  }
+ },
+ "rule": {
+  "eligible": "median latency over all queries < 30.0 s AND answered rate on answerable >= 0.6 AND wrong-answer rate on no_answer <= 0.2",
+  "grade": "faithfulness is graded only for eligible models, every sentence of every answered response",
+  "qualified": "supported (grade 2) sentence rate >= 0.8 (point estimate)",
+  "choose": "among qualified: highest answered rate on answerable, then higher supported rate, then lower median latency. If none qualifies the extractive default stays.",
+  "second_pass": "random 20 percent of graded sentences (seed 42) graded again, agreement reported",
+  "intervals": "Wilson 95 percent"
+ }
+}

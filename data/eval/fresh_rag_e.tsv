@@ -1,0 +1,41 @@
+qid	text	module	answerable
+e01	How must the statement of identity of a packaged device be shown on its label?	device	1
+e02	Whose name and place of business must appear on a device label?	device	1
+e03	What does FDA mean by the intended use of a device?	device	1
+e04	What must the labeling of an in vitro diagnostic product include?	device	1
+e05	Which events must a device manufacturer report as a medical device report?	device	1
+e06	How soon must a manufacturer report a death or serious injury linked to its device?	device	1
+e07	What is a correction or removal that has to be reported to FDA?	device	1
+e08	What labeling information must a 510(k) submission contain?	device	1
+e09	Which firms must register their device establishments with FDA?	device	1
+e10	What must the label of an investigational device say?	device	1
+e11	What records must a sponsor of an investigational device study keep?	device	1
+e12	What is the difference between a device identifier and a production identifier?	device	1
+e13	What counts as adequate directions for use of a device?	device	1
+e14	What warning is required on devices that contain natural rubber latex?	device	1
+e15	How prominent must required label statements be compared with other label text?	device	1
+e16	What must the highlights section of prescribing information contain?	medicine	1
+e17	What is a boxed warning in drug labeling?	medicine	1
+e18	What must a Medication Guide contain?	medicine	1
+e19	Which drug products need a Medication Guide?	medicine	1
+e20	What headings must appear on a Drug Facts label and in what order?	medicine	1
+e21	What must the label of a prescription drug state about strength and quantity?	medicine	1
+e22	How must the net quantity of contents be declared on a drug package?	medicine	1
+e23	What is the required prescription legend on a drug label?	medicine	1
+e24	How must an expiration date be shown on a drug product?	medicine	1
+e25	How do drug manufacturers prevent labeling mix-ups?	medicine	1
+e26	What records are needed for the issuance of drug labeling?	medicine	1
+e27	What does the labeling say about use in pregnancy?	medicine	1
+e28	How is pediatric use information presented in prescribing information?	medicine	1
+e29	Which drugs are exempt from having adequate directions for use on the label?	medicine	1
+e30	What does adequate directions for use mean for a drug?	medicine	1
+e31	What are the labeling requirements for contact lens solution sold in the European Union?	device	0
+e32	How much is the user fee for a 510(k) submission?	device	0
+e33	How do I get CE marking for a medical device?	device	0
+e34	What shelf life testing protocol applies to sterile device packaging under ISO 11607?	device	0
+e35	What cybersecurity labeling is needed for a connected insulin pump?	device	0
+e36	What is the maximum daily dose of acetaminophen for adults?	medicine	0
+e37	How are biosimilar products named in FDA labeling guidance?	medicine	0
+e38	What are the labeling rules for cannabis derived CBD products?	medicine	0
+e39	What are the rules for advertising prescription drugs on television?	medicine	0
+e40	What are the label requirements for homeopathic drugs in Japan?	medicine	0
