@@ -195,18 +195,19 @@ def main(argv: list[str] | None = None) -> int:
     lock = args.output.with_suffix('.lock')
     with lock.open('x') as handle:
         handle.write(args.profile+'\n')
-    tasks = []
+    tasks = {}
     for record in manifest['records']:
         path = args.dataset/record['image']
         if hashlib.sha256(path.read_bytes()).hexdigest() != record['image_sha256']:
             raise ValueError('Frame fingerprint changed')
-        tasks.append((str(path.resolve()), str(args.code_root.resolve()), args.profile))
+        tasks.setdefault(record['image_sha256'], (str(path.resolve()), str(args.code_root.resolve()), args.profile))
     with ProcessPoolExecutor(max_workers=args.workers) as executor:
-        predictions = list(executor.map(predict, tasks))
+        unique = dict(zip(tasks, executor.map(predict, tasks.values()), strict=True))
+    predictions = [unique[record['image_sha256']] for record in manifest['records']]
     code_hash = hashlib.sha256()
     for source in sorted((args.code_root/'src/cv').glob('*.py')):
         code_hash.update(source.name.encode()+source.read_bytes())
-    result = {'cv_source_sha256': code_hash.hexdigest(), 'python': sys.version,
+    result = {'unique_images': len(tasks), 'cv_source_sha256': code_hash.hexdigest(), 'python': sys.version,
               'manifest_sha256': hashlib.sha256(manifest_path.read_bytes()).hexdigest(), 'profile': args.profile,
               'totals': summarize(manifest['records'], predictions), 'predictions': predictions,
               'failures': sum('error' in p for p in predictions)}

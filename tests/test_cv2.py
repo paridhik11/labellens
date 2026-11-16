@@ -141,3 +141,40 @@ def test_predict_explicit_baseline(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(sys, 'path', list(sys.path))
     assert bench.predict(('toy.png', '.', 'baseline'))['fields']['lot'] == 'LOT: TEST'
     assert seen == ['baseline']
+
+
+def test_score_identical_pixels_once(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Repeated identical clean frames reuse predictions, keeping the predeclared frame denominator."""
+    source = tmp_path/'one.png'
+    source.write_bytes(b'toy bytes')
+    fingerprint = hashlib.sha256(source.read_bytes()).hexdigest()
+    record = {'image': 'one.png', 'image_sha256': fingerprint, 'condition': 'clean', 'fields': {'lot': 'A1'}}
+    (tmp_path/'manifest.json').write_text(json.dumps({'records': [record, record]}))
+    seen = []
+
+    class Pool:
+        """Observe worker calls without starting real recognition."""
+
+        def __init__(self, **kwargs: object) -> None:
+            """Accept the executor's configuration."""
+
+        def __enter__(self) -> Pool:
+            """Enter this in-memory executor."""
+            return self
+
+        def __exit__(self, *args: object) -> None:
+            """Leave this in-memory executor."""
+
+        def map(self, function: object, tasks: object) -> list[dict[str, object]]:
+            """Provide a single known observed value for each unique image."""
+            seen.extend(tasks)
+            return [{'fields': {'lot': 'LOT: A1'}} for _ in seen]
+
+    monkeypatch.setattr(bench, 'ProcessPoolExecutor', Pool)
+    result = tmp_path/'result.json'
+    assert bench.main(['--dataset', str(tmp_path), '--output', str(result)]) == 0
+    observed = json.loads(result.read_text())
+    assert len(seen) == 1 and observed['unique_images'] == 1
+    assert observed['totals']['clean']['complete']['k'] == 2
+    with pytest.raises(FileExistsError):
+        bench.main(['--dataset', str(tmp_path), '--output', str(result)])
