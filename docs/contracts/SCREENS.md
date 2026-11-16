@@ -44,6 +44,9 @@ Camera or upload of medication packaging.
 | State | Endpoint | Mock |
 |---|---|---|
 | success | `askPublic`, cited answer | `public/ask/success.json` |
+| AI answer started (`mode=ai`, 202) | `askPublic` | `public/ask/ai_accepted.json` |
+| AI answer done | `getJob` (kind `ask`) | `public/ask/ai_job_done.json` |
+| AI answer fell back (timeout, extractive passages) | `getJob` (kind `ask`) | `public/ask/ai_job_fallback_timeout.json` |
 | abstained (out of scope) | `askPublic` | `public/ask/abstained_out_of_scope.json` |
 | abstained (low confidence) | `askPublic` | `public/ask/abstained_low_confidence.json` |
 | abstained (no evidence) | `askPublic` | `public/ask/abstained_no_evidence.json` |
@@ -95,6 +98,7 @@ Label image with highlighted boxes, extracted fields, findings with observed and
 | success | `searchEvidence` (module device, default hybrid RRF) | `professional/evidence/success.json` |
 | empty | `searchEvidence`, zero hits | `professional/evidence/empty.json` |
 | success | `askProfessional`, cited answer | `professional/ask/success.json` |
+| AI answer started (`mode=ai`, 202) | `askProfessional` | `professional/ask/ai_accepted.json` |
 | abstained (out of scope) | `askProfessional` | `professional/ask/abstained_out_of_scope.json` |
 | abstained (needs human check, with quotes) | `askProfessional` | `professional/ask/abstained_needs_human_check.json` |
 

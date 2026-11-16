@@ -36,3 +36,5 @@ jsonschema
 httpx
 # Optional CV2 second OCR engine: install system Tesseract (tested 5.5.4).
 # CV imports remain lazy; baseline/CI do not require this executable.
+python-multipart
+pypdfium2

@@ -113,6 +113,15 @@ class ChangeCreate(BaseModel):
         return self
 
 
+class GenerateCreate(BaseModel):
+    """POST /changes/{id}/generate. `test_data` allows the all-zero test identifier and marks the label TEST DATA."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    label_id: str = Field(min_length=1)
+    test_data: bool = False
+
+
 class ImpactDecision(BaseModel):
     """One checklist decision of a confirmation."""
 
@@ -181,6 +190,12 @@ class SearchCreate(BaseModel):
     retrieval: RetrievalConfig | None = None
 
 
+class ExtractionConfirmCreate(BaseModel):
+    """POST /label-versions/{id}/extraction/confirm. Field names and lengths are checked in scans.confirm_extraction."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    fields: dict[str, str]
 class ProfessionalQuestion(BaseModel):
     """POST /ask (device module). A blank question is a 422."""
 

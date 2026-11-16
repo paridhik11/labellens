@@ -74,6 +74,7 @@ def init_db(engine: Engine) -> None:
 ADDED_COLUMNS: dict[str, dict[str, str]] = {
     "check_results": {"needs_human_count": "INTEGER", "coverage": "JSON", "retrieval_config": "JSON"},
     "reviews": {"assessment_id": "VARCHAR"},
+    "extractions": {"scan_id": "VARCHAR"},
 }
 
 

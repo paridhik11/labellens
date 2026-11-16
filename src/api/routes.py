@@ -9,16 +9,17 @@ from __future__ import annotations
 from collections.abc import Iterator
 from typing import Any
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Request
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, Path, Request, UploadFile
+from fastapi.responses import JSONResponse, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from src.api import changes, checks, views
+from src.api import artwork, ask_jobs, changes, checks, scans, uploads, views
 from src.api.errors import ApiError
 from src.api.models import (
     ChangeRequest,
     CheckResult,
+    GeneratedArtwork,
     LabelTemplate,
     LabelVersion,
     Product,
@@ -29,6 +30,8 @@ from src.api.models import (
 from src.api.requests import (
     ChangeConfirmCreate,
     ChangeCreate,
+    ExtractionConfirmCreate,
+    GenerateCreate,
     InspectCreate,
     ProductCreate,
     ProfessionalQuestion,
@@ -55,12 +58,20 @@ REAL_OPERATIONS = frozenset(
         "registerTemplate",
         "getTemplate",
         "getProductHistory",
+        "uploadScan",
+        "getScan",
+        "getExtraction",
+        "confirmExtraction",
         "listLabelVersions",
         "getLabelVersion",
         "assessChange",
         "confirmChange",
         "listAffectedLabels",
         "getChange",
+        "generateArtwork",
+        "getArtwork",
+        "getExports",
+        "downloadArtifact",
         "listReviews",
         "reviewArtwork",
         "inspectLabel",
@@ -185,6 +196,84 @@ def get_product_history(
     }
 
 
+# ---------------------------------------------------------------- upload, scan, extraction (Step 24a)
+
+
+@router.post("/scans", operation_id="uploadScan", status_code=202, tags=["device"])
+async def upload_scan(
+    request: Request, background: BackgroundTasks, file: UploadFile = File(...),  # noqa: B008
+    source: str = Form(...),
+    product_id: str | None = Form(None), session: Session = Depends(get_session), user: User = Depends(writer),
+) -> JSONResponse:
+    """Accept a PNG, JPEG or PDF of a device label and answer 202 with a Job; the job runs the extractor.
+
+    The file is checked by its first bytes (never its name or Content-Type), capped at 15 MB and 40 megapixels,
+    and stored as uploads/<sha256>.<ext>. `product_id` is required for now: a scan creates a label version,
+    and a version belongs to a product (docs/contracts/SCHEMA_CHANGE_REQUESTS.md, CR-20).
+    """
+    if source not in ("upload", "camera"):
+        raise ApiError(422, "validation_error", "source must be 'upload' or 'camera'.")
+    if not product_id:
+        raise ApiError(422, "validation_error", "product_id is required: a scan creates a version of its label.")
+    views.require_product(session, product_id)
+    data = await file.read(uploads.MAX_BYTES + 1)  # never read more than the cap plus one byte
+    upload = uploads.validate_upload(data)
+    stored = uploads.store_bytes(checks.files_dir(), upload, data)
+    scan = scans.add_scan(session, user.user_id, upload, stored, source, product_id)
+    job = checks.new_job(session, "scan", None, user.user_id, result_url=f"/scans/{scan.scan_id}")
+    scans.advance_scan(session, scan.scan_id, "queued", job_id=job.job_id)
+    background.add_task(scans.run_scan_job, request.app, job.job_id, scan.scan_id, user.user_id)
+    return JSONResponse(checks.job_json(job), status_code=202)
+
+
+@router.get("/scans/{scan_id}", operation_id="getScan", tags=["device"])
+def get_scan(
+    scan_id: str, request: Request, session: Session = Depends(get_session), _: User = Depends(current_user)
+) -> Any:
+    """Scan state. label_id and version_id are set when done. Ids this server never issued fall back to the mock."""
+    row = scans.latest_scan(session, scan_id)
+    if row is not None:
+        return scans.scan_json(row)
+    if scans.REAL_SCAN_ID.match(scan_id):
+        raise ApiError(404, "not_found", f"No scan {scan_id!r}.")
+    from src.api.mock_server import mock_response  # imported here: mock_server imports this module
+
+    return mock_response("getScan", request)
+
+
+@router.get("/label-versions/{version_id}/extraction", operation_id="getExtraction", tags=["device"])
+def get_extraction(
+    version_id: str, request: Request, session: Session = Depends(get_session), _: User = Depends(current_user)
+) -> Any:
+    """The newest extraction of a version that came from a scan, with its unclear fields and confirmation state."""
+    row = scans.scan_extraction(session, version_id)
+    if row is not None:
+        return scans.extraction_json(session, row, request.app.state.checker_settings)
+    if scans.REAL_VERSION_ID.match(version_id) and scans.version_exists(session, version_id):
+        raise ApiError(404, "not_found", f"Version {version_id!r} has no extraction from a scan.")
+    if scans.REAL_VERSION_ID.match(version_id):
+        raise ApiError(404, "not_found", f"No label version {version_id!r}.")
+    from src.api.mock_server import mock_response
+
+    return mock_response("getExtraction", request)
+
+
+@router.post("/label-versions/{version_id}/extraction/confirm", operation_id="confirmExtraction", tags=["device"])
+def confirm_extraction(
+    version_id: str, body: ExtractionConfirmCreate, request: Request, session: Session = Depends(get_session),
+    user: User = Depends(writer),
+) -> Any:
+    """Confirm or correct the extracted fields (append-only: a new extraction row and a confirmation row)."""
+    row = scans.scan_extraction(session, version_id)
+    if row is not None:
+        return scans.confirm_extraction(session, user.user_id, row, body.fields, request.app.state.checker_settings)
+    if scans.REAL_VERSION_ID.match(version_id):
+        raise ApiError(404, "not_found", f"Version {version_id!r} has no extraction from a scan.")
+    from src.api.mock_server import mock_response
+
+    return mock_response("confirmExtraction", request)
+
+
 @router.get("/labels/{label_id}/versions", operation_id="listLabelVersions", tags=["device"])
 def list_label_versions(
     label_id: str, session: Session = Depends(get_session), _: User = Depends(current_user)
@@ -269,6 +358,64 @@ def get_change(
     return views.change_json(session, row)
 
 
+# ---------------------------------------------------------------- generate, artwork, export (Step 24b)
+
+
+@router.post("/changes/{change_id}/generate", operation_id="generateArtwork", status_code=202, tags=["device"])
+def generate_artwork(
+    change_id: str, body: GenerateCreate, request: Request, background: BackgroundTasks,
+    session: Session = Depends(get_session), user: User = Depends(writer),
+) -> JSONResponse:
+    """Fill the label's template with the confirmed values and answer 202 with a Job; the job renders and stores.
+
+    Everything that can be refused is refused here, before a job exists: closed change, unconfirmed assessment,
+    NEEDS_INPUT (never invents an identifier), layout failure. A new draft version is appended, never an edit.
+    """
+    plan = artwork.prepare(session, request.app.state.artwork_engine, user, change_id, body.label_id, body.test_data)
+    job = checks.new_job(session, "generate", None, user.user_id, result_url=f"/artworks/{plan.artwork_id}")
+    background.add_task(artwork.run_generate_job, request.app, job.job_id, plan)
+    return JSONResponse(checks.job_json(job), status_code=202)
+
+
+@router.get("/artworks/{artwork_id}", operation_id="getArtwork", tags=["device"])
+def get_artwork(
+    artwork_id: str, request: Request, session: Session = Depends(get_session), _: User = Depends(current_user)
+) -> Any:
+    """A generated DRAFT artwork. Ids this server never issued fall back to the mock."""
+    row = session.scalars(select(GeneratedArtwork).where(GeneratedArtwork.artwork_id == artwork_id)).first()
+    if row is not None:
+        return artwork.artwork_json(session, row)
+    if artwork.REAL_ARTWORK_ID.match(artwork_id):
+        raise ApiError(404, "not_found", f"No artwork {artwork_id!r}.")
+    from src.api.mock_server import mock_response
+
+    return mock_response("getArtwork", request)
+
+
+@router.get("/label-versions/{version_id}/exports", operation_id="getExports", tags=["device"])
+def get_exports(
+    version_id: str, request: Request, session: Session = Depends(get_session), _: User = Depends(current_user)
+) -> Any:
+    """PDF, SVG and report of a generated version (the stored drafts, DRAFT mark included)."""
+    version = session.scalars(select(LabelVersion).where(LabelVersion.version_id == version_id)).first()
+    if version is None:
+        if scans.REAL_VERSION_ID.match(version_id):
+            raise ApiError(404, "not_found", f"No label version {version_id!r}.")
+        from src.api.mock_server import mock_response
+
+        return mock_response("getExports", request)
+    return artwork.export_json(session, version)
+
+
+@router.get("/artifacts/{artifact_sha256}", operation_id="downloadArtifact", tags=["device"])
+def download_artifact(
+    artifact_sha256: str = Path(pattern=r"^[0-9a-f]{64}$"), session: Session = Depends(get_session),
+    user: User = Depends(current_user),
+) -> Response:
+    """Download one stored file by its sha256. The file is re-hashed first, so a changed file is never served."""
+    return artwork.download(session, user, artifact_sha256)
+
+
 @router.get("/label-versions/{version_id}/reviews", operation_id="listReviews", tags=["device"])
 def list_reviews(
     version_id: str, session: Session = Depends(get_session), _: User = Depends(current_user)
@@ -347,7 +494,8 @@ def get_job(job_id: str, request: Request, session: Session = Depends(get_sessio
     """Current state of a job. Job ids that were never issued by this server fall back to the mock job (X-Mock)."""
     row = checks.latest_job(session, job_id)
     if row is not None:
-        return checks.job_json(row)
+        result = ask_jobs.stored_result(session, job_id) if row.kind == "ask" and row.state == "done" else None
+        return checks.job_json(row, result)
     if checks.REAL_JOB_ID.match(job_id):  # the form this server issues, so an unknown one really is unknown
         raise ApiError(404, "not_found", f"No job {job_id!r}.")
     from src.api.mock_server import mock_response  # imported here: mock_server imports this module
@@ -390,14 +538,43 @@ def _ask(request: Request, question: str, module: str) -> Any:
         raise ApiError(503, "retrieval_unavailable", str(error)) from error
 
 
+def _ask_job(
+    request: Request, background: BackgroundTasks, session: Session, question: str, module: str, product_id: str | None,
+) -> JSONResponse:
+    """Start the optional AI answer (CR-21) as a 202 job. The job falls back to the extractive passages."""
+    job = checks.new_job(session, "ask", None, "anonymous")
+    background.add_task(ask_jobs.run_ask_job, request.app, job.job_id, question, module, product_id)
+    return JSONResponse(checks.job_json(job), status_code=202)
+
+
+def _ask_mode(mode: str) -> str:
+    """Validate the optional mode query flag (extractive is the default)."""
+    if mode not in ("extractive", "ai"):
+        raise ApiError(422, "validation_error", "mode must be extractive or ai.")
+    return mode
+
+
 @router.post("/public/ask", operation_id="askPublic", tags=["public"])
-def ask_public(body: PublicQuestion, request: Request) -> dict[str, Any]:
-    """Cited answer from 21 CFR 201, 208 and 211, or an abstention. Works with the language model off (extractive)."""
+def ask_public(
+    body: PublicQuestion, request: Request, background: BackgroundTasks, mode: str = "extractive",
+    session: Session = Depends(get_session),
+) -> Any:
+    """Cited answer from 21 CFR 201, 208 and 211, or an abstention. Extractive by default (instant, no model).
+
+    `mode=ai` starts a 202 job that asks the language model and falls back to the extractive passages.
+    """
+    if _ask_mode(mode) == "ai":
+        return _ask_job(request, background, session, body.question, "medicine", body.product_id)
     result = _ask(request, body.question, "medicine")
     return result.to_wire(based_on=f"{PUBLIC_BASED_ON}; product {body.product_id}")
 
 
 @router.post("/ask", operation_id="askProfessional", tags=["device"])
-def ask_professional(body: ProfessionalQuestion, request: Request) -> dict[str, Any]:
-    """Cited answer from the device regulations (21 CFR 8xx), or an abstention. No header needed."""
+def ask_professional(
+    body: ProfessionalQuestion, request: Request, background: BackgroundTasks, mode: str = "extractive",
+    session: Session = Depends(get_session),
+) -> Any:
+    """Cited answer from the device regulations (21 CFR 8xx), or an abstention. No header needed. `mode=ai` as above."""
+    if _ask_mode(mode) == "ai":
+        return _ask_job(request, background, session, body.question, "device", None)
     return _ask(request, body.question, "device").to_wire(banner=False)

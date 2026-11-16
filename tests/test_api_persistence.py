@@ -93,10 +93,21 @@ def test_every_immutable_table_rejects_update_and_delete(session):
         extraction_id="ext_1", version_id=L3, label_id=LABEL_ID, mode="stub", payload={},
         created_at="2026-11-12T16:00:00Z",
     ))
+    session.add(models.Scan(
+        scan_id="scn_00000001", source="upload", file_id="fil_x", mime="image/png", sha256="a" * 64,
+        stored_path="uploads/x.png", product_id="prd_exampledevice", state="queued", created_by="usr_demo_editor",
+        created_at="2026-11-12T16:00:00Z", updated_at="2026-11-12T16:00:00Z",
+    ))
+    session.add(models.ExtractionConfirmation(
+        confirmation_id="cnf_00000001", extraction_id="ext_1", previous_extraction_id="ext_0", version_id=L3,
+        fields={}, confirmed_by="usr_demo_editor", confirmed_at="2026-11-12T16:00:00Z",
+    ))
     session.add(models.Job(
         job_id="job_00000001", kind="inspect", state="queued", created_by="usr_demo_editor",
         created_at="2026-11-12T16:00:00Z",
     ))
+    session.add(models.AskResult(job_id="job_00000002", payload={"answer": {}, "model": "m", "model_used": False},
+                                 created_at="2026-11-12T16:00:00Z"))
     session.add(models.ChangeAssessment(
         assessment_id="asm_00000001", change_id=CHANGE_ID, confirmed=False, payload={"parser": "rules", "items": []},
         created_by="usr_demo_editor", created_at="2026-11-12T16:00:00Z",
@@ -104,6 +115,16 @@ def test_every_immutable_table_rejects_update_and_delete(session):
     session.add(models.ChangeConfirmation(
         confirmation_id="cfm_00000001", change_id=CHANGE_ID, assessment_id="asm_00000001", decisions=[],
         created_by="usr_demo_editor", created_at="2026-11-12T16:00:00Z",
+    ))
+    session.add(models.GeneratedArtwork(
+        artwork_id="art_00000001", change_id=CHANGE_ID, label_id=LABEL_ID, version_id=L3, self_check_id="chk_0003",
+        artifact_sha256="a" * 64, reference_sha256="b" * 64, size_w=100.0, size_h=60.0, barcode_decision={},
+        change_log=[], visible_markings=["DRAFT, not for production"], created_by="usr_demo_editor",
+        created_at="2026-11-12T16:00:00Z",
+    ))
+    session.add(models.Artifact(
+        sha256="a" * 64, version_id=L3, role="pdf", mime="application/pdf", ext="pdf", size_bytes=1,
+        created_at="2026-11-12T16:00:00Z",
     ))
     session.commit()
     for table in models.IMMUTABLE_TABLES:

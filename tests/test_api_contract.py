@@ -19,6 +19,7 @@ from src.api.seed import CHANGE_ID, L3_SHA256, LABEL_ID, PRODUCT_ID, TEMPLATE_ID
 from src.api.store import add_check_result, add_label_version
 from tests.checker_api_helpers import install
 from tests.openapi_helpers import conformance_errors, documented_statuses, find_operation
+from tests.upload_helpers import jpeg_bytes, passing_gate, png_bytes, rejecting_gate
 
 EDITOR, REVIEWER, ADMIN = "usr_demo_editor", "usr_demo_reviewer", "usr_demo_admin"
 L3 = "lbv_exampledevice_carton_l3"
@@ -61,6 +62,36 @@ def test_every_real_response_conforms_to_openapi(run: Run, tmp_path, monkeypatch
     sf = run.client.app.state.session_factory
     c = run.check
     install(run.client, tmp_path, monkeypatch)  # stub extractor and bm25 retrieval: no CV libraries needed
+    run.client.app.state.quality_gate = passing_gate
+
+    # upload, scan, extraction (Step 24a)
+    form = {"source": "upload", "product_id": PRODUCT_ID}
+    sent = c("uploadScan", 202, "POST", "/scans", files={"file": ("a.png", png_bytes(), "image/png")}, data=form)
+    scan_url = sent.json()["result_url"]
+    scan = c("getScan", 200, "GET", scan_url).json()
+    assert scan["state"] == "done"
+    c("getScan", 401, "GET", scan_url, user=None)
+    c("getScan", 404, "GET", "/scans/scn_00000000")
+    ext_url = f"/label-versions/{scan['version_id']}/extraction"
+    c("getExtraction", 200, "GET", ext_url)
+    c("getExtraction", 401, "GET", ext_url, user=None)
+    c("getExtraction", 404, "GET", "/label-versions/lbv_00000000/extraction")
+    c("confirmExtraction", 200, "POST", ext_url + "/confirm", json={"fields": {"lot": "LOT: A1"}})
+    c("confirmExtraction", 401, "POST", ext_url + "/confirm", user=None, json={"fields": {}})
+    c("confirmExtraction", 403, "POST", ext_url + "/confirm", user=REVIEWER, json={"fields": {}})
+    c("confirmExtraction", 404, "POST", "/label-versions/lbv_00000000/extraction/confirm", json={"fields": {}})
+    c("confirmExtraction", 422, "POST", ext_url + "/confirm", json={"fields": {"nonsense": "x"}})
+    c("uploadScan", 401, "POST", "/scans", user=None, files={"file": ("a.png", png_bytes(), "image/png")}, data=form)
+    c("uploadScan", 403, "POST", "/scans", user=REVIEWER, data=form,
+      files={"file": ("a.png", png_bytes(), "image/png")})
+    c("uploadScan", 404, "POST", "/scans", files={"file": ("a.png", png_bytes(), "image/png")},
+      data={"source": "upload", "product_id": "prd_missing"})
+    c("uploadScan", 422, "POST", "/scans", files={"file": ("a.png", b"not an image", "image/png")}, data=form)
+    run.client.app.state.quality_gate = rejecting_gate  # a failed scan (retake_photo) must conform to Scan and Job too
+    failed = c("uploadScan", 202, "POST", "/scans", files={"file": ("b.jpg", jpeg_bytes(), "image/jpeg")}, data=form)
+    assert c("getScan", 200, "GET", failed.json()["result_url"]).json()["error"]["error"] == "retake_photo"
+    assert c("getJob", 200, "GET", f"/jobs/{failed.json()['job_id']}").json()["error"]["error"] == "retake_photo"
+    run.client.app.state.quality_gate = passing_gate
 
     # users
     c("getCurrentUser", 200, "GET", "/me")
@@ -247,10 +278,84 @@ def test_every_real_response_conforms_to_openapi(run: Run, tmp_path, monkeypatch
     c("askProfessional", 200, "POST", "/ask", user=None, json={"question": "date format on a device label"})
     c("askProfessional", 200, "POST", "/ask", user=None, json={"question": "should I take two of these"})
     c("askProfessional", 422, "POST", "/ask", user=None, json={"question": " "})
+    # optional AI answer (Step 24c): a fake provider whose reply fails verification, so the job falls back
+    from src.rag.provider import FakeProvider
+
+    run.client.app.state.ai_provider = FakeProvider("not json")
+    started = c("askPublic", 202, "POST", "/public/ask?mode=ai", user=None, json=pub)
+    c("getJob", 200, "GET", f"/jobs/{started.json()['job_id']}", user=None)
+    c("askProfessional", 202, "POST", "/ask?mode=ai", user=None, json={"question": "date format on a device label"})
+    c("askPublic", 422, "POST", "/public/ask?mode=bogus", user=None, json=pub)
     monkeypatch.setattr("src.ir.step18_config.load_system", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("x")))
     run.client.app.state.rag = RagService(provider=NullProvider())
     c("askPublic", 503, "POST", "/public/ask", user=None, json=pub)
     c("askProfessional", 503, "POST", "/ask", user=None, json={"question": "date format"})
+
+    # generate, artwork, exports, download (Step 24b): a fake renderer, so no CV libraries are needed
+    from sqlalchemy import select
+
+    from src.api.models import Artifact
+    from tests.artwork_helpers import FakeEngine
+
+    engine = FakeEngine()
+    run.client.app.state.artwork_engine = engine
+    gen = {"name": "Gen Pump", "udi_di": "00000000000000", "manufacturer": "M", "manufacturer_address": "A",
+           "model": "G1", "extra": {"lot": "L1", "expiry": "2030-06-30", "serial": "S1"}}
+    gen_slots = [
+        {"id": "name", "type": "text", "field": "product_name", "bbox_mm": [5, 12, 60, 6], "size_pt": 12},
+        {"id": "barcode", "type": "barcode", "field": "udi", "symbology": "GS1_DataMatrix",
+         "bbox_mm": [70, 20, 25, 25]},
+    ]
+
+    def gen_family(slots: list[dict]) -> tuple[str, str]:
+        pid = c("registerProduct", 201, "POST", "/products", json=gen).json()["product"]["product_id"]
+        c("registerTemplate", 201, "POST", f"/products/{pid}/templates",
+          json={"size_mm": {"w": 100, "h": 60}, "background": None, "slots": slots})
+        with sf() as session:
+            return pid, add_label_version(session, EDITOR, pid, "uploads/" + "a" * 64 + ".png").label_id
+
+    def gen_change(pid: str, confirm: bool) -> str:
+        made = c("assessChange", 201, "POST", "/changes", json={"product_id": pid, "edits": [
+            {"field": "name", "new_value": "Gen Pump 2"}]})
+        if confirm:
+            decisions = [{"impact_id": i["impact_id"], "user_decision": "confirmed"} for i in made.json()["affected"]]
+            c("confirmChange", 200, "POST", f"/changes/{made.json()['change']['change_id']}/confirm",
+              json={"parse_confirmed": True, "decisions": decisions})
+        return made.json()["change"]["change_id"]
+
+    gen_pid, gen_label = gen_family(gen_slots)
+    gen_body = {"label_id": gen_label, "test_data": True}
+    ready = gen_change(gen_pid, confirm=True)
+    unconfirmed = gen_change(gen_pid, confirm=False)
+    started = c("generateArtwork", 202, "POST", f"/changes/{ready}/generate", json=gen_body)
+    artwork_url = c("getJob", 200, "GET", f"/jobs/{started.json()['job_id']}").json()["result_url"]
+    art = c("getArtwork", 200, "GET", artwork_url).json()
+    c("getArtwork", 401, "GET", artwork_url, user=None)
+    c("getArtwork", 404, "GET", "/artworks/art_00000000")
+    c("generateArtwork", 401, "POST", f"/changes/{ready}/generate", user=None, json=gen_body)
+    c("generateArtwork", 403, "POST", f"/changes/{ready}/generate", user=REVIEWER, json=gen_body)
+    c("generateArtwork", 404, "POST", "/changes/chg_missing/generate", json=gen_body)
+    c("generateArtwork", 409, "POST", f"/changes/{unconfirmed}/generate", json=gen_body)  # change_not_confirmed
+    needs = c("generateArtwork", 409, "POST", f"/changes/{ready}/generate", json={"label_id": gen_label})
+    assert needs.json()["error"] == "needs_input"  # placeholder identifier without test_data: NeedsInput shape
+    bad_pid, bad_label = gen_family([{**gen_slots[0], "bbox_mm": [5, 2, 60, 6]}, gen_slots[1]])
+    c("generateArtwork", 422, "POST", f"/changes/{gen_change(bad_pid, True)}/generate", json={"label_id": bad_label})
+    engine.unavailable = True
+    c("generateArtwork", 503, "POST", f"/changes/{ready}/generate", json=gen_body)
+    engine.unavailable = False
+    exports_url = f"/label-versions/{art['version_id']}/exports"
+    package = c("getExports", 200, "GET", exports_url).json()
+    c("getExports", 401, "GET", exports_url, user=None)
+    c("getExports", 404, "GET", "/label-versions/lbv_00000000/exports")
+    pdf = run.client.get(package["pdf"]["url"], headers=h(EDITOR))  # a file, not JSON: checked by hand
+    assert pdf.status_code == 200 and pdf.headers["content-type"] == "application/pdf" and pdf.headers["X-Draft-Mark"]
+    run.seen["downloadArtifact"].add(200)
+    c("downloadArtifact", 401, "GET", package["pdf"]["url"], user=None)
+    c("downloadArtifact", 404, "GET", "/artifacts/" + "0" * 64)
+    c("downloadArtifact", 422, "GET", "/artifacts/not-a-hash")
+    with sf() as session:
+        qr_sha = session.scalars(select(Artifact).where(Artifact.role == "qr_png")).first().sha256
+    c("downloadArtifact", 409, "GET", f"/artifacts/{qr_sha}")  # not published yet
 
     # coverage: every documented status of every real operation was validated at least once
     real_in_spec = {op: documented_statuses(op) for op in REAL_OPERATIONS}
@@ -279,5 +384,5 @@ def test_validation_is_not_vacuous(run: Run) -> None:
 def test_every_real_operation_is_in_the_spec_with_a_success_response() -> None:
     for operation_id in REAL_OPERATIONS:
         codes = documented_statuses(operation_id)
-        assert codes & {200, 201}, operation_id
+        assert codes & {200, 201, 202}, operation_id
         assert find_operation(operation_id)["tags"], operation_id

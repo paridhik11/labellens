@@ -45,11 +45,11 @@ def latest_job(session: Session, job_id: str) -> Job | None:
     return session.scalars(select(Job).where(Job.job_id == job_id).order_by(Job.seq.desc())).first()
 
 
-def new_job(session: Session, kind: str, version_id: str, user_id: str) -> Job:
-    """Append the first row of a job (state queued)."""
+def new_job(session: Session, kind: str, version_id: str | None, user_id: str, result_url: str | None = None) -> Job:
+    """Append the first row of a job (state queued). A scan job has no version yet but knows its result_url."""
     row = Job(
         job_id=new_id("job"), kind=kind, state="queued", progress=0.0, version_id=version_id,
-        created_by=user_id, created_at=utcnow(),
+        result_url=result_url, created_by=user_id, created_at=utcnow(),
     )
     session.add(row)
     session.commit()
@@ -72,9 +72,11 @@ def advance_job(
     return row
 
 
-def job_json(row: Job) -> dict[str, Any]:
-    """Serialize the current state of a job (contract `Job`)."""
+def job_json(row: Job, result: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Serialize the current state of a job (contract `Job`). `result` is the AskJobResult of a done ask job."""
     out: dict[str, Any] = {"job_id": row.job_id, "kind": row.kind, "state": row.state, "progress": row.progress}
+    if result is not None:
+        out["result"] = result
     if row.message:
         out["message"] = row.message
     if row.result_url:
@@ -100,20 +102,34 @@ def image_path(version: LabelVersion) -> Path:
         path = files_dir() / path
     if path.suffix.lower() in RASTER_SUFFIXES:
         candidates = [path]
+    elif path.suffix.lower() == ".pdf":  # an uploaded PDF is read through the PNG its scan job rendered next to it
+        candidates = [path.with_name(path.stem + ".page1.png")]
     else:  # the renderer package holds label.svg, label.png, label.pdf and manifest.json side by side
         candidates = [path.with_suffix(".png"), path.parent / "label.png"]
     for candidate in candidates:
         if candidate.is_file():
             return candidate
+    if version.kind == "generated" and version.pdf_file:  # Step 24b: read the printable PDF back as an image
+        pdf = Path(version.pdf_file)
+        pdf = pdf if pdf.is_absolute() else files_dir() / pdf
+        raster = pdf.with_name(pdf.stem + ".page1.png")
+        if pdf.is_file() and not raster.is_file():
+            from src.api.uploads import render_pdf_page  # raises ExtractorUnavailable without pypdfium2
+
+            render_pdf_page(pdf, raster)
+        if raster.is_file():
+            return raster
     raise ApiError(404, "artwork_not_found", f"No image for {version.artwork_file!r} was found on the server.")
 
 
-def store_extraction(session: Session, version: LabelVersion, extraction: LabelExtraction, mode: str) -> Extraction:
-    """Append an extraction row, labelled with the version's label family and artwork version."""
+def store_extraction(
+    session: Session, version: LabelVersion, extraction: LabelExtraction, mode: str, scan_id: str | None = None
+) -> Extraction:
+    """Append an extraction row, labelled with the version's label family and artwork version (and its scan, if any)."""
     fixed = extraction.model_copy(update={"label_id": version.label_id, "version": version.artwork_version})
     row = Extraction(
         extraction_id=new_id("ext"), version_id=version.version_id, label_id=version.label_id, mode=mode,
-        payload=fixed.model_dump(mode="json"), created_at=utcnow(),
+        payload=fixed.model_dump(mode="json"), created_at=utcnow(), scan_id=scan_id,
     )
     session.add(row)
     session.commit()
