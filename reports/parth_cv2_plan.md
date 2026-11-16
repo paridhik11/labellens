@@ -39,3 +39,14 @@ check, never a fresh-set selection criterion. No second scoring or test tuning.
 Also build three repeatable golden demos and verify every label PDF/SVG warning,
 including approved prototypes. Existing GEN_HANDOFF execution test is retained.
 Merge with --no-ff only after tests/lint and check CI using the public API.
+
+Development selection tie-break, recorded before reading the revised candidates:
+maximize complete dev frames summed across conditions, then normalized correct
+fields; an exact tie selects upscaled RapidOCR alone to avoid the external binary
+and extra latency. Initial OCR-only voting was diagnostic (0/8 complete per
+condition). The revised candidates share frozen CV code at 806c9d0.
+The archived baseline final job was queued while dev jobs ran; its output remains
+sealed until candidate selection. No final predictions or scores informed edits.
+Clean has six unique images repeated 16 times, because clean augmentation is an
+identity operation. Report 288 frames but only 198 unique pixels overall; clean
+frame intervals are descriptive and do not create 96 independent observations.
