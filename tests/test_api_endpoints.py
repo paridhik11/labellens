@@ -156,13 +156,13 @@ def test_label_versions(client):
 # ---------------------------------------------------------------- changes
 
 
-def test_create_change_says_nothing_was_checked(client):
+def test_create_change_is_assessed_by_rules_and_needs_a_person(client):
     body = {"product_id": PRODUCT_ID, "edits": [{"field": "storage", "new_value": "Store cool"}]}
     response = client.post("/changes", json=body, headers=h(EDITOR))
     assert response.status_code == 201
     data = response.json()
-    assert data["parser"] == "not_implemented" and data["affected"] == [] and data["citations"] == []
-    assert data["checklist_complete"] is False
+    assert data["parser"] == "rules" and data["checklist_complete"] is False  # Step 22: the rules ran
+    assert data["assessment_id"].startswith("asm_") and data["affected"]
     assert data["needs_human_review"].startswith("NEEDS_HUMAN_REVIEW")
     change = data["change"]
     assert change["status"] == "draft" and change["closed"] is False and change["parse_state"] == "proposed"
@@ -267,11 +267,12 @@ def test_review_error_codes_over_http(client):
 
 
 def test_submitter_cannot_approve_over_http(client):
-    created = client.post(
+    assessed = client.post(
         "/changes",
         json={"product_id": PRODUCT_ID, "edits": [{"field": "storage", "new_value": "Cool"}]},
         headers=h(ADMIN),
-    ).json()["change"]
+    ).json()
+    created = assessed["change"]
     with client.app.state.session_factory() as session:
         version = add_label_version(
             session,
@@ -293,6 +294,12 @@ def test_submitter_cannot_approve_over_http(client):
         headers=h(ADMIN),
     )
     assert returned.status_code == 201
+    # the change was assessed, so an approval needs it confirmed first (Step 22)
+    unconfirmed = client.post(f"/label-versions/{version_id}/reviews", json=body, headers=h(REVIEWER))
+    assert (unconfirmed.status_code, error_code(unconfirmed)) == (409, "change_not_confirmed")
+    decisions = [{"impact_id": i["impact_id"], "user_decision": "confirmed"} for i in assessed["affected"]]
+    confirm = {"parse_confirmed": True, "decisions": decisions}
+    assert client.post(f"/changes/{created['change_id']}/confirm", json=confirm, headers=h(ADMIN)).status_code == 200
     assert client.post(f"/label-versions/{version_id}/reviews", json=body, headers=h(REVIEWER)).status_code == 201
 
 

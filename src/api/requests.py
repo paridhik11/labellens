@@ -98,7 +98,7 @@ class FieldEdit(BaseModel):
 
 
 class ChangeCreate(BaseModel):
-    """POST /changes. Plain text parsing is not implemented, so `edits` is needed to create a change."""
+    """POST /changes. Give `edits` (structured) or `raw_text` (parsed by the rules in src/change). Edits win if both."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -111,6 +111,25 @@ class ChangeCreate(BaseModel):
         if self.raw_text is None and not self.edits:
             raise ValueError("give raw_text or edits")
         return self
+
+
+class ImpactDecision(BaseModel):
+    """One checklist decision of a confirmation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    impact_id: str
+    user_decision: Literal["confirmed", "dismissed"]
+
+
+class ChangeConfirmCreate(BaseModel):
+    """POST /changes/{id}/confirm. `edits` is in the schema but refused: a changed edit set is a new change."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    parse_confirmed: bool
+    edits: list[FieldEdit] | None = None
+    decisions: list[ImpactDecision]
 
 
 class ReviewCreate(BaseModel):

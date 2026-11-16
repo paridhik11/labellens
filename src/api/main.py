@@ -36,6 +36,7 @@ def create_app(db_url: str | None = None, seed: bool | None = None) -> FastAPI:
         app.state.session_factory = make_session_factory(engine)
         app.state.extractor = extract_with_cv  # tests replace it with a stub
         app.state.checker_settings = CheckerSettings()  # default retrieval: plain hybrid RRF
+        app.state.edit_provider = None  # optional LLM text parser, off by default (src/change/parser.py)
         if seed if seed is not None else os.environ.get("LABELLENS_SEED", "1") != "0":
             with app.state.session_factory() as session:
                 seed_demo(session)

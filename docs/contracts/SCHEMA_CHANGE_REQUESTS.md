@@ -75,3 +75,7 @@ Rule: the contract follows the merged code for D-2, D-4, D-7 and D-8. For D-3, D
 | D-9 | Documented difference, decided | Contract keeps `layer-*` and `slot-{id}` groups. Parth emits them. | Parth |
 | D-10 | Matches | Nothing. | none |
 | D-11 | Matches | Nothing. | none |
+
+## CR-18 Change assessment fields (approved, Step 22)
+
+Additive. `ChangeAssessment.parser` gains `rules` and `llm`; `ChangeAssessment` gains `unassessed_edits` and `assessment_id`; `AffectedLabel` gains `needs_human`, `reason`, `rule_ids` and `barcode_decision`; `Review` gains `assessment_id`; `confirmChange` is real and documents 401, 403, 404, 409, 422. New append-only tables `change_assessments` and `change_confirmations`. `schemas.py` untouched. Does not touch Parth's code.

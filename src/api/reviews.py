@@ -18,7 +18,7 @@ from sqlalchemy.orm import Session
 
 from src.api.db import utcnow
 from src.api.errors import ApiError
-from src.api.models import ChangeRequest, CheckResult, LabelVersion, Review
+from src.api.models import ChangeAssessment, ChangeRequest, CheckResult, LabelVersion, Review
 from src.api.status import is_closed, latest_version_of_change
 from src.api.store import get_user, new_id, record_audit
 
@@ -66,9 +66,18 @@ def record_review(
                 {"latest_version_id": latest.version_id},
             )
 
+    assessment: ChangeAssessment | None = None
+    if version.change_id is not None:  # a change with a stored assessment (Step 22): the review points at the latest
+        assessment = session.scalars(
+            select(ChangeAssessment).where(ChangeAssessment.change_id == version.change_id)
+            .order_by(ChangeAssessment.seq.desc())
+        ).first()
+
     if decision == "approve":
         if change is not None and change.created_by == user.user_id:
             raise ApiError(403, "self_approval_forbidden", "The submitter of a change cannot approve it.")
+        if assessment is not None and not assessment.confirmed:
+            raise ApiError(409, "change_not_confirmed", "The change was assessed but nobody has confirmed it yet.")
         if not check_id:
             raise ApiError(422, "check_required", "An approval needs the check_id of a passed check.")
         if not version.artifact_sha256 or artifact_sha256 != version.artifact_sha256:
@@ -97,6 +106,7 @@ def record_review(
         comment=comment,
         artifact_sha256=artifact_sha256,
         check_id=check_id if decision == "approve" else None,
+        assessment_id=assessment.assessment_id if assessment else None,
         decided_at=at or utcnow(),
     )
     session.add(review)

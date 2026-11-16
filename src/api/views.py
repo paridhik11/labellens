@@ -10,6 +10,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from src.api.changes import is_confirmed
 from src.api.errors import ApiError
 from src.api.models import (
     AuditEvent,
@@ -129,7 +130,7 @@ def change_json(session: Session, row: ChangeRequest) -> dict[str, Any]:
             "latest_review_id": change_latest_review_id(session, row.change_id),
             "closed": is_closed(session, row.change_id),
             "raw_text": row.raw_text,
-            "parse_state": row.parse_state,
+            "parse_state": "confirmed" if is_confirmed(session, row.change_id) else row.parse_state,
             "edits": row.edits,
             "created_at": row.created_at,
             "created_by": row.created_by,
@@ -151,6 +152,7 @@ def review_json(row: Review) -> dict[str, Any]:
             "comment": row.comment,
             "artifact_sha256": row.artifact_sha256,
             "check_id": row.check_id,
+            "assessment_id": row.assessment_id,
             "resulting_status": RESULTING_STATUS[row.decision],
             "decided_at": row.decided_at,
         }

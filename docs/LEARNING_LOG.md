@@ -707,3 +707,27 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its Step 16 to 18 
 4. **Verified:** new seeds 103 to 105: very hard false mismatches 7/44 to 1/44 (blind) and 8/45 to 1/45 (template); wrong barcodes still 102/102 `barcode_mismatch`; other cases 0/612.
 5. **Check yourself:** `format_problem` and the order of conditions in `check_extraction`.
 6. **Assumptions:** A confident misread that still looks valid cannot be caught by format.
+
+## Step 22a: change assessment spec
+1. **What I did:** Wrote `docs/CHANGE_SPEC.md`: edit format, rules parser with an optional off-by-default provider, impact table, barcode decision table, citations, failure cases, API mapping. No code.
+2. **Files:** `docs/CHANGE_SPEC.md`, `reports/step22_a.md`.
+3. **How it works:** A change is a list of (field, old, new) edits. Rules map each field to the template slots it fills, decide what happens to the barcode (KEEP, REGENERATE or NEEDS_INPUT), and hand everything else to a human with a cited requirement where the corpus has one.
+4. **Verified:** nothing run (plan only); no em dashes in the spec.
+5. **Check yourself:** the barcode table (section 5.2) and the rule that only rule-decided items are not needs_human (section 6).
+6. **Assumptions:** Sterilization and storage have no corpus section, so no citation. A model change always waits for a new UDI-DI (no implicit keep).
+
+## Step 22b: src/change
+1. **What I did:** Built the pure rules: field table and value checks, an edit validator, a rules text parser (with an optional provider interface that is off), the GS1 payload builder and barcode decision, the impact rule, and the assessment with citations.
+2. **Files:** `src/change/*.py`, `tests/test_change.py`, `docs/CHANGE_SPEC.md` (decisions applied).
+3. **How it works:** An edit is (field, old, new). A table says which template slots show that field. A lot change alters the barcode text, so the decision is NEEDS_INPUT (confirm_lot) until a person confirms, then REGENERATE. Rules never fill in an identifier.
+4. **Verified:** `python -m pytest -q tests/test_change.py` -> 66 passed, 1 skipped (renderer parity needs zxingcpp); ruff clean.
+5. **Check yourself:** `decide_barcode` in `src/change/barcode.py` and which items get `needs_human=False` in `impact.py`.
+6. **Assumptions:** All four AIs required (as the renderer); a model change always waits for a new UDI-DI.
+
+## Step 22c: wire the API
+1. **What I did:** `POST /changes` now parses, assesses and stores the result; `confirmChange` and `affected` are real; approvals need a confirmed assessment and record its id.
+2. **Files:** `src/api/changes.py`, `routes.py`, `models.py`, `reviews.py`, `views.py`, `requests.py`, `db.py`, `main.py`, `openapi.yaml`, docs, mock, tests.
+3. **How it works:** The assessment is computed once and saved (so the checklist a person confirms is the one they saw). Confirming saves a second assessment where the barcode decision is the confirmed one.
+4. **Verified:** `python -m pytest -q -m "not slow"` -> 544 passed, 4 skipped, 3 deselected; ruff clean.
+5. **Check yourself:** `confirm_change` order of checks, and the `change_not_confirmed` rule in `reviews.py`.
+6. **Assumptions:** Confirm with new edits is refused (a new change is needed). Seeded changes keep mocks.
