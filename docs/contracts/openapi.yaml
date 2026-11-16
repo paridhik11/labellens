@@ -242,13 +242,16 @@ paths:
               properties:
                 file: {type: string, contentMediaType: application/octet-stream}
                 source: {type: string, enum: [upload, camera]}
-                product_id: {type: string}
+                product_id: {type: string, description: "Required by the real server (CR-21): a scan creates a version of that product's label."}
       responses:
         "202":
           description: Accepted. Job envelope; poll GET /jobs/{job_id}. result_url points at GET /scans/{scan_id}.
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Job"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "403": {$ref: "#/components/responses/Forbidden"}
+        "404": {$ref: "#/components/responses/NotFound"}
         "422": {$ref: "#/components/responses/Invalid"}
 
   /scans/{scan_id}:
@@ -267,6 +270,7 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Scan"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "404": {$ref: "#/components/responses/NotFound"}
 
   /labels/{label_id}/versions:
@@ -317,6 +321,7 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Extraction"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "404": {$ref: "#/components/responses/NotFound"}
 
   /label-versions/{version_id}/extraction/confirm:
@@ -337,6 +342,10 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Extraction"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "403": {$ref: "#/components/responses/Forbidden"}
+        "404": {$ref: "#/components/responses/NotFound"}
+        "422": {$ref: "#/components/responses/Invalid"}
 
   # ---------------------------------------------------------------- inspection and evidence
   /label-versions/{version_id}/inspect:
@@ -870,7 +879,7 @@ paths:
           in: query
           required: false
           description: |
-            `extractive` (default, instant, no language model) or `ai` (CR-20). With `ai` the answer is a 202
+            `extractive` (default, instant, no language model) or `ai` (CR-21). With `ai` the answer is a 202
             Job (kind `ask`); poll GET /jobs/{job_id}. The finished job carries `result` (AskJobResult). The AI
             answer never fails the request: a missing model, a model slower than 90 s or an answer that fails
             verification end with the extractive passages and a `fallback_reason`.
@@ -922,7 +931,7 @@ paths:
           in: query
           required: false
           description: |
-            `extractive` (default, instant, no language model) or `ai` (CR-20). With `ai` the answer is a 202
+            `extractive` (default, instant, no language model) or `ai` (CR-21). With `ai` the answer is a 202
             Job (kind `ask`); poll GET /jobs/{job_id}. The finished job carries `result` (AskJobResult). The AI
             answer never fails the request: a missing model, a model slower than 90 s or an answer that fails
             verification end with the extractive passages and a `fallback_reason`.
@@ -1070,7 +1079,9 @@ components:
             (409), label_product_mismatch (409), no_change (422, an edit equals the current value),
             duplicate_field (422), parse_not_confirmed (422), edits_not_supported (422, confirm with edits),
             unknown_impact (422), nothing_to_confirm (409), change_not_confirmed (409, approve before the
-            change was confirmed).
+            change was confirmed). Upload codes (CR-21): unsupported_media_type, file_too_large, image_too_large,
+            invalid_file (all 422 on uploadScan); retake_photo, extractor_unavailable and scan_failed appear in
+            Scan.error and Job.error with state failed. retake_photo carries details {reasons, metrics, thresholds}.
         message: {type: string}
         details: {type: object}
     User:
@@ -1094,11 +1105,11 @@ components:
         message: {type: string}
         result_url: {type: string, description: Where to GET the result when state is done}
         error: {$ref: "#/components/schemas/Error"}
-        result: {$ref: "#/components/schemas/AskJobResult", description: "Set when an ask job is done (CR-20)"}
+        result: {$ref: "#/components/schemas/AskJobResult", description: "Set when an ask job is done (CR-21)"}
     AskJobResult:
       type: object
       description: |
-        Result of an AI ask job (CR-20). `answer` is exactly the 200 body of the extractive operation (an answer, or
+        Result of an AI ask job (CR-21). `answer` is exactly the 200 body of the extractive operation (an answer, or
         an abstention that may carry quotes). `model_used` is false when the passages are shown instead of a model
         answer. `fallback_reason` explains why: model_unavailable (Ollama missing or failing), timeout (no answer
         within 90 seconds) or verification_failed (the answer did not pass the citation checks). It is absent when

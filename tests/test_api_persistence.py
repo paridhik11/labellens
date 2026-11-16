@@ -93,6 +93,15 @@ def test_every_immutable_table_rejects_update_and_delete(session):
         extraction_id="ext_1", version_id=L3, label_id=LABEL_ID, mode="stub", payload={},
         created_at="2026-11-12T16:00:00Z",
     ))
+    session.add(models.Scan(
+        scan_id="scn_00000001", source="upload", file_id="fil_x", mime="image/png", sha256="a" * 64,
+        stored_path="uploads/x.png", product_id="prd_exampledevice", state="queued", created_by="usr_demo_editor",
+        created_at="2026-11-12T16:00:00Z", updated_at="2026-11-12T16:00:00Z",
+    ))
+    session.add(models.ExtractionConfirmation(
+        confirmation_id="cnf_00000001", extraction_id="ext_1", previous_extraction_id="ext_0", version_id=L3,
+        fields={}, confirmed_by="usr_demo_editor", confirmed_at="2026-11-12T16:00:00Z",
+    ))
     session.add(models.Job(
         job_id="job_00000001", kind="inspect", state="queued", created_by="usr_demo_editor",
         created_at="2026-11-12T16:00:00Z",

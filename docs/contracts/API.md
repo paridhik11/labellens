@@ -58,7 +58,7 @@ Entities and field meanings are in [`DATA_MODEL.md`](DATA_MODEL.md). Template an
 |---|---|---|---|---|
 | `POST /public/scans` | publicScan | Scan packaging, find reference label candidates | 202 Job | |
 | `GET /public/scans/{scan_id}` | getPublicScan | Match candidates (picker when several) | 200 PublicMatchResult | 404 |
-| `POST /public/ask` | askPublic | Ask about the matched label. `?mode=ai` starts a job (CR-20) | 200 AnswerResponse (answer or abstain); 202 Job (kind `ask`) with `mode=ai` | 422, 503 |
+| `POST /public/ask` | askPublic | Ask about the matched label. `?mode=ai` starts a job (CR-21) | 200 AnswerResponse (answer or abstain); 202 Job (kind `ask`) with `mode=ai` | 422, 503 |
 | `POST /ask` | askProfessional | Ask about the device regulations (CR-19). `?mode=ai` as above | 200 ProfessionalAnswerResponse; 202 Job (kind `ask`) with `mode=ai` | 422, 503 |
 | `POST /search` with `module: medicine` | searchEvidence | Shared search endpoint, medicine data only | 200 SearchResponse | |
 

@@ -1,6 +1,6 @@
 # UI notes for the optional AI answer (for Ishanvi)
 
-Applies to the public Ask screen (P3) and the professional evidence screen. Contract: `docs/contracts/openapi.yaml` (CR-20). Mocks: `src/api/mock/*/ask/ai_*.json`. Limits: `docs/AI_ANSWER.md`.
+Applies to the public Ask screen (P3) and the professional evidence screen. Contract: `docs/contracts/openapi.yaml` (CR-21). Mocks: `src/api/mock/*/ask/ai_*.json`. Limits: `docs/AI_ANSWER.md`.
 
 1. **Panel 1, "Extractive answer (instant)".** Call `POST /public/ask` (or `/ask`) with no `mode`. Show the cited passages, or the abstain message, immediately. This panel is always shown first and is the default.
 2. **Button "Ask AI (about 40 s)".** Calls the same endpoint with `?mode=ai`. It answers 202 with a Job. Poll `GET /jobs/{job_id}` every 2 s. Show a progress state from `progress` and `message` (the message says what the job is doing). The user can keep reading panel 1 while waiting. Stop polling at `done` or `failed`, and give up politely after 120 s.

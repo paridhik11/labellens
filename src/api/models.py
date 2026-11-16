@@ -168,6 +168,56 @@ class Extraction(Base):
     mode: Mapped[str] = mapped_column(String)  # blind | template | stub
     payload: Mapped[dict[str, Any]] = mapped_column(JSON)  # LabelExtraction.model_dump(mode="json")
     created_at: Mapped[str] = mapped_column(String)
+    scan_id: Mapped[str | None] = mapped_column(String, nullable=True)  # set when it came from a scan (Step 24)
+
+
+class Scan(Base):
+    """One state of an upload (Step 24). Append-only like `jobs`: a state change is a new row, the newest is current.
+
+    `created_at` is when the upload arrived (copied to every row), `updated_at` is when this row was written.
+    The stored file is `stored_path` under the files folder, named by its sha256, never by the client filename.
+    """
+
+    __tablename__ = "scans"
+    __table_args__ = (CheckConstraint("state IN ('queued','processing','done','failed')", name="ck_scan_state"),)
+
+    seq: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    scan_id: Mapped[str] = mapped_column(String, index=True)
+    job_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    module: Mapped[str] = mapped_column(String, default="device")
+    source: Mapped[str] = mapped_column(String)  # upload | camera
+    file_id: Mapped[str] = mapped_column(String)
+    mime: Mapped[str] = mapped_column(String)
+    sha256: Mapped[str] = mapped_column(String)
+    pages: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    stored_path: Mapped[str] = mapped_column(String)
+    product_id: Mapped[str] = mapped_column(ForeignKey("products.product_id"), index=True)
+    state: Mapped[str] = mapped_column(String)
+    label_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    version_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    error: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+    created_by: Mapped[str] = mapped_column(String)
+    created_at: Mapped[str] = mapped_column(String)
+    updated_at: Mapped[str] = mapped_column(String)
+
+
+class ExtractionConfirmation(Base):
+    """A user's confirmation or correction of an extraction (Step 24). Append-only.
+
+    The corrected values are stored here (`fields`) and also as a new `extractions` row (`extraction_id`), so the
+    checker, which reads the newest extraction, sees them. The corrected row stays untouched (`previous_extraction_id`).
+    """
+
+    __tablename__ = "extraction_confirmations"
+
+    seq: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    confirmation_id: Mapped[str] = mapped_column(String, unique=True)
+    extraction_id: Mapped[str] = mapped_column(String, index=True)  # the new row that holds the confirmed values
+    previous_extraction_id: Mapped[str] = mapped_column(String)
+    version_id: Mapped[str] = mapped_column(String, index=True)
+    fields: Mapped[dict[str, str]] = mapped_column(JSON)  # exactly what the user submitted
+    confirmed_by: Mapped[str] = mapped_column(String)
+    confirmed_at: Mapped[str] = mapped_column(String)
 
 
 class Job(Base):
@@ -291,6 +341,8 @@ IMMUTABLE_TABLES: tuple[str, ...] = (
     "label_versions",
     "check_results",
     "extractions",
+    "scans",
+    "extraction_confirmations",
     "jobs",
     "ask_results",
     "change_assessments",

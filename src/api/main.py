@@ -20,10 +20,15 @@ from src.api.db import init_db, make_engine, make_session_factory
 from src.api.errors import ApiError
 from src.api.extractor import extract_with_cv
 from src.api.mock_server import register_mocks
+from src.api.quality import DEFAULT as QUALITY_THRESHOLDS
+from src.api.quality import assess_photo
 from src.api.routes import router
 from src.api.seed import seed_demo
+from src.api.uploads import MAX_BYTES
 from src.checker.settings import CheckerSettings
 from src.rag.service import RagService, frozen_threshold
+
+FORM_OVERHEAD = 64 * 1024  # room for the multipart boundaries and the small text fields around the file
 
 
 def create_app(db_url: str | None = None, seed: bool | None = None) -> FastAPI:
@@ -36,6 +41,8 @@ def create_app(db_url: str | None = None, seed: bool | None = None) -> FastAPI:
         app.state.engine = engine
         app.state.session_factory = make_session_factory(engine)
         app.state.extractor = extract_with_cv  # tests replace it with a stub
+        app.state.quality_gate = lambda path: assess_photo(path, QUALITY_THRESHOLDS)  # tests replace it
+        app.state.quality_thresholds = QUALITY_THRESHOLDS
         app.state.checker_settings = CheckerSettings()  # default retrieval: plain hybrid RRF
         app.state.ai_provider = None  # tests put a fake provider here; None means Ollama (src/rag/settings.AI_MODEL)
         app.state.rag = RagService(threshold=frozen_threshold())  # Step 23: E5b retrieval loads on the first question
@@ -47,6 +54,16 @@ def create_app(db_url: str | None = None, seed: bool | None = None) -> FastAPI:
         engine.dispose()
 
     app = FastAPI(title="LabelLens API", version="0.1.0", lifespan=lifespan)
+
+    @app.middleware("http")
+    async def refuse_oversize_upload(request: Request, call_next):  # noqa: ANN001, ANN202
+        """Answer a too-large POST /scans from its Content-Length before the body is parsed or stored."""
+        if request.method == "POST" and request.url.path == "/scans":
+            declared = request.headers.get("content-length", "")
+            if declared.isdigit() and int(declared) > MAX_BYTES + FORM_OVERHEAD:
+                error = ApiError(422, "file_too_large", f"The upload is larger than {MAX_BYTES // (1024 * 1024)} MB.")
+                return JSONResponse(error.body(), status_code=422)
+        return await call_next(request)
 
     @app.exception_handler(ApiError)
     async def api_error_handler(_: Request, exc: ApiError) -> JSONResponse:

@@ -1,6 +1,6 @@
 # Optional AI answer (Step 24c)
 
-Extractive passages stay the default of `askPublic` and `askProfessional`: instant, no model, verbatim quotes. `?mode=ai` adds an optional AI answer as a 202 job (contract change CR-20).
+Extractive passages stay the default of `askPublic` and `askProfessional`: instant, no model, verbatim quotes. `?mode=ai` adds an optional AI answer as a 202 job (contract change CR-21).
 
 ## How it works
 1. `POST /public/ask?mode=ai` or `POST /ask?mode=ai` answers 202 with a `Job` of kind `ask`.

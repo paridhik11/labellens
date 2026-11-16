@@ -34,3 +34,5 @@ ruff
 pyyaml
 jsonschema
 httpx
+python-multipart
+pypdfium2
