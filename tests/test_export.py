@@ -207,7 +207,7 @@ def test_qr_invalid_input_and_failed_decode(monkeypatch: pytest.MonkeyPatch) -> 
 
 
 def test_approval_requires_matching_check_and_independent_reviewer(sample: Label, tmp_path: Path) -> None:
-    """Approval removes DRAFT only when bound to the exact snapshot and passed check."""
+    """Review binding is checked; prototype warnings are never production authorization."""
     fingerprint = reference_sha256(sample)
     approval = ApprovalRecord("pari", sample.version_id, fingerprint, "check-1", reviewer_role="reviewer")
     check = PassedCheck("check-1", sample.version_id, fingerprint, True)

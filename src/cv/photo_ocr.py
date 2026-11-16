@@ -44,15 +44,10 @@ def merge_blocks(blocks: list[OcrBlock]) -> list[OcrBlock]:
     for block in sorted(blocks, key=lambda b: (-b.conf, -len(b.text), b.bbox[1], b.bbox[0])):
         x, y, w, h = block.bbox
         duplicate = False
-        for position, old in enumerate(kept):
+        for old in kept:
             ox, oy, ow, oh = old.bbox
             intersection = max(0, min(x + w, ox + ow) - max(x, ox)) * max(0, min(y + h, oy + oh) - max(y, oy))
             if intersection / max(1, min(w * h, ow * oh)) >= 0.65:
-                old_key = ''.join(c.casefold() for c in old.text if c.isalnum())
-                new_key = ''.join(c.casefold() for c in block.text if c.isalnum())
-                if old_key in new_key and len(new_key) > len(old_key) and block.conf >= 0.6:
-                    # A confident full line supersedes a higher-confidence clipped fragment.
-                    kept[position] = block
                 duplicate = True
                 break
         if not duplicate:

@@ -26,3 +26,8 @@ Twenty pinned DailyMed artworks were re-verified offline. Two related, annotated
 Swissmedic-hosted packaging illustrations were downloaded as extra dev material;
 they are artwork, not new photographs or independent tests. No additional real
 photo was accepted from this search. Downloads stay local and are reproducible.
+
+Post-test release decision: candidate c50fb4a regressed (lot 3/4 to 2/4, expiry
+1/4 to 0/4). Retain baseline runtime algorithms; preserve the failed candidate
+and tests in Git. No retuning or second test scoring was performed. The photo
+accuracy improvement goal remains open.

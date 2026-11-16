@@ -105,3 +105,14 @@ human spot-check remains deferred, and all reference readings remain LLM-generat
 Real-photo symbol accuracy is unmeasured. See results/cv_photo_before_after.md
 for the archived-code commands. Preserve results/cv_real_photos_clear.md as the
 historical baseline rather than overwriting it with a new pipeline's output.
+
+## New grouped split, 2026-11-16
+
+The new protocol uses six dev/four test photos, preserving whole families.
+Two iterations used dev only, followed by one paired test scoring invocation.
+Candidate c50fb4a regressed on test (name 0/4 to 0/4, lot 3/4 to 2/4, expiry
+1/4 to 0/4), so the baseline photo rules remain live. No test retuning followed.
+Do not pool dev, test, old all-ten or artwork scores. These previously exposed
+photos are not a new unseen holdout. Counts and Wilson intervals are in
+results/cv_split_test.md. Human review stays deferred and references remain
+LLM-generated. No 80% accuracy claim is supported.

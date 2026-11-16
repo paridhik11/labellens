@@ -56,29 +56,3 @@ def test_low_confidence_and_unlabelled_number() -> None:
     fields, _ = map_photo_fields([block('A12349', 0, 0), block('CE', 0, 30),
                                   block('STERILE', 0, 60), block('LOT: Q5', 0, 100, conf=0.1)])
     assert 'product_name' not in fields and 'lot' not in fields
-
-
-def test_alphabetical_lot_and_spatial_name_parts() -> None:
-    """Alphabetical GS1 lots and separately detected name parts need no product dictionary."""
-    values = [block('NOVA SAFETY', 0, 0, 190, 30), block('IV Catheter', 220, 0, 150, 30),
-              block('LOT', 0, 90, 40), block('ABXQZ', 60, 90, 90), block('EXP: 2033-06-15', 0, 140)]
-    fields, _ = map_photo_fields(values)
-    assert fields['lot'] == 'LOT: ABXQZ'
-    assert fields['product_name'] == 'NOVA SAFETY IV Catheter'
-
-
-def test_repeated_logo_and_quantity_are_not_names() -> None:
-    """Repeated logos and a large quantity do not displace an observed product heading."""
-    values = [block('MAKER', 0, y, 200, 40) for y in (0, 300, 600)]
-    values += [block('NOVA CATHETER', 0, 100, 230, 30), block('200', 0, 160, 200, 60)]
-    fields, _ = map_photo_fields(values)
-    assert fields['product_name'] == 'NOVA CATHETER'
-
-
-def test_product_heading_beats_footer_logo() -> None:
-    """A larger manufacturer logo at the footer must not replace the product heading."""
-    values = [block('NOVA AIRWAY CATHETER', 0, 0, 380, 35),
-              block('REF: M123', 0, 120), block('LOT: A87', 0, 200),
-              block('MAKER', 0, 700, 180, 65)]
-    fields, _ = map_photo_fields(values)
-    assert fields['product_name'] == 'NOVA AIRWAY CATHETER'

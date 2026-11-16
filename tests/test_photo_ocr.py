@@ -84,10 +84,3 @@ def test_failed_photo_views(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(extract, 'read_photo', fail)
     reading, warnings = extract._read_blind_photo(np.zeros((10, 10, 3), dtype=np.uint8), None, None)
     assert reading is None and any(w.startswith('OCR_FAILED:') for w in warnings)
-
-
-def test_full_text_survives_a_confident_clipped_crop() -> None:
-    """Overlapping crops must not delete the first words of a correctly read full line."""
-    full = OcrBlock(text='NOVA AIRWAY CATHETER', bbox=(0, 0, 300, 30), conf=0.94)
-    fragment = OcrBlock(text='CATHETER', bbox=(180, 0, 120, 30), conf=0.99)
-    assert photo_ocr.merge_blocks([fragment, full]) == [full]

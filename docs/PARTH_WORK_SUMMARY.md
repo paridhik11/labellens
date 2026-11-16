@@ -4,7 +4,70 @@
 **Branch:** [parth-gen](https://github.com/paridhik11/labellens/tree/parth-gen)
 **Base work:** CV and template work from `parth-cv`, reviewed and merged to `main`.
 
-## Latest update: integrated photo pipeline, 2026-11-16
+## Latest review: grouped dev/test and generation handoff, 2026-11-16
+
+Merged origin/main first. Existing contract acceptance by Pari is confirmed for
+CR-2,3,4,5,9,10,11. Human spot-check and crop review remain deferred. All reference
+transcriptions/annotations are LLM-generated; real-symbol accuracy is unmeasured.
+
+**The new photo candidate did not improve test performance.** The fixed seed
+20261116 split has six dev and four test photos, with Introcan variants kept in
+one group. All ten were exposed in previous work; this is not an unseen holdout.
+Two development iterations improved exact dev product name from 1/6 to 2/6, while
+lot stayed 4/6 and expiry 2/6. Code c50fb4a was frozen before one guarded paired
+test invocation. Test exact results and descriptive Wilson 95% intervals:
+
+| Field | Baseline 740a0ab | Candidate c50fb4a |
+|---|---|---|
+| Product name | 0/4 (0.0% to 49.0%) | 0/4 (0.0% to 49.0%) |
+| Lot | 3/4 (30.1% to 95.4%) | 2/4 (15.0% to 85.0%) |
+| Expiry | 1/4 (4.6% to 69.9%) | 0/4 (0.0% to 49.0%) |
+
+Keep the existing baseline photo algorithms live after this regression. No test
+retuning or second scoring occurred. The failed candidate and its tests remain
+reproducible in Git at c50fb4a. Do not combine dev/test or prior all-ten metrics
+into a new held-out accuracy number. The photo-accuracy improvement goal remains
+open; 80% accuracy is not established. Tiny related convenience data and
+unvalidated references limit these intervals and conclusions.
+
+Completed independently of that negative result:
+
+- Lazy CV imports: src.cv.extract imports without NumPy/OpenCV/Pillow/zxing/OCR
+  packages. Actual extraction still needs the CV environment. Checker code and
+  thresholds were not changed.
+- Every draft says DRAFT, not for production. Placeholder/test/synthetic-symbol
+  or unverified raster prototypes retain it after test approval too. Both export
+  writers and the legacy renderer are covered; audit sidecars list markings.
+- [GEN_HANDOFF.md](GEN_HANDOFF.md) documents exact renderer signatures, input and
+  output payloads, confirmed REGENERATE to PDF/SVG, QR and approval boundaries.
+  Its executable example is tested. Pari retains auth, review storage,
+  publication and step-24b snapshot mapping.
+- src.gen.medicine.load_medicine_corpus returns 147 validated medicine Chunk
+  objects with exact existing keys, module checks, duplicate/hash validation.
+  Source URLs and SPL effective dates remain in the adjacent metadata/catalog.
+  The loader imports without CV libraries; retrieval code is untouched.
+- Zero downloaded real-label/DailyMed binaries are tracked already. Existing
+  ignore rules and the pinned re-fetch script were verified offline: 20 device
+  artworks and 44 AI-labelled crops. Two synthetic reference PNGs are retained.
+  History was not rewritten.
+- Two additional Swissmedic-hosted annotated packaging illustrations were
+  downloaded, cataloged and made reproducible for development only. These are
+  related artwork examples, not new real photos. No additional suitable photo
+  was accepted in this search. Artwork is not pooled with photo scores.
+
+Actual release validation: fast suite 800 passed, 5 deselected, 1 warning in
+42.16s; generation/CV 398 passed, 1 skipped in 82.71s; export/interface checks
+41 passed in 8.39s; synthetic blind/template regression 1 passed in 33.07s;
+Ruff All checks passed. The lazy-import test blocks optional CV libraries in a
+fresh process. See [short report](../reports/parth_remaining_review.md),
+[test results](../results/cv_split_test.md), [dev results](../results/cv_split_dev.md)
+and [choice/release decision](../reports/parth_dev_choice.md).
+
+Older checkpoints below retain their historical results and branch locations.
+This work is delivered on parth-gen and promoted to main through a no-ff merge;
+consult Git history and the final report for the promotion commit.
+
+## Prior checkpoint: integrated photo pipeline, 2026-11-16
 
 Pari accepted CR-2,3,4,5,9,10,11; acceptance is recorded in the contract requests.
 Perspective correction is now wired into the extractor. Known templates supply
@@ -52,13 +115,13 @@ Updated 2026-11-16 at Parth's request. Carry this unresolved item into every
 future progress summary, README or handoff Markdown prepared for Parth, Paridhi
 or anyone else. Do not describe photo extraction or Task 4 as fully solved.
 
-- **Photo extraction remains incomplete after the first fixed-protocol fix.** Ten clear online
+- **Photo extraction remains incomplete; the newer grouped candidate failed its release gate.** Ten clear online
   device-package photos are now collected, with product name, lot/batch and
   expiry readable in each image according to AI inspection. All 30 reference
   readings are LLM-labelled, not human-validated truth.
 - The original baseline performed poorly on this clear set:
-  exact product name **1/10**, lot **0/10**, expiry **0/10**. The latest frozen
-  candidate gives **1/10**, **7/10**, **3/10** respectively, with the name and
+  exact product name **1/10**, lot **0/10**, expiry **0/10**. The earlier
+  improved baseline pipeline gave **1/10**, **7/10**, **3/10** respectively in that earlier all-ten evaluation, with the name and
   expiry weaknesses unresolved. Historical source:
   [clear-photo results](../results/cv_real_photos_clear.md). No 80% real-photo
   accuracy claim is supported. Do not present dataset selection as a model fix.

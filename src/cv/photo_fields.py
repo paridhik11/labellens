@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import re
-from collections import Counter
 from datetime import date
 
 from src.common.schemas import OcrBlock
@@ -16,7 +15,7 @@ _DATE = re.compile(
 _NOISE = re.compile(
     r"\b(?:STERILE|STERILIZED|LATEX|CAUTION|WARNING|SINGLE USE|DO NOT|USE BY|"
     r"MADE IN|MANUFACTURED|DISTRIBUTED|COPYRIGHT|CE|UDI|GTIN|CONTENTS|QTY|QUANTITY|"
-    r"NON ABSORBABLE|ABSORBABLE|POLYPROPYLENE|POLYESTER|RX ONLY|UNITS|PACKS|RADIOPAQUE|NONPYROGENIC)\b", re.I)
+    r"NON ABSORBABLE|ABSORBABLE|POLYPROPYLENE|POLYESTER|RX ONLY)\b", re.I)
 _UNITS = re.compile(r"^\s*[\d., /xX-]+\s*(?:mm|cm|ml|mg|g|fr|ga|gauge|inch|in|%)\b", re.I)
 
 
@@ -89,8 +88,7 @@ def map_photo_fields(blocks: list[OcrBlock], *, min_confidence: float = 0.5) -> 
         for other_index, other in enumerate(usable):
             if other_index == index or field_key(other.text)[0] is not None:
                 continue
-            valid_lot = field == "lot" and re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9./_-]{1,19}", other.text.strip())
-            if (not valid_lot and not any(c.isdigit() for c in other.text)) or _NOISE.search(other.text):
+            if not any(c.isdigit() for c in other.text) or _NOISE.search(other.text):
                 continue
             if field != "expiry" and visible_date(other.text):
                 continue
@@ -125,53 +123,23 @@ def map_photo_fields(blocks: list[OcrBlock], *, min_confidence: float = 0.5) -> 
             fields.pop("expiry", None)
             warnings.append("FIELD_AMBIGUOUS: multiple unkeyed dates; expiry not selected")
     remaining = []
-    top_edge = min((b.bbox[1] for b in usable), default=0)
-    bottom_edge = max((b.bbox[1] + b.bbox[3] for b in usable), default=1)
-    repetitions = Counter(re.sub(r"\W", "", b.text).casefold() for b in usable)
     for index, block in enumerate(usable):
         text = block.text.strip()
         if (index in used or _NOISE.search(text) or _UNITS.search(text) or visible_date(text)
                 or field_key(text)[0] is not None or text == fields.get("manufacturer_address")
                 or text == fields.get("manufacturer") or re.search(r"\b(?:DRAFT|TEST DATA)\b", text, re.I)):
             continue
-        if repetitions[re.sub(r"\W", "", text).casefold()] >= 3:
-            continue
         letters = sum(c.isalpha() for c in text)
         if letters < 4 or letters / max(1, len(text)) < 0.4:
             continue
         _, y, width, height = block.bbox
         size = (width / max(1, len(text)) * height) ** 0.5
-        size *= 1 - 0.6 * (y - top_edge) / max(1, bottom_edge - top_edge)
-        joined = text
-        x, _, w, h = block.bbox
-        companions = []
-        prefixes = []
-        for other_index, other in enumerate(usable):
-            if other_index == index or other_index in used or _NOISE.search(other.text) or visible_date(other.text):
-                continue
-            ox, oy, ow, oh = other.bbox
-            same_line = abs(oy + oh / 2 - y - h / 2) <= 0.5 * max(h, oh)
-            if (0 <= x - ox - ow <= 2.5 * h and same_line
-                    and 0.6 <= oh / max(1, h) <= 1.6 and field_key(other.text)[0] is None
-                    and sum(c.isalpha() for c in other.text) >= 3):
-                prefixes.append((ox, other.text.strip()))
-            if (0 <= ox - x - w <= 2.5 * h and same_line
-                    and 0.6 <= oh / max(1, h) <= 1.6 and field_key(other.text)[0] is None
-                    and (sum(c.isalpha() for c in other.text) >= 3 or other.text.strip() in {'2', '3'})):
-                companions.append((ox, other.text.strip()))
-        if prefixes:
-            joined = ' '.join(value for _, value in sorted(prefixes)) + ' ' + joined
-        if companions:
-            joined += ' ' + ' '.join(value for _, value in sorted(companions))
-        # Never invent missing spaces or trademark glyphs inside recognized words.
-        remaining.append((size, -y, joined, bool(companions or prefixes)))
+        remaining.append((size, -y, text))
     if remaining:
         remaining.sort(reverse=True)
-        if len(remaining) == 1 or remaining[0][3] or remaining[0][0] >= 1.15 * remaining[1][0]:
+        if len(remaining) == 1 or remaining[0][0] >= 1.15 * remaining[1][0]:
             fields["product_name"] = remaining[0][2]
-        elif "product_name" in fields and (
-            _NOISE.search(fields["product_name"]) or not any(c.isalpha() for c in fields["product_name"])
-        ):
+        elif "product_name" in fields and _NOISE.search(fields["product_name"]):
             fields.pop("product_name")
             warnings.append("FIELD_AMBIGUOUS: product-name typography is not distinctive")
     else:
