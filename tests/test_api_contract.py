@@ -216,7 +216,12 @@ def test_every_real_response_conforms_to_openapi(run: Run, tmp_path, monkeypatch
 
     c("reviewArtwork", 201, "POST", url, user=REVIEWER, json={**approve, "comment": "ok"})
     c("listReviews", 200, "GET", url)
-    c("getChange", 200, "GET", f"/changes/{CHANGE_ID}")  # status reviewed
+    c("publishVersion", 201, "POST", f"/label-versions/{L3}/publish", user=REVIEWER)  # Step 25b
+    c("publishVersion", 200, "POST", f"/label-versions/{L3}/publish", user=REVIEWER)
+    c("publishVersion", 401, "POST", f"/label-versions/{L3}/publish", user=None)
+    c("publishVersion", 403, "POST", f"/label-versions/{L3}/publish", user=EDITOR)
+    c("publishVersion", 404, "POST", "/label-versions/lbv_missing/publish", user=REVIEWER)
+    c("getChange", 200, "GET", f"/changes/{CHANGE_ID}")  # status published
     with sf() as session:
         add_label_version(
             session,
@@ -241,6 +246,7 @@ def test_every_real_response_conforms_to_openapi(run: Run, tmp_path, monkeypatch
         json={"decision": "reject", "artifact_sha256": "a" * 64, "comment": "No."},
     )
     c("reviewArtwork", 409, "POST", f"/label-versions/{own.version_id}/reviews", user=REVIEWER, json=own_body)  # closed
+    c("publishVersion", 409, "POST", f"/label-versions/{own.version_id}/publish", user=REVIEWER)  # change_closed
     c("getChange", 200, "GET", f"/changes/{admin_change.json()['change']['change_id']}")  # closed true
     c("getProductHistory", 200, "GET", f"/products/{PRODUCT_ID}/history")
 
@@ -278,6 +284,16 @@ def test_every_real_response_conforms_to_openapi(run: Run, tmp_path, monkeypatch
     c("askProfessional", 200, "POST", "/ask", user=None, json={"question": "date format on a device label"})
     c("askProfessional", 200, "POST", "/ask", user=None, json={"question": "should I take two of these"})
     c("askProfessional", 422, "POST", "/ask", user=None, json={"question": " "})
+    # public medicine mode (Step 25a): stub matching over the real data/medicine catalog
+    from tests.medicine_helpers import stub_medicine
+
+    run.client.app.state.medicine = stub_medicine()
+    c("matchMedicine", 200, "POST", "/public/match", user=None, json={"product_name": "Childrens Ibuprofen"})
+    c("matchMedicine", 200, "POST", "/public/match", user=None, json={"product_name": "Zzyzx Gummies"})
+    c("matchMedicine", 422, "POST", "/public/match", user=None, json={"product_name": " "})
+    run.client.app.state.medicine = stub_medicine(broken=True)
+    c("matchMedicine", 503, "POST", "/public/match", user=None, json={"product_name": "Childrens Ibuprofen"})
+    run.client.app.state.medicine = stub_medicine()
     # optional AI answer (Step 24c): a fake provider whose reply fails verification, so the job falls back
     from src.rag.provider import FakeProvider
 

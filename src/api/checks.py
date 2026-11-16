@@ -177,17 +177,39 @@ def retrieval_for(base: CheckerSettings, override: dict[str, Any] | None) -> Che
     )
 
 
+def usable_retrieval(settings: RetrievalSettings) -> tuple[Any, RetrievalSettings, dict[str, str]]:
+    """The retriever for these settings, falling back to plain hybrid RRF when E5b cannot be loaded (Step 25c).
+
+    Returns (retriever, settings actually used, note). The note is empty normally and, after a fallback, names the
+    method that was asked for and why it was not used, so a stored CheckResult never claims E5b citations that
+    came from the hybrid retriever.
+    """
+    from src.checker.retrieval import default_retriever
+
+    if settings.method != "e5b":
+        return default_retriever(settings), settings, {}
+    try:
+        return default_retriever(settings), settings, {}
+    except Exception as error:  # cache missing, config hash mismatch, model not installed, out of memory
+        used = RetrievalSettings(**{**settings.__dict__, "method": "hybrid_rrf"})
+        reason = f"{type(error).__name__}: {error}"[:300]
+        return default_retriever(used), used, {"fallback_from": "e5b", "fallback_reason": reason}
+
+
 def perform_check(
     session: Session, kind: str, version: LabelVersion, extraction: LabelExtraction, settings: CheckerSettings,
     user_id: str,
 ) -> CheckResult:
     """Run the checker on a stored extraction and persist the CheckResult (a self_check copies the artifact hash)."""
-    from src.checker.retrieval import default_retriever
-
-    result: CheckerResult = run_checks(
-        extraction, product_record(session, version), settings=settings,
-        retriever=default_retriever(settings.retrieval),
+    retriever, used, note = usable_retrieval(settings.retrieval)
+    settings = CheckerSettings(
+        min_ocr_confidence=settings.min_ocr_confidence, symbol_detector_trusted=settings.symbol_detector_trusted,
+        expected_symbols=settings.expected_symbols, retrieval=used,
     )
+    result: CheckerResult = run_checks(
+        extraction, product_record(session, version), settings=settings, retriever=retriever,
+    )
+    result.retrieval_config = {**result.retrieval_config, **note}
     return add_check_result(
         session, kind, [finding_json(f) for f in result.findings], version_id=version.version_id,
         artifact_sha256=version.artifact_sha256 if kind == "self_check" else None, user_id=user_id,
@@ -223,12 +245,13 @@ def search(
     verbatim quote chosen by query-term overlap.
     """
     from src.checker.citations import best_quote
-    from src.checker.retrieval import default_retriever, module_chunks
+    from src.checker.retrieval import module_chunks
 
     settings = retrieval_for(base, override).retrieval
     settings = RetrievalSettings(**{**settings.__dict__, "module": module})
     chunks = module_chunks(module)
-    hits = default_retriever(settings).search(query, k=k * 4 if section_level else k)
+    retriever, settings, _ = usable_retrieval(settings)
+    hits = retriever.search(query, k=k * 4 if section_level else k)
     if section_level:
         seen: set[str] = set()
         kept = []

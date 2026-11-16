@@ -77,18 +77,64 @@ ui/     Next.js app and ui/mock JSON
 tests/
 ```
 
-## 7. Quick start (Windows PowerShell)
+## 7. Setup and run the demo (Windows PowerShell)
+
+Needs Python 3.12 and about 6 GB of disk (PyTorch and the models). From a fresh clone:
 
 ```powershell
+git clone https://github.com/paridhik11/labellens.git
 cd labellens
 py -3.12 -m venv .venv312
-.venv312\Scripts\Activate.ps1
-pip install pydantic pytest ruff requests numpy faiss-cpu sentence-transformers
-python -m pytest -q -m "not slow"
-python -m src.ir.search "unique device identifier on label" --module device
+.venv312\Scripts\python.exe -m pip install -r requirements-demo.txt
+.venv312\Scripts\python.exe scripts\run_demo.py
 ```
 
-Install heavier packages (OCR, YOLO) only when their step starts. Always run Python as `python -m ...` from the repo root.
+`scripts/run_demo.py` is the one command. It checks the environment, builds or copies the dense indexes, seeds the demo
+database, chooses the checker retrieval, starts the API, warms the models and prints the URLs:
+the API at `http://127.0.0.1:8000` (docs at `/docs`), the public medicine page at `/public/medicine`, and a UI at `/ui/`
+only if a UI build exists in the repo (none does yet). Options: `--port`, `--fresh` (new database), `--skip-indexes`, `--no-golden`.
+
+First run on a new machine:
+- The embedding model (BAAI/bge-large-en-v1.5, 1.3 GB) downloads from Hugging Face once. After that the app runs offline.
+- Index files are keyed by model and corpus hash. If another checkout of this repo on the PC already built them, they are copied
+  from `data/cache/indexes` of the main checkout (or `LABELLENS_INDEX_DIR`). Otherwise the bge-large build for the regulation corpus
+  takes about 40 minutes of CPU, once (`python scripts/build_indexes.py` does only that step).
+- The optional AI answer needs Ollama with `qwen2.5:3b-instruct-q4_K_M`. Without it the AI answer falls back to the extractive passages.
+
+Check that everything works, in a second terminal while the demo runs:
+
+```powershell
+.venv312\Scripts\python.exe scripts\demo_e2e.py
+```
+
+It calls the real running API with the real extractor on a rendered golden package and on one synthetic photo and prints PASS,
+PASS (mock), FALLBACK or FAIL per stage. Developer checks: `python -m pytest -q -m "not slow"` and `ruff check src tests`.
+Always run Python as `python -m ...` or `python scripts/...` from the repo root.
+
+### Demo script (about 10 minutes)
+
+Users are stubs chosen by the `X-User-Id` header (`usr_demo_editor`, `usr_demo_reviewer`, `usr_demo_admin`), no login.
+Everything below is also one `demo_e2e.py` run.
+
+1. **Product and template.** Register a product and its label template (millimetres, named slots). The seed already holds `Golden Pump (demo)`.
+2. **Upload and extract.** Upload the golden label PDF (`data/demo/golden_label.pdf`) or a photo. The photo gate may ask for a retake. The extractor reads text, barcode and symbols and lists unclear fields.
+3. **Confirm and check.** Confirm or correct the fields, then inspect. Every finding shows observed, expected and a cited requirement passage.
+4. **Change.** Enter a change (lot `LOT1` to `LOT2`). The impact list, the barcode decision (a lot is encoded in the barcode, so REGENERATE) and the checklist appear. Confirm it.
+5. **Generate and re-check.** Fill the template. The draft carries `DRAFT, not for production` and test data is marked. Re-check reads the rendered PDF back as an image.
+6. **Approve and publish.** As the reviewer approve exactly that version (hash and passed check), then publish. The QR on the label opens `/versions/<version_id>`.
+7. **Export.** Download the PDF at physical size, the SVG template and the report (hash verified).
+8. **Public mode.** Open `/public/medicine`, type `Childrens Ibuprofen`, read the reference fields and sections, ask `what are the warnings`. Try `Zzyzx Gummies` for the no-match case. Try the AI answer (`/public/ask?mode=ai`).
+
+### Known limits
+
+- The CV is tuned on synthetic labels of one template family. Very hard photos can make clean labels fail with confident false alarms; photos that are too blurry are rejected with a retake request.
+- The symbol detector is not trusted: symbol checks always ask a human. Real carton photos were not read.
+- Generated labels always carry the DRAFT mark, even after approval (no approved variant is rendered), identifiers are the GS1 test placeholder, and a template with a background image is refused.
+- Publishing is local: the page and QR point at this server (`LABELLENS_PUBLIC_BASE_URL`), they are not hosted anywhere.
+- Public medicine mode has ten reference products (DailyMed). The manufacturer is not in that corpus, so it is never shown. The scan-a-photo entry (`publicScan`) is still a mock, the name is typed. Brand names such as Lipitor do not match their generics.
+- Retrieval evaluation numbers are LLM-graded (`results/`), with wide intervals; the checker and answers are not compliance determinations.
+- No UI build exists in the repo yet: the API docs page and the two small HTML pages are the interface.
+- Still mocks (header `X-Mock: true`): print verification, `publicScan` and its result, and a few listings. `demo_e2e.py` lists any stage that hit one.
 
 ## 8. Scope
 
