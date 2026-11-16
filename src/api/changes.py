@@ -29,7 +29,7 @@ from src.api.status import is_closed
 from src.api.store import create_change, current_product_version, new_id, record_audit
 from src.change.assess import assess, item_json
 from src.change.fields import record_values
-from src.change.models import Assessment, ChangeError, EditProvider, LabelContext
+from src.change.models import Assessment, ChangeError, Edit, EditProvider, LabelContext, Unassessed
 from src.change.parser import parse_request, validate_edits
 from src.checker.settings import CheckerSettings
 from src.common.schemas import ProductRecord
@@ -194,13 +194,27 @@ def create_assessed_change(
         session, user_id, body.product_id, first.field, first.new_value, first.old_value, body.raw_text,
         edits=[{"field": e.field, "old_value": e.old_value, "new_value": e.new_value} for e in rest],
     )
-    new_values = {**current, **{e.field: e.new_value for e in validated.edits}}
-    contexts = build_contexts(session, body.product_id)
     retriever, chunks = _retrieval(settings)
-    common = dict(unassessed=validated.unassessed, warnings=validated.warnings, retriever=retriever, chunks=chunks,
-                  k=settings.retrieval.k)
-    shown = assess(validated.edits, new_values, contexts, confirmed=False, **common)
-    confirmed = assess(validated.edits, new_values, contexts, confirmed=True, **common)
+    row = assess_and_store(
+        session, change, validated.edits, current, parser, validated.unassessed, validated.warnings, retriever,
+        chunks, settings.retrieval.k, user_id,
+    )
+    return assessment_response(session, change, row)
+
+
+def assess_and_store(
+    session: Session, change: ChangeRequest, edits: list[Edit], current: dict[str, str], parser: str,
+    unassessed: list[Unassessed], warnings: list[str], retriever: Any, chunks: dict[str, Any], k: int, user_id: str,
+) -> ChangeAssessment:
+    """Assess a change against the product's current labels (as proposed and as if confirmed) and store the result.
+
+    Also used by the demo seed, with no retriever (so no citations are looked up).
+    """
+    new_values = {**current, **{e.field: e.new_value for e in edits}}
+    contexts = build_contexts(session, change.product_id)
+    common: dict[str, Any] = dict(unassessed=unassessed, warnings=warnings, retriever=retriever, chunks=chunks, k=k)
+    shown = assess(edits, new_values, contexts, confirmed=False, **common)
+    confirmed = assess(edits, new_values, contexts, confirmed=True, **common)
 
     def dump(a: Assessment) -> list[dict[str, Any]]:
         return [item_json(i, change.change_id, impact_id(change.change_id, i.key)) for i in a.items]
@@ -208,12 +222,11 @@ def create_assessed_change(
     payload = {
         "parser": parser, "items": dump(shown), "confirmed_items": dump(confirmed),
         "citations": _merge_citations(shown, confirmed), "warnings": shown.warnings,
-        "unassessed": [{"field": u.field, "reason": u.reason, "message": u.message} for u in validated.unassessed],
+        "unassessed": [{"field": u.field, "reason": u.reason, "message": u.message} for u in unassessed],
         "needs_human_review": shown.needs_human_review, "confirmed_needs_human_review": confirmed.needs_human_review,
-        "edits": [{"field": e.field, "old_value": e.old_value, "new_value": e.new_value} for e in validated.edits],
+        "edits": [{"field": e.field, "old_value": e.old_value, "new_value": e.new_value} for e in edits],
     }
-    row = _store(session, change.change_id, None, payload, False, user_id)
-    return assessment_response(session, change, row)
+    return _store(session, change.change_id, None, payload, False, user_id)
 
 
 def _store(

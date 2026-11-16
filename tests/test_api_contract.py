@@ -139,13 +139,15 @@ def test_every_real_response_conforms_to_openapi(run: Run, tmp_path, monkeypatch
     c("assessChange", 422, "POST", "/changes", json={"product_id": PRODUCT_ID, "edits": [
         {"field": "lot", "new_value": "A"}, {"field": "lot", "new_value": "B"}]})  # duplicate_field
     c("listAffectedLabels", 200, "GET", f"/changes/{made_id}/affected")
-    c("listAffectedLabels", 200, "GET", f"/changes/{CHANGE_ID}/affected")  # mock: no stored assessment
+    seeded = c("listAffectedLabels", 200, "GET", f"/changes/{CHANGE_ID}/affected")  # the seed stores its assessment
     c("listAffectedLabels", 404, "GET", "/changes/chg_missing/affected")
     c("listAffectedLabels", 401, "GET", f"/changes/{made_id}/affected", user=None)
     decisions = [{"impact_id": i["impact_id"], "user_decision": "confirmed"} for i in items]
     confirm_body = {"parse_confirmed": True, "decisions": decisions}
     c("confirmChange", 200, "POST", f"/changes/{made_id}/confirm", json=confirm_body)
-    c("confirmChange", 200, "POST", f"/changes/{CHANGE_ID}/confirm", json=confirm_body)  # mock
+    seeded_body = {"parse_confirmed": True, "decisions": [
+        {"impact_id": i["impact_id"], "user_decision": "confirmed"} for i in seeded.json()["items"]]}
+    c("confirmChange", 200, "POST", f"/changes/{CHANGE_ID}/confirm", json=seeded_body)
     c("confirmChange", 401, "POST", f"/changes/{made_id}/confirm", user=None, json=confirm_body)
     c("confirmChange", 403, "POST", f"/changes/{made_id}/confirm", user=REVIEWER, json=confirm_body)
     c("confirmChange", 404, "POST", "/changes/chg_missing/confirm", json=confirm_body)

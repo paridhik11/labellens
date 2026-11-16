@@ -13,9 +13,10 @@ from fastapi.testclient import TestClient
 from sqlalchemy import text
 from sqlalchemy.exc import DatabaseError
 
+from src.api.changes import latest_assessment
 from src.api.main import create_app
-from src.api.seed import CHANGE_ID
-from src.api.store import add_check_result, add_label_version
+from src.api.seed import CHANGE_ID, L3_SHA256
+from src.api.store import add_check_result, add_label_version, create_change
 from src.checker.settings import CheckerSettings, RetrievalSettings
 from tests.openapi_helpers import conformance_errors
 
@@ -238,10 +239,12 @@ def test_llm_provider_is_off_by_default_and_marks_parser_llm(env) -> None:
 
 
 def test_changes_without_a_stored_assessment_keep_the_mock(env) -> None:
-    client, _, _ = env
-    affected = client.get(f"/changes/{CHANGE_ID}/affected", headers=h())
+    client, product, _ = env
+    with client.app.state.session_factory() as session:  # a change made before Step 22 has no assessment
+        old = create_change(session, EDITOR, product, "storage", "Keep cool", "Store dry")
+    affected = client.get(f"/changes/{old.change_id}/affected", headers=h())
     assert affected.status_code == 200 and affected.headers["X-Mock"] == "true"
-    confirm = client.post(f"/changes/{CHANGE_ID}/confirm", headers=h(), json={"parse_confirmed": True, "decisions": []})
+    confirm = client.post(f"/changes/{old.change_id}/confirm", headers=h(), json={"parse_confirmed": True, "decisions": []})
     assert confirm.status_code == 200 and confirm.headers["X-Mock"] == "true"
     assert client.get("/changes/chg_missing/affected", headers=h()).status_code == 404
 
@@ -252,3 +255,25 @@ def test_product_without_labels_says_so() -> None:
         product = client.post("/products", headers=h(), json=PRODUCT).json()["product"]["product_id"]
         body = post(client, product, edits=[{"field": "lot", "new_value": "LOT002"}]).json()
         assert body["affected"] == [] and body["checklist_complete"] is False and "no label registered" in body["needs_human_review"]
+
+
+def test_seeded_demo_change_can_be_approved_end_to_end() -> None:
+    """The seed stores a confirmed assessment for chg_0002, so its draft L3 can be approved on the real server."""
+    l3 = "lbv_exampledevice_carton_l3"
+    with TestClient(create_app("sqlite://", seed=True)) as client:
+        affected = client.get(f"/changes/{CHANGE_ID}/affected", headers=h())
+        assert "X-Mock" not in affected.headers and affected.json()["items"]
+        assert all(i["user_decision"] == "confirmed" for i in affected.json()["items"])
+        change = client.get(f"/changes/{CHANGE_ID}", headers=h()).json()
+        assert change["status"] == "checked" and change["parse_state"] == "confirmed"
+        body = {"decision": "approve", "artifact_sha256": L3_SHA256, "check_id": "chk_0003"}
+        approved = client.post(f"/label-versions/{l3}/reviews", headers=h(REVIEWER), json=body)
+        assert approved.status_code == 201, approved.text
+        assert not conformance_errors("reviewArtwork", 201, approved.json())
+        with client.app.state.session_factory() as session:
+            latest = latest_assessment(session, CHANGE_ID)
+            assert latest.confirmed and latest.parent_assessment_id is not None
+        assert approved.json()["assessment_id"] == latest.assessment_id
+        assert client.get(f"/changes/{CHANGE_ID}", headers=h()).json()["status"] == "reviewed"
+        listed = client.get(f"/label-versions/{l3}/reviews", headers=h()).json()["items"]
+        assert [r["decision"] for r in listed] == ["approve"]
