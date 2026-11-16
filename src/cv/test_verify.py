@@ -54,6 +54,8 @@ def test_approval_binding_and_integrity(tmp_path: Path, monkeypatch: pytest.Monk
     artifact = tmp_path / "test_reference.txt"
     artifact.write_text("test reference")
     reference = {
+        "version_id": "test-v1",
+        "created_by": "test_author",
         "fields": {},
         "barcode_ais": {"10": "TESTLOT"},
         "symbols": [],
@@ -74,7 +76,16 @@ def test_approval_binding_and_integrity(tmp_path: Path, monkeypatch: pytest.Monk
     approval = {
         "decision": "approve",
         "reviewer": "test_reviewer",
+        "reviewer_role": "reviewer",
+        "version_id": "test-v1",
+        "check_id": "test_check",
         "reference_sha256": hashlib.sha256(manifest.read_bytes()).hexdigest(),
+    }
+    check = {
+        "check_id": "test_check",
+        "version_id": "test-v1",
+        "passed": True,
+        "reference_sha256": approval["reference_sha256"],
     }
     with pytest.raises(PermissionError):
         verify.verify_print(tmp_path / "test_photo.png", manifest, approval_record=approval)
@@ -83,6 +94,7 @@ def test_approval_binding_and_integrity(tmp_path: Path, monkeypatch: pytest.Monk
             tmp_path / "test_photo.png",
             manifest,
             approval_record=approval,
+            check_record=check,
             authorized_reviewers=frozenset({"test_reviewer"}),
         ).status
         == "MATCH"
@@ -93,5 +105,6 @@ def test_approval_binding_and_integrity(tmp_path: Path, monkeypatch: pytest.Monk
             tmp_path / "test_photo.png",
             manifest,
             approval_record=approval,
+            check_record=check,
             authorized_reviewers=frozenset({"test_reviewer"}),
         )

@@ -25,6 +25,12 @@ data/processed/ft_*
 data/synthetic/
 !results/cv_*.md
 
+# New datasets and photos stay local; retain the real-label source catalog.
+data/*
+!data/real/
+data/real/*
+!data/real/SOURCES.md
+
 # local API database (Step 20)
 data/api/
 

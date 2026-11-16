@@ -14,9 +14,12 @@ from PIL import Image
 from src.common.schemas import BarcodeResult, LabelExtraction, OcrBlock
 from src.cv.barcode import decode_barcode_slot, decode_barcodes
 from src.cv.barcode_blind import decode_barcode_slot_enhanced, decode_barcodes_blind
-from src.cv.fields import map_fields_by_layout, normalise_field, reconcile_with_barcode
+from src.cv.fields import normalise_field, reconcile_with_barcode
 from src.cv.ocr import read_text_default as read_text
-from src.cv.preprocess import _validate_image, find_label_corners, find_label_corners_fallback, rectify_label
+from src.cv.perspective import warp_label
+from src.cv.photo_fields import map_photo_fields
+from src.cv.photo_ocr import PhotoReading, project_blocks, read_photo
+from src.cv.preprocess import _validate_image, find_label_corners, find_label_corners_fallback
 from src.cv.symbols import NAMES, detect_symbols, detect_symbols_blind
 
 TEMPLATE_PATH = Path(__file__).resolve().parents[1] / "gen" / "templates" / "test_device.json"
@@ -208,6 +211,31 @@ def _postcorrect(fields: dict[str, str], barcodes: list[BarcodeResult]) -> tuple
     return corrected, notes
 
 
+def _read_blind_photo(
+    image: np.ndarray, corrected: np.ndarray | None, inverse: np.ndarray | None,
+) -> tuple[PhotoReading | None, list[str]]:
+    """Choose original or rectified evidence using visible fields and OCR coverage only."""
+    readings, warnings = [], []
+    views = [("original", image, np.eye(3))]
+    if corrected is not None and inverse is not None:
+        views.append(("rectified", corrected, inverse))
+    for view, pixels, transform in views:
+        try:
+            readings.append(read_photo(pixels, view=view, to_original=transform))
+        except Exception as error:
+            warnings.append(f"OCR_VIEW_FAILED: {view}: {type(error).__name__}: {error}")
+    if not readings:
+        return None, [*warnings, "OCR_FAILED: no usable photo view"]
+    ranked = []
+    for reading in readings:
+        fields, _ = map_photo_fields(reading.blocks)
+        target_count = sum(bool(fields.get(field)) for field in ("product_name", "lot", "expiry"))
+        ranked.append((target_count, reading.score, reading.view == "original", reading))
+    best = max(ranked, key=lambda item: item[:3])[3]
+    warnings.append(f"PHOTO_OCR: view={best.view}, quarter_turns={best.quarter_turns}; fixed protocol v1")
+    return best, warnings
+
+
 def extract_label_modes(
     image_path: str | Path,
     *,
@@ -255,14 +283,18 @@ def extract_label_modes(
             corner_method = "hull_fallback"
             shared_warnings.append("LABEL_FOUND_BY_FALLBACK: boundary rebuilt from a partly hidden outline")
     corrected = inverse = None
+    template = json.loads(TEMPLATE_PATH.read_text(encoding="utf-8"))
     if corners is not None:
-        corrected, forward = rectify_label(image, corners)
-        inverse = np.linalg.inv(forward)
+        # Only the explicit template path knows physical proportions. Blind photos do not.
+        ratio = template["size_mm"]["w"] / template["size_mm"]["h"] if modes == ("template",) else None
+        perspective = warp_label(image, corners, ratio)
+        corrected = perspective.image
+        inverse = np.linalg.inv(perspective.homography)
     need_photo_ocr = corrected is None and "blind" in modes
     ocr_image = corrected if corrected is not None else (image if need_photo_ocr else None)
     blocks: list[OcrBlock] = []
     ocr_warnings: list[str] = []
-    if ocr_image is not None:
+    if ocr_image is not None and "template" in modes:
         score = blur_score(ocr_image)
         if score < blur_threshold:
             ocr_warnings.append(
@@ -283,7 +315,9 @@ def extract_label_modes(
         block if inverse is None else block.model_copy(update={"bbox": project_box(block.bbox, inverse, image_size)})
         for block in blocks
     ]
-    template = json.loads(TEMPLATE_PATH.read_text(encoding="utf-8"))
+    photo_reading, photo_warnings = (None, [])
+    if "blind" in modes:
+        photo_reading, photo_warnings = _read_blind_photo(image, corrected, inverse)
     outputs: dict[str, tuple[LabelExtraction, dict[str, Any]]] = {}
     for mode in modes:
         output = LabelExtraction(label_id=path.stem)
@@ -347,13 +381,21 @@ def extract_label_modes(
             output.warnings.append(
                 f"MULTIPLE_BARCODES: {len(barcodes)} symbols decoded; none selected automatically"
             )
-        output.warnings.extend(ocr_warnings)
-        output.ocr_blocks = list(projected_blocks)
-        usable = [block for block in blocks if block.conf >= field_confidence]
+        if mode == "blind":
+            output.warnings.extend(photo_warnings)
+            evidence = photo_reading.blocks if photo_reading else []
+            output.ocr_blocks = project_blocks(evidence, photo_reading.to_original, image_size) if photo_reading else []
+            if any(block.conf < min_confidence for block in evidence):
+                output.warnings.append("LOW_OCR_CONFIDENCE: photo observations require review")
+        else:
+            evidence = blocks
+            output.warnings.extend(ocr_warnings)
+            output.ocr_blocks = list(projected_blocks)
+        usable = [block for block in evidence if block.conf >= field_confidence]
         if mode == "template":
             fields, field_warnings = map_fields(usable, (corrected.shape[1], corrected.shape[0]), template)
         else:
-            fields, field_warnings = map_fields_by_layout(blocks, min_confidence=field_confidence)
+            fields, field_warnings = map_photo_fields(evidence, min_confidence=field_confidence)
         details["raw_fields"] = dict(fields)
         if postcorrect:
             fields, notes = _postcorrect(fields, barcodes)
