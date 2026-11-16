@@ -4,8 +4,9 @@ Use the labellens-cv Conda environment, Python 3.12. The optional independent
 engine was Tesseract 5.5.4 with eng trained data. Exact RapidOCR model fingerprints
 and the selected CV source hash are in scripts/cv_experiments/config/cv2_candidate.json.
 No new Python OCR package is required. The system binary is optional; minimal CI
-imports extraction without CV packages. Missing Tesseract downgrades an explicit
-cv2 call to upscaled RapidOCR, which is a different, unmeasured release fallback.
+imports extraction without CV packages. Missing Tesseract resolves a cv2 call to the established baseline,
+not to unscored upscaling. This availability-only safeguard was added before
+final scores were opened; it does not change inference with Tesseract installed.
 The baseline remains explicitly available via photo_profile="baseline".
 
 ## Fixed source material

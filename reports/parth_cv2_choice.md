@@ -19,3 +19,9 @@ candidate once. Do not make field-rule edits after viewing final results.
 The release gate remains no condition regression and at least one improvement
 in complete-image normalized correctness. If it fails, baseline stays default.
 Main's application integration was merged without changing these CV bytes.
+
+Deployment safeguard, recorded before final scores were opened: resolve cv2 to
+baseline when the Tesseract executable is absent. This supersedes the unscored
+upscale fallback above. The archived scoring candidate runs with Tesseract
+installed, so its recognition/field inference is unchanged. No final evidence
+motivated this availability-only change. Tests cover both dependency states.

@@ -178,3 +178,19 @@ def test_score_identical_pixels_once(tmp_path: Path, monkeypatch: pytest.MonkeyP
     assert observed['totals']['clean']['complete']['k'] == 2
     with pytest.raises(FileExistsError):
         bench.main(['--dataset', str(tmp_path), '--output', str(result)])
+
+
+def test_optional_engine_keeps_baseline(monkeypatch: pytest.MonkeyPatch) -> None:
+    """An unavailable second engine cannot promote an unscored fallback."""
+    import shutil
+
+    from src.cv.extract import resolve_photo_profile
+
+    monkeypatch.setattr(shutil, 'which', lambda _: None)
+    assert resolve_photo_profile('cv2') == 'baseline'
+    assert resolve_photo_profile('upscale') == 'upscale'
+    assert resolve_photo_profile('baseline') == 'baseline'
+    monkeypatch.setattr(shutil, 'which', lambda _: '/optional/tesseract')
+    assert resolve_photo_profile('cv2') == 'cv2'
+    with pytest.raises(ValueError, match='Unknown'):
+        resolve_photo_profile('typo')

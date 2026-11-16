@@ -226,6 +226,17 @@ def _postcorrect(fields: dict[str, str], barcodes: list[BarcodeResult]) -> tuple
     return corrected, notes
 
 
+def resolve_photo_profile(profile: str) -> str:
+    """Keep the tested baseline when the selected optional engine is unavailable."""
+    import shutil
+
+    if profile not in {"baseline", "upscale", "cv2"}:
+        raise ValueError("Unknown photo profile")
+    if profile == "cv2" and shutil.which("tesseract") is None:
+        return "baseline"
+    return profile
+
+
 def _read_blind_photo(
     image: np.ndarray, corrected: np.ndarray | None, inverse: np.ndarray | None,
     profile: str = "baseline",
@@ -287,14 +298,7 @@ def extract_label_modes(
         raise ValueError("blur_threshold must be finite and nonnegative")
     if not modes or set(modes) - {"template", "blind"}:
         raise ValueError("modes must be chosen from template and blind")
-    if photo_profile not in {"baseline", "upscale", "cv2"}:
-        raise ValueError("Unknown photo profile")
-    # Optional system OCR must never make an otherwise usable image unreadable.
-    if photo_profile == "cv2":
-        import shutil
-
-        if shutil.which("tesseract") is None:
-            photo_profile = "upscale"
+    photo_profile = resolve_photo_profile(photo_profile)
     if symbol_detector not in ("v1", "v2"):
         raise ValueError("symbol_detector must be v1 or v2")
     path = Path(image_path)
