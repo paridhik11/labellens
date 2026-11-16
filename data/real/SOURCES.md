@@ -1253,3 +1253,20 @@ python -m src.cv.eval_real --folder data/real_photos/clear_online \
 Frozen clear-set transcriptions.csv SHA-256: `c7d7eb4254497acd2edfa091918832a688e1c5953f199707b7a25cd4a292c857`.
 Human spot-check for the clear set is NOT_RUN. The earlier spot-check request
 refers to the previous online baseline and does not validate these new readings.
+
+## Supplemental development artwork, 2026-11-16
+
+Two annotated packaging illustrations from a public Swissmedic-hosted Medeco
+notice, page 6. These are **artwork, not new real photos**, and enter development
+only. They are related layouts, not independent test examples. Source:
+https://fsca.swissmedic.ch/mep/api/publications/Vk_20181002_08/documents/2
+
+PDF SHA-256: e92214df50365aa44c7835b15c0c19e239f31aa8f4ffb960be81a25a1aebed99.
+Render page 6 with pdftoppm, scale-to 1800. Original rendered-pixel boxes:
+primary (480,442,1060,750), carton (509,958,866,1516). All references are
+LLM-generated: CuriSoft® Tiemann catheter CH12, lot 8C02317, expiry 2023-02.
+Human review deferred; real-symbol accuracy unmeasured. Company artwork rights
+are not established by public availability. Binaries stay local.
+Rebuild: `python -m scripts.real.fetch_extra_artwork`; cached mode adds --offline.
+This supplements the 20 pinned DailyMed device artworks; neither is pooled with
+photographs or medicine results.

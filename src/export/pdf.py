@@ -6,6 +6,7 @@ from io import BytesIO
 from pathlib import Path
 
 from reportlab.lib.utils import ImageReader
+from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.pdfgen.canvas import Canvas
 
 from src.export.label_model import (
@@ -16,6 +17,7 @@ from src.export.label_model import (
     primitives,
     validate_approval,
     validate_label,
+    watermark_lines,
     write_artifact,
 )
 
@@ -39,12 +41,10 @@ def render_pdf(
     buffer = BytesIO()
     page = Canvas(buffer, pagesize=(label.width_mm * MM_TO_PT, label.height_mm * MM_TO_PT), invariant=1)
     page.setTitle(f"LabelLens {label.version_id}")
-    if not approved or label.test_data:
-        heading = (
-            "TEST DATA | DRAFT" if not approved and label.test_data else "TEST DATA" if label.test_data else "DRAFT"
-        )
-        page.setFont("Helvetica", 9)
-        page.drawString(2 * MM_TO_PT, (label.height_mm - 6) * MM_TO_PT, heading)
+    for index, heading in enumerate(watermark_lines(label, approved)):
+        size = min(8.0, (label.width_mm - 4) * MM_TO_PT / stringWidth(heading, "Helvetica", 1))
+        page.setFont("Helvetica", size)
+        page.drawString(2 * MM_TO_PT, (label.height_mm - 3.5 - 4 * index) * MM_TO_PT, heading)
     for element in label.elements:
         for item in primitives(element):
             x, y = item.x * MM_TO_PT, (label.height_mm - item.y) * MM_TO_PT

@@ -182,3 +182,18 @@ exporter continues to hash its canonical Label snapshot. These references are
 different representations and must not be interchanged without an explicit
 application mapping and a new check for the chosen reference. No approval is
 automatically issued. Real symbol detection accuracy has not been established.
+
+## Mandatory nonproduction markings, 2026-11-16
+
+Every unapproved draft now visibly says **DRAFT, not for production**. This also
+remains on any approved prototype containing the placeholder identifier, test
+data, built-in non-certified pictograms or embedded raster artwork without
+certification provenance. A test approval is not permission to use the output
+for production. TEST DATA remains as a second line. The mark stays within the
+reserved 9 mm band; font size adapts to physical width. Sidecars list the exact
+visible_markings. PDF and SVG share the policy, and the legacy renderer prints
+the same warning. Earlier approval examples above describe review binding, not
+permission to remove this warning from prototypes.
+
+The complete worker integration contract, executable REGENERATE example and
+medicine corpus loader are in docs/GEN_HANDOFF.md. No approval is created here.

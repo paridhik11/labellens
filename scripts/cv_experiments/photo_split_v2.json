@@ -1,0 +1,78 @@
+{
+  "seed": 20261116,
+  "baseline_commit": "740a0ab",
+  "prior_exposure": "All original ten photos were scored in earlier work; split prevents new tuning leakage but is not an unseen holdout.",
+  "reference_source": "LLM-generated",
+  "human_review": "DEFERRED",
+  "entries": [
+    {
+      "filename": "clear_01_crylrex.jpg",
+      "group": "crylrex",
+      "split": "dev",
+      "sha256": "497677f538a064f0a7dd0141d6f30eafff2d1861e6a6cd5ff53e6006b6bf55af"
+    },
+    {
+      "filename": "clear_02_braisorb.jpg",
+      "group": "braisorb",
+      "split": "test",
+      "sha256": "4589687165df7d1f16f5e757dd053e3ec2809686341da7a970557eb34834fadc"
+    },
+    {
+      "filename": "clear_03_cranberry.jpg",
+      "group": "cranberry",
+      "split": "test",
+      "sha256": "ef602a0aa05323f646baf90e54466e6221a5ecc191b8a50bc3e0758f77c9b9ad"
+    },
+    {
+      "filename": "clear_04_cook_airway.jpg",
+      "group": "cook_airway",
+      "split": "dev",
+      "sha256": "c23bda60f598e56921531bdbaa9a7b9722c301639b9353067d5ff2821f69a771"
+    },
+    {
+      "filename": "clear_05_stratafix.jpg",
+      "group": "stratafix",
+      "split": "dev",
+      "sha256": "ad87ae24df48e571d55d0739661fff2a3995f799cb10acc7ce4f5069de2605c7"
+    },
+    {
+      "filename": "clear_06_medtronic_introducer.jpg",
+      "group": "medtronic_introducer",
+      "split": "test",
+      "sha256": "e32e9cafa4b1bbd670713e20e1b250f786d3612a737fe6f5bcdfa8254229c08d"
+    },
+    {
+      "filename": "clear_07_introcan_safety.jpg",
+      "group": "introcan",
+      "split": "dev",
+      "sha256": "fca1f592ddb33d7d86ae76a5b705f6f0414af8df598eb1217bbb926d5af6036e"
+    },
+    {
+      "filename": "clear_08_introcan_safety2.jpg",
+      "group": "introcan",
+      "split": "dev",
+      "sha256": "0b908764641fe4bb44c2ea809e50945fb9245f1f65bd5baa585a6554beac5660"
+    },
+    {
+      "filename": "clear_09_introcan.jpg",
+      "group": "introcan",
+      "split": "dev",
+      "sha256": "92dd526be827449690dc8aad36ded7d863a44d7ab453642e27416bf52cdb15b5"
+    },
+    {
+      "filename": "clear_10_ethibond.jpg",
+      "group": "ethibond",
+      "split": "test",
+      "sha256": "0bbdba1963dcf616759d3311c0d0db2bccd5470d9679780295d18ebbc3be4a11"
+    }
+  ],
+  "transcriptions_sha256": "c7d7eb4254497acd2edfa091918832a688e1c5953f199707b7a25cd4a292c857",
+  "reference_sha256": "c7d7eb4254497acd2edfa091918832a688e1c5953f199707b7a25cd4a292c857",
+  "candidate_source_sha256": {
+    "src/cv/extract.py": "1bb333e8c3fb03f196560927e067f754f61f7ed5b274a25b9f97d9f40d90e96d",
+    "src/cv/photo_fields.py": "29fbadd000bf1253f73b966a2913489175e4d857cfb02042d7c018b4db2eaead",
+    "src/cv/photo_ocr.py": "0c5247f6444c9ab43411489fe8e6bd7c1467dd067c465690638b29a44dbbbc7d",
+    "src/cv/_optional.py": "3e58190c0219bec32d3fdfb7dcbae3549528071425b24d571c3e72c537b833ea",
+    "src/cv/perspective.py": "4984b31363cc2b0e635d9b143a20e61cf29971f1db9ff5350bee32d18a239cc1"
+  }
+}

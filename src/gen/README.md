@@ -213,3 +213,16 @@ restriction; do not mix its manifests with export snapshots or approval hashes.
 Revision checks cover layout and barcode decoding. OCR and symbol detection are
 NOT_RUN, and the result remains NEEDS_HUMAN_REVIEW. Publication, trusted storage
 and approval/check issuance are outside this local revision engine.
+
+## Current handoff and draft policy, 2026-11-16
+
+See docs/GEN_HANDOFF.md for exact renderer/revision/export signatures and payloads.
+Both legacy render_label and the export-snapshot writers now display
+**DRAFT, not for production**. Test identifiers and built-in non-certified
+pictograms never become production artwork merely because a reviewer approved
+a test snapshot. Sidecars record visible markings; no reviewer record is issued.
+
+`src.gen.medicine.load_medicine_corpus(path)` returns a validated list of the
+existing shared Chunk objects, medicine only. It imports no CV or retrieval
+libraries and rejects changed text fingerprints and mixed datasets. Pari owns
+index construction and the step-24b API snapshot mapping.
