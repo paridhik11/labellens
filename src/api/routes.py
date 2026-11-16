@@ -14,7 +14,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from src.api import changes, checks, views
+from src.api import ask_jobs, changes, checks, views
 from src.api.errors import ApiError
 from src.api.models import (
     ChangeRequest,
@@ -347,7 +347,8 @@ def get_job(job_id: str, request: Request, session: Session = Depends(get_sessio
     """Current state of a job. Job ids that were never issued by this server fall back to the mock job (X-Mock)."""
     row = checks.latest_job(session, job_id)
     if row is not None:
-        return checks.job_json(row)
+        result = ask_jobs.stored_result(session, job_id) if row.kind == "ask" and row.state == "done" else None
+        return checks.job_json(row, result)
     if checks.REAL_JOB_ID.match(job_id):  # the form this server issues, so an unknown one really is unknown
         raise ApiError(404, "not_found", f"No job {job_id!r}.")
     from src.api.mock_server import mock_response  # imported here: mock_server imports this module
@@ -390,14 +391,43 @@ def _ask(request: Request, question: str, module: str) -> Any:
         raise ApiError(503, "retrieval_unavailable", str(error)) from error
 
 
+def _ask_job(
+    request: Request, background: BackgroundTasks, session: Session, question: str, module: str, product_id: str | None,
+) -> JSONResponse:
+    """Start the optional AI answer (CR-20) as a 202 job. The job falls back to the extractive passages."""
+    job = checks.new_job(session, "ask", None, "anonymous")
+    background.add_task(ask_jobs.run_ask_job, request.app, job.job_id, question, module, product_id)
+    return JSONResponse(checks.job_json(job), status_code=202)
+
+
+def _ask_mode(mode: str) -> str:
+    """Validate the optional mode query flag (extractive is the default)."""
+    if mode not in ("extractive", "ai"):
+        raise ApiError(422, "validation_error", "mode must be extractive or ai.")
+    return mode
+
+
 @router.post("/public/ask", operation_id="askPublic", tags=["public"])
-def ask_public(body: PublicQuestion, request: Request) -> dict[str, Any]:
-    """Cited answer from 21 CFR 201, 208 and 211, or an abstention. Works with the language model off (extractive)."""
+def ask_public(
+    body: PublicQuestion, request: Request, background: BackgroundTasks, mode: str = "extractive",
+    session: Session = Depends(get_session),
+) -> Any:
+    """Cited answer from 21 CFR 201, 208 and 211, or an abstention. Extractive by default (instant, no model).
+
+    `mode=ai` starts a 202 job that asks the language model and falls back to the extractive passages.
+    """
+    if _ask_mode(mode) == "ai":
+        return _ask_job(request, background, session, body.question, "medicine", body.product_id)
     result = _ask(request, body.question, "medicine")
     return result.to_wire(based_on=f"{PUBLIC_BASED_ON}; product {body.product_id}")
 
 
 @router.post("/ask", operation_id="askProfessional", tags=["device"])
-def ask_professional(body: ProfessionalQuestion, request: Request) -> dict[str, Any]:
-    """Cited answer from the device regulations (21 CFR 8xx), or an abstention. No header needed."""
+def ask_professional(
+    body: ProfessionalQuestion, request: Request, background: BackgroundTasks, mode: str = "extractive",
+    session: Session = Depends(get_session),
+) -> Any:
+    """Cited answer from the device regulations (21 CFR 8xx), or an abstention. No header needed. `mode=ai` as above."""
+    if _ask_mode(mode) == "ai":
+        return _ask_job(request, background, session, body.question, "device", None)
     return _ask(request, body.question, "device").to_wire(banner=False)

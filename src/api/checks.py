@@ -45,7 +45,7 @@ def latest_job(session: Session, job_id: str) -> Job | None:
     return session.scalars(select(Job).where(Job.job_id == job_id).order_by(Job.seq.desc())).first()
 
 
-def new_job(session: Session, kind: str, version_id: str, user_id: str) -> Job:
+def new_job(session: Session, kind: str, version_id: str | None, user_id: str) -> Job:
     """Append the first row of a job (state queued)."""
     row = Job(
         job_id=new_id("job"), kind=kind, state="queued", progress=0.0, version_id=version_id,
@@ -72,9 +72,11 @@ def advance_job(
     return row
 
 
-def job_json(row: Job) -> dict[str, Any]:
-    """Serialize the current state of a job (contract `Job`)."""
+def job_json(row: Job, result: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Serialize the current state of a job (contract `Job`). `result` is the AskJobResult of a done ask job."""
     out: dict[str, Any] = {"job_id": row.job_id, "kind": row.kind, "state": row.state, "progress": row.progress}
+    if result is not None:
+        out["result"] = result
     if row.message:
         out["message"] = row.message
     if row.result_url:

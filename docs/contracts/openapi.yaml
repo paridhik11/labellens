@@ -865,12 +865,27 @@ paths:
       operationId: askPublic
       summary: Ask about the matched label. Answers only from retrieved passages, or abstains.
       security: []
+      parameters:
+        - name: mode
+          in: query
+          required: false
+          description: |
+            `extractive` (default, instant, no language model) or `ai` (CR-20). With `ai` the answer is a 202
+            Job (kind `ask`); poll GET /jobs/{job_id}. The finished job carries `result` (AskJobResult). The AI
+            answer never fails the request: a missing model, a model slower than 90 s or an answer that fails
+            verification end with the extractive passages and a `fallback_reason`.
+          schema: {type: string, enum: [extractive, ai], default: extractive}
       requestBody:
         required: true
         content:
           application/json:
             schema: {$ref: "#/components/schemas/QuestionRequest"}
       responses:
+        "202":
+          description: Accepted (only with mode=ai). Job envelope of kind ask; poll GET /jobs/{job_id}.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Job"}
         "200":
           description: Cited answer or abstention
           content:
@@ -902,12 +917,27 @@ paths:
       security:
         - {}
         - UserHeader: []
+      parameters:
+        - name: mode
+          in: query
+          required: false
+          description: |
+            `extractive` (default, instant, no language model) or `ai` (CR-20). With `ai` the answer is a 202
+            Job (kind `ask`); poll GET /jobs/{job_id}. The finished job carries `result` (AskJobResult). The AI
+            answer never fails the request: a missing model, a model slower than 90 s or an answer that fails
+            verification end with the extractive passages and a `fallback_reason`.
+          schema: {type: string, enum: [extractive, ai], default: extractive}
       requestBody:
         required: true
         content:
           application/json:
             schema: {$ref: "#/components/schemas/ProfessionalQuestionRequest"}
       responses:
+        "202":
+          description: Accepted (only with mode=ai). Job envelope of kind ask; poll GET /jobs/{job_id}.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Job"}
         "200":
           description: Cited answer or abstention
           content:
@@ -1058,12 +1088,32 @@ components:
       additionalProperties: false
       properties:
         job_id: {type: string}
-        kind: {type: string, enum: [scan, inspect, generate, recheck, print_verify, public_scan]}
+        kind: {type: string, enum: [scan, inspect, generate, recheck, print_verify, public_scan, ask]}
         state: {type: string, enum: [queued, processing, done, failed]}
         progress: {type: number, minimum: 0, maximum: 1}
         message: {type: string}
         result_url: {type: string, description: Where to GET the result when state is done}
         error: {$ref: "#/components/schemas/Error"}
+        result: {$ref: "#/components/schemas/AskJobResult", description: "Set when an ask job is done (CR-20)"}
+    AskJobResult:
+      type: object
+      description: |
+        Result of an AI ask job (CR-20). `answer` is exactly the 200 body of the extractive operation (an answer, or
+        an abstention that may carry quotes). `model_used` is false when the passages are shown instead of a model
+        answer. `fallback_reason` explains why: model_unavailable (Ollama missing or failing), timeout (no answer
+        within 90 seconds) or verification_failed (the answer did not pass the citation checks). It is absent when
+        the model ran, including when the model said the passages do not answer.
+      required: [answer, model, model_used]
+      additionalProperties: false
+      properties:
+        answer:
+          anyOf:
+            - {$ref: "#/components/schemas/AnswerResponse"}
+            - {$ref: "#/components/schemas/ProfessionalAnswerResponse"}
+        model: {type: string}
+        model_used: {type: boolean}
+        latency_s: {type: number}
+        fallback_reason: {type: string, enum: [model_unavailable, timeout, verification_failed]}
 
     # ------------------------------------------------------------ products (ProductRecord)
     ProductRecord:

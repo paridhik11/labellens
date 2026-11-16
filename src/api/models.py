@@ -189,6 +189,17 @@ class Job(Base):
     created_at: Mapped[str] = mapped_column(String)
 
 
+class AskResult(Base):
+    """The finished answer of an `ask` job (Step 24c). Append-only, one row per job."""
+
+    __tablename__ = "ask_results"
+
+    seq: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    job_id: Mapped[str] = mapped_column(String, unique=True)
+    payload: Mapped[dict[str, Any]] = mapped_column(JSON)  # the contract AskJobResult
+    created_at: Mapped[str] = mapped_column(String)
+
+
 class ChangeAssessment(Base):
     """One stored assessment of a change (Step 22). Append-only: confirming appends the confirmed assessment."""
 
@@ -281,6 +292,7 @@ IMMUTABLE_TABLES: tuple[str, ...] = (
     "check_results",
     "extractions",
     "jobs",
+    "ask_results",
     "change_assessments",
     "change_confirmations",
     "reviews",
