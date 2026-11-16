@@ -45,3 +45,28 @@ def test_fixed_inputs_and_failure_denominator(tmp_path: Path) -> None:
     (tmp_path / 'extra.jpg').write_bytes(b'extra')
     with pytest.raises(ValueError, match='cohort'):
         protocol.validate_inputs(tmp_path, frozen)
+
+
+def test_archived_runner_metadata(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Run an explicitly named frozen source root without misidentifying it as baseline."""
+    import sys
+
+    folder = tmp_path / 'photos'
+    folder.mkdir()
+    (folder / 'one.jpg').write_bytes(b'test pixels')
+    (folder / 'transcriptions.csv').write_text('filename,product_name,lot,expiry\none.jpg,NOVA,Z9,2033-01\n')
+    frozen = {'cohort': [{'filename': p.name, 'sha256': hashlib.sha256(p.read_bytes()).hexdigest()}
+                         for p in sorted(folder.iterdir())], 'baseline_commit': 'old'}
+    catalog = tmp_path / 'protocol.json'
+    catalog.write_text(json.dumps(frozen))
+    code = tmp_path / 'archive/src/cv'
+    code.mkdir(parents=True)
+    (code / 'extract.py').write_text('# synthetic frozen source\n')
+    extraction = SimpleNamespace(model_dump=lambda: {'fields': {'product_name': 'NOVA'}})
+    monkeypatch.setitem(sys.modules, 'src.cv.extract',
+                        SimpleNamespace(extract_label=lambda *args, **kwargs: extraction))
+    output = tmp_path / 'evaluation.json'
+    assert protocol.main(['--folder', str(folder), '--protocol', str(catalog),
+                          '--code-root', str(tmp_path / 'archive'), '--revision', 'frozen-candidate',
+                          '--output', str(output)]) == 0
+    assert json.loads(output.read_text())['code_commit'] == 'frozen-candidate'

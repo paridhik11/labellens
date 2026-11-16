@@ -4,18 +4,62 @@
 **Branch:** [parth-gen](https://github.com/paridhik11/labellens/tree/parth-gen)
 **Base work:** CV and template work from `parth-cv`, reviewed and merged to `main`.
 
+## Latest update: integrated photo pipeline, 2026-11-16
+
+Pari accepted CR-2,3,4,5,9,10,11; acceptance is recorded in the contract requests.
+Perspective correction is now wired into the extractor. Known templates supply
+physical proportions; blind photos use observed edges without assuming the
+synthetic ratio. Fixed CPU OCR uses original/rectified views, quarter-turns,
+overlapping crops, split-key association and date validation. No new OCR model,
+product-specific dictionary, external API or scoring-set tuning was used.
+
+Development and corrections used invented examples and synthetic labels. The
+candidate was frozen at c2759e9, and both sides were evaluated from isolated
+archives against byte-pinned images and unchanged AI transcriptions. These ten
+images were exposed in earlier work, so this is not an unseen holdout.
+
+| Photo field | Baseline 88f9c9d | Frozen candidate c2759e9 |
+|---|---|---|
+| Product name, exact | 1/10 | 1/10 |
+| Lot, exact | 0/10 | 7/10 |
+| Expiry, exact | 0/10 | 3/10 |
+
+**Still flagged:** names remain weak, expiry remains weak, and an 80% real-photo
+accuracy claim is unsupported. Human spot-check and crop review remain deferred;
+transcriptions and symbol annotations are LLM-generated. Real-photo symbol
+accuracy remains unmeasured. Approved-print accuracy is not established.
+Earlier 1/10,0/10,0/10 reports remain historical baselines, not current results.
+
+Pari owns app integration: authentication, review storage and publication.
+Task 2 snapshot-to-data-model mapping belongs to her step 24b. No shared schema,
+retrieval or app implementation was changed by this CV fix. Merging origin/main
+imports Pari's existing work without replacing it.
+
+Verification after merging origin/main: fast suite **790 passed, 5 deselected,
+1 warning in 127.17s**; scoped generation/CV **398 passed, 1 skipped in 162.27s**;
+Ruff **All checks passed!**. Main's declared FastAPI, HTTPX, SQLAlchemy and
+scikit-learn packages were installed in the Conda environment for merged tests;
+no new dependency was added to the repository.
+
+See [paired results](../results/cv_photo_before_after.md),
+[fixed protocol](../reports/parth_photo_protocol.md), and
+[short report](../reports/parth_photo_fix.md). The older sections below describe
+prior task checkpoints and retain their historical metrics.
+
 ## Required status note for future summaries and handoffs
 
 Updated 2026-11-16 at Parth's request. Carry this unresolved item into every
 future progress summary, README or handoff Markdown prepared for Parth, Paridhi
 or anyone else. Do not describe photo extraction or Task 4 as fully solved.
 
-- **Photo-extraction fixes are deferred at Parth's request.** Ten clear online
+- **Photo extraction remains incomplete after the first fixed-protocol fix.** Ten clear online
   device-package photos are now collected, with product name, lot/batch and
   expiry readable in each image according to AI inspection. All 30 reference
   readings are LLM-labelled, not human-validated truth.
-- The unchanged extraction pipeline still performs poorly on this clear set:
-  exact product name **1/10**, lot **0/10**, expiry **0/10**. Source:
+- The original baseline performed poorly on this clear set:
+  exact product name **1/10**, lot **0/10**, expiry **0/10**. The latest frozen
+  candidate gives **1/10**, **7/10**, **3/10** respectively, with the name and
+  expiry weaknesses unresolved. Historical source:
   [clear-photo results](../results/cv_real_photos_clear.md). No 80% real-photo
   accuracy claim is supported. Do not present dataset selection as a model fix.
 - The three-photo human spot-check is **DEFERRED / NOT_RUN**, not zero errors.
@@ -92,11 +136,11 @@ all real-world validation is finished.
 | 1: GS1 module | KEEP, confirmed REGENERATE, NEEDS_INPUT; syntax/decode tests; no identifier invention | Allocation/ownership cannot be established by a check digit |
 | 2: PDF/SVG/QR export | Physical-size PDF; named layer-* and slot-{id} groups; offline published-URL QR; repeated field slots | Physical printer calibration and Windows runtime not validated here |
 | 3: DailyMed real labels | 20 device artworks, 17 records, eight families, 44 LLM-labelled symbol crops; pinned script/catalog rebuild | Human symbol review and detector accuracy NOT_RUN. Legacy 60 medicine artworks excluded from device evaluation; no reviewed medicine-symbol subset claimed |
-| 4: real photos | Ten accepted clear online device photos, 30 AI transcriptions, every photo evaluated | Human spot-check DEFERRED / NOT_RUN; extraction poor, fixes deferred |
+| 4: real photos | Ten clear online device photos, 30 AI transcriptions, fixed paired evaluation | Human spot-check DEFERRED / NOT_RUN; names 1/10, lots 7/10, expiry 3/10 |
 | 5: contract gaps | Sterile/EO/R artwork, SVG groups, approval/check/hash mappings, contract tests | Synthetic pictograms are not certified ISO artwork; app must provide trusted reviewer identity |
 | 6: revisions | New immutable draft versions; field/symbol changes; three barcode outcomes; audit and blocked-output guards | Task 2 snapshots and legacy packages need explicit application mapping; revision OCR/symbol self-checks NOT_RUN |
 | 9: medicine corpus | Ten pinned products, 147 source-text chunks, effective dates and source links; same Chunk keys | Retrieval integration/evaluation belongs to Pari; no src/ir edits |
-| 7a: perspective | Independent template-ratio correction, 90 fresh synthetic images, all-corner scoring | Roughly upright, dominant visible label; not wired into existing extractor; no real-photo geometry evaluation |
+| 7a: perspective | Independent template-ratio correction, 90 fresh synthetic images, all-corner scoring | Now integrated; blind aspect inferred from edges. No independent real-photo corner ground truth |
 | 7: print verification | Approved-package gate and per-field evidence/confidence; ten-photo provisional comparison | Real approved-print evaluation NOT_RUN without actual approved references; no approvals fabricated |
 
 No Task 8 was supplied. No new backend, UI, shared-schema, retrieval or contract
@@ -132,7 +176,7 @@ Source catalog: [medicine sources](../data/medicine/SOURCES.md).
 `src.cv.perspective.correct_perspective` finds four corners from pixels and maps
 them to the supplied template aspect ratio. It returns corrected pixels, source
 corners and a homography, the coordinate mapping between views. No supported
-boundary returns None. The extractor was not changed to call this module.
+boundary returns None. This historical standalone benchmark preceded the integration described at the top.
 
 Benchmark: seeds 7001, 7002, 7003; ten base labels per seed, each rendered in
 three conditions. Success requires every corner within 10 original-image
@@ -190,8 +234,9 @@ publication. No real approvals have been issued and nothing was published.
 
 ## Items that must stay flagged in every future summary
 
-1. DEFERRED: poor real-photo field extraction, with name 1/10, lot 0/10 and
-   expiry 0/10 on the clear set. The 80% real-photo target is not met.
+1. INCOMPLETE: after the first fixed-protocol fix, real-photo exact extraction
+   is name 1/10, lot 7/10, expiry 3/10. The previous baseline was 1/10,0/10,0/10.
+   The 80% real-photo target is not met; no scoring-set tuning is permitted.
 2. DEFERRED / NOT_RUN: three-photo human spot-check, explicitly deferred by
    Parth. AI labels stay AI labels; never report zero human errors.
 3. NOT_RUN: human review of the 44 real symbol crops and real-symbol/blind
@@ -201,9 +246,9 @@ publication. No real approvals have been issued and nothing was published.
 4. NOT_RUN: real approved-print validation. Need real authorized reference
    packages and corresponding print photos; online product photos do not supply
    that approval history. No approval records may be invented to close this.
-5. INTEGRATION: independent perspective code, medicine retrieval, API adapters,
+5. INTEGRATION: medicine retrieval and API adapters,
    trusted confirmations, auth, persistence and publication need application
-   work by their owners. Existing extractor is unchanged in this pass.
+   work by their owners. Perspective is now integrated; Pari owns auth, review storage, publication and step-24b snapshot mapping.
 6. LIMIT: revision self-check is partial; OCR and symbol detection are NOT_RUN.
    Synthetic artwork and check-digit validation do not certify label compliance,
    ISO pictograms, identifiers or authenticity.
@@ -263,7 +308,7 @@ The Windows caveat above is recorded in `docs/CV_STATUS.md`. Reproduction comman
 - [`src/gen/render.py`](../src/gen/render.py) and [`src/cv/verify.py`](../src/cv/verify.py): draft rendering and approval-bound print comparison.
 
 
-## Current completion-pass verification
+## Earlier completion-pass verification, before the photo fix
 
 Environment: Mac Apple Silicon, Conda labellens-cv, Python 3.12.
 No dependencies were added. Existing shared schemas, retrieval, API and UI were

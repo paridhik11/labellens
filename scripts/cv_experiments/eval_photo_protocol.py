@@ -91,7 +91,8 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--folder', type=Path, default=ROOT / 'data/real_photos/clear_online')
     parser.add_argument('--protocol', type=Path, default=ROOT / 'scripts/cv_experiments/photo_protocol_v1.json')
-    parser.add_argument('--baseline-root', type=Path)
+    parser.add_argument('--baseline-root', '--code-root', dest='baseline_root', type=Path)
+    parser.add_argument('--revision', help='Exact revision of an archived code root')
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--before', type=Path)
     parser.add_argument('--after', type=Path)
@@ -107,8 +108,10 @@ def main(argv: list[str] | None = None) -> int:
     from src.cv.extract import extract_label
 
     result = run_evaluation(args.folder, protocol, extract_label)
-    result['code_commit'] = (protocol['baseline_commit'] if args.baseline_root else
-                             subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip())
+    result['code_commit'] = args.revision or (
+        protocol['baseline_commit'] if args.baseline_root else
+        subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
+    )
     result['extractor_sha256'] = hashlib.sha256((root / 'src/cv/extract.py').read_bytes()).hexdigest()
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2) + '\n')

@@ -555,3 +555,31 @@ not approval-gated print validation. It creates no review records. Online source
 photos have no trusted approved reference package. Human spot-check is deferred
 by Parth. Extraction remains poor: name 1/10, lot 0/10, expiry 0/10. Detailed local
 output is `print_comparison_llm.json`; see `reports/parth_task7.md`.
+
+## Integrated photo pipeline, 2026-11-16
+
+The extractor now calls `perspective.warp_label`. Explicit template mode uses
+its known physical proportions. Blind mode uses the observed boundary-edge
+ratio, not the synthetic template ratio. Missing geometry still permits reading
+the original photo in blind mode. Pixel coordinates remain in the input photo.
+
+Blind photo OCR runs the installed RapidOCR CPU model on original and rectified
+views at four quarter-turns, retaining the original orientation when its score
+is within 10% of the best. Four overlapping 60% crops per chosen view help small
+text. Views are selected by observed target-field coverage, total field coverage
+and confident text coverage, without reference values. Field rules associate
+split or boxed LOT/EXP keys with nearby text and accept one valid unkeyed date.
+Conflicting lots or dates require review. Names remain typography heuristics.
+No scoring-specific product vocabulary or hand-selected crops are used.
+
+The candidate was frozen at c2759e9 before evaluating the fixed ten-photo
+cohort. Development used invented text/geometry and synthetic labels. The set
+was exposed in earlier work, so it is not an unseen holdout. Paired results:
+product name 1/10 to 1/10, lot 0/10 to 7/10, expiry 0/10 to 3/10.
+The result does not establish broad accuracy or an 80% success rate.
+
+See `results/cv_photo_before_after.md` for archived-code reproduction and the
+frozen input fingerprints in `scripts/cv_experiments/photo_protocol_v1.json`.
+Earlier photo reports are historical baselines. Human spot-check and symbol-crop
+review remain deferred; transcriptions/annotations are LLM-generated, not human
+truth. Real-photo symbol accuracy remains unmeasured. No approval is issued.
