@@ -213,3 +213,21 @@ photo/crop review stays deferred; real-symbol accuracy is unmeasured. Photo
 references are LLM-generated transcriptions. Previously exposed photos cannot
 be presented as a new unseen holdout. See the current report for exact counts
 and intervals; never substitute synthetic success for real-photo accuracy.
+
+## Repeatable golden demo packages
+
+Run `/opt/anaconda3/envs/labellens-cv/bin/python -m src.gen.golden` from the
+repository root. It builds `data/golden_demo/{clean_dailymed,synthetic,barcode_change}`
+with label.pdf, label.svg, QR PNG/SVG and expected.json. manifest.json pins every
+artifact. Repeating the command verifies the existing bytes; changed artifacts
+are rejected. Use `--output PATH` for a second independent build.
+
+The clean DailyMed package embeds the pinned device_05 source artwork in a
+100 mm review sheet. That page size is not the manufacturer's original label
+size. The other packages use the explicitly test-only all-zero placeholder.
+The barcode-change package confirms TESTLOT1 to TESTLOT2 through revise_template,
+records REGENERATE and checks the newly encoded payload. No approval is issued.
+All six label PDF/SVG exports visibly retain `DRAFT, not for production`.
+QR files are separate navigation codes using example.org, not label artwork.
+The exporter regression also covers approved prototypes and placeholder-only
+or uncertified-pictogram-only snapshots. No demo represents production clearance.
