@@ -104,6 +104,8 @@ def test_legacy_renderer_sterile_slot_and_version_binding(tmp_path: Path, monkey
     assert manifest["symbols"] == ["sterile_eo"]
     assert manifest["self_check"]["status"] == "NEEDS_HUMAN_REVIEW"
     assert "STERILE EO" in PdfReader(result.pdf).pages[0].extract_text()
+    assert "DRAFT, not for production" in PdfReader(result.pdf).pages[0].extract_text()
+    assert "DRAFT, not for production" in Path(result.svg).read_text()
     root = ET.parse(result.svg).getroot()
     for slot in template["slots"]:
         group = root.find(f".//s:g[@id='slot-{slot['id']}']", NS)

@@ -362,8 +362,8 @@ def test_svg_approval_retains_test_mark_and_audit(sample: Label, tmp_path: Path)
         authorized_reviewers=frozenset({"pari"}),
     )
     root = ET.parse(root_path).getroot()
-    heading = root.find(f"{{{SVG_NS}}}g[@id='layer-watermark']/{{{SVG_NS}}}text")
-    assert heading.text == "TEST DATA"
+    headings = root.findall(f"{{{SVG_NS}}}g[@id='layer-watermark']/{{{SVG_NS}}}text")
+    assert {heading.text for heading in headings} == {"TEST DATA", "DRAFT, not for production"}
     audit = json.loads(root_path.with_suffix(".svg.json").read_text())
     assert audit["check_id"] == "check-1" and audit["reference_sha256"] == fingerprint
     assert audit["artifact_sha256"] == hashlib.sha256(root_path.read_bytes()).hexdigest()
@@ -458,3 +458,29 @@ def test_published_url_qr_generation_never_connects_to_network(monkeypatch: pyte
     with Image.open(BytesIO(qr.png)) as image:
         decoded = zxingcpp.read_barcodes(np.asarray(image))
     assert len(decoded) == 1 and decoded[0].text == payload
+
+
+def test_nonproduction_mark_and_approved_prototypes(sample: Label, tmp_path: Path) -> None:
+    """Test identifiers and synthetic pictograms keep their warning even after test approval."""
+    from src.export.label_model import watermark_lines
+
+    mark = 'DRAFT, not for production'
+    assert mark in watermark_lines(sample, False)
+    assert mark in watermark_lines(sample, True)
+    symbol_only = replace(sample, test_data=False,
+                          elements=(Element('symbol', 'symbol', (5, 12, 10, 10), symbol_name='manufacturer'),))
+    assert watermark_lines(symbol_only, True) == (mark,)
+    placeholder_only = replace(sample, test_data=False,
+                               elements=tuple(e for e in sample.elements if e.kind == 'barcode'))
+    assert watermark_lines(placeholder_only, True) == (mark,)
+    text_only = replace(symbol_only, elements=(Element('name', 'text', (5, 12, 20, 10), text='Demo'),))
+    assert watermark_lines(text_only, True) == ()
+    fingerprint = reference_sha256(sample)
+    approval = ApprovalRecord('test_reviewer', sample.version_id, fingerprint, 'test-mark', reviewer_role='reviewer')
+    check = PassedCheck('test-mark', sample.version_id, fingerprint, True)
+    kwargs = {'approval': approval, 'check': check, 'authorized_reviewers': frozenset({'test_reviewer'})}
+    pdf = render_pdf(sample, tmp_path / 'prototype.pdf', **kwargs)
+    svg = render_svg(sample, tmp_path / 'prototype.svg', **kwargs)
+    assert mark in PdfReader(pdf).pages[0].extract_text()
+    assert mark in ''.join(ET.fromstring(svg.read_text()).itertext())
+    assert mark in json.loads(pdf.with_suffix('.pdf.json').read_text())['visible_markings']

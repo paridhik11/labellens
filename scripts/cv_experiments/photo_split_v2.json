@@ -66,5 +66,13 @@
       "sha256": "0bbdba1963dcf616759d3311c0d0db2bccd5470d9679780295d18ebbc3be4a11"
     }
   ],
-  "transcriptions_sha256": "c7d7eb4254497acd2edfa091918832a688e1c5953f199707b7a25cd4a292c857"
+  "transcriptions_sha256": "c7d7eb4254497acd2edfa091918832a688e1c5953f199707b7a25cd4a292c857",
+  "reference_sha256": "c7d7eb4254497acd2edfa091918832a688e1c5953f199707b7a25cd4a292c857",
+  "candidate_source_sha256": {
+    "src/cv/extract.py": "1bb333e8c3fb03f196560927e067f754f61f7ed5b274a25b9f97d9f40d90e96d",
+    "src/cv/photo_fields.py": "29fbadd000bf1253f73b966a2913489175e4d857cfb02042d7c018b4db2eaead",
+    "src/cv/photo_ocr.py": "0c5247f6444c9ab43411489fe8e6bd7c1467dd067c465690638b29a44dbbbc7d",
+    "src/cv/_optional.py": "3e58190c0219bec32d3fdfb7dcbae3549528071425b24d571c3e72c537b833ea",
+    "src/cv/perspective.py": "4984b31363cc2b0e635d9b143a20e61cf29971f1db9ff5350bee32d18a239cc1"
+  }
 }
