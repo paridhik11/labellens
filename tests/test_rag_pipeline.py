@@ -176,3 +176,45 @@ def test_no_answer_token_anywhere_means_no_answer(reply) -> None:
     """Found in a dev check of prompt v2: 'NO_ANSWER [1]' used to pass verification as an answer."""
     r = run(FakeProvider(reply))
     assert (r.outcome, r.cause, r.sources) == ("needs_human_check", "no_answer", [])
+
+
+# Step 23e: structured (JSON) output
+JSON_SETTINGS = RagSettings(output="json", prompt="v3")
+
+
+def run_json(reply, question="where is the expiration date on the drug label"):
+    return answer_question(question, "medicine", StubRetriever(), CHUNKS, FakeProvider(reply), JSON_SETTINGS, None)
+
+
+def test_json_answer_verified_and_renumbered() -> None:
+    r = run_json('{"no_answer": false, "sentences": [{"text": "The label names the manufacturer packer or '
+                 'distributor.", "sources": [2]}, {"text": "The expiration date shall appear on the label.", '
+                 '"sources": [1]}]}')
+    assert r.outcome == "answered" and r.mode == "generated"
+    assert [s["chunk_id"] for s in r.sources] == ["c2", "c1"]
+    for s in r.sources:
+        assert s["quote"] in CHUNKS[s["chunk_id"]].text
+
+
+@pytest.mark.parametrize("reply,failed", [
+    ("not json", "bad_json"),
+    ('{"no_answer": false}', "bad_json"),
+    ('{"no_answer": false, "sentences": [{"text": "The expiration date shall appear on the label."}]}', "bad_json"),
+    ('{"no_answer": false, "sentences": []}', "empty"),
+    ('{"no_answer": false, "sentences": [{"text": "The expiration date shall appear on the label.", "sources": []}]}',
+     "marker_missing"),
+    ('{"no_answer": false, "sentences": [{"text": "The expiration date shall appear on the label.", "sources": [9]}]}',
+     "id_invalid"),
+    ('{"no_answer": false, "sentences": [{"text": "Bananas are yellow fruit grown in warm places.", "sources": [1]}]}',
+     "low_overlap"),
+    ('{"no_answer": false, "sentences": [{"text": "[1]", "sources": [1]}]}', "empty_sentence"),
+])
+def test_json_failures_fall_back_to_quotes(reply, failed) -> None:
+    r = run_json(reply)
+    assert r.outcome == "needs_human_check" and r.cause == "verification" and r.checks["failed"] == failed
+    assert r.mode == "extractive" and r.answer is None and len(r.sources) == 3
+
+
+def test_json_no_answer_flag_has_no_quotes() -> None:
+    r = run_json('{"no_answer": true, "sentences": []}')
+    assert r.cause == "no_answer" and r.sources == [] and r.answer is None

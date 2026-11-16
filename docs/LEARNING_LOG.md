@@ -930,3 +930,11 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its CV step 16 to 
 4. **Verified:** full fast suite and ruff pass. Final run: no generated answer verified in any model (0/27 public, 0/20 professional answered). Both models returned bare numbers. The run found two verifier holes (marker-only sentence, `NO_ANSWER [1]`), fixed and recomputed from stored model text. Scope rule 10/10, 0 false triggers on 61. Extractive mode: 58/75 (public) and 27/51 (device) shown passages have LLM grade >= 1. Faithfulness: not measured, nothing to grade.
 5. **Check yourself:** `src/rag/verify.py` order of checks; `src/rag/pipeline.py` outcome mapping; spec section 14 (what was and was not frozen).
 6. **Assumptions:** The score gate threshold was fitted on 14 dev queries; the final queries are not fresh; LLM grades only; a bigger model or JSON output may fix the format problem and would need a new frozen run.
+
+## Step 23e: structured JSON output (short)
+1. **Did:** made the model answer as JSON that the server enforces (Ollama `format` schema), parsed it and ran the same checks as before. Fresh 40 queries, config frozen first, two models run once, faithfulness graded by the LLM.
+2. **Files:** `src/rag/{provider,prompt,verify,pipeline,settings,step23e}.py`, `tests/test_rag_pipeline.py`, `data/eval/fresh_rag_e.tsv`, `data/rag/step23e_config.json`, `results/step23e_*`, `reports/step23_e.md`.
+3. **How it works:** the schema makes broken markers impossible, so a reply either parses or was cut off. Cut-off replies and checks failing fall back to extractive quotes.
+4. **Verified:** tests and ruff pass; run results in `results/step23e_structured.md` (1.5b answered 14/30, 3b 17/30, neither fast enough).
+5. **Check yourself:** the frozen rule in `step23e.py` (eligible, qualified, choose); the 300 token cap that cut 11 of 1.5b's replies.
+6. **Assumptions:** llama3.2 and gemma3 skipped from a 3 query pilot; LLM grades only; many answers are verbatim copies.

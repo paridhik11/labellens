@@ -35,7 +35,32 @@ USER_TEMPLATE_V2 = (
     "Write 1 to 3 sentences, each ending with a passage number like [1]. If the passages do not answer, write "
     "NO_ANSWER.\n\nAnswer:"
 )
-PROMPTS = {"v1": (SYSTEM_V1, USER_TEMPLATE_V1), "v2": (SYSTEM_V2, USER_TEMPLATE_V2)}
+# v3 (Step 23e): the answer is a JSON object enforced by the server (Ollama structured outputs), so there is
+# no marker format to get wrong. The numbers in "sources" are passage numbers.
+SYSTEM_V3 = (
+    "You answer questions about US drug and medical device labeling regulations (21 CFR) using ONLY the "
+    "numbered passages you are given. Reply with a JSON object.\n"
+    "Set no_answer to true and sentences to an empty list if the passages do not answer the question.\n"
+    "Otherwise set no_answer to false and write 1 to 3 plain English sentences in sentences. Each item has "
+    "text (one sentence, no passage numbers inside it) and sources (the numbers of the passages that support "
+    "that sentence, at least one).\n"
+    "Rules: use only facts stated in the passages. Never say a label or product complies, is compliant or "
+    "approved. Never give medical advice."
+)
+USER_TEMPLATE_V3 = "Passages:\n{context}\n\nQuestion: {question}"
+PROMPTS = {"v1": (SYSTEM_V1, USER_TEMPLATE_V1), "v2": (SYSTEM_V2, USER_TEMPLATE_V2),
+           "v3": (SYSTEM_V3, USER_TEMPLATE_V3)}
+ANSWER_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "no_answer": {"type": "boolean"},
+        "sentences": {"type": "array", "items": {
+            "type": "object",
+            "properties": {"text": {"type": "string"}, "sources": {"type": "array", "items": {"type": "integer"}}},
+            "required": ["text", "sources"]}},
+    },
+    "required": ["no_answer", "sentences"],
+}
 SYSTEM, USER_TEMPLATE = PROMPTS["v1"]  # the frozen Step 23 run used v1
 
 
@@ -49,7 +74,7 @@ PROMPT_VERSION = prompt_version("v1")  # same value as before (hash of system + 
 
 def build_context(chunks: list[Chunk], version: str = "v1") -> str:
     """One line per passage. v1: [n] 21 CFR ...; v2: Passage n: 21 CFR ... (the model must not copy a leading [n])."""
-    label = "Passage {n}:" if version == "v2" else "[{n}]"
+    label = "Passage {n}:" if version in ("v2", "v3") else "[{n}]"
     lines = (f"{label.format(n=n)} 21 CFR {c.section} {c.title}: {c.text}" for n, c in enumerate(chunks, start=1))
     return "\n".join(lines)
 
