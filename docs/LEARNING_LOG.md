@@ -964,3 +964,11 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its CV step 16 to 
 4. **Verified:** tests and ruff pass; run results in `results/step23e_structured.md` (1.5b answered 14/30, 3b 17/30, neither fast enough).
 5. **Check yourself:** the frozen rule in `step23e.py` (eligible, qualified, choose); the 300 token cap that cut 11 of 1.5b's replies.
 6. **Assumptions:** llama3.2 and gemma3 skipped from a 3 query pilot; LLM grades only; many answers are verbatim copies.
+
+## Step 24c: optional AI answer (short)
+1. **Did:** added `?mode=ai` to the two ask operations. It starts a 202 job that asks qwen2.5 3b and always falls back to the extractive passages with a reason.
+2. **Files:** `src/api/ask_jobs.py`, routes, models, `src/rag/{provider,pipeline,service,settings}.py`, contract, mocks, `tests/test_ai_mode.py`, `docs/AI_ANSWER.md`, `docs/UI_NOTES_AI_ANSWER.md`.
+3. **How it works:** the job reuses the Step 23 pipeline. Any model problem ends as extractive passages plus a fallback reason, never a failed request.
+4. **Verified:** 698 fast tests, ruff clean, one live Ollama run.
+5. **Check yourself:** `run_ask_job` fallback paths; the `AskJobResult` schema; the limits text.
+6. **Assumptions:** timeout is httpx's 90 s read limit; Ishanvi's session was not reachable, so the UI note is a file.

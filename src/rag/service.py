@@ -65,11 +65,13 @@ class RagService:
             self._chunks[module] = module_chunks(module, CORPUS_PATH)
         return self._chunks[module]
 
-    def ask(self, question: str, module: str) -> RagResult:
-        """Run the pipeline in one module. Never mixes modules."""
+    def ask(
+        self, question: str, module: str, provider: Provider | None = None, settings: RagSettings | None = None,
+    ) -> RagResult:
+        """Run the pipeline in one module. Never mixes modules. A provider or settings can be given for one call."""
         retriever = self._load()[module]
-        return answer_question(question, module, retriever, self.chunks(module), self.provider, self.settings,
-                               self.threshold)
+        return answer_question(question, module, retriever, self.chunks(module), provider or self.provider,
+                               settings or self.settings, self.threshold)
 
     @property
     def mode(self) -> str:

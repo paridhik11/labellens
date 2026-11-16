@@ -242,7 +242,7 @@ paths:
               properties:
                 file: {type: string, contentMediaType: application/octet-stream}
                 source: {type: string, enum: [upload, camera]}
-                product_id: {type: string, description: "Required by the real server (CR-20): a scan creates a version of that product's label."}
+                product_id: {type: string, description: "Required by the real server (CR-21): a scan creates a version of that product's label."}
       responses:
         "202":
           description: Accepted. Job envelope; poll GET /jobs/{job_id}. result_url points at GET /scans/{scan_id}.
@@ -874,12 +874,27 @@ paths:
       operationId: askPublic
       summary: Ask about the matched label. Answers only from retrieved passages, or abstains.
       security: []
+      parameters:
+        - name: mode
+          in: query
+          required: false
+          description: |
+            `extractive` (default, instant, no language model) or `ai` (CR-21). With `ai` the answer is a 202
+            Job (kind `ask`); poll GET /jobs/{job_id}. The finished job carries `result` (AskJobResult). The AI
+            answer never fails the request: a missing model, a model slower than 90 s or an answer that fails
+            verification end with the extractive passages and a `fallback_reason`.
+          schema: {type: string, enum: [extractive, ai], default: extractive}
       requestBody:
         required: true
         content:
           application/json:
             schema: {$ref: "#/components/schemas/QuestionRequest"}
       responses:
+        "202":
+          description: Accepted (only with mode=ai). Job envelope of kind ask; poll GET /jobs/{job_id}.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Job"}
         "200":
           description: Cited answer or abstention
           content:
@@ -911,12 +926,27 @@ paths:
       security:
         - {}
         - UserHeader: []
+      parameters:
+        - name: mode
+          in: query
+          required: false
+          description: |
+            `extractive` (default, instant, no language model) or `ai` (CR-21). With `ai` the answer is a 202
+            Job (kind `ask`); poll GET /jobs/{job_id}. The finished job carries `result` (AskJobResult). The AI
+            answer never fails the request: a missing model, a model slower than 90 s or an answer that fails
+            verification end with the extractive passages and a `fallback_reason`.
+          schema: {type: string, enum: [extractive, ai], default: extractive}
       requestBody:
         required: true
         content:
           application/json:
             schema: {$ref: "#/components/schemas/ProfessionalQuestionRequest"}
       responses:
+        "202":
+          description: Accepted (only with mode=ai). Job envelope of kind ask; poll GET /jobs/{job_id}.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Job"}
         "200":
           description: Cited answer or abstention
           content:
@@ -1049,7 +1079,7 @@ components:
             (409), label_product_mismatch (409), no_change (422, an edit equals the current value),
             duplicate_field (422), parse_not_confirmed (422), edits_not_supported (422, confirm with edits),
             unknown_impact (422), nothing_to_confirm (409), change_not_confirmed (409, approve before the
-            change was confirmed). Upload codes (CR-20): unsupported_media_type, file_too_large, image_too_large,
+            change was confirmed). Upload codes (CR-21): unsupported_media_type, file_too_large, image_too_large,
             invalid_file (all 422 on uploadScan); retake_photo, extractor_unavailable and scan_failed appear in
             Scan.error and Job.error with state failed. retake_photo carries details {reasons, metrics, thresholds}.
         message: {type: string}
@@ -1069,12 +1099,32 @@ components:
       additionalProperties: false
       properties:
         job_id: {type: string}
-        kind: {type: string, enum: [scan, inspect, generate, recheck, print_verify, public_scan]}
+        kind: {type: string, enum: [scan, inspect, generate, recheck, print_verify, public_scan, ask]}
         state: {type: string, enum: [queued, processing, done, failed]}
         progress: {type: number, minimum: 0, maximum: 1}
         message: {type: string}
         result_url: {type: string, description: Where to GET the result when state is done}
         error: {$ref: "#/components/schemas/Error"}
+        result: {$ref: "#/components/schemas/AskJobResult", description: "Set when an ask job is done (CR-21)"}
+    AskJobResult:
+      type: object
+      description: |
+        Result of an AI ask job (CR-21). `answer` is exactly the 200 body of the extractive operation (an answer, or
+        an abstention that may carry quotes). `model_used` is false when the passages are shown instead of a model
+        answer. `fallback_reason` explains why: model_unavailable (Ollama missing or failing), timeout (no answer
+        within 90 seconds) or verification_failed (the answer did not pass the citation checks). It is absent when
+        the model ran, including when the model said the passages do not answer.
+      required: [answer, model, model_used]
+      additionalProperties: false
+      properties:
+        answer:
+          anyOf:
+            - {$ref: "#/components/schemas/AnswerResponse"}
+            - {$ref: "#/components/schemas/ProfessionalAnswerResponse"}
+        model: {type: string}
+        model_used: {type: boolean}
+        latency_s: {type: number}
+        fallback_reason: {type: string, enum: [model_unavailable, timeout, verification_failed]}
 
     # ------------------------------------------------------------ products (ProductRecord)
     ProductRecord:

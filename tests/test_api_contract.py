@@ -278,6 +278,14 @@ def test_every_real_response_conforms_to_openapi(run: Run, tmp_path, monkeypatch
     c("askProfessional", 200, "POST", "/ask", user=None, json={"question": "date format on a device label"})
     c("askProfessional", 200, "POST", "/ask", user=None, json={"question": "should I take two of these"})
     c("askProfessional", 422, "POST", "/ask", user=None, json={"question": " "})
+    # optional AI answer (Step 24c): a fake provider whose reply fails verification, so the job falls back
+    from src.rag.provider import FakeProvider
+
+    run.client.app.state.ai_provider = FakeProvider("not json")
+    started = c("askPublic", 202, "POST", "/public/ask?mode=ai", user=None, json=pub)
+    c("getJob", 200, "GET", f"/jobs/{started.json()['job_id']}", user=None)
+    c("askProfessional", 202, "POST", "/ask?mode=ai", user=None, json={"question": "date format on a device label"})
+    c("askPublic", 422, "POST", "/public/ask?mode=bogus", user=None, json=pub)
     monkeypatch.setattr("src.ir.step18_config.load_system", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("x")))
     run.client.app.state.rag = RagService(provider=NullProvider())
     c("askPublic", 503, "POST", "/public/ask", user=None, json=pub)
