@@ -31,6 +31,8 @@ from src.api.requests import (
     ChangeCreate,
     InspectCreate,
     ProductCreate,
+    ProfessionalQuestion,
+    PublicQuestion,
     ReviewCreate,
     SearchCreate,
     TemplateCreate,
@@ -66,6 +68,8 @@ REAL_OPERATIONS = frozenset(
         "getJob",
         "getCheckResult",
         "searchEvidence",
+        "askPublic",
+        "askProfessional",
     }
 )
 router = APIRouter()
@@ -371,3 +375,29 @@ def search_evidence(body: SearchCreate, request: Request) -> dict[str, Any]:
         raise ApiError(422, "validation_error", str(error)) from error
     settings = request.app.state.checker_settings
     return checks.search(settings, body.module, body.query, body.k, body.section_level, override)
+
+
+PUBLIC_BASED_ON = "21 CFR Parts 201, 208 and 211 (no product label text is used yet)"
+
+
+def _ask(request: Request, question: str, module: str) -> Any:
+    """Run the RAG pipeline for one module. 503 when the frozen retrieval cannot be built."""
+    from src.rag.service import RetrievalUnavailable
+
+    try:
+        return request.app.state.rag.ask(question, module)
+    except RetrievalUnavailable as error:
+        raise ApiError(503, "retrieval_unavailable", str(error)) from error
+
+
+@router.post("/public/ask", operation_id="askPublic", tags=["public"])
+def ask_public(body: PublicQuestion, request: Request) -> dict[str, Any]:
+    """Cited answer from 21 CFR 201, 208 and 211, or an abstention. Works with the language model off (extractive)."""
+    result = _ask(request, body.question, "medicine")
+    return result.to_wire(based_on=f"{PUBLIC_BASED_ON}; product {body.product_id}")
+
+
+@router.post("/ask", operation_id="askProfessional", tags=["device"])
+def ask_professional(body: ProfessionalQuestion, request: Request) -> dict[str, Any]:
+    """Cited answer from the device regulations (21 CFR 8xx), or an abstention. No header needed."""
+    return _ask(request, body.question, "device").to_wire(banner=False)

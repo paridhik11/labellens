@@ -1,0 +1,2 @@
+# Step 23c report
+`askPublic` and new `askProfessional` are real operations in `src/api` (CR-18 optional `sources` on the abstain shape, CR-19 `POST /ask`; both purely additive, 75 lines added to openapi.yaml, none changed). 503 `retrieval_unavailable` when the frozen retrieval cannot be built. Contract tests validate every ask response (`tests/test_api_contract.py`, `tests/test_api_ask.py`). Works with the model off.

@@ -94,6 +94,9 @@ Label image with highlighted boxes, extracted fields, findings with observed and
 |---|---|---|
 | success | `searchEvidence` (module device, default hybrid RRF) | `professional/evidence/success.json` |
 | empty | `searchEvidence`, zero hits | `professional/evidence/empty.json` |
+| success | `askProfessional`, cited answer | `professional/ask/success.json` |
+| abstained (out of scope) | `askProfessional` | `professional/ask/abstained_out_of_scope.json` |
+| abstained (needs human check, with quotes) | `askProfessional` | `professional/ask/abstained_needs_human_check.json` |
 
 ### D6. Changes ("Change impact", mockup panel 4)
 Proposed change, affected items with suggestions, current against draft preview, timeline Draft, Checked, Reviewed, Published.

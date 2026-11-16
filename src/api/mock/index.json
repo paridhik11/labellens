@@ -448,6 +448,30 @@
       "operationId": "publishVersion",
       "status": 201,
       "schema": "PublishedPage"
+    },
+    {
+      "file": "professional/ask/success.json",
+      "screen": "D5 Evidence",
+      "state": "success",
+      "operationId": "askProfessional",
+      "status": 200,
+      "schema": "ProfessionalAnswerResponse"
+    },
+    {
+      "file": "professional/ask/abstained_out_of_scope.json",
+      "screen": "D5 Evidence",
+      "state": "abstained",
+      "operationId": "askProfessional",
+      "status": 200,
+      "schema": "ProfessionalAnswerResponse"
+    },
+    {
+      "file": "professional/ask/abstained_needs_human_check.json",
+      "screen": "D5 Evidence",
+      "state": "abstained",
+      "operationId": "askProfessional",
+      "status": 200,
+      "schema": "ProfessionalAnswerResponse"
     }
   ]
 }

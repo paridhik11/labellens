@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 SHA256_PATTERN = r"^[0-9a-f]{64}$"
 
@@ -179,3 +179,25 @@ class SearchCreate(BaseModel):
     k: int = Field(default=10, ge=1, le=50)
     section_level: bool = False
     retrieval: RetrievalConfig | None = None
+
+
+class ProfessionalQuestion(BaseModel):
+    """POST /ask (device module). A blank question is a 422."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    question: str = Field(min_length=1)
+
+    @field_validator("question")
+    @classmethod
+    def not_blank(cls, value: str) -> str:
+        """Reject a question that is only spaces."""
+        if not value.strip():
+            raise ValueError("question must not be blank")
+        return value.strip()
+
+
+class PublicQuestion(ProfessionalQuestion):
+    """POST /public/ask (medicine module). product_id is accepted as given; no product registry exists yet."""
+
+    product_id: str = Field(min_length=1)
