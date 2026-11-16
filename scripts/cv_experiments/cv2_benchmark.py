@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import inspect
 import json
 import math
 import re
@@ -102,7 +103,9 @@ def predict(task: tuple[str, str, str]) -> dict[str, Any]:
     from src.cv.extract import extract_label
 
     try:
-        kwargs = {} if profile == 'baseline' else {'photo_profile': profile}
+        kwargs = {'photo_profile': profile} if 'photo_profile' in inspect.signature(extract_label).parameters else {}
+        if not kwargs and profile != 'baseline':
+            raise ValueError('Archived extractor does not support the requested candidate')
         extraction = extract_label(image, mode='blind', postcorrect=True, **kwargs)
         return {'fields': extraction.fields, 'warnings': extraction.warnings}
     except Exception as error:

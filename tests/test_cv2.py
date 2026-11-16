@@ -124,3 +124,20 @@ def test_title_and_identifier_prefix() -> None:
     assert fields['expiry'] == 'EXP: 2033-06-15'
     assert fields['product_name'] == 'TEST SPINAL PENCIL POINT'
     assert observed_product_name([]) is None
+
+
+def test_predict_explicit_baseline(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Baseline stays explicitly selectable after a new default is promoted."""
+    import sys
+
+    seen = []
+
+    def extractor(image: str, *, mode: str, postcorrect: bool, photo_profile: str = 'cv2') -> object:
+        """Observe the profile instead of loading any CV engine."""
+        seen.append(photo_profile)
+        return SimpleNamespace(fields={'lot': 'LOT: TEST'}, warnings=[])
+
+    monkeypatch.setitem(sys.modules, 'src.cv.extract', SimpleNamespace(extract_label=extractor))
+    monkeypatch.setattr(sys, 'path', list(sys.path))
+    assert bench.predict(('toy.png', '.', 'baseline'))['fields']['lot'] == 'LOT: TEST'
+    assert seen == ['baseline']
