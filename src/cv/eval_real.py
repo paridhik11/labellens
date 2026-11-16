@@ -31,7 +31,7 @@ def edit_distance(reference: str, observed: str) -> int:
 
 
 def load_transcriptions(csv_path: Path) -> dict[str, dict[str, str]]:
-    """Read hand transcriptions: one row per photo, ``filename`` plus one column per field.
+    """Read reference transcriptions: one row per photo, ``filename`` plus one column per field.
 
     Empty cells mean "not transcribed" and are skipped. Values are used
     exactly as typed, apart from removing surrounding whitespace.
@@ -90,8 +90,9 @@ def evaluate(folder: Path) -> dict[str, object] | None:
     rows = []
     for photo in photos:
         reference = transcriptions.get(photo.name)
-        if reference is None:
-            rows.append({"photo": photo.name, "status": "no transcription row, skipped"})
+        if reference is None or not reference:
+            status = "no transcription row, skipped" if reference is None else "no readable reference fields, skipped"
+            rows.append({"photo": photo.name, "status": status})
             continue
         try:
             extraction = extract_label(photo, mode="blind", postcorrect=True)
@@ -103,7 +104,9 @@ def evaluate(folder: Path) -> dict[str, object] | None:
             observed = extraction.fields
             barcodes = len(extraction.barcodes)
             rows.append({"photo": photo.name, "status": "ok", "fields": observed, "barcodes": barcodes})
-        for field, counts in score(reference, observed).items():
+        scores = score(reference, observed)
+        rows[-1].update(reference=reference, scores=scores)
+        for field, counts in scores.items():
             total = totals.setdefault(field, {"edits": 0, "characters": 0, "exact": 0, "present": 0, "photos": 0})
             for key, value in counts.items():
                 total[key] += value
@@ -112,15 +115,57 @@ def evaluate(folder: Path) -> dict[str, object] | None:
     return {"photos": len(photos), "rows": rows, "totals": totals, "transcribed_but_missing": missing}
 
 
+
+def report_cell(value: object) -> str:
+    """Keep source and OCR text inside one Markdown table cell."""
+    return str(value).replace("\r", " ").replace("\n", " ").replace("|", "\\|")
+
+
+def render_report(result: dict[str, object], reference_source: str) -> str:
+    """Render exact per-photo field comparisons without treating blank references as correct."""
+    from src.cv.fields import strip_key
+
+    lines = ["# Real photo evaluation", "", f"Reference source: {report_cell(reference_source)}.",
+             "Condition: photograph. Mode: blind, with post-correction.",
+             "Human three-photo spot-check: NOT_RUN. Results against AI references are provisional.",
+             "", f"Photos found: {result['photos']}.", "",
+             "| Photo | Extraction status | Field | Reference | Observed | Exact match |",
+             "|---|---|---|---|---|---|"]
+    for row in result["rows"]:
+        for field in ("product_name", "lot", "expiry"):
+            expected = row.get("reference", {}).get(field)
+            observed = row.get("fields", {}).get(field, "")
+            if field in KEYED_FIELDS and observed:
+                observed = strip_key(observed)
+            exact = row.get("scores", {}).get(field, {}).get("exact")
+            verdict = "not scored" if exact is None else ("yes" if exact else "no")
+            cells = (row["photo"], row["status"], field, expected or "not transcribed", observed, verdict)
+            lines.append("| " + " | ".join(report_cell(cell) for cell in cells) + " |")
+    lines += ["", "| Field | Scored photos | Exact matches | Character errors |", "|---|---|---|---|"]
+    for field, total in result["totals"].items():
+        lines.append(f"| {report_cell(field)} | {total['photos']} | {total['exact']}/{total['photos']} | "
+                     f"{total['edits']}/{total['characters']} |")
+    lines += ["", "Blank, absent and unreadable reference fields are not scored. "
+              "Extraction failures count as misses for every readable reference field."]
+    if result["transcribed_but_missing"]:
+        lines += ["", f"Transcribed but missing photos: {result['transcribed_but_missing']}"]
+    return "\n".join(lines) + "\n"
+
 def main(argv: list[str] | None = None) -> int:
     """Print per-field results on real photos, or explain what is missing."""
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--folder", type=Path, default=Path("data/real_photos"))
+    parser.add_argument("--report", type=Path, help="Save per-photo field comparisons as Markdown")
+    parser.add_argument("--reference-source", choices=("unspecified", "LLM-labelled"), default="unspecified")
     args = parser.parse_args(argv)
     result = evaluate(args.folder)
     if result is None:
         print(f"No real photos to evaluate: add photos and transcriptions.csv to {args.folder} (see its README.md).")
         return 0
+    if args.report:
+        args.report.parent.mkdir(parents=True, exist_ok=True)
+        args.report.write_text(render_report(result, args.reference_source), encoding="utf-8")
+    print(f"Reference source: {args.reference_source}.")
     print(f"Real photos found: {result['photos']}. Mode: blind, with post-correction.")
     for row in result["rows"]:
         decoded = f", barcodes decoded: {row['barcodes']}" if "barcodes" in row else ""
@@ -134,6 +179,8 @@ def main(argv: list[str] | None = None) -> int:
         )
     if result["transcribed_but_missing"]:
         print(f"Transcribed but no photo found: {result['transcribed_but_missing']}")
+    if args.report:
+        print(f"Per-photo field comparisons saved to {args.report}.")
     return 0
 
 

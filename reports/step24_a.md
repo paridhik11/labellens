@@ -18,7 +18,7 @@
 So 0/170 clean and 0/170 moderate labels were wrongly rejected. On very_hard, 30 of the 35 images with no barcode read were caught, but 41 of 135 with a readable barcode were also rejected. Sweeps: glare edge 80 starts rejecting moderate (5/170); 60 to 70 is a plateau; sharpness 150 to 250 and contrast 20 to 80 change nothing on clean or moderate.
 
 **Choices.**
-- `product_id` is required (a scan creates a version, which needs a product). File errors are 422 with specific codes, not 413 or 415. Both, and the new codes, are additive CR-19 in `openapi.yaml` and `SCHEMA_CHANGE_REQUESTS.md`.
+- `product_id` is required (a scan creates a version, which needs a product). File errors are 422 with specific codes, not 413 or 415. Both, and the new codes, are additive CR-20 in `openapi.yaml` and `SCHEMA_CHANGE_REQUESTS.md`.
 - PDF pages skip the photo gate (a render has no camera defects).
 - Unknown ids that this server never issues still serve the mock (`scn_0001` style), as for jobs.
 - Added `python-multipart` (FastAPI forms; CI), `pypdfium2` (PDF), `pillow` to the CI install line.

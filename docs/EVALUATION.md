@@ -26,6 +26,8 @@ OCR character and word error rate, barcode decode rate, symbol recall and precis
 ## 4. RAG
 Citation precision, faithfulness (manual check on 50 outputs), abstention on unanswerable queries, refusal on medical-advice questions.
 
+Step 23 (`docs/RAG_SPEC.md`, results in `results/step23_rag.md`): citation validity, faithfulness graded by an LLM with a frozen rubric (not human; a random 20 percent re-graded in a second pass), answered rate on answerable queries, wrong-answer rate on no_answer queries, scope-rule recall, all with Wilson intervals, public and professional apart. Run with `python -m src.rag.evaluate fit|run|metrics`.
+
 ## 5. Generation
 Self-check pass rate on 30+ synthetic change requests, barcode round-trip success, conditional barcode correctness (kept when unchanged, regenerated when changed), field fidelity (CER of rendered text), overflow and layout violation rate, draft creation time.
 

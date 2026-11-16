@@ -82,6 +82,8 @@ def test_real_operations_never_carry_x_mock(client) -> None:
         ("GET", "/scans/scn_00000000"),
         ("GET", "/label-versions/lbv_00000000/extraction"),
         ("POST", "/label-versions/lbv_00000000/extraction/confirm"),
+        ("POST", "/public/ask"),
+        ("POST", "/ask"),
     ]
     for method, path in calls:
         response = client.request(method, path, headers=HEADERS, json={} if method == "POST" else None)
@@ -110,8 +112,8 @@ def test_mock_state_picks_another_mock_of_the_same_operation(client) -> None:
     assert review.headers["X-Mock"] == "true"
     empty = client.get("/public/scans/x?mock_state=empty")
     assert empty.json()["candidates"] == [] and empty.headers["X-Mock"] == "true"
-    by_file = client.post("/public/ask?mock_state=abstained_out_of_scope")
-    assert by_file.json()["reason"] == "out_of_scope"
+    by_file = client.get("/public/scans/x?mock_state=failed")
+    assert by_file.headers["X-Mock"] == "true" and by_file.json() != empty.json()
     fallback = client.get("/label-versions/x/extraction?mock_state=nonsense", headers=HEADERS)
     assert fallback.json() == default.json()
 

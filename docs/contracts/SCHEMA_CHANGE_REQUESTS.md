@@ -6,7 +6,20 @@ Interim rule: until a request is approved, the API and mock JSON define these sh
 
 The column "Parth" says whether the request touches Parth's modules (`src/cv`, `src/gen`). Those modules are on his branch (`cv-fixes`) and not yet on main. A "yes" means he should review the request, because his code reads or writes that shape today.
 
-Status of every request: **proposed, not approved**.
+Status update, 2026-11-16: **CR-2, CR-3, CR-4, CR-5, CR-9, CR-10 and CR-11
+accepted by Pari**, as explicitly confirmed in the task handoff. This records
+acceptance of Parth's recommendations and does not itself edit shared schemas.
+Other requests retain their existing status.
+
+| Accepted request | Decision owner | Status |
+|---|---|---|
+| CR-2 | Pari | Accepted |
+| CR-3 | Pari | Accepted |
+| CR-4 | Pari | Accepted |
+| CR-5 | Pari | Accepted |
+| CR-9 | Pari | Accepted |
+| CR-10 | Pari | Accepted |
+| CR-11 | Pari | Accepted |
 
 | ID | Missing from `schemas.py` | Needed by | Proposed addition | Interim in the API | Parth |
 |---|---|---|---|---|---|
@@ -27,6 +40,8 @@ Status of every request: **proposed, not approved**.
 | CR-15 | `Report` and `PublishedPage` pinned to a `version_id` | Export, published product page and QR | New small models with a required, never-changing `version_id`. | OpenAPI `Report` and `PublishedPage`. | no |
 | CR-16 | Minimal `User` (`user_id`, `name`, `role`: editor, reviewer, admin) and the rule that the submitter of a change cannot approve it | Review, audit, every write | New `User` model. No login model: the API uses an `X-User-Id` header stub. | OpenAPI `User`, `GET /me`, security scheme `UserHeader`. | no |
 | CR-17 | `CheckResult.needs_human_count` and `CheckResult.coverage` (list of `RuleOutcome`: `rule_id`, `outcome`, `reason`), `Finding.rule_id`, and the product registration key `extra.rx_only` (Step 21) | Inspect, re-check, Review screen, checker | Additive. `schemas.py` is not edited: the checker uses a `Finding` subclass of `Flag` in `src/checker/models.py`. If the team wants the fields in `schemas.py`, add `rule_id` to `Flag` and a `RuleOutcome` model. `rx_only` needs no change, it lives in `ProductRecord.extra`. | OpenAPI `RuleOutcome`, `CheckResult`, `Finding`, `ProductCreate.extra`. | no |
+| CR-18 | `AbstainedAnswer.sources` (optional list of `Citation`): verbatim passages shown when no answer was generated or it failed verification (Step 23) | Public ask, professional ask | Additive. Optional field on the abstain shape, no answer text is added, `reason` stays `needs_human_check`. Approved in Step 23 because nothing existing changed. | OpenAPI `AbstainedAnswer`, `ProfessionalAbstainedAnswer`. | no |
+| CR-19 | New operation `askProfessional` (`POST /ask`, device module only) with `ProfessionalQuestionRequest`, `ProfessionalAnsweredAnswer`, `ProfessionalAbstainedAnswer`, `ProfessionalAnswerResponse`; plus `422` and `503` (`retrieval_unavailable`) documented on `askPublic` | Professional evidence screen | Additive: a new path and new schemas, no existing field changed. Same abstain reasons and score fields as public, no banner, no `based_on`. | OpenAPI as listed, mocks `professional/ask/*.json`. | no |
 
 ## Why not edit schemas.py now
 
@@ -34,7 +49,7 @@ The step brief marks it LOCKED, and the working agreement says it needs your app
 
 ## Assumptions
 
-1. None of these requests is approved. They are a list for the team, not a decision.
+1. The seven requests listed above are accepted by Pari. Other requests remain proposals unless separately recorded.
 2. Optional fields added to existing models (CR-1, CR-4, CR-6, CR-7) are assumed to be backward compatible, because every existing field keeps its type and default.
 3. CR-14 recommends doing nothing, to avoid touching `ChangeRequest.status`, which other code may already use.
 4. Model names in the proposals are suggestions and can change in review.
@@ -80,7 +95,7 @@ Rule: the contract follows the merged code for D-2, D-4, D-7 and D-8. For D-3, D
 
 Additive. `ChangeAssessment.parser` gains `rules` and `llm`; `ChangeAssessment` gains `unassessed_edits` and `assessment_id`; `AffectedLabel` gains `needs_human`, `reason`, `rule_ids` and `barcode_decision`; `Review` gains `assessment_id`; `confirmChange` is real and documents 401, 403, 404, 409, 422. New append-only tables `change_assessments` and `change_confirmations`. `schemas.py` untouched. Does not touch Parth's code.
 
-## CR-19 Upload, scan and extraction errors (additive, Step 24a)
+## CR-20 Upload, scan and extraction errors (additive, Step 24a)
 
 No schema field changes. `uploadScan`, `getScan`, `getExtraction` and `confirmExtraction` now document `401`, `403`, `404` and `422` where they apply, and the Error code list gains the upload codes: `unsupported_media_type`, `file_too_large`, `image_too_large`, `invalid_file` (422 on upload) and `retake_photo`, `extractor_unavailable`, `scan_failed` (inside `Scan.error` and `Job.error` when the state is `failed`). `retake_photo` carries `details: {reasons, metrics, thresholds}` with reasons `blur`, `low_contrast` or `glare`.
 

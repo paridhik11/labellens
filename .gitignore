@@ -25,6 +25,12 @@ data/processed/ft_*
 data/synthetic/
 !results/cv_*.md
 
+# New datasets and photos stay local; retain the real-label source catalog.
+data/*
+!data/real/
+data/real/*
+!data/real/SOURCES.md
+
 # local API database (Step 20)
 data/api/
 
@@ -36,3 +42,8 @@ data/real_symbols/
 data/real_labels/
 data/models/
 data/real_labels_eval/
+
+# shared built indexes (Step 23): one copy outside any worktree, never committed
+data/cache/
+!results/step23_*
+results/step23_run.log

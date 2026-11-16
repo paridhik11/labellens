@@ -26,6 +26,7 @@ from src.api.routes import router
 from src.api.seed import seed_demo
 from src.api.uploads import MAX_BYTES
 from src.checker.settings import CheckerSettings
+from src.rag.service import RagService, frozen_threshold
 
 FORM_OVERHEAD = 64 * 1024  # room for the multipart boundaries and the small text fields around the file
 
@@ -43,6 +44,7 @@ def create_app(db_url: str | None = None, seed: bool | None = None) -> FastAPI:
         app.state.quality_gate = lambda path: assess_photo(path, QUALITY_THRESHOLDS)  # tests replace it
         app.state.quality_thresholds = QUALITY_THRESHOLDS
         app.state.checker_settings = CheckerSettings()  # default retrieval: plain hybrid RRF
+        app.state.rag = RagService(threshold=frozen_threshold())  # Step 23: E5b retrieval loads on the first question
         app.state.edit_provider = None  # optional LLM text parser, off by default (src/change/parser.py)
         if seed if seed is not None else os.environ.get("LABELLENS_SEED", "1") != "0":
             with app.state.session_factory() as session:

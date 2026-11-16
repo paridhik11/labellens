@@ -1,0 +1,19 @@
+{
+  "abstained": true,
+  "reason": "needs_human_check",
+  "score_name": "e5b_top_score",
+  "score": 0.031,
+  "threshold": 0.033,
+  "message": "A generated answer did not pass the citation checks, so only the closest passages are shown. A person should check this.",
+  "sources": [
+    {
+      "source_type": "cfr",
+      "chunk_id": "fda_21cfr801_s801.18",
+      "source": "FDA",
+      "section": "801.18",
+      "title": "Format of dates provided on a medical device label.",
+      "url": "https://www.ecfr.gov/current/title-21/section-801.18",
+      "quote": "Whenever the label of a medical device includes a printed expiration date, date of manufacture, or any other date intended to be brought to the attention of the user of the device, the date must be presented in the following format:"
+    }
+  ]
+}
