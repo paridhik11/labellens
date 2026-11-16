@@ -940,3 +940,12 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its CV step 16 to 
 4. **Verified:** full fast suite and ruff pass. Final run: no generated answer verified in any model (0/27 public, 0/20 professional answered). Both models returned bare numbers. The run found two verifier holes (marker-only sentence, `NO_ANSWER [1]`), fixed and recomputed from stored model text. Scope rule 10/10, 0 false triggers on 61. Extractive mode: 58/75 (public) and 27/51 (device) shown passages have LLM grade >= 1. Faithfulness: not measured, nothing to grade.
 5. **Check yourself:** `src/rag/verify.py` order of checks; `src/rag/pipeline.py` outcome mapping; spec section 14 (what was and was not frozen).
 6. **Assumptions:** The score gate threshold was fitted on 14 dev queries; the final queries are not fresh; LLM grades only; a bigger model or JSON output may fix the format problem and would need a new frozen run.
+
+## CV step 35: preserve latest main and verify the final combined release
+
+1. What I did: origin/main advanced to 6149aec with Pari's Step 23 RAG work before promotion. Merged it into parth-gen and retained both learning-log histories. No CV algorithm or test scoring changed.
+2. Files changed: The merge imports Pari's existing RAG/API/docs work. Updated the current report and summary with final combined verification; no src/ir, checker thresholds or shared schemas were edited by this task.
+3. How it works: The final release keeps baseline photo rules, the failed candidate in Git, lazy CV imports, nonproduction markings and the generation/medicine handoff. The RAG changes remain intact.
+4. How I verified it: `/opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider -m "not slow"`: `840 passed, 5 deselected, 1 warning in 35.04s`. `/opt/anaconda3/envs/labellens-cv/bin/python -m ruff check --no-cache src tests scripts/real scripts/cv_experiments/eval_photo_split.py`: `All checks passed!`. Earlier scoped CV/generation and export checks are recorded above. Test photo scoring still has exactly one guarded candidate invocation, c50fb4a.
+5. What you should check yourself: The combined report, preserved RAG changes and visible prototype warnings. Check main's no-ff promotion in Git history.
+6. What I am unsure about or assumed: Real-photo improvement is still open; human review remains deferred and real-symbol accuracy unmeasured. Pari owns app integration. CI is checked through the public API after pushing.

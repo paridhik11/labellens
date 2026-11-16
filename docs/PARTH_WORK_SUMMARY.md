@@ -55,8 +55,8 @@ Completed independently of that negative result:
   related artwork examples, not new real photos. No additional suitable photo
   was accepted in this search. Artwork is not pooled with photo scores.
 
-Actual release validation: fast suite 800 passed, 5 deselected, 1 warning in
-42.16s; generation/CV 398 passed, 1 skipped in 82.71s; export/interface checks
+Actual release validation: fast suite 840 passed, 5 deselected, 1 warning in
+35.04s after merging latest RAG main; generation/CV 398 passed, 1 skipped in 82.71s; export/interface checks
 41 passed in 8.39s; synthetic blind/template regression 1 passed in 33.07s;
 Ruff All checks passed. The lazy-import test blocks optional CV libraries in a
 fresh process. See [short report](../reports/parth_remaining_review.md),

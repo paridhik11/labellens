@@ -21,7 +21,7 @@ Failed candidate retained in Git; no retuning or second test scoring. Previously
 Conda Python, actual output:
 ```text
 /opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider -m "not slow"
-800 passed, 5 deselected, 1 warning in 42.16s
+840 passed, 5 deselected, 1 warning in 35.04s
 /opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider src/gen src/cv
 398 passed, 1 skipped in 82.71s
 /opt/anaconda3/envs/labellens-cv/bin/python -m ruff check --no-cache src tests
