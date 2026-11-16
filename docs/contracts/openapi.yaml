@@ -242,7 +242,7 @@ paths:
               properties:
                 file: {type: string, contentMediaType: application/octet-stream}
                 source: {type: string, enum: [upload, camera]}
-                product_id: {type: string, description: "Required by the real server (CR-21): a scan creates a version of that product's label."}
+                product_id: {type: string, description: "Required by the real server (CR-20): a scan creates a version of that product's label."}
       responses:
         "202":
           description: Accepted. Job envelope; poll GET /jobs/{job_id}. result_url points at GET /scans/{scan_id}.
@@ -581,10 +581,16 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Job"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "403": {$ref: "#/components/responses/Forbidden"}
+        "404": {$ref: "#/components/responses/NotFound"}
         "409":
           description: |
-            Checked before the job starts. NeedsInput (barcode decision NEEDS_INPUT, IdentifierRequired),
-            or Error change_closed when the change was rejected. No artwork is produced.
+            Checked before the job starts, nothing is written. NeedsInput (barcode decision NEEDS_INPUT,
+            IdentifierRequired, or a changed encoded value that is not confirmed yet; `task.task_id` is the reason
+            code, for example task_udi_di or task_confirm_lot). Otherwise an Error: change_closed (the change was
+            rejected), change_not_confirmed (the assessment was never confirmed), nothing_assessed, template_required,
+            label_product_mismatch, stale_change, barcode_decision_mismatch.
           content:
             application/json:
               schema:
@@ -592,10 +598,18 @@ paths:
                   - $ref: "#/components/schemas/NeedsInput"
                   - $ref: "#/components/schemas/Error"
         "422":
-          description: Layout checks failed before rendering (findings listed)
+          description: |
+            Layout checks failed before rendering (CheckResult kind layout, findings listed; the renderer's own
+            kinds are clipping, watermark_overlap, text_overflow, overlap), or an Error: unsupported_edits (one
+            generation handles one edit, or a model edit with its new udi_di), unsupported_template,
+            template_background_unsupported, product_incomplete, no_change, generation_refused, validation_error.
           content:
             application/json:
-              schema: {$ref: "#/components/schemas/CheckResult"}
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/CheckResult"
+                  - $ref: "#/components/schemas/Error"
+        "503": {$ref: "#/components/responses/Unavailable"}
 
   /artworks/{artwork_id}:
     get:
@@ -609,10 +623,13 @@ paths:
           schema: {type: string}
       responses:
         "200":
-          description: Generated artwork
+          description: |
+            Generated artwork. `svg_url` and `pdf_url` are downloadArtifact paths. `artifact_sha256` is the sha256
+            of the PDF bytes, and approval binds to it.
           content:
             application/json:
               schema: {$ref: "#/components/schemas/GeneratedArtwork"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "404": {$ref: "#/components/responses/NotFound"}
 
   # ---------------------------------------------------------------- re-check, review, publish
@@ -745,16 +762,55 @@ paths:
     get:
       tags: [device]
       operationId: getExports
-      summary: PDF at physical size, editable SVG template, inspection report and QR for one version
+      summary: PDF at physical size, editable SVG template, report and QR for one generated version
       parameters:
         - $ref: "#/components/parameters/VersionId"
       responses:
         "200":
-          description: Export package. Unapproved versions are watermarked DRAFT and have no QR.
+          description: |
+            Export package: the stored files of the draft, served by downloadArtifact. Unapproved versions have no
+            QR. The stored files carry the visible mark `DRAFT, not for production` (and `TEST DATA | DRAFT`), and
+            `draft_watermark` stays true while a file carries it, including after approval (CR-22).
           content:
             application/json:
               schema: {$ref: "#/components/schemas/ExportPackage"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "404":
+          description: not_found, or no_artifacts (an uploaded version has no generated files)
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
+  /artifacts/{artifact_sha256}:
+    get:
+      tags: [device]
+      operationId: downloadArtifact
+      summary: Download one stored file of a generated version by its sha256 (PDF, SVG, report, QR)
+      description: |
+        Added by CR-22. The server re-hashes the file before sending it, so a changed file is never served. The
+        response is an attachment and carries `X-Draft-Mark` while the file's visible markings are not empty. QR
+        files are served only for a published version.
+      parameters:
+        - name: artifact_sha256
+          in: path
+          required: true
+          schema: {$ref: "#/components/schemas/Sha256"}
+      responses:
+        "200":
+          description: The file bytes
+          content:
+            application/pdf: {schema: {type: string, format: binary}}
+            image/svg+xml: {schema: {type: string, format: binary}}
+            application/json: {schema: {type: object}}
+            image/png: {schema: {type: string, format: binary}}
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "404": {$ref: "#/components/responses/NotFound"}
+        "409":
+          description: not_published (a QR file of a version that is not published)
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "422": {$ref: "#/components/responses/Invalid"}
 
   # ---------------------------------------------------------------- print verification
   /label-versions/{version_id}/print-verifications:
@@ -1079,9 +1135,15 @@ components:
             (409), label_product_mismatch (409), no_change (422, an edit equals the current value),
             duplicate_field (422), parse_not_confirmed (422), edits_not_supported (422, confirm with edits),
             unknown_impact (422), nothing_to_confirm (409), change_not_confirmed (409, approve before the
-            change was confirmed). Upload codes (CR-21): unsupported_media_type, file_too_large, image_too_large,
+            change was confirmed). Upload codes (CR-20): unsupported_media_type, file_too_large, image_too_large,
             invalid_file (all 422 on uploadScan); retake_photo, extractor_unavailable and scan_failed appear in
             Scan.error and Job.error with state failed. retake_photo carries details {reasons, metrics, thresholds}.
+            Generate and export codes (CR-22): nothing_assessed, template_required, stale_change,
+            barcode_decision_mismatch (all 409 on generateArtwork); unsupported_edits, unsupported_template,
+            template_background_unsupported, product_incomplete, generation_refused (422); layout_failed,
+            renderer_unavailable (503), product_changed, template_changed and generation_failed appear in Job.error
+            with state failed; no_artifacts (404 on getExports), artifact_missing (404) and not_published (409) on
+            downloadArtifact.
         message: {type: string}
         details: {type: object}
     User:

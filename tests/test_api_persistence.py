@@ -116,6 +116,16 @@ def test_every_immutable_table_rejects_update_and_delete(session):
         confirmation_id="cfm_00000001", change_id=CHANGE_ID, assessment_id="asm_00000001", decisions=[],
         created_by="usr_demo_editor", created_at="2026-11-12T16:00:00Z",
     ))
+    session.add(models.GeneratedArtwork(
+        artwork_id="art_00000001", change_id=CHANGE_ID, label_id=LABEL_ID, version_id=L3, self_check_id="chk_0003",
+        artifact_sha256="a" * 64, reference_sha256="b" * 64, size_w=100.0, size_h=60.0, barcode_decision={},
+        change_log=[], visible_markings=["DRAFT, not for production"], created_by="usr_demo_editor",
+        created_at="2026-11-12T16:00:00Z",
+    ))
+    session.add(models.Artifact(
+        sha256="a" * 64, version_id=L3, role="pdf", mime="application/pdf", ext="pdf", size_bytes=1,
+        created_at="2026-11-12T16:00:00Z",
+    ))
     session.commit()
     for table in models.IMMUTABLE_TABLES:
         first_col = inspect(session.get_bind()).get_columns(table)[0]["name"]

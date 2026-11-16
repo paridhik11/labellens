@@ -7,7 +7,8 @@ Checks run in this order, and the first failure wins (nothing is written on fail
 4. the change must be open (409 change_closed) and this must be its latest version (409 version_superseded)
 5. approve only: submitter cannot approve (403 self_approval_forbidden), check_id required (422),
    artifact hash must match (409 hash_mismatch), the check must be a passed check of the same
-   version and hash (409 check_not_passed)
+   version and hash (409 check_not_passed); for generated artwork it must be a `self_check` (the re-check),
+   not the layout check written at generation
 Then the Review row and an AuditEvent are appended.
 """
 
@@ -88,6 +89,7 @@ def record_review(
             or not check.passed
             or check.version_id != version.version_id
             or check.artifact_sha256 != version.artifact_sha256
+            or (version.kind == "generated" and check.kind != "self_check")  # the layout check is not a read-back
         ):
             raise ApiError(
                 409,

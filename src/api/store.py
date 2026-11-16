@@ -115,6 +115,14 @@ def create_product(
     return product, version
 
 
+def _finish(session: Session, commit: bool) -> None:
+    """Commit, or only flush so the caller can commit several appends as one transaction (Step 24b)."""
+    if commit:
+        session.commit()
+    else:
+        session.flush()
+
+
 def add_product_version(
     session: Session,
     user_id: str,
@@ -122,6 +130,7 @@ def add_product_version(
     changes: dict[str, Any],
     source_change_id: str | None = None,
     at: str | None = None,
+    commit: bool = True,
 ) -> ProductVersion:
     """Append the next ProductVersion: the current record with `changes` applied. Old versions stay as they are."""
     get_user(session, user_id)
@@ -153,7 +162,7 @@ def add_product_version(
         {"changed_fields": sorted(changes)},
         at=when,
     )
-    session.commit()
+    _finish(session, commit)
     return version
 
 
@@ -167,6 +176,7 @@ def register_template(
     min_font_pt: float | None = None,
     template_id: str | None = None,
     at: str | None = None,
+    commit: bool = True,
 ) -> LabelTemplate:
     """Register a template version.
 
@@ -212,7 +222,7 @@ def register_template(
         version,
         at=row.created_at,
     )
-    session.commit()
+    _finish(session, commit)
     return row
 
 
@@ -266,6 +276,7 @@ def add_label_version(
     artifact_sha256: str | None = None,
     version_id: str | None = None,
     at: str | None = None,
+    commit: bool = True,
 ) -> LabelVersion:
     """Append the next artwork version of a label family (a new family when `label_id` is None)."""
     get_user(session, user_id)
@@ -335,7 +346,7 @@ def add_label_version(
         {"label_id": label_id, "change_id": change_id},
         at=when,
     )
-    session.commit()
+    _finish(session, commit)
     return row
 
 
@@ -351,6 +362,7 @@ def add_check_result(
     at: str | None = None,
     coverage: list[dict[str, Any]] | None = None,
     retrieval_config: dict[str, Any] | None = None,
+    commit: bool = True,
 ) -> CheckResult:
     """Record one checker run. Counts and `passed` (zero critical findings) are computed from `findings`.
 
@@ -390,7 +402,7 @@ def add_check_result(
     record_audit(
         session, user_id, "check.recorded", "check", row.check_id, details={"kind": kind, "passed": row.passed}, at=when
     )
-    session.commit()
+    _finish(session, commit)
     return row
 
 

@@ -17,6 +17,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from src.api.db import init_db, make_engine, make_session_factory
+from src.api.engine import RealEngine
 from src.api.errors import ApiError
 from src.api.extractor import extract_with_cv
 from src.api.mock_server import register_mocks
@@ -41,6 +42,7 @@ def create_app(db_url: str | None = None, seed: bool | None = None) -> FastAPI:
         app.state.engine = engine
         app.state.session_factory = make_session_factory(engine)
         app.state.extractor = extract_with_cv  # tests replace it with a stub
+        app.state.artwork_engine = RealEngine()  # Parth's renderer, imported on first use; tests replace it
         app.state.quality_gate = lambda path: assess_photo(path, QUALITY_THRESHOLDS)  # tests replace it
         app.state.quality_thresholds = QUALITY_THRESHOLDS
         app.state.checker_settings = CheckerSettings()  # default retrieval: plain hybrid RRF
