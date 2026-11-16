@@ -38,13 +38,15 @@
     // Listen for screen switch initiated from dev state switcher or internal action
     window.addEventListener('labellens:screen-navigated', (e) => {
       const screen = e.detail.screen;
+      const state = e.detail.state || null;
       if (screen && screen.startsWith('P')) {
-        switchPublicScreen(screen);
+        switchPublicScreen(screen, state);
       }
     });
   }
 
-  function switchPublicScreen(screenName) {
+  function switchPublicScreen(screenName, initialState = null) {
+    const isNewScreen = activeScreen !== screenName;
     activeScreen = screenName;
 
     // Update public nav tab active classes
@@ -55,10 +57,12 @@
 
     // Notify state switcher to adapt its states for this screen
     if (window.LabelLensStateSwitcher) {
-      window.LabelLensStateSwitcher.setScreen(screenName);
+      if (window.LabelLensStateSwitcher.getCurrentScreen() !== screenName || initialState) {
+        window.LabelLensStateSwitcher.setScreen(screenName, initialState);
+      }
     } else {
       window.dispatchEvent(new CustomEvent('labellens:screen-changed', {
-        detail: { screen: screenName }
+        detail: { screen: screenName, state: initialState }
       }));
     }
   }

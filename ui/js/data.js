@@ -187,7 +187,13 @@ async function loadScreen(screen, state, options = {}) {
     if (options.file) {
       const match = index.mocks.find(m => m.file === options.file);
       if (match) {
-        return fetchMockPayload(match);
+        const payload = await fetchMockPayload(match);
+        if (options.label) {
+          payload.label = options.label;
+        } else if (state) {
+          payload.label = state;
+        }
+        return payload;
       }
     }
 
@@ -287,12 +293,48 @@ function escapeHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
+/**
+ * Checks if a value or object represents a test identifier.
+ * Matches test_data: true or all-zero placeholder (00000000000000).
+ * @param {*} val
+ * @returns {boolean}
+ */
+function isTestIdentifier(val) {
+  if (val === null || val === undefined) return false;
+  if (typeof val === 'string') {
+    return val.includes('00000000000000') || val === 'test_data';
+  }
+  if (typeof val === 'object') {
+    if (val.test_data === true) return true;
+    for (const k of Object.keys(val)) {
+      if (typeof val[k] === 'string' && val[k].includes('00000000000000')) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * Renders a visible TEST badge when item is test data or contains test placeholder.
+ * @param {*} val
+ * @returns {string} HTML badge or empty string
+ */
+function renderTestBadge(val) {
+  if (isTestIdentifier(val)) {
+    return '<span class="badge badge-test">[TEST]</span>';
+  }
+  return '';
+}
+
 // Attach to window for global access
 window.LabelLensData = {
   CONFIG,
   DEMO_BANNER_TEXT,
   PUBLIC_NOTICE_TEXT,
   escapeHtml,
+  isTestIdentifier,
+  renderTestBadge,
   getMockIndex,
   getStatesForScreen,
   loadScreen,

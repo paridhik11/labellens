@@ -204,7 +204,10 @@
   async function activateState(stateItem) {
     const metaBox = panelContainer.querySelector('#devMetaBox');
     try {
-      const payload = await window.LabelLensData.loadScreen(currentScreen, stateItem.label, { file: stateItem.file });
+      const payload = await window.LabelLensData.loadScreen(currentScreen, stateItem.label, {
+        file: stateItem.file,
+        label: stateItem.label
+      });
 
       if (metaBox) {
         metaBox.innerHTML = `
@@ -238,6 +241,9 @@
    * @param {string} [initialState]
    */
   async function setScreen(newScreen, initialState = null) {
+    if (currentScreen === newScreen && currentState === initialState && initialState !== null) {
+      return;
+    }
     currentScreen = newScreen;
     if (initialState) {
       currentState = initialState;
@@ -254,7 +260,7 @@
 
     // Notify app if user switched screen from dev panel
     window.dispatchEvent(new CustomEvent('labellens:screen-navigated', {
-      detail: { screen: newScreen }
+      detail: { screen: newScreen, state: currentState }
     }));
   }
 
