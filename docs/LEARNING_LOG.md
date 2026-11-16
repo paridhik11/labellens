@@ -964,3 +964,19 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its CV step 16 to 
 4. **Verified:** tests and ruff pass; run results in `results/step23e_structured.md` (1.5b answered 14/30, 3b 17/30, neither fast enough).
 5. **Check yourself:** the frozen rule in `step23e.py` (eligible, qualified, choose); the 300 token cap that cut 11 of 1.5b's replies.
 6. **Assumptions:** llama3.2 and gemma3 skipped from a 3 query pilot; LLM grades only; many answers are verbatim copies.
+
+## Step 24c: optional AI answer (short)
+1. **Did:** added `?mode=ai` to the two ask operations. It starts a 202 job that asks qwen2.5 3b and always falls back to the extractive passages with a reason.
+2. **Files:** `src/api/ask_jobs.py`, routes, models, `src/rag/{provider,pipeline,service,settings}.py`, contract, mocks, `tests/test_ai_mode.py`, `docs/AI_ANSWER.md`, `docs/UI_NOTES_AI_ANSWER.md`.
+3. **How it works:** the job reuses the Step 23 pipeline. Any model problem ends as extractive passages plus a fallback reason, never a failed request.
+4. **Verified:** 698 fast tests, ruff clean, one live Ollama run.
+5. **Check yourself:** `run_ask_job` fallback paths; the `AskJobResult` schema; the limits text.
+6. **Assumptions:** timeout is httpx's 90 s read limit; Ishanvi's session was not reachable, so the UI note is a file.
+
+## Step 24b: generateArtwork and export (short)
+1. **Did:** made generate real. The request decides everything it can refuse (closed or unconfirmed change, a barcode that needs input, a layout that does not fit); a background job then renders the PDF, SVG, QR and a report with Parth's renderer, stores each file under its sha256 and adds a new draft version. Added getArtwork, getExports and a hash-checked download.
+2. **Files:** `src/api/{engine,artwork}.py` (new), `models,store,routes,requests,status,reviews,checks,main.py`, `docs/contracts/*` (CR-22), `tests/{artwork_helpers,test_api_generate,test_e2e_artwork}.py` plus updates to three contract tests.
+3. **How it works:** the renderer sits behind a small interface, so CI uses a fake and the real one is only imported when a label is made. Files are written to a temp name and renamed, so a file is whole or absent. All database rows go in one transaction, so a failed render leaves nothing behind.
+4. **Verified:** see `reports/step24_b.md` for the commands and counts.
+5. **Check yourself:** `prepare` in `src/api/artwork.py` (the order of the refusals); the new rule in `src/api/reviews.py` (a generated version needs a `self_check`, not the layout check); `_append_rows`.
+6. **Assumptions:** one edit per generation; the product record changes at generation, so a rejected change leaves a version; the stored files keep the DRAFT mark after approval; the extractor in the end-to-end test is a stub.

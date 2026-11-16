@@ -48,7 +48,7 @@ Entities and field meanings are in [`DATA_MODEL.md`](DATA_MODEL.md). Template an
 | `POST /label-versions/{version_id}/reviews` | reviewArtwork | Approve, return or reject | 201 Review | 403 role_forbidden or self_approval_forbidden, 409 |
 | `POST /label-versions/{version_id}/publish` | publishVersion | Publish an approved version | 201 PublishedPage | 409 |
 | `GET /label-versions/{version_id}/exports` | getExports | PDF at physical size, editable SVG, report, QR (real, Step 24b) | 200 ExportPackage | 404 |
-| `GET /artifacts/{artifact_sha256}` | downloadArtifact | One stored file by its sha256 (CR-21) | 200 file bytes | 404, 409 not_published, 422 |
+| `GET /artifacts/{artifact_sha256}` | downloadArtifact | One stored file by its sha256 (CR-22) | 200 file bytes | 404, 409 not_published, 422 |
 | `GET /label-versions/{version_id}/print-verifications` | listPrintVerifications | Past print checks | 200 | |
 | `POST /label-versions/{version_id}/print-verifications` | verifyPrint | Compare a print photo with the approved version | 202 Job | 409 not approved |
 | `GET /print-verifications/{verification_id}` | getPrintVerification | Result of a print verify job | 200 PrintVerification | 404 |
@@ -59,8 +59,8 @@ Entities and field meanings are in [`DATA_MODEL.md`](DATA_MODEL.md). Template an
 |---|---|---|---|---|
 | `POST /public/scans` | publicScan | Scan packaging, find reference label candidates | 202 Job | |
 | `GET /public/scans/{scan_id}` | getPublicScan | Match candidates (picker when several) | 200 PublicMatchResult | 404 |
-| `POST /public/ask` | askPublic | Ask about the matched label | 200 AnswerResponse (answer or abstain) | 422, 503 |
-| `POST /ask` | askProfessional | Ask about the device regulations (CR-19) | 200 ProfessionalAnswerResponse | 422, 503 |
+| `POST /public/ask` | askPublic | Ask about the matched label. `?mode=ai` starts a job (CR-21) | 200 AnswerResponse (answer or abstain); 202 Job (kind `ask`) with `mode=ai` | 422, 503 |
+| `POST /ask` | askProfessional | Ask about the device regulations (CR-19). `?mode=ai` as above | 200 ProfessionalAnswerResponse; 202 Job (kind `ask`) with `mode=ai` | 422, 503 |
 | `POST /search` with `module: medicine` | searchEvidence | Shared search endpoint, medicine data only | 200 SearchResponse | |
 
 ### Common
@@ -225,7 +225,7 @@ Limits of the real operations (an older `data/api/labellens.db` gets the new `ch
 - `POST /label-versions/{id}/reviews` with `approve` returns `409 change_not_confirmed` when the change has an assessment nobody confirmed.
 - A change with no stored assessment (older changes, the seed) keeps the mock for `affected` and `confirm` (`X-Mock: true`).
 
-## Generate and export (Step 24b, CR-21)
+## Generate and export (Step 24b, CR-22)
 
 `generateArtwork` is real. The request refuses everything it can before a job exists: `change_closed`, `change_not_confirmed` (an assessed change must be confirmed first), `nothing_assessed`, `needs_input` (an encoded value that is not confirmed, a model change without its new `udi_di`, or the placeholder identifier without `test_data`; `task.task_id` is the reason code, for example `task_udi_di` or `task_confirm_lot`), a layout failure (422 CheckResult of kind `layout`), `unsupported_edits` (one generation handles one edit, or a model edit with its new `udi_di`) and `template_required`. An identifier is never invented. The job renders PDF, SVG, a QR and a report, stores each as `artifacts/<sha256>.<ext>` and appends a new draft label version. `GET /artworks/{id}` is its result. `artifact_sha256` is the sha256 of the PDF.
 

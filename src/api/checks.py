@@ -72,9 +72,11 @@ def advance_job(
     return row
 
 
-def job_json(row: Job) -> dict[str, Any]:
-    """Serialize the current state of a job (contract `Job`)."""
+def job_json(row: Job, result: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Serialize the current state of a job (contract `Job`). `result` is the AskJobResult of a done ask job."""
     out: dict[str, Any] = {"job_id": row.job_id, "kind": row.kind, "state": row.state, "progress": row.progress}
+    if result is not None:
+        out["result"] = result
     if row.message:
         out["message"] = row.message
     if row.result_url:

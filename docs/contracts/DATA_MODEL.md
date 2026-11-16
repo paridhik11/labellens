@@ -270,8 +270,8 @@ Assessments and confirmations (Step 22, CR-18). An **assessment** (`asm_`) is th
 | `barcode_decision` | BarcodeDecision | req | NONE (CR-9) | See below. |
 | `change_log` | array of ChangeLogEntry | req | NONE (CR-9) | Who, what, why, rules fired, evidence. |
 | `layout_problems` | array of string | req | NONE (CR-9) | Also reported as Findings in the self-check. |
-| `self_check_id` | string | req | NONE (CR-9) | The CheckResult written with the draft (CR-21: kind `layout`, no findings, because the template fit and the barcode decoded). It is not a read-back: approval needs the `self_check` from `recheckArtwork`, and the layout check never makes a version `checked`. |
-| `artifact_sha256` | string | req | NONE (CR-9) | CR-21: sha256 of the PDF bytes (the file that is printed). The approval binds to it. The SVG, report and QR hashes are stored in `artifacts` (one row per file, stored as `data/api/artifacts/<sha256>.<ext>`), and the report lists them. |
+| `self_check_id` | string | req | NONE (CR-9) | The CheckResult written with the draft (CR-22: kind `layout`, no findings, because the template fit and the barcode decoded). It is not a read-back: approval needs the `self_check` from `recheckArtwork`, and the layout check never makes a version `checked`. |
+| `artifact_sha256` | string | req | NONE (CR-9) | CR-22: sha256 of the PDF bytes (the file that is printed). The approval binds to it. The SVG, report and QR hashes are stored in `artifacts` (one row per file, stored as `data/api/artifacts/<sha256>.<ext>`), and the report lists them. |
 | `disclaimer` | string | req | NONE (CR-9) | Fixed text: "Draft generated for review. Not a compliance determination." |
 
 BarcodeDecision: `decision` (`KEEP`, `REGENERATE`, `NEEDS_INPUT`), `old_payload`, `new_payload` (string, may be empty), `symbology`, `reason`, `required_identifier` (string, set when `NEEDS_INPUT`, for example `udi_di`). Rule text is in `TEMPLATE_SPEC.md`.
@@ -398,7 +398,7 @@ Separate data, rules and results from the device module.
 7. The abstention score is provisional and may be replaced, which is why `score_name` is a free string.
 8. The public regulation corpus is limited to 21 CFR 201, 208 and 211. The public reference label corpus (DailyMed or openFDA labels, cited with `source_type = label_section`) is not built yet. When it is added, `out_of_scope` handling must be revisited.
 9. Public label-based answers have no abstention validation. Step 16 validated abstention only on CFR medicine chunks, not on answers drawn from a matched product label.
-10. `artifact_sha256` is the sha256 of the PDF bytes (CR-21, Step 24b). Earlier drafts said "draft manifest"; the merged renderer records one hash per file and no manifest, so the printed file is the thing approval binds to.
+10. `artifact_sha256` is the sha256 of the PDF bytes (CR-22, Step 24b). Earlier drafts said "draft manifest"; the merged renderer records one hash per file and no manifest, so the printed file is the thing approval binds to.
 10a. Generation appends, in one transaction: a product version (`source_change_id` set, so the record changes at generation, not at approval, and a rejected change leaves that version behind), a new template version (one per generation), the draft label version, a `layout` check, a `generated_artworks` row and `artifacts` rows. A regeneration of the same change reuses its product version. Stored files keep the visible `DRAFT, not for production` mark even after approval, because no approved variant is rendered yet, so `draft_watermark` stays true for generated versions.
 11. `label_id` is a label family and `version_id` is one immutable version. This reads `LabelExtraction.label_id` plus `LabelExtraction.version` as family plus artwork version.
 12. "Needs review" is a UI label, not a fifth status. After a voided approval the derived status is `draft` or `checked`, as the table shows.

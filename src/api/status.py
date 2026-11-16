@@ -49,7 +49,7 @@ def draft_watermark(session: Session, version_id: str) -> bool:
     """True until an approval exists for the version (reviewed or published means approved).
 
     A generated version stays True after approval: its stored files were rendered as drafts and carry the visible
-    `DRAFT, not for production` mark, and this step does not render an approved variant (docs/contracts, CR-21).
+    `DRAFT, not for production` mark, and this step does not render an approved variant (docs/contracts, CR-22).
     """
     if label_version_status(session, version_id) not in ("reviewed", "published"):
         return True

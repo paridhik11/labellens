@@ -11,6 +11,10 @@ class ProviderError(RuntimeError):
     """The provider failed (timeout, bad reply). The pipeline falls back to extractive quotes."""
 
 
+class ProviderTimeout(ProviderError):
+    """The provider did not answer within the time limit."""
+
+
 class ProviderUnavailable(ProviderError):
     """No provider is configured (the model is off)."""
 
@@ -95,6 +99,8 @@ class OllamaProvider:
             reply = httpx.post(f"{self.settings.ollama_url}/api/chat", json=body, timeout=self.settings.timeout_s)
             reply.raise_for_status()
             return str(reply.json()["message"]["content"])
+        except httpx.TimeoutException as error:
+            raise ProviderTimeout(f"ollama did not answer in {self.settings.timeout_s} s") from error
         except (httpx.HTTPError, KeyError, ValueError) as error:
             raise ProviderError(f"ollama call failed: {error}") from error
 
