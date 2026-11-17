@@ -68,7 +68,7 @@ def test_blind_entry_and_original_boxes(tmp_path: Path, monkeypatch: pytest.Monk
         return photo_ocr.PhotoReading(blocks, kwargs['to_original'], 100, 0, kwargs['view'])
 
     monkeypatch.setattr(extract, 'read_photo', reader)
-    result = extract.extract_label(path, mode='blind', postcorrect=True)
+    result = extract.extract_label(path, mode='blind', postcorrect=True, photo_profile='baseline')
     assert seen == ['original', 'rectified']
     assert result.fields['lot'] == 'LOT: Z981' and result.fields['expiry'] == 'EXP: 2033-06-15'
     assert result.ocr_blocks[0].bbox == (10, 10, 200, 30)

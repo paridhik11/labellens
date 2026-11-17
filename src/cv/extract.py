@@ -39,7 +39,7 @@ NAMES = ("manufacturer", "expiry")
 
 TEMPLATE_PATH = Path(__file__).resolve().parents[1] / "gen" / "templates" / "test_device.json"
 Mode = Literal["template", "blind"]
-DEFAULT_PHOTO_PROFILE = "baseline"
+DEFAULT_PHOTO_PROFILE = "cv2"
 
 
 def map_fields(

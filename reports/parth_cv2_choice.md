@@ -10,18 +10,16 @@ Development only: baseline complete clean/moderate/hard = 0/8,0/8,0/8;
 upscale = 2/8,4/8,0/8; voting = 4/8,6/8,0/8. Voting wins the predeclared selection:
 10/24 complete versus 6/24, with 26 versus 22 correct field observations.
 Hard remains poor. The independent engine therefore justifies its optional
-system dependency. Without its executable, the explicit cv2 profile falls back
-to upscaled RapidOCR; that fallback is not the measured two-engine candidate.
+system dependency. Without its executable, the cv2 profile resolves to the established baseline.
+The two-engine candidate is measured only with Tesseract installed.
 
-Baseline final processing was queued earlier, but neither its predictions nor
-scores have been opened. The selected CV bytes are now frozen; score this one
-candidate once. Do not make field-rule edits after viewing final results.
-The release gate remains no condition regression and at least one improvement
-in complete-image normalized correctness. If it fails, baseline stays default.
-Main's application integration was merged without changing these CV bytes.
+The frozen final gate passed: complete-image normalized correctness improved
+from baseline 0/96 in each condition to 32/96 clean, 27/96 moderate and 17/96
+hard. CV2 is the default profile. The explicit baseline is still callable, and
+an unavailable Tesseract executable resolves CV2 to baseline. The final result
+did not trigger field-rule changes.
 
 Deployment safeguard, recorded before final scores were opened: resolve cv2 to
-baseline when the Tesseract executable is absent. This supersedes the unscored
-upscale fallback above. The archived scoring candidate runs with Tesseract
+baseline when the Tesseract executable is absent. The archived scoring candidate runs with Tesseract
 installed, so its recognition/field inference is unchanged. No final evidence
 motivated this availability-only change. Tests cover both dependency states.

@@ -44,8 +44,8 @@ python -m scripts.cv_experiments.cv2_benchmark --build --split final --output da
 mkdir -p /tmp/ll_cv2_baseline /tmp/ll_cv2_candidate
 git archive d39b0fb | tar -x -C /tmp/ll_cv2_baseline
 git archive 806c9d0 | tar -x -C /tmp/ll_cv2_candidate
-python -m scripts.cv_experiments.cv2_benchmark --dataset data/synthetic/cv2_final --code-root /tmp/ll_cv2_baseline --profile baseline --workers 3 --output data/synthetic/cv2_final_baseline_bounded.json
-python -m scripts.cv_experiments.cv2_benchmark --dataset data/synthetic/cv2_final --code-root /tmp/ll_cv2_candidate --profile cv2 --workers 5 --output data/synthetic/cv2_final_vote_bounded.json
+python -m scripts.cv_experiments.cv2_benchmark --dataset data/synthetic/cv2_final --code-root /tmp/ll_cv2_baseline --profile baseline --workers 5 --timeout 300 --output data/synthetic/cv2_final_baseline_bounded.json
+python -m scripts.cv_experiments.cv2_benchmark --dataset data/synthetic/cv2_final --code-root /tmp/ll_cv2_candidate --profile cv2 --workers 5 --timeout 300 --output data/synthetic/cv2_final_vote_bounded.json
 python -m scripts.cv_experiments.cv2_benchmark --before data/synthetic/cv2_final_baseline_bounded.json --after data/synthetic/cv2_final_vote_bounded.json --output results/cv_cv2_final_eval.md
 python -m src.gen.golden
 ```
@@ -87,3 +87,8 @@ execution again, use --resume with exactly the same arguments; completed predict
 including timeouts, are reused, never rescored. Fingerprints reject changed inputs,
 CV source, profile or deadline. Recognition/parsing helpers remain frozen at 806c9d0.
 Public CLI/profile-warning and missing-engine safeguards do not change those helpers.
+
+The bounded final result is in `results/cv_cv2_final_eval.md`. The gate passed,
+so CV2 is the default profile. The explicit baseline remains callable and is
+used when Tesseract is unavailable. The previously exposed photo result still
+contains a lot-field regression; see `results/cv_cv2_real_photo_check.md`.

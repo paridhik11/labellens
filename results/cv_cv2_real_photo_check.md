@@ -14,7 +14,7 @@ Exact counts use src.cv.eval_real.score for both, preserving case, glyphs and pr
 | lot | 7/10 (0.397 to 0.892) | 4/10 (0.168 to 0.687) |
 | expiry | 3/10 (0.108 to 0.603) | 5/10 (0.237 to 0.763) |
 
-All three exact together: 0/10 before, 0/10 candidate.
+All three exact together: 0/10 before, 0/10 candidate; Wilson 95% interval 0.000 to 0.278 for each.
 Extraction exceptions: 0/10.
 
 Lot accuracy regressed from 7/10 to 4/10; expiry rose from 3/10 to 5/10; names stayed 1/10.
