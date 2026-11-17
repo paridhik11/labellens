@@ -10,11 +10,15 @@
  * - Shows the reason using exact reason names and meanings from the mocks.
  * - Shows score and threshold ONLY when they are not null. Never show "null" or "NaN".
  * - Citations show the regulation section, the verbatim quote and the source type (cfr or label_section).
+ * - User typed question is preserved in UI state (not waiting on an API field).
  * - Any test identifier shows a visible TEST badge.
  * - No em dashes.
  */
 
 (function() {
+  // Retain user typed question in UI state
+  let currentTypedQuestion = '';
+
   function escapeHtml(str) {
     if (window.LabelLensData && window.LabelLensData.escapeHtml) {
       return window.LabelLensData.escapeHtml(str);
@@ -72,10 +76,10 @@
           <span class="badge badge-teal">Medicine Q&amp;A</span>
         </div>
 
-        <!-- Question input box -->
+        <!-- Question input box: uses user typed question held in UI state -->
         <div style="margin: 16px 0;">
           <div class="flex-row" style="background: var(--color-bg-subtle); padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid var(--color-border); gap: 8px;">
-            <input type="text" id="p3QuestionInput" placeholder="Ask a question about this medicine (e.g. storage, expiration, packaging requirements)..." style="flex: 1; border: none; background: transparent; outline: none; font-size: 0.92rem; color: var(--color-text-main);">
+            <input type="text" id="p3QuestionInput" value="${escapeHtml(currentTypedQuestion)}" placeholder="Ask a question about this medicine (e.g. storage, expiration, packaging requirements)..." style="flex: 1; border: none; background: transparent; outline: none; font-size: 0.92rem; color: var(--color-text-main);">
             <button class="btn btn-sm btn-primary" type="button" id="btnP3AskSubmit">Ask</button>
           </div>
         </div>
@@ -187,22 +191,25 @@
 
     const askSubmit = container.querySelector('#btnP3AskSubmit');
     const questionInput = container.querySelector('#p3QuestionInput');
-    if (askSubmit && questionInput) {
-      askSubmit.addEventListener('click', () => {
-        const val = questionInput.value.trim();
-        if (!val) return;
-        // User asked a question: if currently in an abstained state, user can switch or stay
-        console.log('User submitted question:', val);
+    if (questionInput) {
+      questionInput.addEventListener('input', (e) => {
+        currentTypedQuestion = e.target.value;
       });
       questionInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
-          askSubmit.click();
+          currentTypedQuestion = questionInput.value.trim();
+          if (askSubmit) askSubmit.click();
         }
+      });
+    }
+    if (askSubmit && questionInput) {
+      askSubmit.addEventListener('click', () => {
+        currentTypedQuestion = questionInput.value.trim();
       });
     }
   }
 
-  // Register renderer
+  // Register renderer and state getter
   window.LabelLensRenderers = window.LabelLensRenderers || {};
   window.LabelLensRenderers['P3 Ask about this label'] = renderScreenP3;
   window.LabelLensRenderers['P3'] = renderScreenP3;

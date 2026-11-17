@@ -30,4 +30,4 @@ Then navigate in your browser to:
 - `ui/css/components.css`: Buttons, cards, badges, banners, navigation, tabs, label preview canvas, and floating dev panel styling.
 - `ui/js/data.js`: Centralized data loader (`loadScreen`, `getStatesForScreen`, `CONFIG`) reading `/src/api/mock/index.json`.
 - `ui/js/state-switcher.js`: Floating dev panel that dynamically discovers and displays only the mock states valid for the active screen.
-- `ui/NEEDS.md`: Log of pending UI assets, API integrations, and schema clarification requests.
+- `ui/REPORT.md`: Consolidated log of UI step reports, notes, gaps, and pending backend integrations.

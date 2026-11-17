@@ -15,7 +15,32 @@
   function init() {
     setupNav();
     setupScreenListeners();
+    loadCurrentUser();
     switchProfessionalScreen(activeScreen);
+  }
+
+  async function loadCurrentUser() {
+    try {
+      if (window.LabelLensData) {
+        const userPayload = await window.LabelLensData.loadScreen('all professional', 'success', {
+          file: 'professional/session/me.json'
+        });
+        const user = userPayload.data || {};
+        const badge = document.getElementById('headerUserBadge');
+        if (badge && user.name) {
+          const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+          badge.innerHTML = `
+            <div class="user-avatar">${window.LabelLensData.escapeHtml(initials)}</div>
+            <div class="text-xs">
+              <span class="font-semibold" style="display: block;">${window.LabelLensData.escapeHtml(user.name)}</span>
+              <span class="text-muted">${window.LabelLensData.escapeHtml(user.role || 'editor')}</span>
+            </div>
+          `;
+        }
+      }
+    } catch (e) {
+      console.warn('Could not load user session:', e);
+    }
   }
 
   function setupNav() {
@@ -39,13 +64,14 @@
     // Listen for screen switch initiated from dev state switcher or internal action
     window.addEventListener('labellens:screen-navigated', (e) => {
       const screen = e.detail.screen;
+      const state = e.detail.state || null;
       if (screen && screen.startsWith('D')) {
-        switchProfessionalScreen(screen);
+        switchProfessionalScreen(screen, state);
       }
     });
   }
 
-  function switchProfessionalScreen(screenName) {
+  function switchProfessionalScreen(screenName, initialState = null) {
     activeScreen = screenName;
 
     // Update sidebar active link
@@ -56,10 +82,12 @@
 
     // Notify state switcher to adapt its states for this screen
     if (window.LabelLensStateSwitcher) {
-      window.LabelLensStateSwitcher.setScreen(screenName);
+      if (window.LabelLensStateSwitcher.getCurrentScreen() !== screenName || initialState) {
+        window.LabelLensStateSwitcher.setScreen(screenName, initialState);
+      }
     } else {
       window.dispatchEvent(new CustomEvent('labellens:screen-changed', {
-        detail: { screen: screenName }
+        detail: { screen: screenName, state: initialState }
       }));
     }
   }

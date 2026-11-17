@@ -100,45 +100,54 @@ async function getStatesForScreen(screen) {
   // Derive human-readable labels for state variants
   const items = matched.map((item, idx) => {
     let label = item.state;
-    const filename = item.file.split('/').pop().replace('.json', '');
+    const filepath = item.file || '';
+    const filename = filepath.split('/').pop().replace('.json', '');
 
     // Clarify distinct variants with the same base state
-    if (filename.includes('extraction_needs_review')) {
+    if (filepath.includes('extraction_needs_review')) {
       label = 'needs_review (extraction)';
-    } else if (filename.includes('extraction_success')) {
+    } else if (filepath.includes('extraction_success')) {
       label = 'success (extraction)';
-    } else if (filename.includes('extraction_confirmed')) {
+    } else if (filepath.includes('extraction_confirmed')) {
       label = 'success (confirmed extraction)';
-    } else if (filename.includes('recheck_failed_check')) {
+    } else if (filepath.includes('recheck_failed_check')) {
       label = 'failed_check (recheck)';
-    } else if (filename.includes('recheck_success')) {
+    } else if (filepath.includes('recheck_success')) {
       label = 'success (recheck)';
-    } else if (filename.includes('failed_check')) {
+    } else if (filepath.includes('failed_check')) {
       label = 'failed_check';
-    } else if (filename.includes('abstained_out_of_scope')) {
+    } else if (filepath.includes('abstained_out_of_scope')) {
       label = 'abstained (out of scope)';
-    } else if (filename.includes('abstained_low_confidence')) {
+    } else if (filepath.includes('abstained_low_confidence')) {
       label = 'abstained (low confidence)';
-    } else if (filename.includes('abstained_no_evidence')) {
+    } else if (filepath.includes('abstained_no_evidence')) {
       label = 'abstained (no evidence)';
-    } else if (filename.includes('abstained_needs_human_check')) {
+    } else if (filepath.includes('abstained_needs_human_check')) {
       label = 'abstained (needs human check)';
-    } else if (filename.includes('assess_needs_review')) {
+    } else if (filepath.includes('assess_needs_review')) {
       label = 'needs_review (assessment)';
-    } else if (filename.includes('generate_needs_input')) {
+    } else if (filepath.includes('assess_success')) {
+      label = 'success (assessment)';
+    } else if (filepath.includes('confirm_success')) {
+      label = 'success (confirmed change)';
+    } else if (filepath.includes('affected_success')) {
+      label = 'success (affected labels)';
+    } else if (filepath.includes('generate_needs_input')) {
       label = 'needs_review (needs input)';
-    } else if (filename.includes('generate_loading')) {
+    } else if (filepath.includes('generate_loading')) {
       label = 'loading (generate)';
-    } else if (filename.includes('generated_success')) {
+    } else if (filepath.includes('generated_success')) {
       label = 'success (draft artwork)';
-    } else if (filename.includes('self_approval_forbidden')) {
+    } else if (filepath.includes('self_approval_forbidden')) {
       label = 'failed (self approval forbidden)';
-    } else if (filename.includes('label_versions')) {
+    } else if (filepath.includes('label_versions')) {
       label = 'success (label versions)';
-    } else if (filename.includes('product_detail')) {
+    } else if (filepath.includes('product_detail')) {
       label = 'success (product detail)';
-    } else if (filename.includes('publish_success')) {
+    } else if (filepath.includes('publish_success')) {
       label = 'success (published)';
+    } else if (filepath.includes('export/draft')) {
+      label = 'success (draft export)';
     }
 
     return {

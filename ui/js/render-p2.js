@@ -9,6 +9,9 @@
  * - If "Confidence: 94%" on P2 is not in the mock, remove it.
  * - Citations show regulation section, verbatim quote, and source type (cfr or label_section).
  * - Test identifiers show a visible TEST badge.
+ * - Two columns "Read from your photo" and "From the reference label" from the mock.
+ * - Hide "Scan another side" if the API has nothing for it.
+ * - Ingredients and Warnings tabs stay hidden for now (backend will add those fields later).
  * - No em dashes.
  */
 
@@ -37,18 +40,37 @@
     if (!container) return;
     const safeData = data || {};
 
+    // Static Authenticity Notice Banner on every Screen 2 view
+    const authenticityBannerHtml = `
+      <div class="notice-banner notice-warning" style="margin-bottom: 20px;">
+        <div class="notice-icon">i</div>
+        <div>
+          <div class="notice-title">Authenticity not verified</div>
+          <div class="notice-text">
+            Authenticity not verified. Based on a reference label match. This information does not confirm that your product is genuine.
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Check if the API provides multi-side scan capability (hide button if absent)
+    const canScanAnother = Boolean(safeData.can_scan_another || safeData.has_another_side || safeData.another_side);
+
     // 1. Empty State (public/product/empty.json)
     if (state === 'empty' || (Array.isArray(safeData.candidates) && safeData.candidates.length === 0)) {
       container.innerHTML = `
+        ${authenticityBannerHtml}
         <div class="card" style="text-align: center; padding: 48px 24px; max-width: 640px; margin: 0 auto;">
           <div style="font-size: 2.2rem; margin-bottom: 12px; color: var(--color-text-muted);">📑</div>
           <h3>No reference label found</h3>
           <p class="text-muted text-sm" style="margin-top: 8px;">
             We could not match this package against official FDA drug labels in 21 CFR 201, 208, or 211.
           </p>
-          <div style="margin-top: 20px;">
-            <button class="btn btn-secondary" type="button" id="btnP2ScanAnother">Scan another side</button>
-          </div>
+          ${canScanAnother ? `
+            <div style="margin-top: 20px;">
+              <button class="btn btn-secondary" type="button" id="btnP2ScanAnother">Scan another side</button>
+            </div>
+          ` : ''}
         </div>
       `;
       const btn = container.querySelector('#btnP2ScanAnother');
@@ -70,6 +92,7 @@
     if (state === 'needs_review') {
       const candidates = safeData.candidates || [];
       container.innerHTML = `
+        ${authenticityBannerHtml}
         <div class="notice-banner notice-warning">
           <div class="notice-icon">i</div>
           <div>
@@ -126,7 +149,7 @@
           if (chosen) {
             const detailContainer = container.querySelector('#p2SelectedCandidateContainer');
             if (detailContainer) {
-              renderCandidateDetails(detailContainer, chosen, safeData.summary || '', safeData.sources || []);
+              renderCandidateDetails(detailContainer, chosen, safeData.summary || '', safeData.sources || [], canScanAnother);
               detailContainer.scrollIntoView({ behavior: 'smooth' });
             }
           }
@@ -137,10 +160,10 @@
 
     // 3. Success State (public/product/success.json)
     const cand = (safeData.candidates && safeData.candidates[0]) || {};
-    renderCandidateDetails(container, cand, safeData.summary || '', safeData.sources || []);
+    renderCandidateDetails(container, cand, safeData.summary || '', safeData.sources || [], canScanAnother, authenticityBannerHtml);
   }
 
-  function renderCandidateDetails(container, cand, summaryText, sourcesList) {
+  function renderCandidateDetails(container, cand, summaryText, sourcesList, canScanAnother = false, bannerHtml = '') {
     const photoData = cand.read_from_photo || {};
     const refData = cand.from_reference_label || {};
     const sources = sourcesList || [];
@@ -155,6 +178,7 @@
     const subtitleParts = [cand.dosage_form, cand.active_substance, cand.pack_size].filter(Boolean);
 
     container.innerHTML = `
+      ${bannerHtml}
       <div class="flex-between" style="margin-bottom: 16px; align-items: flex-start;">
         <div>
           <h2>Product information</h2>
@@ -174,6 +198,7 @@
         </div>
       </div>
 
+      <!-- Tabs: Ingredients and Warnings stay hidden for now until backend supplies those fields -->
       <div class="tab-group" id="p2TabGroup">
         <button class="tab-btn active" data-tab="summary" type="button">Summary</button>
         <button class="tab-btn" data-tab="sources" type="button">Sources (${sources.length})</button>
@@ -181,8 +206,9 @@
 
       <!-- Tab Content: Summary -->
       <div id="p2TabSummaryContent">
-        <div class="grid-three-col">
-          <!-- Card 1: Read from your photo -->
+        <!-- The two comparison columns side-by-side from mock -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 24px;">
+          <!-- Column 1: Read from your photo -->
           <div class="card">
             <div class="card-header-clean flex-row">
               <span style="color: var(--color-primary-teal); font-weight: 700;">📷</span>
@@ -198,7 +224,7 @@
             </div>
           </div>
 
-          <!-- Card 2: From reference label -->
+          <!-- Column 2: From the reference label -->
           <div class="card">
             <div class="card-header-clean flex-row">
               <span style="color: var(--color-primary-teal); font-weight: 700;">📄</span>
@@ -213,40 +239,40 @@
               `).join('')}
             </div>
           </div>
+        </div>
 
-          <!-- Card 3: Ask about this label teaser -->
-          <div class="card">
-            <div class="card-header-clean flex-row">
+        <!-- Plain language summary & Ask teaser card -->
+        <div class="card" style="margin-bottom: 20px;">
+          <div class="card-header-clean flex-between">
+            <div class="flex-row">
               <span style="color: var(--color-primary-teal); font-weight: 700;">💬</span>
-              <span class="font-semibold text-sm">Ask about this label</span>
+              <span class="font-semibold text-sm">Summary &amp; Regulatory Context</span>
             </div>
-            ${summaryText ? `
-              <div style="background-color: var(--color-bg-subtle); padding: 12px; border-radius: var(--radius-md); font-size: 0.85rem; margin-bottom: 12px; line-height: 1.45;">
-                ${escapeHtml(summaryText)}
-              </div>
-            ` : ''}
-
-            ${sources.length > 0 ? `
-              <div class="text-xs" style="margin-top: 10px; border-top: 1px solid var(--color-border); padding-top: 10px;">
-                <span class="font-semibold text-muted">Cited Regulatory Basis:</span>
-                <div style="margin-top: 4px; display: flex; align-items: center; gap: 6px;">
-                  <span class="badge badge-teal">${escapeHtml(sources[0].source_type || 'cfr')}</span>
-                  <span style="font-weight: 600;">21 CFR ${escapeHtml(sources[0].section || '')}: ${escapeHtml(sources[0].title || '')}</span>
-                </div>
-                ${sources[0].quote ? `
-                  <div style="margin-top: 6px; font-style: italic; color: var(--color-text-muted);">
-                    "${escapeHtml(sources[0].quote)}"
-                  </div>
-                ` : ''}
-              </div>
-            ` : ''}
-
-            <div style="margin-top: 16px;">
-              <button class="btn btn-sm btn-primary" style="width: 100%;" type="button" id="btnP2AskTeaser">
-                Ask questions about this medicine &rarr;
-              </button>
-            </div>
+            <button class="btn btn-sm btn-primary" type="button" id="btnP2AskTeaser">
+              Ask questions about this medicine &rarr;
+            </button>
           </div>
+
+          ${summaryText ? `
+            <div style="background-color: var(--color-bg-subtle); padding: 14px; border-radius: var(--radius-md); font-size: 0.9rem; line-height: 1.5; color: var(--color-text-dark);">
+              ${escapeHtml(summaryText)}
+            </div>
+          ` : ''}
+
+          ${sources.length > 0 ? `
+            <div class="text-xs" style="margin-top: 14px; border-top: 1px solid var(--color-border); padding-top: 12px;">
+              <span class="font-semibold text-muted">Cited Regulatory Basis:</span>
+              <div style="margin-top: 6px; display: flex; align-items: center; gap: 8px;">
+                <span class="badge badge-teal">${escapeHtml(sources[0].source_type || 'cfr')}</span>
+                <span style="font-weight: 600;">21 CFR ${escapeHtml(sources[0].section || '')}: ${escapeHtml(sources[0].title || '')}</span>
+              </div>
+              ${sources[0].quote ? `
+                <div style="margin-top: 6px; font-style: italic; color: var(--color-text-muted); border-left: 2px solid var(--color-primary-teal); padding-left: 10px;">
+                  "${escapeHtml(sources[0].quote)}"
+                </div>
+              ` : ''}
+            </div>
+          ` : ''}
         </div>
       </div>
 
@@ -289,13 +315,20 @@
         </div>
       </div>
 
+      <!-- Action Footer: secondary actions only when API provides them -->
       <div class="flex-between" style="margin-top: 24px;">
-        <button class="btn btn-secondary btn-sm" type="button" id="btnP2ScanAnotherSuccess">Scan another side</button>
-        ${cand.reference_label_url ? `
-          <a class="btn btn-primary btn-sm" href="${escapeHtml(cand.reference_label_url)}" target="_blank" rel="noopener noreferrer">
-            View reference source &rarr;
-          </a>
-        ` : ''}
+        <div>
+          ${canScanAnother ? `
+            <button class="btn btn-secondary btn-sm" type="button" id="btnP2ScanAnotherSuccess">Scan another side</button>
+          ` : ''}
+        </div>
+        <div>
+          ${cand.reference_label_url ? `
+            <a class="btn btn-primary btn-sm" href="${escapeHtml(cand.reference_label_url)}" target="_blank" rel="noopener noreferrer">
+              View reference source &rarr;
+            </a>
+          ` : ''}
+        </div>
       </div>
     `;
 
