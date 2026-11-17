@@ -97,7 +97,7 @@ only if a UI build exists in the repo (none does yet). Options: `--port`, `--fre
 First run on a new machine:
 - The embedding model (BAAI/bge-large-en-v1.5, 1.3 GB) downloads from Hugging Face once. After that the app runs offline.
 - Index files are keyed by model and corpus hash. If another checkout of this repo on the PC already built them, they are copied
-  from `data/cache/indexes` of the main checkout (or `LABELLENS_INDEX_DIR`). Otherwise the bge-large build for the regulation corpus
+  from `data/cache/indexes` of the main checkout, or from the folder named by the environment variable `LABELLENS_INDEX_DIR` (set it when you cloned the repo again). Otherwise the bge-large build for the regulation corpus
   takes about 40 minutes of CPU, once (`python scripts/build_indexes.py` does only that step).
 - The optional AI answer needs Ollama with `qwen2.5:3b-instruct-q4_K_M`. Without it the AI answer falls back to the extractive passages.
 
