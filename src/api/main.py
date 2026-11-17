@@ -22,6 +22,7 @@ from src.api.errors import ApiError
 from src.api.extractor import extract_with_cv
 from src.api.medicine import MedicineService
 from src.api.mock_server import register_mocks
+from src.api.printverify import RealPrintEngine
 from src.api.quality import DEFAULT as QUALITY_THRESHOLDS
 from src.api.quality import assess_photo
 from src.api.routes import router
@@ -52,6 +53,7 @@ def create_app(db_url: str | None = None, seed: bool | None = None) -> FastAPI:
         app.state.checker_settings = CheckerSettings(retrieval=RetrievalSettings(method=method))
         app.state.ai_provider = None  # tests put a fake provider here; None means Ollama (src/rag/settings.AI_MODEL)
         app.state.rag = RagService(threshold=frozen_threshold())  # Step 23: E5b retrieval loads on the first question
+        app.state.print_engine = RealPrintEngine()  # CV pieces behind verify_print; tests replace it
         app.state.medicine = MedicineService()  # Step 25a: ten reference products, E5b name matcher (lazy)
         app.state.edit_provider = None  # optional LLM text parser, off by default (src/change/parser.py)
         if seed if seed is not None else os.environ.get("LABELLENS_SEED", "1") != "0":

@@ -852,10 +852,18 @@ paths:
                   items:
                     type: array
                     items: {$ref: "#/components/schemas/PrintVerification"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "404": {$ref: "#/components/responses/NotFound"}
     post:
       tags: [device]
       operationId: verifyPrint
       summary: Photograph a printed label and compare it with the approved version
+      description: |
+        Real since Step 25b (CR-26). Needs an approved, current, generated version. The photo must be a PNG or JPEG
+        (422 `unsupported_media_type` for a PDF). The job runs the CV extractor on the photo and compares text and
+        barcode with the approved version's record and encoded payload. Symbols are not compared (the detector is not
+        trusted). `needs_human` evidence becomes outcome `rescan_needed` with `rescan_reason`. A job fails only when
+        the CV libraries are missing (`extractor_unavailable`) or something unexpected breaks (`print_verify_failed`).
       parameters:
         - $ref: "#/components/parameters/VersionId"
       requestBody:
@@ -876,11 +884,17 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Job"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "404": {$ref: "#/components/responses/NotFound"}
         "409":
-          description: Version is not approved
+          description: |
+            Version is not approved (CR-26). Codes: `not_approved` (draft, checked, returned or never reviewed; the
+            status is in `details`), `rejected` (a reject is terminal), `version_superseded` (a newer version
+            voids the approval) and `no_reference` (approved, but no generated artwork to compare with).
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Error"}
+        "422": {$ref: "#/components/responses/Invalid"}
 
   /print-verifications/{verification_id}:
     get:
@@ -898,6 +912,7 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/PrintVerification"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "404": {$ref: "#/components/responses/NotFound"}
 
   # ---------------------------------------------------------------- public medicine mode
@@ -1963,6 +1978,25 @@ components:
             glare: {type: number, minimum: 0, maximum: 1}
             confidence: {type: number, minimum: 0, maximum: 1}
         rescan_reason: {type: string}
+        fields:
+          type: array
+          description: Added by CR-26. Every compared field with its evidence (absent on older mocks)
+          items:
+            type: object
+            required: [field, expected, status]
+            properties:
+              field: {type: string}
+              expected: {type: string}
+              observed: {type: [string, "null"]}
+              status: {type: string, enum: [MATCH, MISMATCH, NEEDS_HUMAN_REVIEW]}
+              confidence: {type: [number, "null"], description: OCR evidence strength, not a probability of being right}
+              bbox:
+                oneOf:
+                  - $ref: "#/components/schemas/PixelBox"
+                  - type: "null"
+        notes:
+          type: object
+          description: Added by CR-26. What was not compared (symbols), engine status, warnings, quality numbers
         created_at: {$ref: "#/components/schemas/Timestamp"}
 
     # ------------------------------------------------------------ audit (CR-12)
