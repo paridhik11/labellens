@@ -1,6 +1,7 @@
 """Parse a generated answer and verify it. Any failed check means the extractive fallback."""
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass, field
 
@@ -48,7 +49,13 @@ def parse_sentences(text: str) -> list[Sentence]:
 
 def verify(text: str, chunks: list[Chunk], *, max_sentences: int, min_overlap: float) -> Verification:
     """Run the checks of docs/RAG_SPEC.md section 4 in order. NO_ANSWER is handled by the caller."""
-    sentences = parse_sentences(text)
+    return _check(parse_sentences(text), text, chunks, max_sentences=max_sentences, min_overlap=min_overlap)
+
+
+def _check(
+    sentences: list[Sentence], text: str, chunks: list[Chunk], *, max_sentences: int, min_overlap: float,
+) -> Verification:
+    """The shared checks, applied to sentences however they were obtained (prose markers or parsed JSON)."""
     k = len(chunks)
     texts = [s for s in sentences if re.search(r"[A-Za-z]", s.text)]  # marker-only pieces are not sentences
     result = Verification(ok=False, sentences=sentences, n_sentences=len(texts))
@@ -86,3 +93,43 @@ def verify(text: str, chunks: list[Chunk], *, max_sentences: int, min_overlap: f
             return result
     result.ok = True
     return result
+
+
+@dataclass
+class Parsed:
+    """A structured reply after parsing: no_answer flag and sentences, or a failure name and detail."""
+
+    no_answer: bool = False
+    sentences: list[Sentence] = field(default_factory=list)
+    failed: str = ""
+    detail: str = ""
+
+
+def parse_structured(raw: str) -> Parsed:
+    """Parse {"no_answer": bool, "sentences": [{"text": str, "sources": [int]}]}. Bad shape gives failed=bad_json."""
+    try:
+        data = json.loads(raw)
+    except ValueError as error:
+        return Parsed(failed="bad_json", detail=str(error)[:60])
+    if not (isinstance(data, dict) and isinstance(data.get("no_answer"), bool)
+            and isinstance(data.get("sentences"), list)):
+        return Parsed(failed="bad_json", detail="wrong top-level shape")
+    out: list[Sentence] = []
+    for item in data["sentences"]:
+        text, sources = (item.get("text"), item.get("sources")) if isinstance(item, dict) else (None, None)
+        if not (isinstance(text, str) and isinstance(sources, list)
+                and all(isinstance(m, int) and not isinstance(m, bool) for m in sources)):
+            return Parsed(failed="bad_json", detail="sentence item has wrong shape")
+        clean = re.sub(r"\s+([.,;:!?])", r"\1", re.sub(r"\s+", " ", MARKER.sub("", text))).strip()
+        out.append(Sentence(clean, list(sources)))
+    return Parsed(no_answer=data["no_answer"], sentences=out)
+
+
+def verify_structured(
+    parsed: Parsed, chunks: list[Chunk], *, max_sentences: int, min_overlap: float,
+) -> Verification:
+    """Same rules as verify() on parsed JSON: valid source ids, no empty sources, banned words, overlap guard."""
+    if parsed.failed:
+        return Verification(ok=False, failed=parsed.failed, detail=parsed.detail)
+    return _check(parsed.sentences, " ".join(s.text for s in parsed.sentences), chunks,
+                  max_sentences=max_sentences, min_overlap=min_overlap)

@@ -9,18 +9,20 @@ from __future__ import annotations
 from collections.abc import Iterator
 from typing import Any
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Request
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, Path, Request, UploadFile
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from src.api import changes, checks, views
+from src.api import artwork, ask_jobs, changes, checks, medicine, pages, printverify, publish, scans, uploads, views
 from src.api.errors import ApiError
 from src.api.models import (
     ChangeRequest,
     CheckResult,
+    GeneratedArtwork,
     LabelTemplate,
     LabelVersion,
+    PrintVerification,
     Product,
     ProductVersion,
     Review,
@@ -29,7 +31,10 @@ from src.api.models import (
 from src.api.requests import (
     ChangeConfirmCreate,
     ChangeCreate,
+    ExtractionConfirmCreate,
+    GenerateCreate,
     InspectCreate,
+    MedicineMatchCreate,
     ProductCreate,
     ProfessionalQuestion,
     PublicQuestion,
@@ -55,12 +60,20 @@ REAL_OPERATIONS = frozenset(
         "registerTemplate",
         "getTemplate",
         "getProductHistory",
+        "uploadScan",
+        "getScan",
+        "getExtraction",
+        "confirmExtraction",
         "listLabelVersions",
         "getLabelVersion",
         "assessChange",
         "confirmChange",
         "listAffectedLabels",
         "getChange",
+        "generateArtwork",
+        "getArtwork",
+        "getExports",
+        "downloadArtifact",
         "listReviews",
         "reviewArtwork",
         "inspectLabel",
@@ -70,6 +83,11 @@ REAL_OPERATIONS = frozenset(
         "searchEvidence",
         "askPublic",
         "askProfessional",
+        "publishVersion",
+        "verifyPrint",
+        "getPrintVerification",
+        "listPrintVerifications",
+        "matchMedicine",
     }
 )
 router = APIRouter()
@@ -185,6 +203,84 @@ def get_product_history(
     }
 
 
+# ---------------------------------------------------------------- upload, scan, extraction (Step 24a)
+
+
+@router.post("/scans", operation_id="uploadScan", status_code=202, tags=["device"])
+async def upload_scan(
+    request: Request, background: BackgroundTasks, file: UploadFile = File(...),  # noqa: B008
+    source: str = Form(...),
+    product_id: str | None = Form(None), session: Session = Depends(get_session), user: User = Depends(writer),
+) -> JSONResponse:
+    """Accept a PNG, JPEG or PDF of a device label and answer 202 with a Job; the job runs the extractor.
+
+    The file is checked by its first bytes (never its name or Content-Type), capped at 15 MB and 40 megapixels,
+    and stored as uploads/<sha256>.<ext>. `product_id` is required for now: a scan creates a label version,
+    and a version belongs to a product (docs/contracts/SCHEMA_CHANGE_REQUESTS.md, CR-20).
+    """
+    if source not in ("upload", "camera"):
+        raise ApiError(422, "validation_error", "source must be 'upload' or 'camera'.")
+    if not product_id:
+        raise ApiError(422, "validation_error", "product_id is required: a scan creates a version of its label.")
+    views.require_product(session, product_id)
+    data = await file.read(uploads.MAX_BYTES + 1)  # never read more than the cap plus one byte
+    upload = uploads.validate_upload(data)
+    stored = uploads.store_bytes(checks.files_dir(), upload, data)
+    scan = scans.add_scan(session, user.user_id, upload, stored, source, product_id)
+    job = checks.new_job(session, "scan", None, user.user_id, result_url=f"/scans/{scan.scan_id}")
+    scans.advance_scan(session, scan.scan_id, "queued", job_id=job.job_id)
+    background.add_task(scans.run_scan_job, request.app, job.job_id, scan.scan_id, user.user_id)
+    return JSONResponse(checks.job_json(job), status_code=202)
+
+
+@router.get("/scans/{scan_id}", operation_id="getScan", tags=["device"])
+def get_scan(
+    scan_id: str, request: Request, session: Session = Depends(get_session), _: User = Depends(current_user)
+) -> Any:
+    """Scan state. label_id and version_id are set when done. Ids this server never issued fall back to the mock."""
+    row = scans.latest_scan(session, scan_id)
+    if row is not None:
+        return scans.scan_json(row)
+    if scans.REAL_SCAN_ID.match(scan_id):
+        raise ApiError(404, "not_found", f"No scan {scan_id!r}.")
+    from src.api.mock_server import mock_response  # imported here: mock_server imports this module
+
+    return mock_response("getScan", request)
+
+
+@router.get("/label-versions/{version_id}/extraction", operation_id="getExtraction", tags=["device"])
+def get_extraction(
+    version_id: str, request: Request, session: Session = Depends(get_session), _: User = Depends(current_user)
+) -> Any:
+    """The newest extraction of a version that came from a scan, with its unclear fields and confirmation state."""
+    row = scans.scan_extraction(session, version_id)
+    if row is not None:
+        return scans.extraction_json(session, row, request.app.state.checker_settings)
+    if scans.REAL_VERSION_ID.match(version_id) and scans.version_exists(session, version_id):
+        raise ApiError(404, "not_found", f"Version {version_id!r} has no extraction from a scan.")
+    if scans.REAL_VERSION_ID.match(version_id):
+        raise ApiError(404, "not_found", f"No label version {version_id!r}.")
+    from src.api.mock_server import mock_response
+
+    return mock_response("getExtraction", request)
+
+
+@router.post("/label-versions/{version_id}/extraction/confirm", operation_id="confirmExtraction", tags=["device"])
+def confirm_extraction(
+    version_id: str, body: ExtractionConfirmCreate, request: Request, session: Session = Depends(get_session),
+    user: User = Depends(writer),
+) -> Any:
+    """Confirm or correct the extracted fields (append-only: a new extraction row and a confirmation row)."""
+    row = scans.scan_extraction(session, version_id)
+    if row is not None:
+        return scans.confirm_extraction(session, user.user_id, row, body.fields, request.app.state.checker_settings)
+    if scans.REAL_VERSION_ID.match(version_id):
+        raise ApiError(404, "not_found", f"Version {version_id!r} has no extraction from a scan.")
+    from src.api.mock_server import mock_response
+
+    return mock_response("confirmExtraction", request)
+
+
 @router.get("/labels/{label_id}/versions", operation_id="listLabelVersions", tags=["device"])
 def list_label_versions(
     label_id: str, session: Session = Depends(get_session), _: User = Depends(current_user)
@@ -269,6 +365,64 @@ def get_change(
     return views.change_json(session, row)
 
 
+# ---------------------------------------------------------------- generate, artwork, export (Step 24b)
+
+
+@router.post("/changes/{change_id}/generate", operation_id="generateArtwork", status_code=202, tags=["device"])
+def generate_artwork(
+    change_id: str, body: GenerateCreate, request: Request, background: BackgroundTasks,
+    session: Session = Depends(get_session), user: User = Depends(writer),
+) -> JSONResponse:
+    """Fill the label's template with the confirmed values and answer 202 with a Job; the job renders and stores.
+
+    Everything that can be refused is refused here, before a job exists: closed change, unconfirmed assessment,
+    NEEDS_INPUT (never invents an identifier), layout failure. A new draft version is appended, never an edit.
+    """
+    plan = artwork.prepare(session, request.app.state.artwork_engine, user, change_id, body.label_id, body.test_data)
+    job = checks.new_job(session, "generate", None, user.user_id, result_url=f"/artworks/{plan.artwork_id}")
+    background.add_task(artwork.run_generate_job, request.app, job.job_id, plan)
+    return JSONResponse(checks.job_json(job), status_code=202)
+
+
+@router.get("/artworks/{artwork_id}", operation_id="getArtwork", tags=["device"])
+def get_artwork(
+    artwork_id: str, request: Request, session: Session = Depends(get_session), _: User = Depends(current_user)
+) -> Any:
+    """A generated DRAFT artwork. Ids this server never issued fall back to the mock."""
+    row = session.scalars(select(GeneratedArtwork).where(GeneratedArtwork.artwork_id == artwork_id)).first()
+    if row is not None:
+        return artwork.artwork_json(session, row)
+    if artwork.REAL_ARTWORK_ID.match(artwork_id):
+        raise ApiError(404, "not_found", f"No artwork {artwork_id!r}.")
+    from src.api.mock_server import mock_response
+
+    return mock_response("getArtwork", request)
+
+
+@router.get("/label-versions/{version_id}/exports", operation_id="getExports", tags=["device"])
+def get_exports(
+    version_id: str, request: Request, session: Session = Depends(get_session), _: User = Depends(current_user)
+) -> Any:
+    """PDF, SVG and report of a generated version (the stored drafts, DRAFT mark included)."""
+    version = session.scalars(select(LabelVersion).where(LabelVersion.version_id == version_id)).first()
+    if version is None:
+        if scans.REAL_VERSION_ID.match(version_id):
+            raise ApiError(404, "not_found", f"No label version {version_id!r}.")
+        from src.api.mock_server import mock_response
+
+        return mock_response("getExports", request)
+    return artwork.export_json(session, version)
+
+
+@router.get("/artifacts/{artifact_sha256}", operation_id="downloadArtifact", tags=["device"])
+def download_artifact(
+    artifact_sha256: str = Path(pattern=r"^[0-9a-f]{64}$"), session: Session = Depends(get_session),
+    user: User = Depends(current_user),
+) -> Response:
+    """Download one stored file by its sha256. The file is re-hashed first, so a changed file is never served."""
+    return artwork.download(session, user, artifact_sha256)
+
+
 @router.get("/label-versions/{version_id}/reviews", operation_id="listReviews", tags=["device"])
 def list_reviews(
     version_id: str, session: Session = Depends(get_session), _: User = Depends(current_user)
@@ -288,6 +442,87 @@ def review_artwork(
         session, user.user_id, version_id, body.decision, body.artifact_sha256, body.comment, body.check_id
     )
     return views.review_json(review)
+
+
+@router.post("/label-versions/{version_id}/publish", operation_id="publishVersion", status_code=201, tags=["device"])
+def publish_version_route(
+    version_id: str, response: Response, session: Session = Depends(get_session), user: User = Depends(current_user)
+) -> dict[str, Any]:
+    """Publish an approved version: a PublishedPage pinned to this version_id (201). A repeat call answers 200."""
+    page, created = publish.publish_version(session, user.user_id, version_id)
+    response.status_code = 201 if created else 200
+    return page
+
+
+@router.get("/versions/{version_id}", include_in_schema=False)
+def public_version_page(version_id: str, session: Session = Depends(get_session)) -> HTMLResponse:
+    """The public page a published label's QR opens. 404 for a version that was never published."""
+    body = publish.public_page_html(session, version_id)
+    if body is None:
+        return HTMLResponse("<!doctype html><title>Not found</title><p>This label version is not published.</p>", 404)
+    return HTMLResponse(body)
+
+
+@router.get("/versions/{version_id}/label.pdf", include_in_schema=False)
+def public_version_pdf(version_id: str, session: Session = Depends(get_session)) -> Response:
+    """The approved PDF of a published version (re-hashed before it is sent)."""
+    return Response(
+        publish.published_pdf(session, version_id), media_type="application/pdf",
+        headers={"X-Content-Type-Options": "nosniff", "Content-Disposition": f'inline; filename="{version_id}.pdf"'},
+    )
+
+
+# ---------------------------------------------------------------- print verification (Step 25b)
+
+
+@router.post("/label-versions/{version_id}/print-verifications", operation_id="verifyPrint", status_code=202,
+             tags=["device"])
+async def verify_print_route(
+    version_id: str, request: Request, background: BackgroundTasks, photo: UploadFile = File(...),  # noqa: B008
+    condition: str = Form(...), session: Session = Depends(get_session), user: User = Depends(current_user),
+) -> JSONResponse:
+    """Accept a photo of a printed label and answer 202 with a Job; the job compares it with the approved version.
+
+    Refused before any job: a version that is not approved (409 not_approved, rejected, version_superseded,
+    no_reference), an unknown condition or a file that is not a PNG or JPEG (422).
+    """
+    version = require_version(session, version_id)
+    data = await photo.read(uploads.MAX_BYTES + 1)
+    upload, stored, verification_id = printverify.accept(session, user.user_id, version, condition, data)
+    job = checks.new_job(session, "print_verify", version_id, user.user_id,
+                         result_url=f"/print-verifications/{verification_id}")
+    background.add_task(printverify.run_verify_job, request.app, job.job_id, verification_id, version_id, user.user_id,
+                        stored, upload.mime, upload.sha256, condition)
+    return JSONResponse(checks.job_json(job), status_code=202)
+
+
+@router.get("/label-versions/{version_id}/print-verifications", operation_id="listPrintVerifications", tags=["device"])
+def list_print_verifications(
+    version_id: str, request: Request, session: Session = Depends(get_session), _: User = Depends(current_user)
+) -> Any:
+    """Print verifications of one version, oldest first. Ids this server never issued keep the mock."""
+    if printverify.require_real_version(session, version_id) is None:
+        from src.api.mock_server import mock_response
+
+        return mock_response("listPrintVerifications", request)
+    return {"version_id": version_id,
+            "items": [printverify.verification_json(r) for r in printverify.list_for(session, version_id)]}
+
+
+@router.get("/print-verifications/{verification_id}", operation_id="getPrintVerification", tags=["device"])
+def get_print_verification(
+    verification_id: str, request: Request, session: Session = Depends(get_session), _: User = Depends(current_user)
+) -> Any:
+    """One stored print verification. Ids this server never issued keep the mock."""
+    row = session.scalars(select(PrintVerification).where(
+        PrintVerification.verification_id == verification_id)).first()
+    if row is not None:
+        return printverify.verification_json(row)
+    if printverify.REAL_VERIFICATION_ID.match(verification_id):
+        raise ApiError(404, "not_found", f"No print verification {verification_id!r}.")
+    from src.api.mock_server import mock_response
+
+    return mock_response("getPrintVerification", request)
 
 
 # ---------------------------------------------------------------- checker (Step 21c)
@@ -347,7 +582,8 @@ def get_job(job_id: str, request: Request, session: Session = Depends(get_sessio
     """Current state of a job. Job ids that were never issued by this server fall back to the mock job (X-Mock)."""
     row = checks.latest_job(session, job_id)
     if row is not None:
-        return checks.job_json(row)
+        result = ask_jobs.stored_result(session, job_id) if row.kind == "ask" and row.state == "done" else None
+        return checks.job_json(row, result)
     if checks.REAL_JOB_ID.match(job_id):  # the form this server issues, so an unknown one really is unknown
         raise ApiError(404, "not_found", f"No job {job_id!r}.")
     from src.api.mock_server import mock_response  # imported here: mock_server imports this module
@@ -390,14 +626,72 @@ def _ask(request: Request, question: str, module: str) -> Any:
         raise ApiError(503, "retrieval_unavailable", str(error)) from error
 
 
+def _ask_job(
+    request: Request, background: BackgroundTasks, session: Session, question: str, module: str, product_id: str | None,
+) -> JSONResponse:
+    """Start the optional AI answer (CR-21) as a 202 job. The job falls back to the extractive passages."""
+    job = checks.new_job(session, "ask", None, "anonymous")
+    background.add_task(ask_jobs.run_ask_job, request.app, job.job_id, question, module, product_id)
+    return JSONResponse(checks.job_json(job), status_code=202)
+
+
+def _ask_mode(mode: str) -> str:
+    """Validate the optional mode query flag (extractive is the default)."""
+    if mode not in ("extractive", "ai"):
+        raise ApiError(422, "validation_error", "mode must be extractive or ai.")
+    return mode
+
+
 @router.post("/public/ask", operation_id="askPublic", tags=["public"])
-def ask_public(body: PublicQuestion, request: Request) -> dict[str, Any]:
-    """Cited answer from 21 CFR 201, 208 and 211, or an abstention. Works with the language model off (extractive)."""
+def ask_public(
+    body: PublicQuestion, request: Request, background: BackgroundTasks, mode: str = "extractive",
+    session: Session = Depends(get_session),
+) -> Any:
+    """Cited answer from 21 CFR 201, 208 and 211, or an abstention. Extractive by default (instant, no model).
+
+    `mode=ai` starts a 202 job that asks the language model and falls back to the extractive passages.
+    """
+    if _ask_mode(mode) == "ai":
+        return _ask_job(request, background, session, body.question, "medicine", body.product_id)
+    service = request.app.state.medicine
+    if service.knows(body.product_id):  # a reference product: answer from its own label chunks (CR-23)
+        rag = request.app.state.rag
+        result = _ask_product(service, body.question, body.product_id, rag.provider, rag.settings)
+        return result.to_wire(based_on=medicine.based_on(service.catalog.products[body.product_id]))
     result = _ask(request, body.question, "medicine")
     return result.to_wire(based_on=f"{PUBLIC_BASED_ON}; product {body.product_id}")
 
 
+def _ask_product(service: Any, question: str, product_id: str, provider: Any, settings: Any) -> Any:
+    """Answer from one reference product's chunks. 503 when the retrieval models cannot be loaded."""
+    try:
+        return service.ask(question, product_id, provider, settings)
+    except Exception as error:  # model files missing, offline cache incomplete
+        raise ApiError(503, "retrieval_unavailable", f"medicine retrieval is not available: {error}") from error
+
+
+@router.post("/public/match", operation_id="matchMedicine", tags=["public"])
+def match_medicine(body: MedicineMatchCreate, request: Request) -> Any:
+    """Match a product name to the nearest of the ten reference products, or answer `no_reference_match` (CR-23)."""
+    service = request.app.state.medicine
+    try:
+        return medicine.match_result(service.catalog, service.matcher, body.product_name)
+    except Exception as error:  # the E5b models could not be loaded (offline cache missing)
+        raise ApiError(503, "retrieval_unavailable", f"medicine matching is not available: {error}") from error
+
+
+@router.get("/public/medicine", include_in_schema=False)
+def medicine_page() -> HTMLResponse:
+    """The small public medicine page (match a name, read the reference label, ask a question)."""
+    return HTMLResponse(pages.MEDICINE_PAGE)
+
+
 @router.post("/ask", operation_id="askProfessional", tags=["device"])
-def ask_professional(body: ProfessionalQuestion, request: Request) -> dict[str, Any]:
-    """Cited answer from the device regulations (21 CFR 8xx), or an abstention. No header needed."""
+def ask_professional(
+    body: ProfessionalQuestion, request: Request, background: BackgroundTasks, mode: str = "extractive",
+    session: Session = Depends(get_session),
+) -> Any:
+    """Cited answer from the device regulations (21 CFR 8xx), or an abstention. No header needed. `mode=ai` as above."""
+    if _ask_mode(mode) == "ai":
+        return _ask_job(request, background, session, body.question, "device", None)
     return _ask(request, body.question, "device").to_wire(banner=False)

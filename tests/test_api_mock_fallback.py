@@ -78,8 +78,21 @@ def test_real_operations_never_carry_x_mock(client) -> None:
         ("GET", "/jobs/job_deadbeef"),
         ("GET", "/check-results/chk_0001"),
         ("POST", "/search"),
+        ("POST", "/scans"),
+        ("GET", "/scans/scn_00000000"),
+        ("GET", "/label-versions/lbv_00000000/extraction"),
+        ("POST", "/label-versions/lbv_00000000/extraction/confirm"),
         ("POST", "/public/ask"),
         ("POST", "/ask"),
+        ("POST", "/public/match"),
+        ("GET", "/label-versions/lbv_exampledevice_carton_l3/print-verifications"),
+        ("GET", "/print-verifications/pv_00000000"),
+        ("POST", "/label-versions/lbv_exampledevice_carton_l3/print-verifications"),
+        ("POST", "/label-versions/lbv_exampledevice_carton_l3/publish"),
+        ("POST", "/changes/chg_0002/generate"),
+        ("GET", "/artworks/art_00000000"),
+        ("GET", "/label-versions/lbv_exampledevice_carton_l3/exports"),
+        ("GET", "/artifacts/" + "0" * 64),
     ]
     for method, path in calls:
         response = client.request(method, path, headers=HEADERS, json={} if method == "POST" else None)
@@ -115,5 +128,5 @@ def test_mock_state_picks_another_mock_of_the_same_operation(client) -> None:
 
 
 def test_mock_routes_ignore_request_bodies(client) -> None:
-    response = client.post("/scans", files={"file": ("label.png", b"not an image")}, data={"source": "upload"})
+    response = client.post("/public/scans", files={"file": ("label.png", b"not an image")}, data={"source": "upload"})
     assert response.status_code == 202 and response.headers["X-Mock"] == "true"

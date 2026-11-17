@@ -2,13 +2,17 @@
 from __future__ import annotations
 
 import os
-from typing import Protocol
+from typing import Any, Protocol
 
 from src.rag.settings import RagSettings
 
 
 class ProviderError(RuntimeError):
     """The provider failed (timeout, bad reply). The pipeline falls back to extractive quotes."""
+
+
+class ProviderTimeout(ProviderError):
+    """The provider did not answer within the time limit."""
 
 
 class ProviderUnavailable(ProviderError):
@@ -24,6 +28,10 @@ class Provider(Protocol):
         """Return the model text, or raise ProviderError."""
         ...
 
+    def generate_json(self, system: str, user: str, schema: dict[str, Any], *, max_tokens: int) -> str:
+        """Return model text constrained to a JSON schema (structured output), or raise ProviderError."""
+        ...
+
 
 class NullProvider:
     """Provider off. Always raises ProviderUnavailable, so the API runs in extractive mode."""
@@ -31,6 +39,10 @@ class NullProvider:
     name = "off"
 
     def generate(self, system: str, user: str, *, max_tokens: int) -> str:
+        """Always raises."""
+        raise ProviderUnavailable("no language model configured")
+
+    def generate_json(self, system: str, user: str, schema: dict[str, Any], *, max_tokens: int) -> str:
         """Always raises."""
         raise ProviderUnavailable("no language model configured")
 
@@ -52,6 +64,10 @@ class FakeProvider:
             raise reply
         return reply
 
+    def generate_json(self, system: str, user: str, schema: dict[str, Any], *, max_tokens: int) -> str:
+        """Same canned replies as generate(); the schema is ignored."""
+        return self.generate(system, user, max_tokens=max_tokens)
+
 
 class OllamaProvider:
     """Local Ollama server, temperature 0 and a fixed seed so a run repeats on the same model build."""
@@ -63,17 +79,28 @@ class OllamaProvider:
 
     def generate(self, system: str, user: str, *, max_tokens: int) -> str:
         """POST /api/chat. Any HTTP or format problem becomes ProviderError."""
+        return self._chat(system, user, max_tokens, None)
+
+    def generate_json(self, system: str, user: str, schema: dict[str, Any], *, max_tokens: int) -> str:
+        """POST /api/chat with the JSON schema in the `format` field (Ollama structured outputs)."""
+        return self._chat(system, user, max_tokens, schema)
+
+    def _chat(self, system: str, user: str, max_tokens: int, schema: dict[str, Any] | None) -> str:
         import httpx
 
-        body = {
+        body: dict[str, Any] = {
             "model": self.model, "stream": False, "keep_alive": "30m",
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
             "options": {"temperature": 0, "seed": 42, "num_ctx": 4096, "num_predict": max_tokens},
         }
+        if schema is not None:
+            body["format"] = schema
         try:
             reply = httpx.post(f"{self.settings.ollama_url}/api/chat", json=body, timeout=self.settings.timeout_s)
             reply.raise_for_status()
             return str(reply.json()["message"]["content"])
+        except httpx.TimeoutException as error:
+            raise ProviderTimeout(f"ollama did not answer in {self.settings.timeout_s} s") from error
         except (httpx.HTTPError, KeyError, ValueError) as error:
             raise ProviderError(f"ollama call failed: {error}") from error
 

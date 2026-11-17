@@ -4,6 +4,27 @@
 **Branch:** [parth-gen](https://github.com/paridhik11/labellens/tree/parth-gen)
 **Base work:** CV and template work from `parth-cv`, reviewed and merged to `main`.
 
+## CV2 review, 2026-11-17
+
+The fresh transformed-artwork gate passed, so CV2 is the default extraction
+profile. Complete extraction rose from 0/96 baseline images in every condition
+to 32/96 clean, 27/96 moderate and 17/96 hard. This benchmark contains 288
+frames but 198 unique images from four source families; it is not population or
+real-phone accuracy. Its references are LLM-generated and real-symbol accuracy
+is unmeasured.
+
+The previously exposed online photo check did not establish a real-photo gain:
+names were 1/10 to 1/10, lots 7/10 to 4/10, and expiry 3/10 to 5/10. Human
+spot-check and crop review remain deferred. Detailed fresh, photo and
+reproduction records are in `reports/parth_cv2.md`, `reports/parth_final.md`
+and `results/cv_cv2_*.md`.
+
+Three repeatable review packages now rebuild with `python -m src.gen.golden`:
+clean DailyMed, synthetic and a confirmed barcode change. All PDF/SVG exports
+show `DRAFT, not for production`; no package is approved or published. Native
+QR decoding can stall, so the final evaluation used equal 300-second deadlines
+and counted timeouts as misses. This is an evaluation guard, not a production fix.
+
 ## Latest review: grouped dev/test and generation handoff, 2026-11-16
 
 Merged origin/main first. Existing contract acceptance by Pari is confirmed for

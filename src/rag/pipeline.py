@@ -11,11 +11,11 @@ from typing import Any
 from src.checker.citations import best_quote
 from src.common.schemas import Chunk
 from src.ir.base import Retriever
-from src.rag.prompt import PROMPTS, build_user
-from src.rag.provider import Provider, ProviderError, ProviderUnavailable
+from src.rag.prompt import ANSWER_SCHEMA, PROMPTS, build_user
+from src.rag.provider import Provider, ProviderError, ProviderTimeout, ProviderUnavailable
 from src.rag.scope import out_of_scope
 from src.rag.settings import RagSettings
-from src.rag.verify import NO_ANSWER, verify
+from src.rag.verify import NO_ANSWER, parse_structured, verify, verify_structured
 
 BANNER = "Authenticity not verified. Based on a reference label match."
 SCORE_NAME = "e5b_top_score"
@@ -26,6 +26,7 @@ MESSAGES = {
     "no_answer": "The model found that the passages do not answer the question. A person should check this.",
     "verification": "A generated answer did not pass the citation checks, so only the closest passages are shown. A person should check this.",  # noqa: E501
     "provider_off": "No language model is running, so only the closest passages are shown. No answer was generated or verified.",  # noqa: E501
+    "provider_timeout": "The language model took too long, so only the closest passages are shown. No answer was generated or verified.",  # noqa: E501
     "provider_error": "The language model failed, so only the closest passages are shown. No answer was generated or verified.",  # noqa: E501
 }
 
@@ -120,15 +121,26 @@ def answer_question(
 
     try:
         user = build_user(question, context, cfg.prompt)
-        raw = provider.generate(PROMPTS[cfg.prompt][0], user, max_tokens=cfg.max_tokens)
+        if cfg.output == "json":
+            raw = provider.generate_json(PROMPTS[cfg.prompt][0], user, ANSWER_SCHEMA, max_tokens=cfg.max_tokens)
+        else:
+            raw = provider.generate(PROMPTS[cfg.prompt][0], user, max_tokens=cfg.max_tokens)
     except ProviderUnavailable:
         return fall_back("provider_off")
+    except ProviderTimeout:
+        return fall_back("provider_timeout")
     except ProviderError:
         return fall_back("provider_error")
     result.raw = raw
-    if NO_ANSWER in raw.upper():  # also catches "NO_ANSWER [1]" and "No_ANSWER"
-        return done("needs_human_check", "no_answer")
-    check = verify(raw, context, max_sentences=cfg.max_sentences, min_overlap=cfg.min_overlap)
+    if cfg.output == "json":
+        parsed = parse_structured(raw)
+        if parsed.no_answer and not parsed.failed:
+            return done("needs_human_check", "no_answer")
+        check = verify_structured(parsed, context, max_sentences=cfg.max_sentences, min_overlap=cfg.min_overlap)
+    else:
+        if NO_ANSWER in raw.upper():  # also catches "NO_ANSWER [1]" and "No_ANSWER"
+            return done("needs_human_check", "no_answer")
+        check = verify(raw, context, max_sentences=cfg.max_sentences, min_overlap=cfg.min_overlap)
     result.checks = {"ok": check.ok, "failed": check.failed, "detail": check.detail,
                      "n_sentences": check.n_sentences, "n_valid_sentences": check.n_valid_sentences}
     if not check.ok:

@@ -1,0 +1,29 @@
+{
+  "job_id": "job_ask_0001",
+  "kind": "ask",
+  "state": "done",
+  "progress": 1.0,
+  "message": "done",
+  "result": {
+    "answer": {
+      "abstained": false,
+      "answer": "Drug products must carry an expiration date set by stability testing, so that the product meets its standards of identity, strength, quality and purity at the time of use.",
+      "sources": [
+        {
+          "source_type": "cfr",
+          "chunk_id": "fda_21cfr211_s211.137_c1",
+          "source": "FDA",
+          "section": "211.137",
+          "title": "Expiration dating.",
+          "url": "https://www.ecfr.gov/current/title-21/section-211.137",
+          "quote": "(a) To assure that a drug product meets applicable standards of identity, strength, quality, and purity at the time of use, it shall bear an expiration date"
+        }
+      ],
+      "based_on": "21 CFR 211.137 (matched label: ExampleMed 10 mg)",
+      "banner": "Authenticity not verified. Based on a reference label match."
+    },
+    "model": "qwen2.5:3b-instruct-q4_K_M",
+    "model_used": true,
+    "latency_s": 38.4
+  }
+}

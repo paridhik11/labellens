@@ -912,6 +912,14 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its CV step 16 to 
 5. **Check yourself:** `confirm_change` order of checks, and the `change_not_confirmed` rule in `reviews.py`.
 6. **Assumptions:** Confirm with new edits is refused (a new change is needed). Seeded changes keep mocks.
 
+## Step 24a: real scan upload
+1. **What I did:** Made the four upload operations real: a file is checked by its first bytes, size and pixel count, stored under its hash, and a background job runs a photo-quality gate, then the extractor, then creates the label version. Confirming extracted fields appends rows instead of editing.
+2. **Files:** `src/api/uploads.py`, `scans.py`, `quality.py`, `quality_eval.py`, `routes.py`, `models.py`, `main.py`, `checks.py`, `openapi.yaml`, CR-20, tests, `reports/step24_a.md`.
+3. **How it works:** Like a post office that opens the envelope to see what is really inside (magic bytes), ignores the name written on it, and sends blurry or glare-covered photos back with a reason (`retake_photo`) before anyone tries to read them.
+4. **Verified:** `python -m pytest -q -m "not slow"` and `ruff check src tests` (numbers in the report); gate on dev seeds 200 and 201: 0/170 clean and 0/170 moderate wrongly rejected.
+5. **Check yourself:** `judge` and the three cut-offs in `quality.py`; the order of checks in `validate_upload`; `run_scan_job` (no version is created when the gate rejects).
+6. **Assumptions:** Cut-offs were tuned and measured on the same dev images, so the true false-reject rate on real phone photos is unknown. A glare spot touching the white label is not seen. PDF pages skip the gate.
+
 ## CV step 31: integrated perspective and frozen real-photo comparison
 
 1. What I did: Wired perspective into extraction, with template proportions only when known. Added fixed CPU orientation/crop OCR and generic split-key/date mapping. Recorded Pari's acceptance of CR-2,3,4,5,9,10,11. Merged origin/main into parth-gen, preserving both ignore policies and learning-log histories.
@@ -949,3 +957,42 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its CV step 16 to 
 4. How I verified it: `/opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -p no:cacheprovider -m "not slow"`: `840 passed, 5 deselected, 1 warning in 35.04s`. `/opt/anaconda3/envs/labellens-cv/bin/python -m ruff check --no-cache src tests scripts/real scripts/cv_experiments/eval_photo_split.py`: `All checks passed!`. Earlier scoped CV/generation and export checks are recorded above. Test photo scoring still has exactly one guarded candidate invocation, c50fb4a.
 5. What you should check yourself: The combined report, preserved RAG changes and visible prototype warnings. Check main's no-ff promotion in Git history.
 6. What I am unsure about or assumed: Real-photo improvement is still open; human review remains deferred and real-symbol accuracy unmeasured. Pari owns app integration. CI is checked through the public API after pushing.
+## Step 23e: structured JSON output (short)
+1. **Did:** made the model answer as JSON that the server enforces (Ollama `format` schema), parsed it and ran the same checks as before. Fresh 40 queries, config frozen first, two models run once, faithfulness graded by the LLM.
+2. **Files:** `src/rag/{provider,prompt,verify,pipeline,settings,step23e}.py`, `tests/test_rag_pipeline.py`, `data/eval/fresh_rag_e.tsv`, `data/rag/step23e_config.json`, `results/step23e_*`, `reports/step23_e.md`.
+3. **How it works:** the schema makes broken markers impossible, so a reply either parses or was cut off. Cut-off replies and checks failing fall back to extractive quotes.
+4. **Verified:** tests and ruff pass; run results in `results/step23e_structured.md` (1.5b answered 14/30, 3b 17/30, neither fast enough).
+5. **Check yourself:** the frozen rule in `step23e.py` (eligible, qualified, choose); the 300 token cap that cut 11 of 1.5b's replies.
+6. **Assumptions:** llama3.2 and gemma3 skipped from a 3 query pilot; LLM grades only; many answers are verbatim copies.
+
+## Step 24c: optional AI answer (short)
+1. **Did:** added `?mode=ai` to the two ask operations. It starts a 202 job that asks qwen2.5 3b and always falls back to the extractive passages with a reason.
+2. **Files:** `src/api/ask_jobs.py`, routes, models, `src/rag/{provider,pipeline,service,settings}.py`, contract, mocks, `tests/test_ai_mode.py`, `docs/AI_ANSWER.md`, `docs/UI_NOTES_AI_ANSWER.md`.
+3. **How it works:** the job reuses the Step 23 pipeline. Any model problem ends as extractive passages plus a fallback reason, never a failed request.
+4. **Verified:** 698 fast tests, ruff clean, one live Ollama run.
+5. **Check yourself:** `run_ask_job` fallback paths; the `AskJobResult` schema; the limits text.
+6. **Assumptions:** timeout is httpx's 90 s read limit; Ishanvi's session was not reachable, so the UI note is a file.
+
+## Step 24b: generateArtwork and export (short)
+1. **Did:** made generate real. The request decides everything it can refuse (closed or unconfirmed change, a barcode that needs input, a layout that does not fit); a background job then renders the PDF, SVG, QR and a report with Parth's renderer, stores each file under its sha256 and adds a new draft version. Added getArtwork, getExports and a hash-checked download.
+2. **Files:** `src/api/{engine,artwork}.py` (new), `models,store,routes,requests,status,reviews,checks,main.py`, `docs/contracts/*` (CR-22), `tests/{artwork_helpers,test_api_generate,test_e2e_artwork}.py` plus updates to three contract tests.
+3. **How it works:** the renderer sits behind a small interface, so CI uses a fake and the real one is only imported when a label is made. Files are written to a temp name and renamed, so a file is whole or absent. All database rows go in one transaction, so a failed render leaves nothing behind.
+4. **Verified:** see `reports/step24_b.md` for the commands and counts.
+5. **Check yourself:** `prepare` in `src/api/artwork.py` (the order of the refusals); the new rule in `src/api/reviews.py` (a generated version needs a `self_check`, not the layout check); `_append_rows`.
+6. **Assumptions:** one edit per generation; the product record changes at generation, so a rejected change leaves a version; the stored files keep the DRAFT mark after approval; the extractor in the end-to-end test is a stub.
+
+## CV step 2: bounded fresh CV evaluation (short)
+1. **What I did:** Diagnosed eleven development misses, froze CV2 before final scoring, and ran a paired final artwork evaluation. CV2 became the default because its complete-image gate passed. I also rebuilt three fixed demo packages and checked their visible draft marks.
+2. **Files:** `src/cv/{extract,photo_cv2,ocr_vote}.py`, bounded evaluation scripts/config, CV2 reports and golden-demo code. They add lazy optional OCR, reproducible scoring and the requested handoff evidence.
+3. **How it works:** CV2 reads a larger intact label, compares two OCR readers and only uses text either reader observed. A timer treats a stuck native barcode read as a miss, like a timed exam answer, and saves each completed answer before moving on.
+4. **How I verified it:** `pytest -q -p no:cacheprovider -m "not slow"` returned `925 passed, 5 deselected, 1 warning`; focused release tests returned `18 passed`; ruff on changed files returned `All checks passed!`. Fresh complete counts were baseline/CV2: clean 0/96 to 32/96, moderate 0/96 to 27/96, hard 0/96 to 17/96.
+5. **What you should check yourself:** inspect the fresh gate table, run `python -m src.gen.golden`, and compare the real-photo table where lot falls from 7/10 to 4/10.
+6. **What I am unsure about or assumed:** references are LLM-generated, the ten real photos were already exposed, human review is deferred and real-symbol accuracy is unmeasured. Native QR stalls remain an open production issue.
+
+## Step 25: the demo PC (short)
+1. **Did:** one command (`scripts/run_demo.py`) now builds or copies the indexes, seeds, picks the checker retrieval (frozen E5b, with automatic fallback to plain hybrid), starts the API and warms the models. `publishVersion` is real (approval of this exact version, then a pinned public page the QR opens). Public medicine mode matches a product name to one of ten reference labels and answers from that product's chunks. `scripts/demo_e2e.py` drives the real API through every stage and says which stages used fallback data or mocks.
+2. **Files:** `src/api/{medicine,publish,pages}.py` (new), `routes,main,checks,ask_jobs,requests.py`, `src/checker/retrieval.py` (new `e5b` method), `docs/contracts/*` (CR-23 to CR-25), `scripts/{run_demo,demo_e2e,demo_flow,step25_medicine_match}.py`, `requirements-demo.txt`, README.
+3. **How it works:** the name matcher ranks ten small documents with the E5b recipe and accepts the top one only when its bge-large cosine is at least 0.65 (otherwise "no reference match"). A reference field (dosage form, active substance, pack size) is filled only when a rule finds it in the product's own label text, with the quote it came from; the manufacturer is not in the corpus, so it is never shown.
+4. **Verified:** see `reports/step25.md` for the commands and the real output.
+5. **Check yourself:** `derive_fields` in `src/api/medicine.py` (the rules and the evidence); `publish_version` order of refusals in `src/api/publish.py`; `usable_retrieval` in `src/api/checks.py` (the fallback must say it fell back).
+6. **Assumptions:** the 0.65 threshold is fitted on 30 names I wrote, so it is a sanity check, not an error rate; multi-side scan was not built (time box).

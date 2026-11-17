@@ -1,0 +1,16 @@
+{
+  "seconds_per_image": 300,
+  "applies_to": "both archived baseline and frozen candidate",
+  "timeout_outcome": "empty fields, counted as miss",
+  "resume": "durable predictions only; timeout results never retried",
+  "reason": "Both incomplete original runs stalled in native ZXing QR reading; no final score files existed or were opened",
+  "aborted_output_names": [
+    "cv2_final_baseline.json",
+    "cv2_final_vote.json"
+  ],
+  "new_output_names": [
+    "cv2_final_baseline_bounded.json",
+    "cv2_final_vote_bounded.json"
+  ],
+  "inputs_and_models": "unchanged from committed cv2.json and cv2_candidate.json"
+}
