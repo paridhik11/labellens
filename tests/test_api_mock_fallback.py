@@ -84,6 +84,8 @@ def test_real_operations_never_carry_x_mock(client) -> None:
         ("POST", "/label-versions/lbv_00000000/extraction/confirm"),
         ("POST", "/public/ask"),
         ("POST", "/ask"),
+        ("POST", "/public/match"),
+        ("POST", "/label-versions/lbv_exampledevice_carton_l3/publish"),
         ("POST", "/changes/chg_0002/generate"),
         ("GET", "/artworks/art_00000000"),
         ("GET", "/label-versions/lbv_exampledevice_carton_l3/exports"),

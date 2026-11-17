@@ -10,11 +10,11 @@ from collections.abc import Iterator
 from typing import Any
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, Path, Request, UploadFile
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from src.api import artwork, ask_jobs, changes, checks, scans, uploads, views
+from src.api import artwork, ask_jobs, changes, checks, medicine, pages, publish, scans, uploads, views
 from src.api.errors import ApiError
 from src.api.models import (
     ChangeRequest,
@@ -33,6 +33,7 @@ from src.api.requests import (
     ExtractionConfirmCreate,
     GenerateCreate,
     InspectCreate,
+    MedicineMatchCreate,
     ProductCreate,
     ProfessionalQuestion,
     PublicQuestion,
@@ -81,6 +82,8 @@ REAL_OPERATIONS = frozenset(
         "searchEvidence",
         "askPublic",
         "askProfessional",
+        "publishVersion",
+        "matchMedicine",
     }
 )
 router = APIRouter()
@@ -437,6 +440,34 @@ def review_artwork(
     return views.review_json(review)
 
 
+@router.post("/label-versions/{version_id}/publish", operation_id="publishVersion", status_code=201, tags=["device"])
+def publish_version_route(
+    version_id: str, response: Response, session: Session = Depends(get_session), user: User = Depends(current_user)
+) -> dict[str, Any]:
+    """Publish an approved version: a PublishedPage pinned to this version_id (201). A repeat call answers 200."""
+    page, created = publish.publish_version(session, user.user_id, version_id)
+    response.status_code = 201 if created else 200
+    return page
+
+
+@router.get("/versions/{version_id}", include_in_schema=False)
+def public_version_page(version_id: str, session: Session = Depends(get_session)) -> HTMLResponse:
+    """The public page a published label's QR opens. 404 for a version that was never published."""
+    body = publish.public_page_html(session, version_id)
+    if body is None:
+        return HTMLResponse("<!doctype html><title>Not found</title><p>This label version is not published.</p>", 404)
+    return HTMLResponse(body)
+
+
+@router.get("/versions/{version_id}/label.pdf", include_in_schema=False)
+def public_version_pdf(version_id: str, session: Session = Depends(get_session)) -> Response:
+    """The approved PDF of a published version (re-hashed before it is sent)."""
+    return Response(
+        publish.published_pdf(session, version_id), media_type="application/pdf",
+        headers={"X-Content-Type-Options": "nosniff", "Content-Disposition": f'inline; filename="{version_id}.pdf"'},
+    )
+
+
 # ---------------------------------------------------------------- checker (Step 21c)
 
 
@@ -565,8 +596,37 @@ def ask_public(
     """
     if _ask_mode(mode) == "ai":
         return _ask_job(request, background, session, body.question, "medicine", body.product_id)
+    service = request.app.state.medicine
+    if service.knows(body.product_id):  # a reference product: answer from its own label chunks (CR-23)
+        rag = request.app.state.rag
+        result = _ask_product(service, body.question, body.product_id, rag.provider, rag.settings)
+        return result.to_wire(based_on=medicine.based_on(service.catalog.products[body.product_id]))
     result = _ask(request, body.question, "medicine")
     return result.to_wire(based_on=f"{PUBLIC_BASED_ON}; product {body.product_id}")
+
+
+def _ask_product(service: Any, question: str, product_id: str, provider: Any, settings: Any) -> Any:
+    """Answer from one reference product's chunks. 503 when the retrieval models cannot be loaded."""
+    try:
+        return service.ask(question, product_id, provider, settings)
+    except Exception as error:  # model files missing, offline cache incomplete
+        raise ApiError(503, "retrieval_unavailable", f"medicine retrieval is not available: {error}") from error
+
+
+@router.post("/public/match", operation_id="matchMedicine", tags=["public"])
+def match_medicine(body: MedicineMatchCreate, request: Request) -> Any:
+    """Match a product name to the nearest of the ten reference products, or answer `no_reference_match` (CR-23)."""
+    service = request.app.state.medicine
+    try:
+        return medicine.match_result(service.catalog, service.matcher, body.product_name)
+    except Exception as error:  # the E5b models could not be loaded (offline cache missing)
+        raise ApiError(503, "retrieval_unavailable", f"medicine matching is not available: {error}") from error
+
+
+@router.get("/public/medicine", include_in_schema=False)
+def medicine_page() -> HTMLResponse:
+    """The small public medicine page (match a name, read the reference label, ask a question)."""
+    return HTMLResponse(pages.MEDICINE_PAGE)
 
 
 @router.post("/ask", operation_id="askProfessional", tags=["device"])
