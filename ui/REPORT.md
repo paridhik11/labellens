@@ -44,3 +44,33 @@ All UI notes, gaps, schema clarifications, and step reports are maintained in th
 
 ### 3. What we need
 - None for Round A. Everything required is present in the mock contracts.
+
+## 2026-11-17: Professional Workspace Round B (Evidence D5, Changes D6, History D9)
+
+### 1. What is done
+- **Screen D5 Evidence**:
+  - Success state (`evidence/success.json`): Full BM25 regulatory retrieval view showing search query input, method badge, ranked hits with BM25 scores and document IDs, and official 21 CFR citations with verbatim quotes and eCFR external links.
+  - Empty state (`evidence/empty.json`): Clean message when zero regulatory sections match the query.
+- **Screen D6 Changes ("Change Impact", Mockup Panel 4)**:
+  - Structured change form: Primary entry method with field selector, current/old value, and proposed new value inputs. Free-text description field marked as optional convenience only.
+  - Side-by-side revision preview: Compares current version (L2) with draft revision (L3) showing draft purple dashed border, purple background, prominent DRAFT watermark badge, and mandatory review disclaimer: "Draft generated for review. Not a compliance determination."
+  - Change lifecycle timeline: 4-step stepper displaying Draft, Checked, Reviewed, Published stages.
+  - Barcode decisions: Prominently renders barcode decision status:
+    - KEEP (`assess_success.json`, `generated_success.json`): Explains that encoded data does not change so the barcode is kept.
+    - NEEDS_INPUT (`generate_needs_input.json`): 422 Job with barcode decision card, reason for new UDI-DI ("Model change ED-100 to ED-200 needs a new device identifier"), previous payload with `[TEST]` badge, and allocated identifier input form with policy notice: "LabelLens never creates or guesses GTIN or UDI-DI values."
+  - Needs human review state (`assess_needs_review.json`): Highlights review banner with exact mock message: "NEEDS_HUMAN_REVIEW: no retrieved passage names the symbol for gamma irradiation. The corpus has no symbol standard, so a reviewer must choose the symbol."
+  - Confirmed checklist state (`confirm_success.json`): Shows checklist complete banner when all 4 affected items are confirmed or dismissed, enabling the "Generate Draft Artwork" action.
+  - Affected packaging hierarchy (`affected_success.json`): Renders impacted packaging components across carton and IFU labels with suggestion badges.
+  - Loading generate state (`generate_loading.json`): 202 Job envelope with progress bar (60%) and job status message.
+  - Generated draft artwork (`generated_success.json`): Displays generated artwork with DRAFT watermark, `[TEST]` badge for 00000000000000 placeholder, deterministic change log, self-check result (0 findings, passed, SHA-256 hash), SVG/PDF downloads, and link to Review & Approval.
+  - Returned and rejected states (`change_returned.json`, `change_rejected.json`): Clear status notices for reviewer return and terminal rejection.
+- **Screen D9 History**:
+  - Audit trail view (`history/success.json`): Immutable chronological event log (21 CFR 11 and 21 CFR 820.181 DMR) listing 6 regulatory lifecycle events with action badges, actor IDs, timestamps, entity IDs, and version transitions.
+  - Label versions lineage view (`history/label_versions.json`): Ordered revisions list (l1, l2, l3) showing artwork and product versions, template ID/version, kind (uploaded/generated), status, parent version links, and SVG/PDF package downloads.
+  - Empty audit state (`history/empty.json`): Clean empty message for products with no recorded lifecycle events.
+
+### 2. What is broken
+- None. All 36 states across all implemented public and professional screens render cleanly and match the contract definitions in `docs/contracts/openapi.yaml` and `docs/contracts/SCREENS.md`.
+
+### 3. What we need
+- None for Round B. Everything required is present in the mock contracts.

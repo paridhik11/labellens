@@ -138,8 +138,14 @@ async function getStatesForScreen(screen) {
       label = 'loading (generate)';
     } else if (filepath.includes('generated_success')) {
       label = 'success (draft artwork)';
+    } else if (filepath.includes('change_returned')) {
+      label = 'returned (change)';
+    } else if (filepath.includes('change_rejected')) {
+      label = 'rejected (change)';
     } else if (filepath.includes('self_approval_forbidden')) {
       label = 'failed (self approval forbidden)';
+    } else if (filepath.includes('history/success')) {
+      label = 'success (audit)';
     } else if (filepath.includes('label_versions')) {
       label = 'success (label versions)';
     } else if (filepath.includes('product_detail')) {
@@ -148,6 +154,12 @@ async function getStatesForScreen(screen) {
       label = 'success (published)';
     } else if (filepath.includes('export/draft')) {
       label = 'success (draft export)';
+    } else if (filepath.includes('export/approved')) {
+      label = 'approved (export)';
+    } else if (filepath.includes('review/approved')) {
+      label = 'approved (review)';
+    } else if (filepath.includes('review/returned')) {
+      label = 'returned (review)';
     }
 
     return {
