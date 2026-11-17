@@ -36,9 +36,7 @@ optimistic. No unseen real phone-photo accuracy or symbol accuracy is establishe
 Run from the repository root. These commands create immutable outputs; do not
 reuse the final set to tune, delete score locks or retry a candidate after seeing
 its score. Existing identical clean pixels reuse one prediction in the candidate
-runner without changing the declared frame denominators. The baseline's earlier
-queued runner evaluated repeated clean frames separately; its results stayed
-sealed until the candidate was selected.
+runner without changing the declared frame denominators. Both bounded runners now reuse identical clean pixels.
 
 ```sh
 python -m scripts.cv_experiments.cv2_benchmark --build --split dev --output data/synthetic/cv2_dev
@@ -46,9 +44,9 @@ python -m scripts.cv_experiments.cv2_benchmark --build --split final --output da
 mkdir -p /tmp/ll_cv2_baseline /tmp/ll_cv2_candidate
 git archive d39b0fb | tar -x -C /tmp/ll_cv2_baseline
 git archive 806c9d0 | tar -x -C /tmp/ll_cv2_candidate
-python -m scripts.cv_experiments.cv2_benchmark --dataset data/synthetic/cv2_final --code-root /tmp/ll_cv2_baseline --profile baseline --workers 3 --output data/synthetic/cv2_final_baseline.json
-python -m scripts.cv_experiments.cv2_benchmark --dataset data/synthetic/cv2_final --code-root /tmp/ll_cv2_candidate --profile cv2 --workers 5 --output data/synthetic/cv2_final_vote.json
-python -m scripts.cv_experiments.cv2_benchmark --before data/synthetic/cv2_final_baseline.json --after data/synthetic/cv2_final_vote.json --output results/cv_cv2_final_eval.md
+python -m scripts.cv_experiments.cv2_benchmark --dataset data/synthetic/cv2_final --code-root /tmp/ll_cv2_baseline --profile baseline --workers 3 --output data/synthetic/cv2_final_baseline_bounded.json
+python -m scripts.cv_experiments.cv2_benchmark --dataset data/synthetic/cv2_final --code-root /tmp/ll_cv2_candidate --profile cv2 --workers 5 --output data/synthetic/cv2_final_vote_bounded.json
+python -m scripts.cv_experiments.cv2_benchmark --before data/synthetic/cv2_final_baseline_bounded.json --after data/synthetic/cv2_final_vote_bounded.json --output results/cv_cv2_final_eval.md
 python -m src.gen.golden
 ```
 
@@ -70,3 +68,22 @@ data/real/SOURCES.md. Human spot-check of 01,04,08 and human
 symbol-crop review remain deferred. LLM-generated labels are not human truth;
 real-photo symbol accuracy is unmeasured. Synthetic or artwork success must not
 be reported as real-photo accuracy.
+
+Scoring calls blind extraction with postcorrect=True. The app adapter currently
+calls the default postcorrect=False; these numbers do not measure the full upload
+route, application latency, approval or publication. Pari owns that integration.
+
+## Infrastructure retry before any final scores
+
+The first two unbounded runs never completed or produced score files. Native
+profiling showed both stragglers inside ZXing QR reading, with over 90 minutes
+of CPU use. They were terminated on 2026-11-17; original locks/logs were preserved.
+This is an explicit infrastructure retry, not a new candidate or tuning from test
+results. The amendment cv2_timeout.json was committed before retrying. Both frozen
+systems receive the same 300-second active-image deadline. A timeout is an empty
+extraction and remains a miss, not an excluded image. No checker threshold changed.
+Each unique prediction is fsynced to a JSONL journal. If infrastructure interrupts
+execution again, use --resume with exactly the same arguments; completed predictions,
+including timeouts, are reused, never rescored. Fingerprints reject changed inputs,
+CV source, profile or deadline. Recognition/parsing helpers remain frozen at 806c9d0.
+Public CLI/profile-warning and missing-engine safeguards do not change those helpers.

@@ -8,7 +8,6 @@ import json
 import math
 import re
 import sys
-from concurrent.futures import ProcessPoolExecutor
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -174,6 +173,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument('--code-root', type=Path, default=ROOT)
     parser.add_argument('--profile', choices=['baseline', 'upscale', 'cv2'], default='baseline')
     parser.add_argument('--workers', type=int, default=3)
+    parser.add_argument('--timeout', type=float, default=300)
+    parser.add_argument('--resume', action='store_true', help='Resume the identical durable prediction journal')
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--before', type=Path)
     parser.add_argument('--after', type=Path)
@@ -193,21 +194,31 @@ def main(argv: list[str] | None = None) -> int:
     if args.output.exists():
         raise FileExistsError('Scoring output is immutable; do not rescore final data')
     lock = args.output.with_suffix('.lock')
-    with lock.open('x') as handle:
-        handle.write(args.profile+'\n')
+    if not args.resume:
+        with lock.open('x') as handle:
+            handle.write(args.profile+'\n')
+    elif not lock.exists():
+        raise ValueError('No scoring lock to resume')
     tasks = {}
     for record in manifest['records']:
         path = args.dataset/record['image']
         if hashlib.sha256(path.read_bytes()).hexdigest() != record['image_sha256']:
             raise ValueError('Frame fingerprint changed')
         tasks.setdefault(record['image_sha256'], (str(path.resolve()), str(args.code_root.resolve()), args.profile))
-    with ProcessPoolExecutor(max_workers=args.workers) as executor:
-        unique = dict(zip(tasks, executor.map(predict, tasks.values()), strict=True))
-    predictions = [unique[record['image_sha256']] for record in manifest['records']]
     code_hash = hashlib.sha256()
     for source in sorted((args.code_root/'src/cv').glob('*.py')):
         code_hash.update(source.name.encode()+source.read_bytes())
-    result = {'unique_images': len(tasks), 'cv_source_sha256': code_hash.hexdigest(), 'python': sys.version,
+    fingerprint = hashlib.sha256((hashlib.sha256(manifest_path.read_bytes()).hexdigest()+
+                                  code_hash.hexdigest()+args.profile+str(args.timeout)).encode()).hexdigest()
+    from scripts.cv_experiments.bounded import run_bounded
+
+    observations = run_bounded(list(tasks.values()), workers=args.workers, timeout=args.timeout,
+                               journal=args.output.with_suffix('.predictions.jsonl'),
+                               fingerprint=fingerprint, predict=predict)
+    unique = dict(zip(tasks, observations, strict=True))
+    predictions = [unique[record['image_sha256']] for record in manifest['records']]
+    result = {'timeout_seconds': args.timeout, 'unique_images': len(tasks),
+              'cv_source_sha256': code_hash.hexdigest(), 'python': sys.version,
               'manifest_sha256': hashlib.sha256(manifest_path.read_bytes()).hexdigest(), 'profile': args.profile,
               'totals': summarize(manifest['records'], predictions), 'predictions': predictions,
               'failures': sum('error' in p for p in predictions)}

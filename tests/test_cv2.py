@@ -152,25 +152,14 @@ def test_score_identical_pixels_once(tmp_path: Path, monkeypatch: pytest.MonkeyP
     (tmp_path/'manifest.json').write_text(json.dumps({'records': [record, record]}))
     seen = []
 
-    class Pool:
-        """Observe worker calls without starting real recognition."""
+    def runner(tasks: list[tuple[str, str, str]], **kwargs: object) -> list[dict[str, object]]:
+        """Observe prediction calls without native recognition."""
+        seen.extend(tasks)
+        return [{'fields': {'lot': 'LOT: A1'}} for _ in tasks]
 
-        def __init__(self, **kwargs: object) -> None:
-            """Accept the executor's configuration."""
+    import scripts.cv_experiments.bounded as bounded
 
-        def __enter__(self) -> Pool:
-            """Enter this in-memory executor."""
-            return self
-
-        def __exit__(self, *args: object) -> None:
-            """Leave this in-memory executor."""
-
-        def map(self, function: object, tasks: object) -> list[dict[str, object]]:
-            """Provide a single known observed value for each unique image."""
-            seen.extend(tasks)
-            return [{'fields': {'lot': 'LOT: A1'}} for _ in seen]
-
-    monkeypatch.setattr(bench, 'ProcessPoolExecutor', Pool)
+    monkeypatch.setattr(bounded, 'run_bounded', runner)
     result = tmp_path/'result.json'
     assert bench.main(['--dataset', str(tmp_path), '--output', str(result)]) == 0
     observed = json.loads(result.read_text())
@@ -194,3 +183,43 @@ def test_optional_engine_keeps_baseline(monkeypatch: pytest.MonkeyPatch) -> None
     assert resolve_photo_profile('cv2') == 'cv2'
     with pytest.raises(ValueError, match='Unknown'):
         resolve_photo_profile('typo')
+
+
+def test_explicit_cli_profile(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+    """Users retain an explicit baseline CLI after any default promotion, without loading CV in CI."""
+    import inspect
+
+    import src.cv.extract as module
+
+    seen = []
+
+    def extractor(path: Path, **kwargs: object) -> object:
+        """Capture public arguments without running recognition."""
+        seen.append(kwargs['photo_profile'])
+        return SimpleNamespace(model_dump_json=lambda **_: '{}')
+
+    for function in [module.extract_label, module.extract_label_modes]:
+        assert inspect.signature(function).parameters['photo_profile'].default == module.DEFAULT_PHOTO_PROFILE
+    monkeypatch.setattr(module, 'extract_label', extractor)
+    assert module.main(['--image', 'unused.png', '--mode', 'blind', '--photo-profile', 'baseline']) == 0
+    assert seen == ['baseline'] and 'input_image' in capsys.readouterr().out
+
+
+def test_photo_route_declares_protocol(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The optional reader and its warning identify the same protocol without changing coordinates."""
+    import src.cv.extract as module
+
+    seen = []
+    reading = SimpleNamespace(blocks=[], score=1, view='original', quarter_turns=0)
+
+    def reader(image: object, **kwargs: object) -> object:
+        """Observe independent-engine routing."""
+        seen.append(kwargs['second_engine'])
+        return reading
+
+    monkeypatch.setattr(module, 'np', SimpleNamespace(eye=lambda _: None))
+    monkeypatch.setattr(module, 'read_cv2', reader)
+    monkeypatch.setattr(module, 'map_cv2_fields', lambda _: ({'lot': 'TEST'}, []))
+    result, warnings = module._read_blind_photo(object(), None, None, 'cv2')
+    assert result is reading and seen == [True]
+    assert any('fixed protocol cv2' in warning for warning in warnings)

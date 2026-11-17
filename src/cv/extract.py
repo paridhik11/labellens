@@ -39,6 +39,7 @@ NAMES = ("manufacturer", "expiry")
 
 TEMPLATE_PATH = Path(__file__).resolve().parents[1] / "gen" / "templates" / "test_device.json"
 Mode = Literal["template", "blind"]
+DEFAULT_PHOTO_PROFILE = "baseline"
 
 
 def map_fields(
@@ -263,7 +264,8 @@ def _read_blind_photo(
         target_count = sum(bool(fields.get(field)) for field in ("product_name", "lot", "expiry"))
         ranked.append((target_count, reading.score, reading.view == "original", reading))
     best = max(ranked, key=lambda item: item[:3])[3]
-    warnings.append(f"PHOTO_OCR: view={best.view}, quarter_turns={best.quarter_turns}; fixed protocol v1")
+    protocol = "v1" if profile == "baseline" else profile
+    warnings.append(f"PHOTO_OCR: view={best.view}, quarter_turns={best.quarter_turns}; fixed protocol {protocol}")
     return best, warnings
 
 
@@ -276,7 +278,7 @@ def extract_label_modes(
     postcorrect: bool = False,
     field_confidence: float = 0.5,
     symbol_detector: str = "v1",
-    photo_profile: str = "baseline",
+    photo_profile: str = DEFAULT_PHOTO_PROFILE,
 ) -> dict[str, tuple[LabelExtraction, dict[str, Any]]]:
     """Run the extraction once and return one result per requested mode.
 
@@ -298,6 +300,7 @@ def extract_label_modes(
         raise ValueError("blur_threshold must be finite and nonnegative")
     if not modes or set(modes) - {"template", "blind"}:
         raise ValueError("modes must be chosen from template and blind")
+    requested_profile = photo_profile
     photo_profile = resolve_photo_profile(photo_profile)
     if symbol_detector not in ("v1", "v2"):
         raise ValueError("symbol_detector must be v1 or v2")
@@ -308,6 +311,8 @@ def extract_label_modes(
     image_size = (image.shape[1], image.shape[0])
     plain_barcodes, plain_warnings = _decode_safely(image)
     shared_warnings: list[str] = []
+    if requested_profile != photo_profile:
+        shared_warnings.append("PHOTO_PROFILE_FALLBACK: Tesseract unavailable; using baseline")
     corners = find_label_corners(image)
     corner_method = "contour" if corners is not None else None
     if corners is None:
@@ -449,7 +454,7 @@ def extract_label(
     mode: Mode = "template",
     postcorrect: bool = False,
     symbol_detector: str = "v1",
-    photo_profile: str = "baseline",
+    photo_profile: str = DEFAULT_PHOTO_PROFILE,
 ) -> LabelExtraction:
     """Extract one label photo into the unchanged shared schema.
 
@@ -483,11 +488,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--mode", choices=["template", "blind"], default="template")
     parser.add_argument("--postcorrect", action="store_true", help="Apply format rules to the field texts")
     parser.add_argument("--symbol-detector", choices=["v1", "v2"], default="v1")
+    parser.add_argument("--photo-profile", choices=["baseline", "upscale", "cv2"],
+                        default=DEFAULT_PHOTO_PROFILE, help="Select the photo OCR protocol")
     args = parser.parse_args(argv)
     try:
         result = extract_label(
             args.image, min_confidence=args.min_confidence, blur_threshold=args.blur_threshold,
             mode=args.mode, postcorrect=args.postcorrect, symbol_detector=args.symbol_detector,
+            photo_profile=args.photo_profile,
         )
     except (OSError, ValueError, np.linalg.LinAlgError) as error:
         parser.error(str(error))
