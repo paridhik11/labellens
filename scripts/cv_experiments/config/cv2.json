@@ -1,0 +1,189 @@
+{
+  "baseline_commit": "d39b0fb",
+  "seed": 2026111803,
+  "final_repetitions": 16,
+  "dev_repetitions": 2,
+  "conditions": {
+    "clean": "clean",
+    "moderate": "moderate",
+    "hard": "very_hard"
+  },
+  "max_source_side": 900,
+  "labels": "LLM-generated",
+  "human_review": "DEFERRED",
+  "real_symbol_accuracy": "UNMEASURED",
+  "primary": "complete-image normalized exact, per condition",
+  "gate": "noninferior in all conditions; strictly better in at least one",
+  "limitations": "Previously collected artwork, fresh augmentations; 4 final source families; framewise conditional Wilson intervals.",
+  "items": [
+    {
+      "id": "device_02",
+      "file": "data/real/devices/images/device_02.jpg",
+      "split": "dev",
+      "family": "strata",
+      "crop": [
+        230,
+        440,
+        800,
+        640
+      ],
+      "fields": {
+        "product_name": "Strata xrt"
+      },
+      "sha256": "163d389694730750609e5d8e0fe4769e084bc4d6d66c3cf829346bc6454752b1"
+    },
+    {
+      "id": "device_05",
+      "file": "data/real/devices/images/device_05.jpg",
+      "split": "dev",
+      "family": "molecular",
+      "crop": [
+        0,
+        0,
+        981,
+        510
+      ],
+      "fields": {
+        "product_name": "Keramatrix",
+        "lot": "EXP1220G3",
+        "expiry": "2020-12-31"
+      },
+      "sha256": "844759181a8fc5301094cea884e03ba3fe7e8115269bc5bb114891dab2cca194"
+    },
+    {
+      "id": "device_06",
+      "file": "data/real/devices/images/device_06.jpg",
+      "split": "dev",
+      "family": "epimed",
+      "crop": [
+        90,
+        70,
+        820,
+        1080
+      ],
+      "fields": {
+        "product_name": "WILEY SPINAL",
+        "lot": "sample"
+      },
+      "sha256": "f5c47723d6d0157c1afe3d3fda71572fb66e6f583eb2f67c1d8b81474896a9b3"
+    },
+    {
+      "id": "device_14",
+      "file": "data/real/devices/images/device_14.jpg",
+      "split": "dev",
+      "family": "epimed",
+      "crop": [
+        0,
+        0,
+        1650,
+        844
+      ],
+      "fields": {
+        "product_name": "SPINAL 25G PENCIL POINT"
+      },
+      "sha256": "fe9dd75ceea70cea8235599ca0516ce5af86d934e448f7fe50fed9471872055b"
+    },
+    {
+      "id": "device_03",
+      "file": "data/real/devices/images/device_03.jpg",
+      "split": "final",
+      "family": "lancet",
+      "crop": [
+        580,
+        326,
+        884,
+        495
+      ],
+      "fields": {
+        "product_name": "Pressure Activated Safety Lancets"
+      },
+      "sha256": "afad644b78a8ff47615ac449efaecb59245131d4d2b0abd44b9f3d5912d6dcd2"
+    },
+    {
+      "id": "device_07",
+      "file": "data/real/devices/images/device_07.jpg",
+      "split": "final",
+      "family": "clint",
+      "crop": [
+        130,
+        150,
+        1160,
+        1300
+      ],
+      "fields": {
+        "product_name": "SINGLE SHOT EPIDURAL"
+      },
+      "sha256": "80de1d61da3fe473b3ae295475204ef4a2c0f977e55bbd52cfa4d225d9f60acc"
+    },
+    {
+      "id": "device_11",
+      "file": "data/real/devices/images/device_11.jpg",
+      "split": "final",
+      "family": "propel",
+      "crop": [
+        0,
+        0,
+        445,
+        302
+      ],
+      "fields": {
+        "product_name": "PROPEL",
+        "lot": "12345678",
+        "expiry": "2025-01-01"
+      },
+      "sha256": "e8244757ddd1fccd1e342b918618c5e8bb95c467c0631a6df2e267d60a218814"
+    },
+    {
+      "id": "device_12",
+      "file": "data/real/devices/images/device_12.jpg",
+      "split": "final",
+      "family": "propel",
+      "crop": [
+        0,
+        0,
+        542,
+        363
+      ],
+      "fields": {
+        "product_name": "PROPEL mini",
+        "lot": "12345678",
+        "expiry": "2025-01-01"
+      },
+      "sha256": "4004ff02db4db306be77d9bd7d8f2f166bc1f86314ffa6d0d2eecf4569df34dc"
+    },
+    {
+      "id": "device_13",
+      "file": "data/real/devices/images/device_13.jpg",
+      "split": "final",
+      "family": "propel",
+      "crop": [
+        0,
+        0,
+        519,
+        357
+      ],
+      "fields": {
+        "product_name": "PROPEL Contour",
+        "lot": "12345678",
+        "expiry": "2025-05-05"
+      },
+      "sha256": "b94a4d2fcf93f885d987b31665f77b59083eff4bc85fb929a62fcf4e071efee6"
+    },
+    {
+      "id": "device_19",
+      "file": "data/real/devices/images/device_19.jpg",
+      "split": "final",
+      "family": "silver",
+      "crop": [
+        0,
+        0,
+        3153,
+        2764
+      ],
+      "fields": {
+        "product_name": "ACESO Silicone Silver Foam Dressing"
+      },
+      "sha256": "e41488d31e2e589bf399d38e4aa6a941ceb8ea785edf214b4346165d9108d4c1"
+    }
+  ]
+}

@@ -981,6 +981,14 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its CV step 16 to 
 5. **Check yourself:** `prepare` in `src/api/artwork.py` (the order of the refusals); the new rule in `src/api/reviews.py` (a generated version needs a `self_check`, not the layout check); `_append_rows`.
 6. **Assumptions:** one edit per generation; the product record changes at generation, so a rejected change leaves a version; the stored files keep the DRAFT mark after approval; the extractor in the end-to-end test is a stub.
 
+## CV step 2: bounded fresh CV evaluation (short)
+1. **What I did:** Diagnosed eleven development misses, froze CV2 before final scoring, and ran a paired final artwork evaluation. CV2 became the default because its complete-image gate passed. I also rebuilt three fixed demo packages and checked their visible draft marks.
+2. **Files:** `src/cv/{extract,photo_cv2,ocr_vote}.py`, bounded evaluation scripts/config, CV2 reports and golden-demo code. They add lazy optional OCR, reproducible scoring and the requested handoff evidence.
+3. **How it works:** CV2 reads a larger intact label, compares two OCR readers and only uses text either reader observed. A timer treats a stuck native barcode read as a miss, like a timed exam answer, and saves each completed answer before moving on.
+4. **How I verified it:** `pytest -q -p no:cacheprovider -m "not slow"` returned `925 passed, 5 deselected, 1 warning`; focused release tests returned `18 passed`; ruff on changed files returned `All checks passed!`. Fresh complete counts were baseline/CV2: clean 0/96 to 32/96, moderate 0/96 to 27/96, hard 0/96 to 17/96.
+5. **What you should check yourself:** inspect the fresh gate table, run `python -m src.gen.golden`, and compare the real-photo table where lot falls from 7/10 to 4/10.
+6. **What I am unsure about or assumed:** references are LLM-generated, the ten real photos were already exposed, human review is deferred and real-symbol accuracy is unmeasured. Native QR stalls remain an open production issue.
+
 ## Step 25: the demo PC (short)
 1. **Did:** one command (`scripts/run_demo.py`) now builds or copies the indexes, seeds, picks the checker retrieval (frozen E5b, with automatic fallback to plain hybrid), starts the API and warms the models. `publishVersion` is real (approval of this exact version, then a pinned public page the QR opens). Public medicine mode matches a product name to one of ten reference labels and answers from that product's chunks. `scripts/demo_e2e.py` drives the real API through every stage and says which stages used fallback data or mocks.
 2. **Files:** `src/api/{medicine,publish,pages}.py` (new), `routes,main,checks,ask_jobs,requests.py`, `src/checker/retrieval.py` (new `e5b` method), `docs/contracts/*` (CR-23 to CR-25), `scripts/{run_demo,demo_e2e,demo_flow,step25_medicine_match}.py`, `requirements-demo.txt`, README.

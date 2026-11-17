@@ -9,3 +9,5 @@ onnxruntime==1.31.1
 pydantic==2.14.3
 reportlab==5.1.0
 pypdf==7.1.0
+# Optional CV2 secondary engine: system Tesseract 5.5.4 (brew install tesseract).
+# Invoked through its CLI; no additional Python wrapper is required.
