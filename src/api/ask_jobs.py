@@ -30,11 +30,11 @@ PUBLIC_BASED_ON = "21 CFR Parts 201, 208 and 211 (no product label text is used 
 
 
 def build_payload(
-    result: RagResult, module: str, product_id: str | None, fallback: str | None = None,
+    result: RagResult, module: str, product_id: str | None, fallback: str | None = None, based_on: str | None = None,
 ) -> dict[str, Any]:
     """The contract AskJobResult for one finished pipeline run."""
     if module == "medicine":
-        answer = result.to_wire(based_on=f"{PUBLIC_BASED_ON}; product {product_id}")
+        answer = result.to_wire(based_on=based_on or f"{PUBLIC_BASED_ON}; product {product_id}")
     else:
         answer = result.to_wire(banner=False)
     out: dict[str, Any] = {
@@ -54,6 +54,24 @@ def stored_result(session: Session, job_id: str) -> dict[str, Any] | None:
     return row.payload if row else None
 
 
+def _ask(app: Any, question: str, module: str, product_id: str | None, provider: Provider) -> RagResult:
+    """The pipeline for one job: a reference medicine product answers from its own chunks (CR-23), else as before."""
+    service = app.state.medicine
+    if module == "medicine" and service.knows(product_id):
+        return service.ask(question, product_id, provider, AI_SETTINGS)
+    return app.state.rag.ask(question, module, provider, AI_SETTINGS)
+
+
+def _based_on(app: Any, module: str, product_id: str | None) -> str | None:
+    """`based_on` text for a reference product, None for any other id."""
+    service = app.state.medicine
+    if module == "medicine" and service.knows(product_id):
+        from src.api.medicine import based_on
+
+        return based_on(service.catalog.products[product_id])
+    return None
+
+
 def run_ask_job(app: Any, job_id: str, question: str, module: str, product_id: str | None) -> None:
     """Background body of a 202 ask: run the model, verify, fall back to extractive, store the result."""
     with app.state.session_factory() as session:
@@ -62,13 +80,14 @@ def run_ask_job(app: Any, job_id: str, question: str, module: str, product_id: s
             provider: Provider = app.state.ai_provider or OllamaProvider(AI_MODEL, AI_SETTINGS)
             advance_job(session, job_id, "processing", 0.3, "asking the model (about 40 seconds)")
             try:
-                result = app.state.rag.ask(question, module, provider, AI_SETTINGS)
-                payload = build_payload(result, module, product_id)
+                result = _ask(app, question, module, product_id, provider)
+                payload = build_payload(result, module, product_id, based_on=_based_on(app, module, product_id))
             except RetrievalUnavailable:
                 raise
             except Exception:  # anything unexpected in the model path: show the passages instead
-                result = app.state.rag.ask(question, module, NullProvider(), AI_SETTINGS)
-                payload = build_payload(result, module, product_id, "model_unavailable")
+                result = _ask(app, question, module, product_id, NullProvider())
+                payload = build_payload(
+                    result, module, product_id, "model_unavailable", _based_on(app, module, product_id))
             session.add(AskResult(job_id=job_id, payload=payload, created_at=utcnow()))
             session.commit()
             advance_job(session, job_id, "done", 1.0, "done")

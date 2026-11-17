@@ -216,7 +216,12 @@ def test_every_real_response_conforms_to_openapi(run: Run, tmp_path, monkeypatch
 
     c("reviewArtwork", 201, "POST", url, user=REVIEWER, json={**approve, "comment": "ok"})
     c("listReviews", 200, "GET", url)
-    c("getChange", 200, "GET", f"/changes/{CHANGE_ID}")  # status reviewed
+    c("publishVersion", 201, "POST", f"/label-versions/{L3}/publish", user=REVIEWER)  # Step 25b
+    c("publishVersion", 200, "POST", f"/label-versions/{L3}/publish", user=REVIEWER)
+    c("publishVersion", 401, "POST", f"/label-versions/{L3}/publish", user=None)
+    c("publishVersion", 403, "POST", f"/label-versions/{L3}/publish", user=EDITOR)
+    c("publishVersion", 404, "POST", "/label-versions/lbv_missing/publish", user=REVIEWER)
+    c("getChange", 200, "GET", f"/changes/{CHANGE_ID}")  # status published
     with sf() as session:
         add_label_version(
             session,
@@ -241,6 +246,7 @@ def test_every_real_response_conforms_to_openapi(run: Run, tmp_path, monkeypatch
         json={"decision": "reject", "artifact_sha256": "a" * 64, "comment": "No."},
     )
     c("reviewArtwork", 409, "POST", f"/label-versions/{own.version_id}/reviews", user=REVIEWER, json=own_body)  # closed
+    c("publishVersion", 409, "POST", f"/label-versions/{own.version_id}/publish", user=REVIEWER)  # change_closed
     c("getChange", 200, "GET", f"/changes/{admin_change.json()['change']['change_id']}")  # closed true
     c("getProductHistory", 200, "GET", f"/products/{PRODUCT_ID}/history")
 
@@ -278,6 +284,16 @@ def test_every_real_response_conforms_to_openapi(run: Run, tmp_path, monkeypatch
     c("askProfessional", 200, "POST", "/ask", user=None, json={"question": "date format on a device label"})
     c("askProfessional", 200, "POST", "/ask", user=None, json={"question": "should I take two of these"})
     c("askProfessional", 422, "POST", "/ask", user=None, json={"question": " "})
+    # public medicine mode (Step 25a): stub matching over the real data/medicine catalog
+    from tests.medicine_helpers import stub_medicine
+
+    run.client.app.state.medicine = stub_medicine()
+    c("matchMedicine", 200, "POST", "/public/match", user=None, json={"product_name": "Childrens Ibuprofen"})
+    c("matchMedicine", 200, "POST", "/public/match", user=None, json={"product_name": "Zzyzx Gummies"})
+    c("matchMedicine", 422, "POST", "/public/match", user=None, json={"product_name": " "})
+    run.client.app.state.medicine = stub_medicine(broken=True)
+    c("matchMedicine", 503, "POST", "/public/match", user=None, json={"product_name": "Childrens Ibuprofen"})
+    run.client.app.state.medicine = stub_medicine()
     # optional AI answer (Step 24c): a fake provider whose reply fails verification, so the job falls back
     from src.rag.provider import FakeProvider
 
@@ -356,6 +372,32 @@ def test_every_real_response_conforms_to_openapi(run: Run, tmp_path, monkeypatch
     with sf() as session:
         qr_sha = session.scalars(select(Artifact).where(Artifact.role == "qr_png")).first().sha256
     c("downloadArtifact", 409, "GET", f"/artifacts/{qr_sha}")  # not published yet
+
+    # print verification (Step 25b): a fake CV engine, a draft is refused, an approved version is verified
+    from tests.test_api_printverify import FakePrintEngine
+
+    run.client.app.state.print_engine = FakePrintEngine()
+    run.client.app.state.quality_gate = passing_gate
+    pv_url = f"/label-versions/{art['version_id']}/print-verifications"
+    photo = {"photo": ("p.png", png_bytes(), "image/png")}
+    c("verifyPrint", 409, "POST", pv_url, files=photo, data={"condition": "phone_photo"})  # not_approved
+    with sf() as session:
+        sha = art["artifact_sha256"]
+        pv_check = add_check_result(session, "self_check", [], version_id=art["version_id"], artifact_sha256=sha)
+    c("reviewArtwork", 201, "POST", f"/label-versions/{art['version_id']}/reviews", user=REVIEWER,
+      json={"decision": "approve", "artifact_sha256": sha, "check_id": pv_check.check_id})
+    started = c("verifyPrint", 202, "POST", pv_url, files=photo, data={"condition": "phone_photo"})
+    verification_url = c("getJob", 200, "GET", f"/jobs/{started.json()['job_id']}").json()["result_url"]
+    c("getPrintVerification", 200, "GET", verification_url)
+    c("getPrintVerification", 401, "GET", verification_url, user=None)
+    c("getPrintVerification", 404, "GET", "/print-verifications/pv_00000000")
+    c("listPrintVerifications", 200, "GET", pv_url)
+    c("listPrintVerifications", 401, "GET", pv_url, user=None)
+    c("listPrintVerifications", 404, "GET", "/label-versions/lbv_00000000/print-verifications")
+    c("verifyPrint", 401, "POST", pv_url, user=None, files=photo, data={"condition": "phone_photo"})
+    c("verifyPrint", 404, "POST", "/label-versions/lbv_00000000/print-verifications", files=photo,
+      data={"condition": "phone_photo"})
+    c("verifyPrint", 422, "POST", pv_url, files=photo, data={"condition": "sepia"})
 
     # coverage: every documented status of every real operation was validated at least once
     real_in_spec = {op: documented_statuses(op) for op in REAL_OPERATIONS}

@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 class RetrievalSettings:
     """Which retriever finds citations. Default is plain hybrid RRF; the frozen Session B config replaces it here."""
 
-    method: str = "hybrid_rrf"  # bm25 | tfidf | dense | hybrid_rrf
+    method: str = "hybrid_rrf"  # bm25 | tfidf | dense | hybrid_rrf | e5b (the frozen Step 18 system)
     module: str = "device"
     k: int = 10
     rrf_k: int = 60

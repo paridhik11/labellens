@@ -20,13 +20,15 @@ from src.api.db import init_db, make_engine, make_session_factory
 from src.api.engine import RealEngine
 from src.api.errors import ApiError
 from src.api.extractor import extract_with_cv
+from src.api.medicine import MedicineService
 from src.api.mock_server import register_mocks
+from src.api.printverify import RealPrintEngine
 from src.api.quality import DEFAULT as QUALITY_THRESHOLDS
 from src.api.quality import assess_photo
 from src.api.routes import router
 from src.api.seed import seed_demo
 from src.api.uploads import MAX_BYTES
-from src.checker.settings import CheckerSettings
+from src.checker.settings import CheckerSettings, RetrievalSettings
 from src.rag.service import RagService, frozen_threshold
 
 FORM_OVERHEAD = 64 * 1024  # room for the multipart boundaries and the small text fields around the file
@@ -45,9 +47,14 @@ def create_app(db_url: str | None = None, seed: bool | None = None) -> FastAPI:
         app.state.artwork_engine = RealEngine()  # Parth's renderer, imported on first use; tests replace it
         app.state.quality_gate = lambda path: assess_photo(path, QUALITY_THRESHOLDS)  # tests replace it
         app.state.quality_thresholds = QUALITY_THRESHOLDS
-        app.state.checker_settings = CheckerSettings()  # default retrieval: plain hybrid RRF
+        # default retrieval: plain hybrid RRF. LABELLENS_CHECKER_RETRIEVAL=e5b selects the frozen E5b system (Step 25c);
+        # a check falls back to plain hybrid, and says so in retrieval_config, when E5b cannot be loaded.
+        method = os.environ.get("LABELLENS_CHECKER_RETRIEVAL", "hybrid_rrf")
+        app.state.checker_settings = CheckerSettings(retrieval=RetrievalSettings(method=method))
         app.state.ai_provider = None  # tests put a fake provider here; None means Ollama (src/rag/settings.AI_MODEL)
         app.state.rag = RagService(threshold=frozen_threshold())  # Step 23: E5b retrieval loads on the first question
+        app.state.print_engine = RealPrintEngine()  # CV pieces behind verify_print; tests replace it
+        app.state.medicine = MedicineService()  # Step 25a: ten reference products, E5b name matcher (lazy)
         app.state.edit_provider = None  # optional LLM text parser, off by default (src/change/parser.py)
         if seed if seed is not None else os.environ.get("LABELLENS_SEED", "1") != "0":
             with app.state.session_factory() as session:

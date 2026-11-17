@@ -10,6 +10,7 @@ CPU on the first run; a demo PC that has the shared folder (or copies it) needs 
 from __future__ import annotations
 
 import argparse
+import shutil
 import sys
 from pathlib import Path
 
@@ -20,13 +21,41 @@ from src.checker.settings import RetrievalSettings  # noqa: E402
 from src.rag import indexes  # noqa: E402
 
 
+def medicine_reference_files() -> list[Path]:
+    """Every dense cache file in data/processed (the reference-product indexes of the public medicine mode live there too)."""
+    return sorted(indexes.LOCAL_DIR.glob("dense_cache_*"))
+
+
+def pull_all() -> list[Path]:
+    """Copy every dense cache file the shared store has and this checkout lacks (includes the medicine reference ones)."""
+    store = indexes.shared_dir()
+    copied = []
+    for source in sorted(store.glob("dense_cache_*")) if store.exists() else []:
+        target = indexes.LOCAL_DIR / source.name
+        if not target.exists():
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, target)
+            copied.append(target)
+    return copied
+
+
+def warm_medicine() -> None:
+    """Build the public medicine mode indexes (ten product documents and the 147 product chunks) when not cached."""
+    from src.api.medicine import MedicineService
+
+    service = MedicineService()
+    print("building the medicine reference indexes (small) ...")
+    service.matcher._load()
+    service.scoped_retriever(next(iter(service.catalog.products)))
+
+
 def main() -> int:
     """Pull, build what is missing, push, report. Returns 0 when every required file exists."""
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--check", action="store_true", help="report only, build nothing")
     args = ap.parse_args()
     print(f"shared store: {indexes.shared_dir()}")
-    for path in indexes.pull():
+    for path in pull_all() + indexes.pull():
         print(f"copied from shared store: {path.name}")
     todo = indexes.missing()
     print(f"required {len(indexes.required_files())} files, missing {len(todo)}")
@@ -40,7 +69,12 @@ def main() -> int:
             for module in indexes.MODULES:
                 print(f"building bge-small for {module} ...")
                 build_retriever(RetrievalSettings(method="hybrid_rrf", module=module), module_chunks(module))
-    for path in indexes.push():
+    if not args.check:
+        try:
+            warm_medicine()
+        except Exception as error:  # models not installed or offline cache incomplete: reported, not fatal here
+            print(f"medicine reference indexes not built: {type(error).__name__}: {error}")
+    for path in indexes.push(indexes.required_files() + medicine_reference_files()):
         print(f"saved to shared store: {path.name}")
     todo = indexes.missing()
     for path in todo:

@@ -10,11 +10,11 @@ from collections.abc import Iterator
 from typing import Any
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, Path, Request, UploadFile
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from src.api import artwork, ask_jobs, changes, checks, scans, uploads, views
+from src.api import artwork, ask_jobs, changes, checks, medicine, pages, printverify, publish, scans, uploads, views
 from src.api.errors import ApiError
 from src.api.models import (
     ChangeRequest,
@@ -22,6 +22,7 @@ from src.api.models import (
     GeneratedArtwork,
     LabelTemplate,
     LabelVersion,
+    PrintVerification,
     Product,
     ProductVersion,
     Review,
@@ -33,6 +34,7 @@ from src.api.requests import (
     ExtractionConfirmCreate,
     GenerateCreate,
     InspectCreate,
+    MedicineMatchCreate,
     ProductCreate,
     ProfessionalQuestion,
     PublicQuestion,
@@ -81,6 +83,11 @@ REAL_OPERATIONS = frozenset(
         "searchEvidence",
         "askPublic",
         "askProfessional",
+        "publishVersion",
+        "verifyPrint",
+        "getPrintVerification",
+        "listPrintVerifications",
+        "matchMedicine",
     }
 )
 router = APIRouter()
@@ -437,6 +444,87 @@ def review_artwork(
     return views.review_json(review)
 
 
+@router.post("/label-versions/{version_id}/publish", operation_id="publishVersion", status_code=201, tags=["device"])
+def publish_version_route(
+    version_id: str, response: Response, session: Session = Depends(get_session), user: User = Depends(current_user)
+) -> dict[str, Any]:
+    """Publish an approved version: a PublishedPage pinned to this version_id (201). A repeat call answers 200."""
+    page, created = publish.publish_version(session, user.user_id, version_id)
+    response.status_code = 201 if created else 200
+    return page
+
+
+@router.get("/versions/{version_id}", include_in_schema=False)
+def public_version_page(version_id: str, session: Session = Depends(get_session)) -> HTMLResponse:
+    """The public page a published label's QR opens. 404 for a version that was never published."""
+    body = publish.public_page_html(session, version_id)
+    if body is None:
+        return HTMLResponse("<!doctype html><title>Not found</title><p>This label version is not published.</p>", 404)
+    return HTMLResponse(body)
+
+
+@router.get("/versions/{version_id}/label.pdf", include_in_schema=False)
+def public_version_pdf(version_id: str, session: Session = Depends(get_session)) -> Response:
+    """The approved PDF of a published version (re-hashed before it is sent)."""
+    return Response(
+        publish.published_pdf(session, version_id), media_type="application/pdf",
+        headers={"X-Content-Type-Options": "nosniff", "Content-Disposition": f'inline; filename="{version_id}.pdf"'},
+    )
+
+
+# ---------------------------------------------------------------- print verification (Step 25b)
+
+
+@router.post("/label-versions/{version_id}/print-verifications", operation_id="verifyPrint", status_code=202,
+             tags=["device"])
+async def verify_print_route(
+    version_id: str, request: Request, background: BackgroundTasks, photo: UploadFile = File(...),  # noqa: B008
+    condition: str = Form(...), session: Session = Depends(get_session), user: User = Depends(current_user),
+) -> JSONResponse:
+    """Accept a photo of a printed label and answer 202 with a Job; the job compares it with the approved version.
+
+    Refused before any job: a version that is not approved (409 not_approved, rejected, version_superseded,
+    no_reference), an unknown condition or a file that is not a PNG or JPEG (422).
+    """
+    version = require_version(session, version_id)
+    data = await photo.read(uploads.MAX_BYTES + 1)
+    upload, stored, verification_id = printverify.accept(session, user.user_id, version, condition, data)
+    job = checks.new_job(session, "print_verify", version_id, user.user_id,
+                         result_url=f"/print-verifications/{verification_id}")
+    background.add_task(printverify.run_verify_job, request.app, job.job_id, verification_id, version_id, user.user_id,
+                        stored, upload.mime, upload.sha256, condition)
+    return JSONResponse(checks.job_json(job), status_code=202)
+
+
+@router.get("/label-versions/{version_id}/print-verifications", operation_id="listPrintVerifications", tags=["device"])
+def list_print_verifications(
+    version_id: str, request: Request, session: Session = Depends(get_session), _: User = Depends(current_user)
+) -> Any:
+    """Print verifications of one version, oldest first. Ids this server never issued keep the mock."""
+    if printverify.require_real_version(session, version_id) is None:
+        from src.api.mock_server import mock_response
+
+        return mock_response("listPrintVerifications", request)
+    return {"version_id": version_id,
+            "items": [printverify.verification_json(r) for r in printverify.list_for(session, version_id)]}
+
+
+@router.get("/print-verifications/{verification_id}", operation_id="getPrintVerification", tags=["device"])
+def get_print_verification(
+    verification_id: str, request: Request, session: Session = Depends(get_session), _: User = Depends(current_user)
+) -> Any:
+    """One stored print verification. Ids this server never issued keep the mock."""
+    row = session.scalars(select(PrintVerification).where(
+        PrintVerification.verification_id == verification_id)).first()
+    if row is not None:
+        return printverify.verification_json(row)
+    if printverify.REAL_VERIFICATION_ID.match(verification_id):
+        raise ApiError(404, "not_found", f"No print verification {verification_id!r}.")
+    from src.api.mock_server import mock_response
+
+    return mock_response("getPrintVerification", request)
+
+
 # ---------------------------------------------------------------- checker (Step 21c)
 
 
@@ -565,8 +653,37 @@ def ask_public(
     """
     if _ask_mode(mode) == "ai":
         return _ask_job(request, background, session, body.question, "medicine", body.product_id)
+    service = request.app.state.medicine
+    if service.knows(body.product_id):  # a reference product: answer from its own label chunks (CR-23)
+        rag = request.app.state.rag
+        result = _ask_product(service, body.question, body.product_id, rag.provider, rag.settings)
+        return result.to_wire(based_on=medicine.based_on(service.catalog.products[body.product_id]))
     result = _ask(request, body.question, "medicine")
     return result.to_wire(based_on=f"{PUBLIC_BASED_ON}; product {body.product_id}")
+
+
+def _ask_product(service: Any, question: str, product_id: str, provider: Any, settings: Any) -> Any:
+    """Answer from one reference product's chunks. 503 when the retrieval models cannot be loaded."""
+    try:
+        return service.ask(question, product_id, provider, settings)
+    except Exception as error:  # model files missing, offline cache incomplete
+        raise ApiError(503, "retrieval_unavailable", f"medicine retrieval is not available: {error}") from error
+
+
+@router.post("/public/match", operation_id="matchMedicine", tags=["public"])
+def match_medicine(body: MedicineMatchCreate, request: Request) -> Any:
+    """Match a product name to the nearest of the ten reference products, or answer `no_reference_match` (CR-23)."""
+    service = request.app.state.medicine
+    try:
+        return medicine.match_result(service.catalog, service.matcher, body.product_name)
+    except Exception as error:  # the E5b models could not be loaded (offline cache missing)
+        raise ApiError(503, "retrieval_unavailable", f"medicine matching is not available: {error}") from error
+
+
+@router.get("/public/medicine", include_in_schema=False)
+def medicine_page() -> HTMLResponse:
+    """The small public medicine page (match a name, read the reference label, ask a question)."""
+    return HTMLResponse(pages.MEDICINE_PAGE)
 
 
 @router.post("/ask", operation_id="askProfessional", tags=["device"])

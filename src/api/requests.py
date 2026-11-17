@@ -157,7 +157,7 @@ class RetrievalConfig(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    method: Literal["hybrid_rrf", "bm25", "tfidf", "dense"] | None = None
+    method: Literal["hybrid_rrf", "bm25", "tfidf", "dense", "e5b"] | None = None
     stem: bool | None = None
     prefix: bool | None = None
     rerank: bool = False
@@ -216,3 +216,19 @@ class PublicQuestion(ProfessionalQuestion):
     """POST /public/ask (medicine module). product_id is accepted as given; no product registry exists yet."""
 
     product_id: str = Field(min_length=1)
+
+
+class MedicineMatchCreate(BaseModel):
+    """POST /public/match: the product name as read from the pack (CR-23)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    product_name: str = Field(min_length=1, max_length=200)
+
+    @field_validator("product_name")
+    @classmethod
+    def not_blank(cls, value: str) -> str:
+        """Reject a name that is only spaces."""
+        if not value.strip():
+            raise ValueError("product_name must not be blank")
+        return value.strip()

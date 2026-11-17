@@ -746,14 +746,32 @@ paths:
       summary: Publish an approved version; creates a PublishedPage pinned to this version_id
       parameters:
         - $ref: "#/components/parameters/VersionId"
+      description: |
+        Real since Step 25 (CR-24). Reviewer or admin only. The version's latest review must be an approval of its own
+        artifact hash. The page URL is the payload already printed in the QR files (`<base>/versions/<version_id>`),
+        served as HTML by the same server for a published version only.
       responses:
         "201":
           description: Published page
           content:
             application/json:
               schema: {$ref: "#/components/schemas/PublishedPage"}
+        "200":
+          description: Already published; the same page is returned
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/PublishedPage"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "403":
+          description: role_forbidden (only a reviewer or admin publishes)
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "404": {$ref: "#/components/responses/NotFound"}
         "409":
-          description: No valid approval record for this version (none, voided by a newer version, or change_closed)
+          description: |
+            No valid approval record for this version: not_approved (none, or the latest review is a return or reject),
+            version_superseded (a newer version voids the approval), change_closed, or hash_mismatch.
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Error"}
@@ -834,10 +852,18 @@ paths:
                   items:
                     type: array
                     items: {$ref: "#/components/schemas/PrintVerification"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "404": {$ref: "#/components/responses/NotFound"}
     post:
       tags: [device]
       operationId: verifyPrint
       summary: Photograph a printed label and compare it with the approved version
+      description: |
+        Real since Step 25b (CR-26). Needs an approved, current, generated version. The photo must be a PNG or JPEG
+        (422 `unsupported_media_type` for a PDF). The job runs the CV extractor on the photo and compares text and
+        barcode with the approved version's record and encoded payload. Symbols are not compared (the detector is not
+        trusted). `needs_human` evidence becomes outcome `rescan_needed` with `rescan_reason`. A job fails only when
+        the CV libraries are missing (`extractor_unavailable`) or something unexpected breaks (`print_verify_failed`).
       parameters:
         - $ref: "#/components/parameters/VersionId"
       requestBody:
@@ -858,11 +884,17 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Job"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "404": {$ref: "#/components/responses/NotFound"}
         "409":
-          description: Version is not approved
+          description: |
+            Version is not approved (CR-26). Codes: `not_approved` (draft, checked, returned or never reviewed; the
+            status is in `details`), `rejected` (a reject is terminal), `version_superseded` (a newer version
+            voids the approval) and `no_reference` (approved, but no generated artwork to compare with).
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Error"}
+        "422": {$ref: "#/components/responses/Invalid"}
 
   /print-verifications/{verification_id}:
     get:
@@ -880,6 +912,7 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/PrintVerification"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "404": {$ref: "#/components/responses/NotFound"}
 
   # ---------------------------------------------------------------- public medicine mode
@@ -923,6 +956,40 @@ paths:
             application/json:
               schema: {$ref: "#/components/schemas/PublicMatchResult"}
         "404": {$ref: "#/components/responses/NotFound"}
+
+  /public/match:
+    post:
+      tags: [public]
+      operationId: matchMedicine
+      summary: Match a product name to the nearest of the reference medicine products (CR-23)
+      description: |
+        Matches the name with the frozen E5b recipe over the reference products and decides with a cosine threshold.
+        `outcome` is `matched`, `needs_review` or `no_reference_match` (then `candidates` is empty and no summary or
+        section is returned). Reference fields are derived from the product's own label text; a field no rule found is
+        omitted and listed in `not_in_corpus` (the manufacturer is never in the corpus).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product_name]
+              additionalProperties: false
+              properties:
+                product_name: {type: string, minLength: 1, maxLength: 200}
+      responses:
+        "200":
+          description: Match result
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/PublicMatchResult"}
+        "422": {$ref: "#/components/responses/Invalid"}
+        "503":
+          description: retrieval_unavailable (the matching models cannot be loaded)
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
 
   /public/ask:
     post:
@@ -1544,7 +1611,7 @@ components:
         off. The four flags are optional experiments and default to false.
       additionalProperties: false
       properties:
-        method: {type: string, enum: [hybrid_rrf, bm25, tfidf, dense], default: hybrid_rrf}
+        method: {type: string, enum: [hybrid_rrf, bm25, tfidf, dense, e5b], default: hybrid_rrf, description: "e5b is the frozen Step 18 system (CR-25)"}
         stem: {type: boolean, default: false, description: Stem query and index terms}
         prefix: {type: boolean, default: false, description: Add the dense model query prefix (Step 15a)}
         rerank: {type: boolean, default: false, description: Rerank the fused list}
@@ -1911,6 +1978,25 @@ components:
             glare: {type: number, minimum: 0, maximum: 1}
             confidence: {type: number, minimum: 0, maximum: 1}
         rescan_reason: {type: string}
+        fields:
+          type: array
+          description: Added by CR-26. Every compared field with its evidence (absent on older mocks)
+          items:
+            type: object
+            required: [field, expected, status]
+            properties:
+              field: {type: string}
+              expected: {type: string}
+              observed: {type: [string, "null"]}
+              status: {type: string, enum: [MATCH, MISMATCH, NEEDS_HUMAN_REVIEW]}
+              confidence: {type: [number, "null"], description: OCR evidence strength, not a probability of being right}
+              bbox:
+                oneOf:
+                  - $ref: "#/components/schemas/PixelBox"
+                  - type: "null"
+        notes:
+          type: object
+          description: Added by CR-26. What was not compared (symbols), engine status, warnings, quality numbers
         created_at: {$ref: "#/components/schemas/Timestamp"}
 
     # ------------------------------------------------------------ audit (CR-12)
@@ -1952,6 +2038,19 @@ components:
         match_confidence: {type: number, minimum: 0, maximum: 1}
         read_from_photo: {type: object, additionalProperties: {type: string}}
         from_reference_label: {type: object, additionalProperties: {type: string}}
+        not_in_corpus:
+          type: array
+          items: {type: string}
+          description: Reference fields no rule could fill from the label text (CR-23); they are omitted above
+        evidence:
+          type: object
+          description: For each derived field, the chunk and the verbatim words it came from (CR-23)
+          additionalProperties:
+            type: object
+            required: [chunk_id, quote]
+            properties:
+              chunk_id: {type: string}
+              quote: {type: string}
     PublicMatchResult:
       type: object
       required: [banner, candidates]
@@ -1964,6 +2063,38 @@ components:
           items: {$ref: "#/components/schemas/MedicineMatch"}
         summary: {type: string}
         sources: {type: array, items: {$ref: "#/components/schemas/Citation"}}
+        outcome:
+          type: string
+          enum: [matched, needs_review, no_reference_match]
+          description: Added by CR-23. Absent on older mocks.
+        score_name: {type: string, description: "bge_large_cosine (CR-23)"}
+        score: {type: number}
+        threshold: {type: number}
+        message: {type: string, description: Shown instead of a summary when nothing matched}
+        sections:
+          type: object
+          description: |
+            Added by CR-23, present when there is a candidate. Section chunks of the best candidate from the medicine
+            corpus: summary (uses), ingredients (description, else the package panel, see ingredients_note),
+            warnings (up to 6) and sources (the pinned DailyMed document).
+          properties:
+            summary: {type: array, items: {$ref: "#/components/schemas/Citation"}}
+            ingredients: {type: array, items: {$ref: "#/components/schemas/Citation"}}
+            warnings: {type: array, items: {$ref: "#/components/schemas/Citation"}}
+            sources:
+              type: array
+              items:
+                type: object
+                required: [source, url, setid, version, effective_date, fetched, chunk_ids]
+                properties:
+                  source: {type: string}
+                  url: {type: string}
+                  setid: {type: string}
+                  version: {type: integer}
+                  effective_date: {type: string}
+                  fetched: {type: string}
+                  chunk_ids: {type: array, items: {type: string}}
+            ingredients_note: {type: string}
     PublicBanner:
       type: string
       const: Authenticity not verified. Based on a reference label match.
