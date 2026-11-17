@@ -373,6 +373,32 @@ def test_every_real_response_conforms_to_openapi(run: Run, tmp_path, monkeypatch
         qr_sha = session.scalars(select(Artifact).where(Artifact.role == "qr_png")).first().sha256
     c("downloadArtifact", 409, "GET", f"/artifacts/{qr_sha}")  # not published yet
 
+    # print verification (Step 25b): a fake CV engine, a draft is refused, an approved version is verified
+    from tests.test_api_printverify import FakePrintEngine
+
+    run.client.app.state.print_engine = FakePrintEngine()
+    run.client.app.state.quality_gate = passing_gate
+    pv_url = f"/label-versions/{art['version_id']}/print-verifications"
+    photo = {"photo": ("p.png", png_bytes(), "image/png")}
+    c("verifyPrint", 409, "POST", pv_url, files=photo, data={"condition": "phone_photo"})  # not_approved
+    with sf() as session:
+        sha = art["artifact_sha256"]
+        pv_check = add_check_result(session, "self_check", [], version_id=art["version_id"], artifact_sha256=sha)
+    c("reviewArtwork", 201, "POST", f"/label-versions/{art['version_id']}/reviews", user=REVIEWER,
+      json={"decision": "approve", "artifact_sha256": sha, "check_id": pv_check.check_id})
+    started = c("verifyPrint", 202, "POST", pv_url, files=photo, data={"condition": "phone_photo"})
+    verification_url = c("getJob", 200, "GET", f"/jobs/{started.json()['job_id']}").json()["result_url"]
+    c("getPrintVerification", 200, "GET", verification_url)
+    c("getPrintVerification", 401, "GET", verification_url, user=None)
+    c("getPrintVerification", 404, "GET", "/print-verifications/pv_00000000")
+    c("listPrintVerifications", 200, "GET", pv_url)
+    c("listPrintVerifications", 401, "GET", pv_url, user=None)
+    c("listPrintVerifications", 404, "GET", "/label-versions/lbv_00000000/print-verifications")
+    c("verifyPrint", 401, "POST", pv_url, user=None, files=photo, data={"condition": "phone_photo"})
+    c("verifyPrint", 404, "POST", "/label-versions/lbv_00000000/print-verifications", files=photo,
+      data={"condition": "phone_photo"})
+    c("verifyPrint", 422, "POST", pv_url, files=photo, data={"condition": "sepia"})
+
     # coverage: every documented status of every real operation was validated at least once
     real_in_spec = {op: documented_statuses(op) for op in REAL_OPERATIONS}
     missing = {op: sorted(codes - run.seen[op]) for op, codes in real_in_spec.items() if codes - run.seen[op]}

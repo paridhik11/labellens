@@ -14,7 +14,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from src.api import artwork, ask_jobs, changes, checks, medicine, pages, publish, scans, uploads, views
+from src.api import artwork, ask_jobs, changes, checks, medicine, pages, printverify, publish, scans, uploads, views
 from src.api.errors import ApiError
 from src.api.models import (
     ChangeRequest,
@@ -22,6 +22,7 @@ from src.api.models import (
     GeneratedArtwork,
     LabelTemplate,
     LabelVersion,
+    PrintVerification,
     Product,
     ProductVersion,
     Review,
@@ -83,6 +84,9 @@ REAL_OPERATIONS = frozenset(
         "askPublic",
         "askProfessional",
         "publishVersion",
+        "verifyPrint",
+        "getPrintVerification",
+        "listPrintVerifications",
         "matchMedicine",
     }
 )
@@ -466,6 +470,59 @@ def public_version_pdf(version_id: str, session: Session = Depends(get_session))
         publish.published_pdf(session, version_id), media_type="application/pdf",
         headers={"X-Content-Type-Options": "nosniff", "Content-Disposition": f'inline; filename="{version_id}.pdf"'},
     )
+
+
+# ---------------------------------------------------------------- print verification (Step 25b)
+
+
+@router.post("/label-versions/{version_id}/print-verifications", operation_id="verifyPrint", status_code=202,
+             tags=["device"])
+async def verify_print_route(
+    version_id: str, request: Request, background: BackgroundTasks, photo: UploadFile = File(...),  # noqa: B008
+    condition: str = Form(...), session: Session = Depends(get_session), user: User = Depends(current_user),
+) -> JSONResponse:
+    """Accept a photo of a printed label and answer 202 with a Job; the job compares it with the approved version.
+
+    Refused before any job: a version that is not approved (409 not_approved, rejected, version_superseded,
+    no_reference), an unknown condition or a file that is not a PNG or JPEG (422).
+    """
+    version = require_version(session, version_id)
+    data = await photo.read(uploads.MAX_BYTES + 1)
+    upload, stored, verification_id = printverify.accept(session, user.user_id, version, condition, data)
+    job = checks.new_job(session, "print_verify", version_id, user.user_id,
+                         result_url=f"/print-verifications/{verification_id}")
+    background.add_task(printverify.run_verify_job, request.app, job.job_id, verification_id, version_id, user.user_id,
+                        stored, upload.mime, upload.sha256, condition)
+    return JSONResponse(checks.job_json(job), status_code=202)
+
+
+@router.get("/label-versions/{version_id}/print-verifications", operation_id="listPrintVerifications", tags=["device"])
+def list_print_verifications(
+    version_id: str, request: Request, session: Session = Depends(get_session), _: User = Depends(current_user)
+) -> Any:
+    """Print verifications of one version, oldest first. Ids this server never issued keep the mock."""
+    if printverify.require_real_version(session, version_id) is None:
+        from src.api.mock_server import mock_response
+
+        return mock_response("listPrintVerifications", request)
+    return {"version_id": version_id,
+            "items": [printverify.verification_json(r) for r in printverify.list_for(session, version_id)]}
+
+
+@router.get("/print-verifications/{verification_id}", operation_id="getPrintVerification", tags=["device"])
+def get_print_verification(
+    verification_id: str, request: Request, session: Session = Depends(get_session), _: User = Depends(current_user)
+) -> Any:
+    """One stored print verification. Ids this server never issued keep the mock."""
+    row = session.scalars(select(PrintVerification).where(
+        PrintVerification.verification_id == verification_id)).first()
+    if row is not None:
+        return printverify.verification_json(row)
+    if printverify.REAL_VERIFICATION_ID.match(verification_id):
+        raise ApiError(404, "not_found", f"No print verification {verification_id!r}.")
+    from src.api.mock_server import mock_response
+
+    return mock_response("getPrintVerification", request)
 
 
 # ---------------------------------------------------------------- checker (Step 21c)

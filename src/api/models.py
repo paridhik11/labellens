@@ -362,6 +362,38 @@ class PublishedPage(Base):
     published_at: Mapped[str] = mapped_column(String)
 
 
+class PrintVerification(Base):
+    """One print verification (Step 25b, CR-26): a photo of a printed label compared with its approved version.
+
+    Append-only. `fields` keeps every compared field with its observed text, OCR confidence and box (the evidence);
+    `mismatches` keeps only the differences in the contract shape.
+    """
+
+    __tablename__ = "print_verifications"
+    __table_args__ = (
+        CheckConstraint("outcome IN ('match','mismatch','rescan_needed')", name="ck_print_outcome"),
+    )
+
+    seq: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    verification_id: Mapped[str] = mapped_column(String, unique=True)
+    job_id: Mapped[str] = mapped_column(String)
+    label_id: Mapped[str] = mapped_column(String, index=True)
+    version_id: Mapped[str] = mapped_column(ForeignKey("label_versions.version_id"), index=True)
+    photo_path: Mapped[str] = mapped_column(String)
+    photo_mime: Mapped[str] = mapped_column(String)
+    photo_sha256: Mapped[str] = mapped_column(String)
+    condition: Mapped[str] = mapped_column(String)
+    outcome: Mapped[str] = mapped_column(String)
+    mismatches: Mapped[list[dict[str, Any]]] = mapped_column(JSON)
+    fields: Mapped[list[dict[str, Any]]] = mapped_column(JSON)
+    barcode: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+    quality: Mapped[dict[str, float]] = mapped_column(JSON)
+    rescan_reason: Mapped[str | None] = mapped_column(String, nullable=True)
+    notes: Mapped[dict[str, Any]] = mapped_column(JSON)
+    created_by: Mapped[str] = mapped_column(String)
+    created_at: Mapped[str] = mapped_column(String)
+
+
 class AuditEvent(Base):
     """Who did what, when. Append only."""
 
@@ -398,5 +430,6 @@ IMMUTABLE_TABLES: tuple[str, ...] = (
     "artifacts",
     "reviews",
     "published_pages",
+    "print_verifications",
     "audit_events",
 )

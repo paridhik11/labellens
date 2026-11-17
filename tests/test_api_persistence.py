@@ -126,6 +126,13 @@ def test_every_immutable_table_rejects_update_and_delete(session):
         sha256="a" * 64, version_id=L3, role="pdf", mime="application/pdf", ext="pdf", size_bytes=1,
         created_at="2026-11-12T16:00:00Z",
     ))
+    session.add(models.PrintVerification(
+        verification_id="pv_00000001", job_id="job_00000003", label_id=LABEL_ID, version_id=L3,
+        photo_path="uploads/x.png",
+        photo_mime="image/png", photo_sha256="a" * 64, condition="phone_photo", outcome="match", mismatches=[],
+        fields=[], quality={"blur": 0.0, "glare": 0.0, "confidence": 1.0}, notes={}, created_by="usr_demo_editor",
+        created_at="2026-11-12T16:00:00Z",
+    ))
     session.commit()
     for table in models.IMMUTABLE_TABLES:
         first_col = inspect(session.get_bind()).get_columns(table)[0]["name"]
