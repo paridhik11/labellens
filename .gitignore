@@ -19,6 +19,7 @@ results/*
 !results/step18_*
 !results/step25_*
 !results/step25b_*
+!results/step25c_*
 data/processed/ce_cache_*
 data/processed/_*
 data/processed/medcpt_cache_*
