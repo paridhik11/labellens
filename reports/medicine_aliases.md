@@ -33,3 +33,5 @@ scores: results/medicine_aliases_fresh60.jsonl. Human/photo evaluation remains s
 Validation before main integration: 949 passed, 1 skipped, 5 deselected using
 the full fast suite with offline model access; ruff src/tests clean. Threshold
 and shared schemas were unchanged. Raw-score SHA-256 begins 7405856c26db0d5a.
+After integrating the passing print branch: 952 passed, 1 skipped, 5 deselected;
+ruff remained clean.
