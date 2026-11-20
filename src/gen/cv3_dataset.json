@@ -1,0 +1,587 @@
+{
+  "seed": 20261121,
+  "baseline_commit": "73ee2a5650cbb0d0ef1cc24518ca160f9e2caf1b",
+  "records": [
+    {
+      "filename": "candidate_02.jpg",
+      "sha256": "d334f2bb9a8f54ed86d658e44111b42a4f03d9989fc5fa11d45b83ba2ef5eb2d",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/HX59016_01.jpg?v=1794923432",
+      "source_page": "https://primismedical.com/products/primis-bostonscientific-m0062251210-1ea-batch20261117",
+      "catalog_title_not_reference": "Boston Scientific M0062251210 Balloon Dilatation Catheter Kit 1/EA Expired",
+      "family": "boston_uromax",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "dev",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "UroMax Ultra™ Kit",
+        "lot": "36004703",
+        "expiry": "2026-07-06"
+      },
+      "note": "Main heading; standalone LOT/use-by rows. Vendor sticker date differs; reference is original label."
+    },
+    {
+      "filename": "candidate_03.jpg",
+      "sha256": "9c1519fef5e1feff542f309cee6a3067bad344d6b29bc5fdf8f70262a4648073",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/Copy_of_Venmo_Project_Perfect_World_-_2026-11-17T074736.158.jpg?v=1794926897",
+      "source_page": "https://primismedical.com/products/primis-navilystmedicalinc-46410-1ea-batch20261117",
+      "catalog_title_not_reference": "Navilyst Medical, Inc. 46410 BioFlo Midline Catheter Kit 5 Fr X 20 cm 1/EA",
+      "family": "angiodynamics_bioflo",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "dev",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "BioFlo Midline",
+        "lot": "5840705",
+        "expiry": "2026-12-31"
+      },
+      "note": "Main label heading and standalone LOT/use-by rows."
+    },
+    {
+      "filename": "candidate_04.jpg",
+      "sha256": "26333f4ac48211e0833aabb4cf24685fde279d9077990dafc2cac5ee4fd0d90c",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/Copy_of_Venmo_Project_Perfect_World_-_2026-11-17T080605.189.jpg?v=1794928076",
+      "source_page": "https://primismedical.com/products/primis-bostonscientific-m0062251200-1ea-batch20261117",
+      "catalog_title_not_reference": "Boston Scientific M0062251200 Balloon Dilatation Catheter Kit 1/EA Expired",
+      "family": "boston_uromax",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "dev",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "UroMax Ultra™ Kit",
+        "lot": "35967003",
+        "expiry": "2026-03-08"
+      },
+      "note": "Related size variant; keep same family split as 02."
+    },
+    {
+      "filename": "candidate_05.jpg",
+      "sha256": "52913af582deb0fb82bca9d679196aded0befa2b14bb756081bcc384f17c64ce",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/Copy_of_Venmo_Project_Perfect_World_-_2026-11-17T081131.641.jpg?v=1794928477",
+      "source_page": "https://primismedical.com/products/primis-microtechnanjingcolt-fwb1080618m-1ea-batch20261117",
+      "catalog_title_not_reference": "Micro-Tech FWB-10/80-6/18-M Rapide Balloon Dilation Catheter BX/2 Expired",
+      "family": "microtech_rapide",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "dev",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "Rapide™ Multistage Dilatation Balloon Catheter",
+        "lot": "M240423210",
+        "expiry": "2026-04-22"
+      },
+      "note": "Main heading and standalone lower-left LOT/use-by."
+    },
+    {
+      "filename": "candidate_06.jpg",
+      "sha256": "fb3e0ec50db03284fee34f779d4a8f621e63ab1777d9864d18952735ec00a765",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/HX59035_01.jpg?v=1794949142",
+      "source_page": "https://primismedical.com/products/primis-ethicon-cr40b-1ea-batch20261117",
+      "catalog_title_not_reference": "Ethicon CR40B Contour Curved Cutter Stapler Reload 1/EA Expired",
+      "family": "ethicon_contour",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "dev",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "Contour®",
+        "lot": "122A76",
+        "expiry": "2026-01-31"
+      },
+      "note": "Prominent brand; standalone vertical LOT/hourglass at left."
+    },
+    {
+      "filename": "candidate_07.jpg",
+      "sha256": "30c7d453a83c41caa819f899cb132190d0f2c5cfd4b192af0ee4897c9dd92e3e",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/Copy_of_Venmo_Project_Perfect_World_-_2026-11-17T135013.101.jpg?v=1794948681",
+      "source_page": "https://primismedical.com/products/primis-bostonscientific-m00558340-1ea-batch20261117",
+      "catalog_title_not_reference": "Boston Scientific M00558340 Esophageal Balloon Dilatation Catheter 1/EA Expired",
+      "family": "boston_cre",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "dev",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "CRE™ Fixed Wire",
+        "lot": "32755681",
+        "expiry": "2025-10-30"
+      },
+      "note": "Main heading and standalone LOT/use-by rows."
+    },
+    {
+      "filename": "candidate_08.jpg",
+      "sha256": "a7036328acee0409e2aa71e04347d504160d533f385da2aebdfcfbc8c7983caf",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/Copy_of_Venmo_Project_Perfect_World_-_2026-11-17T142720.166.jpg?v=1794950886",
+      "source_page": "https://primismedical.com/products/primis-penumbrainc-pxslimlan135t45-1ea-batch20261117",
+      "catalog_title_not_reference": "Penumbra, Inc. PXSLIMLAN135T45 LANTERN Delivery Microcatheter 135 cm 45 Degree Tip 1/EA Expired",
+      "family": "penumbra_lantern",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "dev",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "LANTERN™ Delivery Microcatheter",
+        "lot": "F00006633",
+        "expiry": "2026-05-10"
+      },
+      "note": "Main heading and standalone bottom LOT/use-by rows."
+    },
+    {
+      "filename": "candidate_09.jpg",
+      "sha256": "2a2453a539cffa242e83b68e42c33e84115a361380a1e5ffa46f8b1e171ae1fa",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/Copy_of_Venmo_Project_Perfect_World_-_2026-11-17T140608.678.jpg?v=1794949652",
+      "source_page": "https://primismedical.com/products/primis-biosensewebsterinc-d128211-1ea-batch20261117",
+      "catalog_title_not_reference": "Biosense Webster Inc D128211 PENTARAY NAV Eco High-Density Mapping Catheter 1/EA Expired",
+      "family": "biosense_pentaray",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "test",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "PENTARAY® NAV eco",
+        "expiry": "2026-08-01"
+      },
+      "note": "Main black panel heading. Standalone lot too small to transcribe confidently; unscored."
+    },
+    {
+      "filename": "candidate_11.jpg",
+      "sha256": "be5d90d9d6979d59306a76c28b64a2f985ebcb28c11525653fc906ffa9ad4685",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/HX59183_01.jpg?v=1794952195",
+      "source_page": "https://primismedical.com/products/primis-smithnephew-ctxc001-1ea-batch20261117",
+      "catalog_title_not_reference": "Smith & Nephew CTX-C001 NovoCut Suture Manager Knot Pusher And Cutter 1/EA Expired",
+      "family": "smith_nephew_novocut",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "test",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "NOVOCUT SUTURE MANAGER",
+        "lot": "M240078",
+        "expiry": "2026-05-10"
+      },
+      "note": "Main product name box and standalone LOT/hourglass row."
+    },
+    {
+      "filename": "candidate_12.jpg",
+      "sha256": "4de6bd6e78b220067c9e5e8b2df5d0da1344d8867b291807e1eecea44438690a",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/Copy_of_Venmo_Project_Perfect_World_-_2026-11-17T144202.958.jpg?v=1794951771",
+      "source_page": "https://primismedical.com/products/primis-spectranetics-414151-1ea-batch20261117",
+      "catalog_title_not_reference": "Spectranetics 414-151 Turbo-Elite Laser Atherectomy Catheter Atherectomy Laser System Beam Guide-Catheter, Peripheral 1/EA Expired",
+      "family": "spectranetics_turboelite",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "test",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "Turbo-Elite™",
+        "lot": "FAY24B16A",
+        "expiry": "2026-02-27"
+      },
+      "note": "Main heading and standalone LOT/use-by date; no encoded text used as reference."
+    },
+    {
+      "filename": "candidate_13.jpg",
+      "sha256": "dc6bbd0d6b1558b02d2bf5116e5a350cfc40033bf4eb40dd47a3c2e8de330ddf",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/HX59208_01.jpg?v=1794920866",
+      "source_page": "https://primismedical.com/products/primis-ethicon-tx30v-1ea-batch20261117",
+      "catalog_title_not_reference": "Ethicon TX30V Proximate Reloadable Vascular Linear Stapler, 30mm 1/EA Expired",
+      "family": "ethicon_proximate",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "test",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "PROXIMATE® Reloadable Vascular Linear Stapler"
+      },
+      "note": "Front name only; lot and expiry absent from photographed face, unscored."
+    },
+    {
+      "filename": "candidate_14.jpg",
+      "sha256": "30fc1a9319db6c1a1a841dc592f83347c9cde1fe6a43b4008d224e4c6efb7e07",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/HX59218_01.jpg?v=1794920356",
+      "source_page": "https://primismedical.com/products/primis-ethicon-pdp126h-bx36-batch20261117",
+      "catalog_title_not_reference": "Ethicon PDP126H Antibacterial Violet Monofilament (Polydioxanone), Absorbable Surgical Suture BX/36 Expired",
+      "family": "ethicon_suture_boxes",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "dev",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "PDS™ Plus Antibacterial"
+      },
+      "note": "Main heading; standalone lot uncertain and expiry obscured by packaging seam, unscored."
+    },
+    {
+      "filename": "candidate_16.jpg",
+      "sha256": "3b0c6af446620944a0d1ac4749b9db2022ec2c2948e8ae8603a87134f74d6be8",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/HX58486_01.jpg?v=1793464785",
+      "source_page": "https://primismedical.com/products/ethicon-8726h-prolene-polypropylene-monofilament-suture",
+      "catalog_title_not_reference": "Ethicon 8726H PROLENE 6-0 Blue Suture 24 In Double-Armed C-1 | Box Of 36",
+      "family": "ethicon_suture_boxes",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "dev",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "PROLENE™",
+        "lot": "10BQH7",
+        "expiry": "2030-09-30"
+      },
+      "note": "Main heading; standalone Japanese LOT/use-by rows lower-right."
+    },
+    {
+      "filename": "candidate_19.jpg",
+      "sha256": "cd9ff77457ab85339f187e97fc982e2399603270803ffeaff8966d9f39001a41",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/HX58620_01.jpg?v=1794255488",
+      "source_page": "https://primismedical.com/products/boston-scientific-m001271820-1-ea",
+      "catalog_title_not_reference": "Boston Scientific M001271820 Flexima Nephrostomy Catheter 14Fr X 25cm 1/EA",
+      "family": "boston_flexima",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "test",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "Flexima™ REGULAR Nephrostomy Catheter System",
+        "lot": "34193804",
+        "expiry": "2027-06-07"
+      },
+      "note": "Main heading, standalone use-by row and bottom LOT box."
+    },
+    {
+      "filename": "candidate_20.jpg",
+      "sha256": "b5824cd3aa4a1b61dc152eaf2f3025e7b8160055b6c649e10cbef0eec7ad1492",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/Copy_of_Venmo_Project_Perfect_World_83.jpg?v=1794272169",
+      "source_page": "https://primismedical.com/products/terumo-25-1011-1-ea",
+      "catalog_title_not_reference": "Terumo 25-1011 Runthrough NS Extra Floppy PTCA Guidewire 0.014in X 180cm 1/EA",
+      "family": "terumo_runthrough",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "dev",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "Runthrough® NS",
+        "lot": "260305Y",
+        "expiry": "2029-02-28"
+      },
+      "note": "Main heading, standalone LOT/EXP row; no encoded text used."
+    },
+    {
+      "filename": "candidate_22.jpg",
+      "sha256": "b5276050544c38b11f49d91c8441033d161cd2f6fa5bf492be1ecea839c0b18b",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/HX58580_01.jpg?v=1794272183",
+      "source_page": "https://primismedical.com/products/livanova-ts-10020-1-ea",
+      "catalog_title_not_reference": "LivaNova TS-10020 Cardiopulmonary Cannulation Tourniquet Set 7in 1/EA",
+      "family": "livanova_holder",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "dev",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "Cardiopulmonary bypass cannula holder set",
+        "lot": "2607600059",
+        "expiry": "2029-03-16"
+      },
+      "note": "English first line of description; standalone LOT/hourglass rows."
+    },
+    {
+      "filename": "candidate_23.jpg",
+      "sha256": "bf27f38e28c6a1df16f57582fdf638a74ebb274539dcc2a797ef7cdc311849aa",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/Copy_of_Venmo_Project_Perfect_World_76.jpg?v=1794269885",
+      "source_page": "https://primismedical.com/products/cook-medical-g58882-1-ea",
+      "catalog_title_not_reference": "Cook Medical G58882 Central Venous Catheter Set 5Fr X 8cm 1/EA",
+      "family": "cook_cvc",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "test",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "Cook CVC",
+        "lot": "16002972",
+        "expiry": "2027-06-06"
+      },
+      "note": "Main heading; standalone LOT/hourglass rows, manufacturer date excluded."
+    },
+    {
+      "filename": "candidate_24.jpg",
+      "sha256": "302d1fc6ac07a4a88640262cb86d43758988a716a17775bec63eae54816518c6",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/HX58641_01.jpg?v=1794269975",
+      "source_page": "https://primismedical.com/products/covidien-4dic-1-ea",
+      "catalog_title_not_reference": "Covidien Shiley 4DIC Disposable Inner Cannula Size 4 1/EA",
+      "family": "covidien_shiley",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "test",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "Shiley™ Inner Cannula",
+        "lot": "22F0337JZX",
+        "expiry": "2027-06-06"
+      },
+      "note": "Main heading; standalone LOT/Use by rows, no HRI inferred."
+    },
+    {
+      "filename": "candidate_25.jpg",
+      "sha256": "18f6484db568bc885bd0a933f7838d055918da487be307f5021e5a79a9f27269",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/HX58643_02.jpg?v=1794253724",
+      "source_page": "https://primismedical.com/products/sharpoint-aa-2492-bx-12",
+      "catalog_title_not_reference": "Sharpoint AA-2492 10-0 Black Nylon Microsuture Double BRM5 2.5cm BX/12",
+      "family": "sharpoint_nylon",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "dev",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "NYLON",
+        "lot": "C928GWV",
+        "expiry": "2027-08-27"
+      },
+      "note": "Main material heading; standalone LOT/hourglass rows."
+    },
+    {
+      "filename": "candidate_26.jpg",
+      "sha256": "22c9fdc2bfc1d9722c544945cebe4943fbd4329d864cf48e7f1d1793b1448dca",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/HX58653_01.jpg?v=1794322409",
+      "source_page": "https://primismedical.com/products/teleflex-arrow-ipn033225-1-ea",
+      "catalog_title_not_reference": "Teleflex Arrow NA-04020-K Radial Arterial Catheter Kit 20G × 1.75 In 1/EA",
+      "family": "arrow_catheterization",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "dev",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "Radial Artery Catheterization",
+        "lot": "33F25C0536",
+        "expiry": "2028-04-30"
+      },
+      "note": "Main heading; standalone lower-left LOT/hourglass rows."
+    },
+    {
+      "filename": "candidate_27.jpg",
+      "sha256": "3459e9f46d5f946ba76bf69ac9bfe2de3e9594452d54c5bb94d1f50adb616d43",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/Copy_of_Venmo_Project_Perfect_World_96.jpg?v=1794319951",
+      "source_page": "https://primismedical.com/products/cook-medical-g24129-1-ea",
+      "catalog_title_not_reference": "Cook Medical G24129 Kolenda Salivary Access Introducer Set 2.2mm X 5.5cm 1/EA",
+      "family": "cook_kolenda",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "dev",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "Kolenda Salivary Access Introducer Set",
+        "expiry": "2027-12-05"
+      },
+      "note": "Main heading; standalone expiry visible; lot too small to distinguish confidently, unscored."
+    },
+    {
+      "filename": "candidate_28.jpg",
+      "sha256": "2c7be1d6b16abfd7d58afde578472c72ca8cfc7eabfb9b986f3d21ec7f152a80",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/HX58666_01.jpg?v=1794322893",
+      "source_page": "https://primismedical.com/products/merit-medical-pls-2509-1-ea",
+      "catalog_title_not_reference": "Merit Medical PLS-2509 Prelude SNAP Splittable Sheath Introducer 9Fr X 25cm 1/EA",
+      "family": "merit_prelude",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "dev",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "Prelude SNAP™",
+        "lot": "13028773",
+        "expiry": "2028-08-26"
+      },
+      "note": "Main heading; standalone LOT/Use By rows left of drawing."
+    },
+    {
+      "filename": "candidate_29.jpg",
+      "sha256": "e81a657425461a590ef9a2d59d10e26a64b8593bf6c951e17754624fa1dab52d",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/HX58658_01.jpg?v=1794322153",
+      "source_page": "https://primismedical.com/products/teleflex-arrow-ipn036984-1-ea",
+      "catalog_title_not_reference": "Teleflex Arrow ASK-04018-UPM Arterial Catheter Kit 18G × 16 cm 1/EA",
+      "family": "arrow_catheterization",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "dev",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "Arterial Catheterization",
+        "lot": "33F25C0742",
+        "expiry": "2027-08-31"
+      },
+      "note": "Main heading; standalone lower-left LOT/hourglass rows."
+    },
+    {
+      "filename": "candidate_33.jpg",
+      "sha256": "3f121a17b430d160a0843e7cf5280e9993299cb979d1544bdb3c51b07347dc26",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/HX58682_01.jpg?v=1794179450",
+      "source_page": "https://primismedical.com/products/icu-medical-41237-05-1-ea",
+      "catalog_title_not_reference": "ICU Medical 41237-05 TD Torque-Line Catheter 8Fr 5 Lumen 110cm Heparin Coated 1/EA",
+      "family": "icu_torqueline",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "dev",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "TORQUE-LINE™ THERMODILUTION CATHETER",
+        "lot": "14907455",
+        "expiry": "2027-09-01"
+      },
+      "note": "Main heading; standalone LOT/hourglass rows beneath description."
+    },
+    {
+      "filename": "candidate_34.jpg",
+      "sha256": "153609ba72b8c627b8ce946188342104fe329b3160cf61751a4efbf18cb85520",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/HX58723_01.jpg?v=1794247596",
+      "source_page": "https://primismedical.com/products/penumbra-cat7dkit-a-1-ea-po123123",
+      "catalog_title_not_reference": "Penumbra CAT7DKIT-A Indigo System Aspiration Catheter 7, 50cm XTORQ Kit 1/EA Expired",
+      "family": "penumbra_cat7d",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "test",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "CAT7D KIT",
+        "lot": "F106142",
+        "expiry": "2024-05-11"
+      },
+      "note": "Main heading; standalone LOT/Use By rows above perforation."
+    },
+    {
+      "filename": "candidate_35.jpg",
+      "sha256": "c11047d337d6c0ae42432f6a63bf607f6d6c9042f51d91d89d603251a3f6044b",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/HX58717_01.jpg?v=1794246662",
+      "source_page": "https://primismedical.com/products/edwards-lifesciences-914esp-1-ea-po123123",
+      "catalog_title_not_reference": "Edwards Lifesciences 914ESP eSheath+ 14F Introducer Set 1/EA Expired",
+      "family": "edwards_esheath",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "test",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "eSheath+ Introducer Set"
+      },
+      "note": "Front heading only; lot/expiry absent from photographed face, unscored."
+    },
+    {
+      "filename": "candidate_36.jpg",
+      "sha256": "030d3056bdf014f736a32b3dea78b3b503c1adaedd7da69503cec40f8932aa20",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/Copy_of_Venmo_Project_Perfect_World_40.jpg?v=1794247190",
+      "source_page": "https://primismedical.com/products/stryker-m003c1775450-1-ea-po123123",
+      "catalog_title_not_reference": "Stryker M003C1775450 Excelsior XT-17 2 Tip Pre-Shaped 45 Microcatheter 1/EA Expired",
+      "family": "stryker_excelsior",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "dev",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "Excelsior® XT-17™",
+        "expiry": "2024-09-24"
+      },
+      "note": "Main heading and standalone Use By lower-right; lot outside photographed area, unscored."
+    },
+    {
+      "filename": "candidate_37.jpg",
+      "sha256": "1771614277792a6396d1c63b9de13750f69551ab5d4664332da7dac9aeb9f755",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/HX58733_01.jpg?v=1794237994",
+      "source_page": "https://primismedical.com/products/scientia-vascular-24-200-002-1-ea-po123123",
+      "catalog_title_not_reference": "Scientia Vascular 24-200-002 Aristotle Guidewire-Standard 1/EA Expired",
+      "family": "scientia_aristotle",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "test",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "Aristotle® 24 Guidewire",
+        "lot": "023428",
+        "expiry": "2024-08-31"
+      },
+      "note": "Main heading; standalone top LOT/hourglass rows; leading zero preserved."
+    },
+    {
+      "filename": "candidate_40.jpg",
+      "sha256": "2f616c251c5d008dca2c5d24175688648592bb4a8ce708efbd29f2bf3c2c924f",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/HX58728_01.jpg?v=1794250683",
+      "source_page": "https://primismedical.com/products/imperative-care-icrc035158-1-ea-po123123",
+      "catalog_title_not_reference": "Imperative Care ICRC035158 Zoom Catheter Zoom 035 160 cm RC 1/EA Expired",
+      "family": "imperative_zoom",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "dev",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "ZOOM™ 35 Reperfusion Catheter",
+        "lot": "F2324102",
+        "expiry": "2024-09-06"
+      },
+      "note": "Main heading; standalone LOT/hourglass rows below illustration."
+    },
+    {
+      "filename": "candidate_41.jpg",
+      "sha256": "09bf97d7562634fc92369ec7f1743899e1b90dc2a6a696ed465d4f3c84d1c27e",
+      "url": "https://cdn.shopify.com/s/files/1/0021/0527/8543/files/HX58705_01.jpg?v=1794250377",
+      "source_page": "https://primismedical.com/products/ethicon-vcp864d-bx-12-po123123",
+      "catalog_title_not_reference": "Ethicon VCP864D 3-0 VICRYL Plus Undyed Suture, 8 X 18 In, SH BX/12",
+      "family": "ethicon_suture_boxes",
+      "rights": "Publisher rights retained; local research only; no redistribution",
+      "split": "dev",
+      "kind": "device_package_photo",
+      "reference_provenance": "LLM-labelled from visible printed text; not human validated; no barcode or catalog inference",
+      "annotator": "GPT-6 Codex, 2026-11-21",
+      "fields": {
+        "product_name": "VICRYL* Plus Antibacterial",
+        "lot": "SPMCDP",
+        "expiry": "2027-11-30"
+      },
+      "note": "Main heading; standalone LOT/EXP lower-right, asterisk preserved."
+    }
+  ],
+  "normalization": "case and whitespace only for names; exact lot characters; ISO valid calendar expiry",
+  "images_local": "data/cv3_photos/candidates",
+  "synthetic_seeds": [
+    12000,
+    12001,
+    12002,
+    12003,
+    12004,
+    12005,
+    12006,
+    12007,
+    12008,
+    12009,
+    12010,
+    12011,
+    12012,
+    12013,
+    12014,
+    12015
+  ]
+}
