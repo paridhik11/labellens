@@ -15,9 +15,39 @@ results/*
 !results/step15_*
 !results/step16_*
 .DS_Store
+!results/step17_*
+!results/step18_*
+!results/step25_*
+!results/step25b_*
+!results/step25c_*
+data/processed/ce_cache_*
+data/processed/_*
+data/processed/medcpt_cache_*
+data/processed/ft_*
 .venv-cv/
+.venv-demo/
 data/synthetic/
 !results/cv_*.md
 
+# New datasets and photos stay local; retain the real-label source catalog.
+data/*
+!data/real/
+data/real/*
+!data/real/SOURCES.md
+
 # local API database (Step 20)
 data/api/
+
+# Symbol experiments (cv-symbols): keep reports and the held-out log, never images or caches
+!results/symbols_*.md
+!results/symbols_*.json
+!results/heldout_log.jsonl
+data/real_symbols/
+data/real_labels/
+data/models/
+data/real_labels_eval/
+
+# shared built indexes (Step 23): one copy outside any worktree, never committed
+data/cache/
+!results/step23_*
+results/step23_run.log

@@ -1,0 +1,5 @@
+{
+  "clip_threshold": 0.4,
+  "model": "openai/clip-vit-base-patch32",
+  "chosen_on": "styled_dev"
+}

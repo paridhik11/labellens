@@ -1,0 +1,23 @@
+{
+  "profile": "cv2",
+  "gate_passed": true,
+  "baseline_commit": "d39b0fb",
+  "candidate_cv_commit": "806c9d0",
+  "candidate_profile": "cv2",
+  "manifest_sha256": "a237e32794e8a8ba2dc067581eac4f16406a8cfabf4ea2979a9ce483f27dcb9b",
+  "baseline_result_sha256": "63a6e0ef69a52d1866777b533d266e1b5546f62bf93e876d18ca88da17b1515e",
+  "candidate_result_sha256": "ff29f2f7cad21eebe2b9ea41e5f3eac35b27bb5ad06f6ae039470a8bd8eaae42",
+  "timeout_seconds": 300,
+  "failures": {"baseline": 1, "candidate": 3},
+  "complete_frame_counts": {
+    "baseline": {"clean": [0, 96], "moderate": [0, 96], "hard": [0, 96]},
+    "candidate": {"clean": [32, 96], "moderate": [27, 96], "hard": [17, 96]}
+  },
+  "real_photo_check": "Previously exposed n=10: name 1/10 to 1/10, lot 7/10 to 4/10, expiry 3/10 to 5/10.",
+  "limitations": [
+    "LLM-generated references",
+    "human review deferred",
+    "real symbols unmeasured",
+    "repeated artwork and four source families are not population accuracy"
+  ]
+}

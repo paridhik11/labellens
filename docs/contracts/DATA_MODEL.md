@@ -83,7 +83,7 @@ Exactly the fields of `ProductRecord`, plus version metadata. Immutable once wri
 | `udi_di` | string | opt | `ProductRecord.udi_di` | Allocated by the company. Empty means "not yet entered". |
 | `sterilization` | string | opt | `ProductRecord.sterilization` | |
 | `storage` | string | opt | `ProductRecord.storage` | |
-| `extra` | object of string | opt | `ProductRecord.extra` | Free fields such as `ref`. |
+| `extra` | object of string | opt | `ProductRecord.extra` | Free fields. Two keys are read by the checker (docs/CHECKER_SPEC.md): `ref` (reference number, used when `model` is empty) and `rx_only` (the string `true` when the device is prescription only). **`rx_only` is a product registration field**: the registration form offers it as a checkbox, and with it set the checker looks for the Rx statement of 21 CFR 801.109. |
 | `created_at` | timestamp | req | NONE (CR-1) | |
 | `created_by` | string (user id) | req | NONE (CR-1) | |
 | `source_change_id` | string | opt | NONE (CR-1) | The ChangeRequest that produced this version. Empty for the first version. |
@@ -183,7 +183,9 @@ One run of the checker, the layout checks or the closed-loop self-check against 
 | `run_at` | timestamp | req | NONE (CR-5) | |
 | `findings` | array of Finding | req | `Flag` | |
 | `critical_count`, `review_count`, `info_count` | integer | req | NONE (CR-5) | Derived from `findings[].severity`. |
-| `passed` | boolean | req | NONE (CR-5) | True when zero critical findings (GENERATION.md "Pass means zero critical flags"). |
+| `passed` | boolean | req | NONE (CR-5) | True when zero critical findings (GENERATION.md "Pass means zero critical flags"). It does not mean the label is compliant, and it can be true while `needs_human_count` is above 0. |
+| `needs_human_count` | integer | req for inspection, self_check | NONE (CR-17) | Number of `coverage` entries with outcome `needs_human`. Shown beside Passed on the Review screen ("3 items need a human"). |
+| `coverage` | array of RuleOutcome | req for inspection, self_check | NONE (CR-17) | One entry per checker rule: `rule_id`, `outcome` (`pass`, `fail`, `needs_human`, `not_applicable`, `not_checked`), `reason`. `findings` contain only problems, so `coverage` is how a client sees which rules ran. |
 
 ## Finding (a Flag with regulation citations)
 
@@ -201,6 +203,7 @@ One run of the checker, the layout checks or the closed-loop self-check against 
 | `citations` | array of Citation | opt | NONE (CR-6) | Regulation citation details, below. |
 | `field` | string | opt | NONE (CR-6) | Field or slot the finding is about. |
 | `bbox` | array of 4 numbers | opt | NONE (CR-6) | Box on the original image for highlighting. |
+| `rule_id` | string | opt | NONE (CR-17) | Checker rule that raised the finding (for example `B-EXP`). Absent on layout findings. |
 
 Citation (derived from a `Chunk`, so no text is invented):
 
@@ -227,7 +230,7 @@ Citation (derived from a `Chunk`, so no text is invented):
 | `latest_review_id` | string | opt | NONE (CR-7) | The Review the status was derived from. |
 | `closed` | boolean | req | NONE (CR-7) | True after a `reject`. Reject is terminal: no further generate, review or publish on this change. A new ChangeRequest is needed. |
 | `raw_text` | string | opt | NONE (CR-7) | Plain-language request as typed. |
-| `parse_state` | `proposed` or `confirmed` | req | NONE (CR-7) | A parser proposes, the user confirms. |
+| `parse_state` | `proposed` or `confirmed` | req | NONE (CR-7) | A parser proposes, the user confirms. Derived: `confirmed` once a ChangeConfirmation exists. |
 | `edits` | array of `{field, old_value, new_value}` | opt | NONE (CR-7) | Extra fields beyond the first. |
 | `created_at`, `created_by` | timestamp, string | req | NONE (CR-7) | |
 
@@ -244,7 +247,13 @@ Citation (derived from a `Chunk`, so no text is invented):
 | `title`, `description` | string | req | NONE (CR-8) | Mockup: "Sterilization text". |
 | `suggestion` | `review_suggested`, `edit_required`, `no_change` | req | NONE (CR-8) | |
 | `evidence_chunk_ids` | array of string | req | `Flag.evidence_chunk_ids` | |
-| `user_decision` | `pending`, `confirmed`, `dismissed` | req | NONE (CR-8) | The checklist the user confirms before any artwork changes. |
+| `user_decision` | `pending`, `confirmed`, `dismissed` | req | NONE (CR-8) | The checklist the user confirms before any artwork changes. Derived from the latest ChangeConfirmation. |
+| `needs_human` | boolean | opt | NONE (CR-18) | False only when a rule decided the item and its citation requirement is met (text slot refill, barcode KEEP, confirmed REGENERATE). |
+| `reason` | string | opt | NONE (CR-18) | Plain-language reason. |
+| `rule_ids` | array of string | opt | NONE (CR-18) | `I-TEXT`, `I-SYMBOL`, `I-NOSLOT`, `I-NOBARCODE`, `I-PRINTED-DIFFERS`, `BC-KEEP`, `BC-CONFIRM`, `BC-REGENERATE`, `BC-830-50`, `BC-UNBUILDABLE`, `BC-PLACEHOLDER`, `BC-INVALID`. |
+| `barcode_decision` | BarcodeDecision | opt | NONE (CR-18) | Only on `item_kind` barcode. |
+
+Assessments and confirmations (Step 22, CR-18). An **assessment** (`asm_`) is the stored result of assessing a change: items, citations, warnings, unassessed edits. It is append-only: confirming a change appends the confirmed assessment (`parent_assessment_id` points at the one the person was shown). A **confirmation** (`cfm_`) records the person's checklist decisions. `impact_id` is a hash of the change, label family, slot or kind and field, so it is stable across the two assessments. `Review.assessment_id` is the change's latest assessment at review time, and an approve needs that assessment to be confirmed (`change_not_confirmed`).
 
 ## GeneratedArtwork
 
@@ -261,8 +270,8 @@ Citation (derived from a `Chunk`, so no text is invented):
 | `barcode_decision` | BarcodeDecision | req | NONE (CR-9) | See below. |
 | `change_log` | array of ChangeLogEntry | req | NONE (CR-9) | Who, what, why, rules fired, evidence. |
 | `layout_problems` | array of string | req | NONE (CR-9) | Also reported as Findings in the self-check. |
-| `self_check_id` | string | req | NONE (CR-9) | A CheckResult of kind `self_check`. |
-| `artifact_sha256` | string | req | NONE (CR-9) | sha256 of the draft manifest file, which itself lists the sha256 of the SVG, PDF and preview (as the renderer on Parth's branch writes it). The approval binds to it. |
+| `self_check_id` | string | req | NONE (CR-9) | The CheckResult written with the draft (CR-22: kind `layout`, no findings, because the template fit and the barcode decoded). It is not a read-back: approval needs the `self_check` from `recheckArtwork`, and the layout check never makes a version `checked`. |
+| `artifact_sha256` | string | req | NONE (CR-9) | CR-22: sha256 of the PDF bytes (the file that is printed). The approval binds to it. The SVG, report and QR hashes are stored in `artifacts` (one row per file, stored as `data/api/artifacts/<sha256>.<ext>`), and the report lists them. |
 | `disclaimer` | string | req | NONE (CR-9) | Fixed text: "Draft generated for review. Not a compliance determination." |
 
 BarcodeDecision: `decision` (`KEEP`, `REGENERATE`, `NEEDS_INPUT`), `old_payload`, `new_payload` (string, may be empty), `symbology`, `reason`, `required_identifier` (string, set when `NEEDS_INPUT`, for example `udi_di`). Rule text is in `TEMPLATE_SPEC.md`.
@@ -282,6 +291,7 @@ ChangeLogEntry: `at`, `user_id`, `field`, `old_value`, `new_value`, `reason`, `r
 | `reviewer_role` | `reviewer` or `admin` | req | NONE (CR-10, CR-16) | Role at decision time, copied from the User. |
 | `comment` | string | req for `return` and `reject` | NONE (CR-10) | |
 | `artifact_sha256` | string | req | NONE (CR-10) | Must equal the GeneratedArtwork hash. Prevents approving something other than what was reviewed. |
+| `assessment_id` | string | opt | NONE (CR-18) | The change's latest assessment when the review was recorded. |
 | `check_id` | string | req for `approve` | NONE (CR-10) | The CheckResult that cleared the approval. It must have `passed = true`, the same `version_id` and the same `artifact_sha256`. |
 | `resulting_status` | `draft`, `checked`, `reviewed`, `published` | req | `ChangeRequest.status` values | |
 | `decided_at` | timestamp | req | NONE (CR-10) | |
@@ -388,7 +398,8 @@ Separate data, rules and results from the device module.
 7. The abstention score is provisional and may be replaced, which is why `score_name` is a free string.
 8. The public regulation corpus is limited to 21 CFR 201, 208 and 211. The public reference label corpus (DailyMed or openFDA labels, cited with `source_type = label_section`) is not built yet. When it is added, `out_of_scope` handling must be revisited.
 9. Public label-based answers have no abstention validation. Step 16 validated abstention only on CFR medicine chunks, not on answers drawn from a matched product label.
-10. `artifact_sha256` is the hash of the draft manifest, matching how the renderer on Parth's branch (`cv-fixes`, not yet on main) records per-file hashes inside the manifest.
+10. `artifact_sha256` is the sha256 of the PDF bytes (CR-22, Step 24b). Earlier drafts said "draft manifest"; the merged renderer records one hash per file and no manifest, so the printed file is the thing approval binds to.
+10a. Generation appends, in one transaction: a product version (`source_change_id` set, so the record changes at generation, not at approval, and a rejected change leaves that version behind), a new template version (one per generation), the draft label version, a `layout` check, a `generated_artworks` row and `artifacts` rows. A regeneration of the same change reuses its product version. Stored files keep the visible `DRAFT, not for production` mark even after approval, because no approved variant is rendered yet, so `draft_watermark` stays true for generated versions.
 11. `label_id` is a label family and `version_id` is one immutable version. This reads `LabelExtraction.label_id` plus `LabelExtraction.version` as family plus artwork version.
 12. "Needs review" is a UI label, not a fifth status. After a voided approval the derived status is `draft` or `checked`, as the table shows.
 13. Long operations (scan, generate, print verify, and inspect or re-check when slow) return `202` with a Job envelope and are polled at `GET /jobs/{job_id}` (see `API.md`). Stored entities do not change shape because of this.

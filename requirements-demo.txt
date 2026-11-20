@@ -1,0 +1,38 @@
+# Everything the demo needs on one machine (Step 25): the API, retrieval, the CV extractor and the label renderer.
+# requirements.txt lists the whole project (including packages the demo does not use, such as paddleocr and
+# ultralytics); this file is the smaller set `scripts/run_demo.py` needs. Python 3.12.
+#   py -3.12 -m venv .venv312
+#   .venv312\Scripts\python.exe -m pip install -r requirements-demo.txt
+# The first run downloads the embedding model (BAAI/bge-large-en-v1.5, 1.3 GB) from Hugging Face once.
+
+# API and storage
+fastapi==0.163.1
+uvicorn==0.54.0
+python-multipart==0.0.34
+sqlalchemy==2.1.8
+pydantic==2.14.3
+pyyaml==6.0.3
+httpx==0.28.1
+requests==2.34.2
+
+# Retrieval (own BM25 plus dense search)
+numpy==2.5.4
+faiss-cpu==1.15.1
+sentence-transformers==6.2.0
+torch==2.15.0
+scikit-learn==1.9.1
+
+# Computer vision and the label renderer (the same pins as requirements-cv.txt)
+pillow==13.0.0
+opencv-python==5.0.0.93
+zxing-cpp==3.1.1
+rapidocr-onnxruntime==1.4.4
+onnxruntime==1.31.1
+reportlab==5.1.0
+pypdf==7.1.0
+pypdfium2==5.15.2
+
+# Tests and lint
+pytest==9.2.0
+ruff==0.17.4
+jsonschema==4.26.0

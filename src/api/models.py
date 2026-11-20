@@ -150,6 +150,133 @@ class CheckResult(Base):
     review_count: Mapped[int] = mapped_column(Integer)
     info_count: Mapped[int] = mapped_column(Integer)
     findings: Mapped[list[dict[str, Any]]] = mapped_column(JSON)
+    # Step 21 (CR-17). Null on rows written before the checker existed or by tests that give no coverage.
+    needs_human_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    coverage: Mapped[list[dict[str, Any]] | None] = mapped_column(JSON, nullable=True)
+    retrieval_config: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+
+
+class Extraction(Base):
+    """A LabelExtraction produced for one label version (Step 21). Append-only: a re-extraction is a new row."""
+
+    __tablename__ = "extractions"
+
+    seq: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    extraction_id: Mapped[str] = mapped_column(String, unique=True)
+    version_id: Mapped[str] = mapped_column(ForeignKey("label_versions.version_id"), index=True)
+    label_id: Mapped[str] = mapped_column(String)
+    mode: Mapped[str] = mapped_column(String)  # blind | template | stub
+    payload: Mapped[dict[str, Any]] = mapped_column(JSON)  # LabelExtraction.model_dump(mode="json")
+    created_at: Mapped[str] = mapped_column(String)
+    scan_id: Mapped[str | None] = mapped_column(String, nullable=True)  # set when it came from a scan (Step 24)
+
+
+class Scan(Base):
+    """One state of an upload (Step 24). Append-only like `jobs`: a state change is a new row, the newest is current.
+
+    `created_at` is when the upload arrived (copied to every row), `updated_at` is when this row was written.
+    The stored file is `stored_path` under the files folder, named by its sha256, never by the client filename.
+    """
+
+    __tablename__ = "scans"
+    __table_args__ = (CheckConstraint("state IN ('queued','processing','done','failed')", name="ck_scan_state"),)
+
+    seq: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    scan_id: Mapped[str] = mapped_column(String, index=True)
+    job_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    module: Mapped[str] = mapped_column(String, default="device")
+    source: Mapped[str] = mapped_column(String)  # upload | camera
+    file_id: Mapped[str] = mapped_column(String)
+    mime: Mapped[str] = mapped_column(String)
+    sha256: Mapped[str] = mapped_column(String)
+    pages: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    stored_path: Mapped[str] = mapped_column(String)
+    product_id: Mapped[str] = mapped_column(ForeignKey("products.product_id"), index=True)
+    state: Mapped[str] = mapped_column(String)
+    label_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    version_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    error: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+    created_by: Mapped[str] = mapped_column(String)
+    created_at: Mapped[str] = mapped_column(String)
+    updated_at: Mapped[str] = mapped_column(String)
+
+
+class ExtractionConfirmation(Base):
+    """A user's confirmation or correction of an extraction (Step 24). Append-only.
+
+    The corrected values are stored here (`fields`) and also as a new `extractions` row (`extraction_id`), so the
+    checker, which reads the newest extraction, sees them. The corrected row stays untouched (`previous_extraction_id`).
+    """
+
+    __tablename__ = "extraction_confirmations"
+
+    seq: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    confirmation_id: Mapped[str] = mapped_column(String, unique=True)
+    extraction_id: Mapped[str] = mapped_column(String, index=True)  # the new row that holds the confirmed values
+    previous_extraction_id: Mapped[str] = mapped_column(String)
+    version_id: Mapped[str] = mapped_column(String, index=True)
+    fields: Mapped[dict[str, str]] = mapped_column(JSON)  # exactly what the user submitted
+    confirmed_by: Mapped[str] = mapped_column(String)
+    confirmed_at: Mapped[str] = mapped_column(String)
+
+
+class Job(Base):
+    """One state change of a background job (Step 21). The job's current state is its newest row."""
+
+    __tablename__ = "jobs"
+    __table_args__ = (CheckConstraint("state IN ('queued','processing','done','failed')", name="ck_job_state"),)
+
+    seq: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    job_id: Mapped[str] = mapped_column(String, index=True)
+    kind: Mapped[str] = mapped_column(String)
+    state: Mapped[str] = mapped_column(String)
+    progress: Mapped[float] = mapped_column(Float, default=0.0)
+    message: Mapped[str] = mapped_column(String, default="")
+    result_url: Mapped[str | None] = mapped_column(String, nullable=True)
+    error: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+    version_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    created_by: Mapped[str] = mapped_column(String)
+    created_at: Mapped[str] = mapped_column(String)
+
+
+class AskResult(Base):
+    """The finished answer of an `ask` job (Step 24c). Append-only, one row per job."""
+
+    __tablename__ = "ask_results"
+
+    seq: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    job_id: Mapped[str] = mapped_column(String, unique=True)
+    payload: Mapped[dict[str, Any]] = mapped_column(JSON)  # the contract AskJobResult
+    created_at: Mapped[str] = mapped_column(String)
+
+
+class ChangeAssessment(Base):
+    """One stored assessment of a change (Step 22). Append-only: confirming appends the confirmed assessment."""
+
+    __tablename__ = "change_assessments"
+
+    seq: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    assessment_id: Mapped[str] = mapped_column(String, unique=True)
+    change_id: Mapped[str] = mapped_column(ForeignKey("change_requests.change_id"), index=True)
+    parent_assessment_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    confirmed: Mapped[bool] = mapped_column(Boolean, default=False)
+    payload: Mapped[dict[str, Any]] = mapped_column(JSON)  # parser, items, confirmed_items, citations, warnings, ...
+    created_by: Mapped[str] = mapped_column(String)
+    created_at: Mapped[str] = mapped_column(String)
+
+
+class ChangeConfirmation(Base):
+    """A person confirmed the parsed change and some checklist decisions (Step 22). Append-only."""
+
+    __tablename__ = "change_confirmations"
+
+    seq: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    confirmation_id: Mapped[str] = mapped_column(String, unique=True)
+    change_id: Mapped[str] = mapped_column(ForeignKey("change_requests.change_id"), index=True)
+    assessment_id: Mapped[str] = mapped_column(String)  # the assessment the person was shown
+    decisions: Mapped[list[dict[str, str]]] = mapped_column(JSON)
+    created_by: Mapped[str] = mapped_column(String)
+    created_at: Mapped[str] = mapped_column(String)
 
 
 class Review(Base):
@@ -170,6 +297,55 @@ class Review(Base):
     artifact_sha256: Mapped[str] = mapped_column(String)
     check_id: Mapped[str | None] = mapped_column(ForeignKey("check_results.check_id"), nullable=True)
     decided_at: Mapped[str] = mapped_column(String)
+    # Step 22 (CR-18): the change's latest assessment when the review was recorded. Null for changes without one.
+    assessment_id: Mapped[str | None] = mapped_column(String, nullable=True)
+
+
+class GeneratedArtwork(Base):
+    """One generation run (Step 24b): the draft label version it created and what it was built from. Append-only.
+
+    A regeneration is a new row and a new label version. `artifact_sha256` is the sha256 of the PDF bytes, the
+    same value stored on the label version, and approval binds to it.
+    """
+
+    __tablename__ = "generated_artworks"
+
+    seq: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    artwork_id: Mapped[str] = mapped_column(String, unique=True)
+    change_id: Mapped[str] = mapped_column(ForeignKey("change_requests.change_id"), index=True)
+    label_id: Mapped[str] = mapped_column(String, index=True)
+    version_id: Mapped[str] = mapped_column(ForeignKey("label_versions.version_id"), unique=True)
+    assessment_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    self_check_id: Mapped[str] = mapped_column(String)  # the layout check written with the draft
+    artifact_sha256: Mapped[str] = mapped_column(String)
+    reference_sha256: Mapped[str] = mapped_column(String)  # the renderer's snapshot hash (not the file hash)
+    test_data: Mapped[bool] = mapped_column(Boolean, default=False)
+    size_w: Mapped[float] = mapped_column(Float)
+    size_h: Mapped[float] = mapped_column(Float)
+    barcode_decision: Mapped[dict[str, Any]] = mapped_column(JSON)
+    change_log: Mapped[list[dict[str, Any]]] = mapped_column(JSON)
+    visible_markings: Mapped[list[str]] = mapped_column(JSON)
+    created_by: Mapped[str] = mapped_column(String)
+    created_at: Mapped[str] = mapped_column(String)
+
+
+class Artifact(Base):
+    """One stored file of a generated version (Step 24b), kept as `artifacts/<sha256>.<ext>`. Append-only."""
+
+    __tablename__ = "artifacts"
+    __table_args__ = (
+        UniqueConstraint("version_id", "role"),
+        CheckConstraint("role IN ('pdf','svg','report','qr_png','qr_svg')", name="ck_artifact_role"),
+    )
+
+    seq: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    sha256: Mapped[str] = mapped_column(String, index=True)
+    version_id: Mapped[str] = mapped_column(ForeignKey("label_versions.version_id"), index=True)
+    role: Mapped[str] = mapped_column(String)
+    mime: Mapped[str] = mapped_column(String)
+    ext: Mapped[str] = mapped_column(String)
+    size_bytes: Mapped[int] = mapped_column(Integer)
+    created_at: Mapped[str] = mapped_column(String)
 
 
 class PublishedPage(Base):
@@ -184,6 +360,38 @@ class PublishedPage(Base):
     url: Mapped[str] = mapped_column(String)
     qr_payload: Mapped[str] = mapped_column(String)
     published_at: Mapped[str] = mapped_column(String)
+
+
+class PrintVerification(Base):
+    """One print verification (Step 25b, CR-26): a photo of a printed label compared with its approved version.
+
+    Append-only. `fields` keeps every compared field with its observed text, OCR confidence and box (the evidence);
+    `mismatches` keeps only the differences in the contract shape.
+    """
+
+    __tablename__ = "print_verifications"
+    __table_args__ = (
+        CheckConstraint("outcome IN ('match','mismatch','rescan_needed')", name="ck_print_outcome"),
+    )
+
+    seq: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    verification_id: Mapped[str] = mapped_column(String, unique=True)
+    job_id: Mapped[str] = mapped_column(String)
+    label_id: Mapped[str] = mapped_column(String, index=True)
+    version_id: Mapped[str] = mapped_column(ForeignKey("label_versions.version_id"), index=True)
+    photo_path: Mapped[str] = mapped_column(String)
+    photo_mime: Mapped[str] = mapped_column(String)
+    photo_sha256: Mapped[str] = mapped_column(String)
+    condition: Mapped[str] = mapped_column(String)
+    outcome: Mapped[str] = mapped_column(String)
+    mismatches: Mapped[list[dict[str, Any]]] = mapped_column(JSON)
+    fields: Mapped[list[dict[str, Any]]] = mapped_column(JSON)
+    barcode: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+    quality: Mapped[dict[str, float]] = mapped_column(JSON)
+    rescan_reason: Mapped[str | None] = mapped_column(String, nullable=True)
+    notes: Mapped[dict[str, Any]] = mapped_column(JSON)
+    created_by: Mapped[str] = mapped_column(String)
+    created_at: Mapped[str] = mapped_column(String)
 
 
 class AuditEvent(Base):
@@ -211,7 +419,17 @@ IMMUTABLE_TABLES: tuple[str, ...] = (
     "change_requests",
     "label_versions",
     "check_results",
+    "extractions",
+    "scans",
+    "extraction_confirmations",
+    "jobs",
+    "ask_results",
+    "change_assessments",
+    "change_confirmations",
+    "generated_artworks",
+    "artifacts",
     "reviews",
     "published_pages",
+    "print_verifications",
     "audit_events",
 )

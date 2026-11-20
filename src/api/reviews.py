@@ -7,7 +7,8 @@ Checks run in this order, and the first failure wins (nothing is written on fail
 4. the change must be open (409 change_closed) and this must be its latest version (409 version_superseded)
 5. approve only: submitter cannot approve (403 self_approval_forbidden), check_id required (422),
    artifact hash must match (409 hash_mismatch), the check must be a passed check of the same
-   version and hash (409 check_not_passed)
+   version and hash (409 check_not_passed); for generated artwork it must be a `self_check` (the re-check),
+   not the layout check written at generation
 Then the Review row and an AuditEvent are appended.
 """
 
@@ -18,7 +19,7 @@ from sqlalchemy.orm import Session
 
 from src.api.db import utcnow
 from src.api.errors import ApiError
-from src.api.models import ChangeRequest, CheckResult, LabelVersion, Review
+from src.api.models import ChangeAssessment, ChangeRequest, CheckResult, LabelVersion, Review
 from src.api.status import is_closed, latest_version_of_change
 from src.api.store import get_user, new_id, record_audit
 
@@ -66,9 +67,18 @@ def record_review(
                 {"latest_version_id": latest.version_id},
             )
 
+    assessment: ChangeAssessment | None = None
+    if version.change_id is not None:  # a change with a stored assessment (Step 22): the review points at the latest
+        assessment = session.scalars(
+            select(ChangeAssessment).where(ChangeAssessment.change_id == version.change_id)
+            .order_by(ChangeAssessment.seq.desc())
+        ).first()
+
     if decision == "approve":
         if change is not None and change.created_by == user.user_id:
             raise ApiError(403, "self_approval_forbidden", "The submitter of a change cannot approve it.")
+        if assessment is not None and not assessment.confirmed:
+            raise ApiError(409, "change_not_confirmed", "The change was assessed but nobody has confirmed it yet.")
         if not check_id:
             raise ApiError(422, "check_required", "An approval needs the check_id of a passed check.")
         if not version.artifact_sha256 or artifact_sha256 != version.artifact_sha256:
@@ -79,6 +89,7 @@ def record_review(
             or not check.passed
             or check.version_id != version.version_id
             or check.artifact_sha256 != version.artifact_sha256
+            or (version.kind == "generated" and check.kind != "self_check")  # the layout check is not a read-back
         ):
             raise ApiError(
                 409,
@@ -97,6 +108,7 @@ def record_review(
         comment=comment,
         artifact_sha256=artifact_sha256,
         check_id=check_id if decision == "approve" else None,
+        assessment_id=assessment.assessment_id if assessment else None,
         decided_at=at or utcnow(),
     )
     session.add(review)

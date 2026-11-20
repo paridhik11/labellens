@@ -59,6 +59,7 @@ def init_db(engine: Engine) -> None:
     from src.api import models  # noqa: F401  (importing registers the tables on Base)
 
     Base.metadata.create_all(engine)
+    _add_missing_columns(engine)
     with engine.begin() as conn:
         for table in models.IMMUTABLE_TABLES:
             for action in ("UPDATE", "DELETE"):
@@ -67,3 +68,23 @@ def init_db(engine: Engine) -> None:
                     f"BEFORE {action} ON {table} "
                     f"BEGIN SELECT RAISE(ABORT, 'append-only table {table}: {action} is not allowed'); END;"
                 )
+
+
+# Columns added after Step 20 to tables that may already exist in a developer's database file.
+ADDED_COLUMNS: dict[str, dict[str, str]] = {
+    "check_results": {"needs_human_count": "INTEGER", "coverage": "JSON", "retrieval_config": "JSON"},
+    "reviews": {"assessment_id": "VARCHAR"},
+    "extractions": {"scan_id": "VARCHAR"},
+}
+
+
+def _add_missing_columns(engine: Engine) -> None:
+    """ALTER TABLE ADD COLUMN for ADDED_COLUMNS that an older database file lacks (create_all never alters)."""
+    with engine.begin() as conn:
+        for table, columns in ADDED_COLUMNS.items():
+            existing = {row[1] for row in conn.exec_driver_sql(f"PRAGMA table_info({table})")}
+            if not existing:  # the table does not exist yet (create_all makes it with every column)
+                continue
+            for name, sql_type in columns.items():
+                if name not in existing:
+                    conn.exec_driver_sql(f"ALTER TABLE {table} ADD COLUMN {name} {sql_type}")

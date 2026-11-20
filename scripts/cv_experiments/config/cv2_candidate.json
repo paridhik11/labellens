@@ -1,0 +1,20 @@
+{
+  "candidate_cv_commit": "806c9d0",
+  "cv_source_sha256": "857efa25727d33f535bba7e07c1a17431ab142e1c995b107428bf2c7e5a4f6d0",
+  "profile": "cv2",
+  "tesseract": "tesseract 5.5.4",
+  "rapid_models": {
+    "ch_PP-OCRv4_det_infer.onnx": "d2a7720d45a54257208b1e13e36a8479894cb74155a5efe29462512d42f49da9",
+    "ch_PP-OCRv4_rec_infer.onnx": "48fc40f24f6d2a207a2b1091d3437eb3cc3eb6b676dc3ef9c37384005483683b",
+    "ch_ppocr_mobile_v2.0_cls_infer.onnx": "e47acedf663230f8863ff1ab0e64dd2d82b838fceb5957146dab185a89d6215c"
+  },
+  "selection": "Complete dev frames, then correct fields, prefer upscale on a tie",
+  "dev": {
+    "baseline_complete": 0,
+    "upscale_complete": 6,
+    "vote_complete": 10,
+    "n": 24
+  },
+  "final_status": "NOT_OPENED",
+  "baseline_commit": "d39b0fb"
+}

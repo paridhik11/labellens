@@ -1,0 +1,33 @@
+{
+  "job_id": "job_ask_0003",
+  "kind": "ask",
+  "state": "done",
+  "progress": 1.0,
+  "message": "done",
+  "result": {
+    "answer": {
+      "abstained": true,
+      "reason": "needs_human_check",
+      "score_name": "e5b_top_score",
+      "score": 0.05,
+      "threshold": 0.0315,
+      "message": "The language model took too long, so only the closest passages are shown. No answer was generated or verified.",
+      "sources": [
+        {
+          "source_type": "cfr",
+          "chunk_id": "fda_21cfr211_s211.137_c1",
+          "source": "FDA",
+          "section": "211.137",
+          "title": "Expiration dating.",
+          "url": "https://www.ecfr.gov/current/title-21/section-211.137",
+          "quote": "(a) To assure that a drug product meets applicable standards of identity, strength, quality, and purity at the time of use, it shall bear an expiration date"
+        }
+      ],
+      "banner": "Authenticity not verified. Based on a reference label match."
+    },
+    "model": "qwen2.5:3b-instruct-q4_K_M",
+    "model_used": false,
+    "latency_s": 90.1,
+    "fallback_reason": "timeout"
+  }
+}

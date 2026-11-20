@@ -18,7 +18,7 @@ from xml.etree import ElementTree as ET
 import numpy as np
 import zxingcpp
 from reportlab.graphics import renderPDF, renderSVG
-from reportlab.graphics.shapes import Drawing, Line, PolyLine, Rect, String
+from reportlab.graphics.shapes import Drawing, Group, Line, PolyLine, Rect, String
 from reportlab.lib.colors import black, white
 from reportlab.lib.units import mm
 from reportlab.pdfbase.pdfmetrics import getRegisteredFontNames, standardFonts, stringWidth
@@ -26,6 +26,7 @@ from reportlab.pdfgen.canvas import Canvas
 
 from src.common.schemas import Flag, IdentifierRequired, ProductRecord
 from src.cv.barcode import parse_gs1
+from src.gen.symbols import SUPPORTED_SYMBOLS
 
 
 @dataclass
@@ -109,7 +110,7 @@ def check_layout(template: dict[str, Any], fields: dict[str, str], matrix: np.nd
             if any(stringWidth(line, font, point_size) > w * mm for line in lines):
                 flag("text_overflow", f"Text exceeds slot width: {name}")
         elif slot["type"] == "symbol":
-            if slot.get("symbol_name") not in {"manufacturer", "expiry"} or min(w, h) < 5:
+            if slot.get("symbol_name") not in SUPPORTED_SYMBOLS or min(w, h) < 5:
                 flag("symbol_size_or_type", f"Unsupported symbol or below lab minimum of 5 mm: {name}")
         elif slot["type"] == "barcode":
             module_mm = min(w / matrix.shape[1], h / matrix.shape[0])
@@ -163,7 +164,7 @@ def record_content(record: ProductRecord, test_data: bool) -> tuple[dict[str, st
     return fields, ais
 
 
-def _draw_symbol(drawing: Drawing, name: str, box: tuple[float, float, float, float]) -> None:
+def _draw_symbol(drawing: Group, name: str, box: tuple[float, float, float, float]) -> None:
     """Draw the existing simplified pictograms as editable vector lines."""
     x, y, w, h = box
     stroke = min(w, h) * 0.05
@@ -190,12 +191,52 @@ def _draw_symbol(drawing: Drawing, name: str, box: tuple[float, float, float, fl
         )
         for u in (0.25, 0.45, 0.65):
             drawing.add(Rect(x + u * w, y + 0.12 * h, 0.08 * w, 0.2 * h, fillColor=black, strokeColor=None))
-    else:
+    elif name in {"sterile", "sterile_eo", "sterile_r"}:
+        label = {"sterile": "STERILE", "sterile_eo": "STERILE EO", "sterile_r": "STERILE R"}[name]
+        point_size = min(8, w * 0.8 / stringWidth(label, "Helvetica", 1))
+        drawing.add(
+            Rect(x + w * 0.05, y + h * 0.15, w * 0.9, h * 0.7, fillColor=None, strokeColor=black, strokeWidth=stroke)
+        )
+        drawing.add(String(x + w * 0.1, y + h * 0.45, label, fontName="Helvetica", fontSize=point_size))
+    elif name == "expiry":
         for points in [(0.15, 0.1, 0.85, 0.1), (0.15, 0.9, 0.85, 0.9), (0.15, 0.1, 0.85, 0.9), (0.85, 0.1, 0.15, 0.9)]:
             u, v, a, b = points
             drawing.add(
                 Line(x + u * w, y + (1 - v) * h, x + a * w, y + (1 - b) * h, strokeColor=black, strokeWidth=stroke)
             )
+
+
+def _svg_with_layers(drawing: Drawing, template: dict[str, Any], ais: dict[str, str]) -> str:
+    """Name the existing vector groups without changing their PDF coordinates."""
+    root = ET.fromstring(renderSVG.drawToString(drawing))
+    ns = {"s": "http://www.w3.org/2000/svg"}
+    holder = root.find("s:g/s:g", ns)
+    layers = holder.findall("s:g", ns) if holder is not None else []
+    if len(layers) != 4:
+        raise RuntimeError("SVG renderer did not preserve the four label layers")
+    for layer, name in zip(layers, ("background", "slots", "watermark", "review"), strict=True):
+        layer.set("id", f"layer-{name}")
+    slots = layers[1].findall("s:g", ns)
+    if len(slots) != len(template["slots"]):
+        raise RuntimeError("SVG renderer did not preserve every template slot")
+    for group, slot in zip(slots, template["slots"], strict=True):
+        group.set("id", f"slot-{slot['id']}")
+        group.set("data-slot-type", slot["type"])
+        group.set("data-field", slot["field"])
+        group.set("data-bbox-mm", " ".join(str(value) for value in slot["bbox_mm"]))
+        if slot["type"] == "barcode":
+            group.set("data-payload", "".join(f"({ai}){value}" for ai, value in ais.items()))
+    width, height = template["size_mm"]["w"], template["size_mm"]["h"]
+    root.set("width", f"{width}mm")
+    root.set("height", f"{height}mm")
+    root.set("viewBox", f"0 0 {width} {height}")
+    root.set("data-template-id", template["template_id"])
+    root.set("data-template-version", str(template["version"]))
+    point_group = root.find("s:g", ns)
+    root.remove(point_group)
+    millimetre_group = ET.SubElement(root, "{http://www.w3.org/2000/svg}g", {"transform": f"scale({1 / mm})"})
+    millimetre_group.append(point_group)
+    return ET.tostring(root, encoding="unicode")
 
 
 def _render_package(
@@ -208,6 +249,7 @@ def _render_package(
     test_data: bool = False,
     previous_manifest: dict[str, Any] | None = None,
     confirmed_encoded_change: bool = False,
+    version_id: str | None = None,
 ) -> RenderResult:
     """Write an immutable DRAFT SVG, physical-size PDF, preview and audited manifest.
 
@@ -217,6 +259,9 @@ def _render_package(
     """
     if not actor.strip() or not reason.strip() or not record.product_id or record.version < 1:
         raise ValueError("Actor, reason, product ID and a positive record version are required")
+    if version_id is not None and not version_id.strip():
+        raise ValueError("version_id must be nonempty when supplied")
+    version_id = version_id or f"{record.product_id}:v{record.version}"
     fields, ais = record_content(record, test_data)
     slots = [slot for slot in template_spec["slots"] if slot["type"] == "barcode"]
     if len(slots) != 1:
@@ -227,6 +272,8 @@ def _render_package(
     format_ = zxingcpp.BarcodeFormat.DataMatrix if symbology == "GS1_DataMatrix" else zxingcpp.BarcodeFormat.Code128
     reused = False
     if previous_manifest is not None:
+        if version_id == previous_manifest.get("version_id"):
+            raise ValueError("A revision requires a new version_id")
         if (
             record.product_id != previous_manifest["product_id"]
             or record.version <= previous_manifest["record_version"]
@@ -251,8 +298,12 @@ def _render_package(
         code = zxingcpp.create_barcode(payload, format_, gs1=True, force_square=symbology == "GS1_DataMatrix")
         matrix = np.asarray(zxingcpp.write_barcode_to_image(code, scale=1, add_quiet_zones=True))
     decoded = zxingcpp.read_barcodes(np.repeat(np.repeat(matrix, 4, axis=0), 4, axis=1))
-    if (len(decoded) != 1 or decoded[0].content_type != zxingcpp.ContentType.GS1
-            or decoded[0].format != format_ or parse_gs1(decoded[0].bytes.decode("latin-1")) != ais):
+    if (
+        len(decoded) != 1
+        or decoded[0].content_type != zxingcpp.ContentType.GS1
+        or decoded[0].format != format_
+        or parse_gs1(decoded[0].bytes.decode("latin-1")) != ais
+    ):
         raise ValueError("Barcode matrix does not decode to the supplied values")
     flags = check_layout(template_spec, fields, matrix)
     if flags:
@@ -265,7 +316,10 @@ def _render_package(
     output_dir.mkdir(parents=True, exist_ok=True)
     width, height = template_spec["size_mm"]["w"] * mm, template_spec["size_mm"]["h"] * mm
     drawing = Drawing(width, height)
-    drawing.add(
+    background, slots_layer, watermark, review = Group(), Group(), Group(), Group()
+    for layer in (background, slots_layer, watermark, review):
+        drawing.add(layer)
+    background.add(
         Rect(
             0.2 * mm,
             0.2 * mm,
@@ -276,23 +330,22 @@ def _render_package(
             strokeWidth=0.25 * mm,
         )
     )
-    drawing.add(
-        String(
-            5 * mm,
-            height - 3 * mm - 10,
-            "TEST DATA | DRAFT" if test_data else "DRAFT",
-            fontName="Helvetica",
-            fontSize=10,
-            fillColor=black,
-        )
-    )
+    headings = ["DRAFT, not for production"]
+    if test_data:
+        headings.append("TEST DATA | DRAFT")
+    for index, heading in enumerate(headings):
+        size = min(8.0, (width - 4 * mm) / stringWidth(heading, "Helvetica", 1))
+        watermark.add(String(2 * mm, height - (3.5 + 4 * index) * mm, heading,
+                             fontName="Helvetica", fontSize=size, fillColor=black))
     for slot in template_spec["slots"]:
+        slot_group = Group()
+        slots_layer.add(slot_group)
         x, top, w, h = [value * mm for value in slot["bbox_mm"]]
         y = height - top - h
         if slot["type"] == "text":
             font, point_size = slot.get("font", "Helvetica"), slot["size_pt"]
             for index, line in enumerate(wrap_text(fields[slot["field"]], font, point_size, w)):
-                drawing.add(
+                slot_group.add(
                     String(
                         x,
                         height - top - point_size - index * point_size * 1.2,
@@ -303,13 +356,13 @@ def _render_package(
                     )
                 )
         elif slot["type"] == "symbol":
-            _draw_symbol(drawing, slot["symbol_name"], (x, y, w, h))
+            _draw_symbol(slot_group, slot["symbol_name"], (x, y, w, h))
         else:
             module = min(w / matrix.shape[1], h / matrix.shape[0])
             bx, by = x + (w - matrix.shape[1] * module) / 2, y + (h - matrix.shape[0] * module) / 2
             for row, values in enumerate(matrix):
                 for column in np.flatnonzero(values == 0):
-                    drawing.add(
+                    slot_group.add(
                         Rect(
                             bx + column * module,
                             by + (matrix.shape[0] - 1 - row) * module,
@@ -320,10 +373,7 @@ def _render_package(
                         )
                     )
     svg_path, pdf_path = output_dir / "label.svg", output_dir / "label.pdf"
-    root = ET.fromstring(renderSVG.drawToString(drawing))
-    root.set("width", f"{template_spec['size_mm']['w']}mm")
-    root.set("height", f"{template_spec['size_mm']['h']}mm")
-    svg_path.write_text(ET.tostring(root, encoding="unicode"), encoding="utf-8")
+    svg_path.write_text(_svg_with_layers(drawing, template_spec, ais), encoding="utf-8")
     buffer = BytesIO()
     canvas = Canvas(buffer, pagesize=(width, height), invariant=1)
     renderPDF.draw(drawing, canvas, 0, 0)
@@ -348,6 +398,8 @@ def _render_package(
         "test_data": test_data,
         "product_id": record.product_id,
         "record_version": record.version,
+        "version_id": version_id,
+        "created_by": actor,
         "template_id": template_spec["template_id"],
         "template_version": template_spec["version"],
         "size_mm": template_spec["size_mm"],
@@ -390,9 +442,16 @@ def _render_package(
 
 
 def render_label(
-    template_spec: dict[str, Any], record: ProductRecord, output_dir: Path, *, actor: str, reason: str,
-    test_data: bool = False, previous_manifest: dict[str, Any] | None = None,
+    template_spec: dict[str, Any],
+    record: ProductRecord,
+    output_dir: Path,
+    *,
+    actor: str,
+    reason: str,
+    test_data: bool = False,
+    previous_manifest: dict[str, Any] | None = None,
     confirmed_encoded_change: bool = False,
+    version_id: str | None = None,
 ) -> RenderResult:
     """Create an immutable draft package atomically, with no partial final artifacts.
 
@@ -406,10 +465,21 @@ def render_label(
     output_dir.parent.mkdir(parents=True, exist_ok=True)
     with TemporaryDirectory(prefix="labellens_draft_", dir=output_dir.parent) as temporary:
         result = _render_package(
-            template_spec, record, Path(temporary) / "package", actor=actor, reason=reason,
-            test_data=test_data, previous_manifest=previous_manifest,
+            template_spec,
+            record,
+            Path(temporary) / "package",
+            actor=actor,
+            reason=reason,
+            test_data=test_data,
+            previous_manifest=previous_manifest,
             confirmed_encoded_change=confirmed_encoded_change,
+            version_id=version_id,
         )
         os.rename(Path(temporary) / "package", output_dir)
-    return replace(result, svg=str(output_dir / "label.svg"), pdf=str(output_dir / "label.pdf"),
-                   preview=str(output_dir / "label.png"), manifest=str(output_dir / "manifest.json"))
+    return replace(
+        result,
+        svg=str(output_dir / "label.svg"),
+        pdf=str(output_dir / "label.pdf"),
+        preview=str(output_dir / "label.png"),
+        manifest=str(output_dir / "manifest.json"),
+    )

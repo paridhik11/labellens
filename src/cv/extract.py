@@ -5,22 +5,41 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import Any, Literal
-
-import cv2
-import numpy as np
-from PIL import Image
+from typing import TYPE_CHECKING, Any, Literal
 
 from src.common.schemas import BarcodeResult, LabelExtraction, OcrBlock
-from src.cv.barcode import decode_barcode_slot, decode_barcodes
-from src.cv.barcode_blind import decode_barcode_slot_enhanced, decode_barcodes_blind
-from src.cv.fields import map_fields_by_layout, normalise_field, reconcile_with_barcode
-from src.cv.ocr import read_text_default as read_text
-from src.cv.preprocess import _validate_image, find_label_corners, find_label_corners_fallback, rectify_label
-from src.cv.symbols import NAMES, detect_symbols, detect_symbols_blind
+from src.cv._optional import LazyModule, deferred
+from src.cv.fields import normalise_field, reconcile_with_barcode
+from src.cv.photo_fields import map_photo_fields
+
+if TYPE_CHECKING:
+    import numpy as np
+
+    from src.cv.photo_ocr import PhotoReading
+
+cv2 = LazyModule("cv2")
+np = LazyModule("numpy")
+Image = LazyModule("PIL.Image")
+read_text = deferred("src.cv.ocr", "read_text_default")
+warp_label = deferred("src.cv.perspective", "warp_label")
+read_photo = deferred("src.cv.photo_ocr", "read_photo")
+read_cv2 = deferred("src.cv.photo_cv2", "read_cv2")
+map_cv2_fields = deferred("src.cv.photo_cv2", "map_cv2_fields")
+project_blocks = deferred("src.cv.photo_ocr", "project_blocks")
+_validate_image = deferred("src.cv.preprocess", "_validate_image")
+find_label_corners = deferred("src.cv.preprocess", "find_label_corners")
+find_label_corners_fallback = deferred("src.cv.preprocess", "find_label_corners_fallback")
+decode_barcode_slot = deferred("src.cv.barcode", "decode_barcode_slot")
+decode_barcodes = deferred("src.cv.barcode", "decode_barcodes")
+decode_barcode_slot_enhanced = deferred("src.cv.barcode_blind", "decode_barcode_slot_enhanced")
+decode_barcodes_blind = deferred("src.cv.barcode_blind", "decode_barcodes_blind")
+detect_symbols = deferred("src.cv.symbols", "detect_symbols")
+detect_symbols_blind = deferred("src.cv.symbols", "detect_symbols_blind")
+NAMES = ("manufacturer", "expiry")
 
 TEMPLATE_PATH = Path(__file__).resolve().parents[1] / "gen" / "templates" / "test_device.json"
 Mode = Literal["template", "blind"]
+DEFAULT_PHOTO_PROFILE = "cv2"
 
 
 def map_fields(
@@ -208,6 +227,48 @@ def _postcorrect(fields: dict[str, str], barcodes: list[BarcodeResult]) -> tuple
     return corrected, notes
 
 
+def resolve_photo_profile(profile: str) -> str:
+    """Keep the tested baseline when the selected optional engine is unavailable."""
+    import shutil
+
+    if profile not in {"baseline", "upscale", "cv2"}:
+        raise ValueError("Unknown photo profile")
+    if profile == "cv2" and shutil.which("tesseract") is None:
+        return "baseline"
+    return profile
+
+
+def _read_blind_photo(
+    image: np.ndarray, corrected: np.ndarray | None, inverse: np.ndarray | None,
+    profile: str = "baseline",
+) -> tuple[PhotoReading | None, list[str]]:
+    """Choose original or rectified evidence using visible fields and OCR coverage only."""
+    readings, warnings = [], []
+    views = [("original", image, np.eye(3))]
+    if corrected is not None and inverse is not None:
+        views.append(("rectified", corrected, inverse))
+    for view, pixels, transform in views:
+        try:
+            if profile == "baseline":
+                readings.append(read_photo(pixels, view=view, to_original=transform))
+            else:
+                readings.append(read_cv2(pixels, view=view, to_original=transform, second_engine=profile == "cv2"))
+        except Exception as error:
+            warnings.append(f"OCR_VIEW_FAILED: {view}: {type(error).__name__}: {error}")
+    if not readings:
+        return None, [*warnings, "OCR_FAILED: no usable photo view"]
+    ranked = []
+    for reading in readings:
+        mapper = map_photo_fields if profile == "baseline" else map_cv2_fields
+        fields, _ = mapper(reading.blocks)
+        target_count = sum(bool(fields.get(field)) for field in ("product_name", "lot", "expiry"))
+        ranked.append((target_count, reading.score, reading.view == "original", reading))
+    best = max(ranked, key=lambda item: item[:3])[3]
+    protocol = "v1" if profile == "baseline" else profile
+    warnings.append(f"PHOTO_OCR: view={best.view}, quarter_turns={best.quarter_turns}; fixed protocol {protocol}")
+    return best, warnings
+
+
 def extract_label_modes(
     image_path: str | Path,
     *,
@@ -216,6 +277,8 @@ def extract_label_modes(
     blur_threshold: float = 100.0,
     postcorrect: bool = False,
     field_confidence: float = 0.5,
+    symbol_detector: str = "v1",
+    photo_profile: str = DEFAULT_PHOTO_PROFILE,
 ) -> dict[str, tuple[LabelExtraction, dict[str, Any]]]:
     """Run the extraction once and return one result per requested mode.
 
@@ -237,6 +300,10 @@ def extract_label_modes(
         raise ValueError("blur_threshold must be finite and nonnegative")
     if not modes or set(modes) - {"template", "blind"}:
         raise ValueError("modes must be chosen from template and blind")
+    requested_profile = photo_profile
+    photo_profile = resolve_photo_profile(photo_profile)
+    if symbol_detector not in ("v1", "v2"):
+        raise ValueError("symbol_detector must be v1 or v2")
     path = Path(image_path)
     with Image.open(path) as photo:
         image = np.asarray(photo.convert("RGB"))
@@ -244,6 +311,8 @@ def extract_label_modes(
     image_size = (image.shape[1], image.shape[0])
     plain_barcodes, plain_warnings = _decode_safely(image)
     shared_warnings: list[str] = []
+    if requested_profile != photo_profile:
+        shared_warnings.append("PHOTO_PROFILE_FALLBACK: Tesseract unavailable; using baseline")
     corners = find_label_corners(image)
     corner_method = "contour" if corners is not None else None
     if corners is None:
@@ -252,14 +321,18 @@ def extract_label_modes(
             corner_method = "hull_fallback"
             shared_warnings.append("LABEL_FOUND_BY_FALLBACK: boundary rebuilt from a partly hidden outline")
     corrected = inverse = None
+    template = json.loads(TEMPLATE_PATH.read_text(encoding="utf-8"))
     if corners is not None:
-        corrected, forward = rectify_label(image, corners)
-        inverse = np.linalg.inv(forward)
+        # Only the explicit template path knows physical proportions. Blind photos do not.
+        ratio = template["size_mm"]["w"] / template["size_mm"]["h"] if modes == ("template",) else None
+        perspective = warp_label(image, corners, ratio)
+        corrected = perspective.image
+        inverse = np.linalg.inv(perspective.homography)
     need_photo_ocr = corrected is None and "blind" in modes
     ocr_image = corrected if corrected is not None else (image if need_photo_ocr else None)
     blocks: list[OcrBlock] = []
     ocr_warnings: list[str] = []
-    if ocr_image is not None:
+    if ocr_image is not None and "template" in modes:
         score = blur_score(ocr_image)
         if score < blur_threshold:
             ocr_warnings.append(
@@ -280,7 +353,9 @@ def extract_label_modes(
         block if inverse is None else block.model_copy(update={"bbox": project_box(block.bbox, inverse, image_size)})
         for block in blocks
     ]
-    template = json.loads(TEMPLATE_PATH.read_text(encoding="utf-8"))
+    photo_reading, photo_warnings = (None, [])
+    if "blind" in modes:
+        photo_reading, photo_warnings = _read_blind_photo(image, corrected, inverse, photo_profile)
     outputs: dict[str, tuple[LabelExtraction, dict[str, Any]]] = {}
     for mode in modes:
         output = LabelExtraction(label_id=path.stem)
@@ -311,7 +386,11 @@ def extract_label_modes(
         if corrected is None:
             output.warnings.append("LABEL_NOT_FOUND: no suitable boundary; the whole photo was read instead")
         try:
-            if mode == "template":
+            if symbol_detector == "v2":
+                from src.cv.symbols_v2 import detect_symbols_v2
+
+                detected = detect_symbols_v2(corrected if corrected is not None else image)
+            elif mode == "template":
                 detected = detect_symbols(corrected)
             else:
                 detected = detect_symbols_blind(corrected if corrected is not None else image)
@@ -340,13 +419,22 @@ def extract_label_modes(
             output.warnings.append(
                 f"MULTIPLE_BARCODES: {len(barcodes)} symbols decoded; none selected automatically"
             )
-        output.warnings.extend(ocr_warnings)
-        output.ocr_blocks = list(projected_blocks)
-        usable = [block for block in blocks if block.conf >= field_confidence]
+        if mode == "blind":
+            output.warnings.extend(photo_warnings)
+            evidence = photo_reading.blocks if photo_reading else []
+            output.ocr_blocks = project_blocks(evidence, photo_reading.to_original, image_size) if photo_reading else []
+            if any(block.conf < min_confidence for block in evidence):
+                output.warnings.append("LOW_OCR_CONFIDENCE: photo observations require review")
+        else:
+            evidence = blocks
+            output.warnings.extend(ocr_warnings)
+            output.ocr_blocks = list(projected_blocks)
+        usable = [block for block in evidence if block.conf >= field_confidence]
         if mode == "template":
             fields, field_warnings = map_fields(usable, (corrected.shape[1], corrected.shape[0]), template)
         else:
-            fields, field_warnings = map_fields_by_layout(blocks, min_confidence=field_confidence)
+            mapper = map_photo_fields if photo_profile == "baseline" else map_cv2_fields
+            fields, field_warnings = mapper(evidence, min_confidence=field_confidence)
         details["raw_fields"] = dict(fields)
         if postcorrect:
             fields, notes = _postcorrect(fields, barcodes)
@@ -365,6 +453,8 @@ def extract_label(
     blur_threshold: float = 100.0,
     mode: Mode = "template",
     postcorrect: bool = False,
+    symbol_detector: str = "v1",
+    photo_profile: str = DEFAULT_PHOTO_PROFILE,
 ) -> LabelExtraction:
     """Extract one label photo into the unchanged shared schema.
 
@@ -379,10 +469,13 @@ def extract_label(
     ``postcorrect`` the field texts are normalised by format rules and
     0/O style doubts in lot and expiry are settled by the barcode; without it
     the fields are exactly what OCR read.
+
+    ``symbol_detector`` is "v1" (the default, behaviour unchanged: slot windows in template mode, whole-label
+    template matching in blind mode) or "v2" (``src.cv.symbols_v2``, whole-label search in either mode).
     """
     return extract_label_modes(
         image_path, modes=(mode,), min_confidence=min_confidence, blur_threshold=blur_threshold,
-        postcorrect=postcorrect,
+        postcorrect=postcorrect, symbol_detector=symbol_detector, photo_profile=photo_profile,
     )[mode][0]
 
 
@@ -394,11 +487,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--blur-threshold", type=float, default=100.0)
     parser.add_argument("--mode", choices=["template", "blind"], default="template")
     parser.add_argument("--postcorrect", action="store_true", help="Apply format rules to the field texts")
+    parser.add_argument("--symbol-detector", choices=["v1", "v2"], default="v1")
+    parser.add_argument("--photo-profile", choices=["baseline", "upscale", "cv2"],
+                        default=DEFAULT_PHOTO_PROFILE, help="Select the photo OCR protocol")
     args = parser.parse_args(argv)
     try:
         result = extract_label(
             args.image, min_confidence=args.min_confidence, blur_threshold=args.blur_threshold,
-            mode=args.mode, postcorrect=args.postcorrect,
+            mode=args.mode, postcorrect=args.postcorrect, symbol_detector=args.symbol_detector,
+            photo_profile=args.photo_profile,
         )
     except (OSError, ValueError, np.linalg.LinAlgError) as error:
         parser.error(str(error))

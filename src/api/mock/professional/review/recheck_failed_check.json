@@ -24,5 +24,88 @@
   "disclaimer": "Draft generated for review. Not a compliance determination.",
   "label_id": "lbl_exampledevice_carton",
   "version_id": "lbv_exampledevice_carton_l4",
-  "artifact_sha256": "a1281d207e4d3c2fd5a5edfcf221739af4d4bca9ce0807a956430f4c9fa82c3c"
+  "artifact_sha256": "a1281d207e4d3c2fd5a5edfcf221739af4d4bca9ce0807a956430f4c9fa82c3c",
+  "coverage": [
+    {
+      "rule_id": "X-HEALTH",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "P-NAME",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "P-REF",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "P-MFR",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "P-ADDR",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "P-UDI",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "B-READ",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "B-GS1",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "B-LOT",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "B-EXP",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "D-FMT",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "R-UDI",
+      "outcome": "pass",
+      "reason": ""
+    },
+    {
+      "rule_id": "R-NAMEPLACE",
+      "outcome": "pass",
+      "reason": "address completeness is not checked"
+    },
+    {
+      "rule_id": "R-RX",
+      "outcome": "not_applicable",
+      "reason": "product is not registered as prescription only (extra.rx_only)"
+    },
+    {
+      "rule_id": "S-MFR",
+      "outcome": "needs_human",
+      "reason": "detected, but the symbol detector is untrusted; a detection is not a pass"
+    },
+    {
+      "rule_id": "S-EXP",
+      "outcome": "needs_human",
+      "reason": "detected, but the symbol detector is untrusted; a detection is not a pass"
+    }
+  ],
+  "needs_human_count": 2
 }

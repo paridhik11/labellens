@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 SHA256_PATTERN = r"^[0-9a-f]{64}$"
 
@@ -98,7 +98,7 @@ class FieldEdit(BaseModel):
 
 
 class ChangeCreate(BaseModel):
-    """POST /changes. Plain text parsing is not implemented, so `edits` is needed to create a change."""
+    """POST /changes. Give `edits` (structured) or `raw_text` (parsed by the rules in src/change). Edits win if both."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -113,6 +113,34 @@ class ChangeCreate(BaseModel):
         return self
 
 
+class GenerateCreate(BaseModel):
+    """POST /changes/{id}/generate. `test_data` allows the all-zero test identifier and marks the label TEST DATA."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    label_id: str = Field(min_length=1)
+    test_data: bool = False
+
+
+class ImpactDecision(BaseModel):
+    """One checklist decision of a confirmation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    impact_id: str
+    user_decision: Literal["confirmed", "dismissed"]
+
+
+class ChangeConfirmCreate(BaseModel):
+    """POST /changes/{id}/confirm. `edits` is in the schema but refused: a changed edit set is a new change."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    parse_confirmed: bool
+    edits: list[FieldEdit] | None = None
+    decisions: list[ImpactDecision]
+
+
 class ReviewCreate(BaseModel):
     """POST /label-versions/{id}/reviews. Conditional rules (check_id, comment) give specific codes in reviews.py."""
 
@@ -122,3 +150,85 @@ class ReviewCreate(BaseModel):
     comment: str = ""
     artifact_sha256: str = Field(pattern=SHA256_PATTERN)
     check_id: str | None = None
+
+
+class RetrievalConfig(BaseModel):
+    """RetrievalConfig of the contract. Unset keys mean the checker's default (plain hybrid RRF)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    method: Literal["hybrid_rrf", "bm25", "tfidf", "dense", "e5b"] | None = None
+    stem: bool | None = None
+    prefix: bool | None = None
+    rerank: bool = False
+    expansion: bool = False
+
+    def overrides(self) -> dict[str, object]:
+        """The keys that were set, for the checker. rerank and expansion have no implementation, so they are refused."""
+        if self.rerank or self.expansion:
+            raise ValueError("rerank and expansion are not available: no reranker or query expansion exists in src/ir")
+        return {k: v for k, v in self.model_dump(exclude={"rerank", "expansion"}).items() if v is not None}
+
+
+class InspectCreate(BaseModel):
+    """POST /label-versions/{id}/inspect (optional body)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    retrieval: RetrievalConfig | None = None
+
+
+class SearchCreate(BaseModel):
+    """POST /search. Module is required and never mixed."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    query: str = Field(min_length=1)
+    module: Literal["device", "medicine"]
+    k: int = Field(default=10, ge=1, le=50)
+    section_level: bool = False
+    retrieval: RetrievalConfig | None = None
+
+
+class ExtractionConfirmCreate(BaseModel):
+    """POST /label-versions/{id}/extraction/confirm. Field names and lengths are checked in scans.confirm_extraction."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    fields: dict[str, str]
+class ProfessionalQuestion(BaseModel):
+    """POST /ask (device module). A blank question is a 422."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    question: str = Field(min_length=1)
+
+    @field_validator("question")
+    @classmethod
+    def not_blank(cls, value: str) -> str:
+        """Reject a question that is only spaces."""
+        if not value.strip():
+            raise ValueError("question must not be blank")
+        return value.strip()
+
+
+class PublicQuestion(ProfessionalQuestion):
+    """POST /public/ask (medicine module). product_id is accepted as given; no product registry exists yet."""
+
+    product_id: str = Field(min_length=1)
+
+
+class MedicineMatchCreate(BaseModel):
+    """POST /public/match: the product name as read from the pack (CR-23)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    product_name: str = Field(min_length=1, max_length=200)
+
+    @field_validator("product_name")
+    @classmethod
+    def not_blank(cls, value: str) -> str:
+        """Reject a name that is only spaces."""
+        if not value.strip():
+            raise ValueError("product_name must not be blank")
+        return value.strip()

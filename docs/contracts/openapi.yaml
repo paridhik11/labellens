@@ -70,7 +70,9 @@ paths:
         - $ref: "#/components/parameters/JobId"
       responses:
         "200":
-          description: Job state
+          description: |
+            Job state. Jobs started by inspectLabel and recheckArtwork are real. A job id this server never issued
+            (the scan and generate jobs are still mocks) is answered with the mock job and the header X-Mock.
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Job"}
@@ -240,13 +242,16 @@ paths:
               properties:
                 file: {type: string, contentMediaType: application/octet-stream}
                 source: {type: string, enum: [upload, camera]}
-                product_id: {type: string}
+                product_id: {type: string, description: "Required by the real server (CR-20): a scan creates a version of that product's label."}
       responses:
         "202":
           description: Accepted. Job envelope; poll GET /jobs/{job_id}. result_url points at GET /scans/{scan_id}.
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Job"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "403": {$ref: "#/components/responses/Forbidden"}
+        "404": {$ref: "#/components/responses/NotFound"}
         "422": {$ref: "#/components/responses/Invalid"}
 
   /scans/{scan_id}:
@@ -265,6 +270,7 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Scan"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "404": {$ref: "#/components/responses/NotFound"}
 
   /labels/{label_id}/versions:
@@ -315,6 +321,7 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Extraction"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "404": {$ref: "#/components/responses/NotFound"}
 
   /label-versions/{version_id}/extraction/confirm:
@@ -335,6 +342,10 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Extraction"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "403": {$ref: "#/components/responses/Forbidden"}
+        "404": {$ref: "#/components/responses/NotFound"}
+        "422": {$ref: "#/components/responses/Invalid"}
 
   # ---------------------------------------------------------------- inspection and evidence
   /label-versions/{version_id}/inspect:
@@ -360,10 +371,34 @@ paths:
             application/json:
               schema: {$ref: "#/components/schemas/CheckResult"}
         "202":
-          description: Running; poll the job
+          description: |
+            Running. The version has no stored extraction yet, so a job reads the image, stores the extraction and
+            runs the checker. Poll GET /jobs/{job_id}; result_url is /check-results/{check_id}.
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Job"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "404": {$ref: "#/components/responses/NotFound"}
+        "422": {$ref: "#/components/responses/Invalid"}
+
+  /check-results/{check_id}:
+    get:
+      tags: [device]
+      operationId: getCheckResult
+      summary: One stored check result (the result_url of a finished inspect or re-check job)
+      parameters:
+        - name: check_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: The CheckResult
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/CheckResult"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "404": {$ref: "#/components/responses/NotFound"}
 
   /search:
     post:
@@ -399,7 +434,12 @@ paths:
             schema: {$ref: "#/components/schemas/ChangeCreate"}
       responses:
         "201":
-          description: Proposed structured change with affected items and evidence. While no parser exists, parser is not_implemented and affected is empty.
+          description: |
+            Proposed structured change with affected items, citations and a barcode decision per label.
+            parser is rules (or llm when a provider is switched on). It is not_implemented when nothing in the
+            request could be assessed (for example only unknown fields): affected is then empty because nothing
+            was checked, not because nothing is affected. A plain-language request that cannot be parsed is
+            422 parser_not_implemented. A no-op edit is 422 no_change, a repeated field 422 duplicate_field.
           content:
             application/json:
               schema: {$ref: "#/components/schemas/ChangeAssessment"}
@@ -466,6 +506,11 @@ paths:
       tags: [device]
       operationId: confirmChange
       summary: Confirm the parsed change and the checklist decisions before any artwork changes
+      description: |
+        Appends a confirmation (append-only). The first confirmation also appends the confirmed assessment, where
+        a barcode decision that waited for confirmation (confirm_lot and so on) becomes REGENERATE when nothing
+        else blocks it. Needs an editor or admin. A change without a stored assessment (older changes) keeps the
+        mock response (X-Mock: true).
       parameters:
         - $ref: "#/components/parameters/ChangeId"
       requestBody:
@@ -474,20 +519,32 @@ paths:
           application/json:
             schema: {$ref: "#/components/schemas/ChangeConfirm"}
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "403": {$ref: "#/components/responses/Forbidden"}
+        "404": {$ref: "#/components/responses/NotFound"}
         "200":
-          description: Confirmed change
+          description: Confirmed change with the confirmed assessment
           content:
             application/json:
               schema: {$ref: "#/components/schemas/ChangeAssessment"}
+        "409":
+          description: change_closed (the change was rejected) or nothing_to_confirm (nothing was assessed).
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "422": {$ref: "#/components/responses/Invalid"}
 
   /changes/{change_id}/affected:
     get:
       tags: [device]
       operationId: listAffectedLabels
       summary: Affected labels and fields for a change
+      description: The items of the latest stored assessment with their current user_decision. A change without an assessment keeps the mock response (X-Mock true).
       parameters:
         - $ref: "#/components/parameters/ChangeId"
       responses:
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "404": {$ref: "#/components/responses/NotFound"}
         "200":
           description: Affected items, possibly empty
           content:
@@ -524,10 +581,16 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Job"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "403": {$ref: "#/components/responses/Forbidden"}
+        "404": {$ref: "#/components/responses/NotFound"}
         "409":
           description: |
-            Checked before the job starts. NeedsInput (barcode decision NEEDS_INPUT, IdentifierRequired),
-            or Error change_closed when the change was rejected. No artwork is produced.
+            Checked before the job starts, nothing is written. NeedsInput (barcode decision NEEDS_INPUT,
+            IdentifierRequired, or a changed encoded value that is not confirmed yet; `task.task_id` is the reason
+            code, for example task_udi_di or task_confirm_lot). Otherwise an Error: change_closed (the change was
+            rejected), change_not_confirmed (the assessment was never confirmed), nothing_assessed, template_required,
+            label_product_mismatch, stale_change, barcode_decision_mismatch.
           content:
             application/json:
               schema:
@@ -535,10 +598,18 @@ paths:
                   - $ref: "#/components/schemas/NeedsInput"
                   - $ref: "#/components/schemas/Error"
         "422":
-          description: Layout checks failed before rendering (findings listed)
+          description: |
+            Layout checks failed before rendering (CheckResult kind layout, findings listed; the renderer's own
+            kinds are clipping, watermark_overlap, text_overflow, overlap), or an Error: unsupported_edits (one
+            generation handles one edit, or a model edit with its new udi_di), unsupported_template,
+            template_background_unsupported, product_incomplete, no_change, generation_refused, validation_error.
           content:
             application/json:
-              schema: {$ref: "#/components/schemas/CheckResult"}
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/CheckResult"
+                  - $ref: "#/components/schemas/Error"
+        "503": {$ref: "#/components/responses/Unavailable"}
 
   /artworks/{artwork_id}:
     get:
@@ -552,10 +623,13 @@ paths:
           schema: {type: string}
       responses:
         "200":
-          description: Generated artwork
+          description: |
+            Generated artwork. `svg_url` and `pdf_url` are downloadArtifact paths. `artifact_sha256` is the sha256
+            of the PDF bytes, and approval binds to it.
           content:
             application/json:
               schema: {$ref: "#/components/schemas/GeneratedArtwork"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "404": {$ref: "#/components/responses/NotFound"}
 
   # ---------------------------------------------------------------- re-check, review, publish
@@ -573,10 +647,17 @@ paths:
             application/json:
               schema: {$ref: "#/components/schemas/CheckResult"}
         "202":
-          description: Running; poll the job
+          description: Running; same job flow as inspectLabel (result_url is /check-results/{check_id})
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Job"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "404": {$ref: "#/components/responses/NotFound"}
+        "409":
+          description: not_generated (only generated artwork with an artifact_sha256 can be re-checked)
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
 
   /label-versions/{version_id}/reviews:
     get:
@@ -651,8 +732,9 @@ paths:
         "409":
           description: |
             hash_mismatch or check_not_passed (artifact_sha256 or check_id does not match a passed check of this
-            version), version_superseded (a newer artwork version exists, so review that one), or change_closed
-            (the change was rejected; reject is terminal).
+            version), version_superseded (a newer artwork version exists, so review that one), change_closed
+            (the change was rejected; reject is terminal), or change_not_confirmed (the change has an assessment
+            that nobody confirmed yet).
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Error"}
@@ -664,14 +746,32 @@ paths:
       summary: Publish an approved version; creates a PublishedPage pinned to this version_id
       parameters:
         - $ref: "#/components/parameters/VersionId"
+      description: |
+        Real since Step 25 (CR-24). Reviewer or admin only. The version's latest review must be an approval of its own
+        artifact hash. The page URL is the payload already printed in the QR files (`<base>/versions/<version_id>`),
+        served as HTML by the same server for a published version only.
       responses:
         "201":
           description: Published page
           content:
             application/json:
               schema: {$ref: "#/components/schemas/PublishedPage"}
+        "200":
+          description: Already published; the same page is returned
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/PublishedPage"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "403":
+          description: role_forbidden (only a reviewer or admin publishes)
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "404": {$ref: "#/components/responses/NotFound"}
         "409":
-          description: No valid approval record for this version (none, voided by a newer version, or change_closed)
+          description: |
+            No valid approval record for this version: not_approved (none, or the latest review is a return or reject),
+            version_superseded (a newer version voids the approval), change_closed, or hash_mismatch.
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Error"}
@@ -680,16 +780,55 @@ paths:
     get:
       tags: [device]
       operationId: getExports
-      summary: PDF at physical size, editable SVG template, inspection report and QR for one version
+      summary: PDF at physical size, editable SVG template, report and QR for one generated version
       parameters:
         - $ref: "#/components/parameters/VersionId"
       responses:
         "200":
-          description: Export package. Unapproved versions are watermarked DRAFT and have no QR.
+          description: |
+            Export package: the stored files of the draft, served by downloadArtifact. Unapproved versions have no
+            QR. The stored files carry the visible mark `DRAFT, not for production` (and `TEST DATA | DRAFT`), and
+            `draft_watermark` stays true while a file carries it, including after approval (CR-22).
           content:
             application/json:
               schema: {$ref: "#/components/schemas/ExportPackage"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "404":
+          description: not_found, or no_artifacts (an uploaded version has no generated files)
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
+  /artifacts/{artifact_sha256}:
+    get:
+      tags: [device]
+      operationId: downloadArtifact
+      summary: Download one stored file of a generated version by its sha256 (PDF, SVG, report, QR)
+      description: |
+        Added by CR-22. The server re-hashes the file before sending it, so a changed file is never served. The
+        response is an attachment and carries `X-Draft-Mark` while the file's visible markings are not empty. QR
+        files are served only for a published version.
+      parameters:
+        - name: artifact_sha256
+          in: path
+          required: true
+          schema: {$ref: "#/components/schemas/Sha256"}
+      responses:
+        "200":
+          description: The file bytes
+          content:
+            application/pdf: {schema: {type: string, format: binary}}
+            image/svg+xml: {schema: {type: string, format: binary}}
+            application/json: {schema: {type: object}}
+            image/png: {schema: {type: string, format: binary}}
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "404": {$ref: "#/components/responses/NotFound"}
+        "409":
+          description: not_published (a QR file of a version that is not published)
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "422": {$ref: "#/components/responses/Invalid"}
 
   # ---------------------------------------------------------------- print verification
   /label-versions/{version_id}/print-verifications:
@@ -713,10 +852,18 @@ paths:
                   items:
                     type: array
                     items: {$ref: "#/components/schemas/PrintVerification"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "404": {$ref: "#/components/responses/NotFound"}
     post:
       tags: [device]
       operationId: verifyPrint
       summary: Photograph a printed label and compare it with the approved version
+      description: |
+        Real since Step 25b (CR-26). Needs an approved, current, generated version. The photo must be a PNG or JPEG
+        (422 `unsupported_media_type` for a PDF). The job runs the CV extractor on the photo and compares text and
+        barcode with the approved version's record and encoded payload. Symbols are not compared (the detector is not
+        trusted). `needs_human` evidence becomes outcome `rescan_needed` with `rescan_reason`. A job fails only when
+        the CV libraries are missing (`extractor_unavailable`) or something unexpected breaks (`print_verify_failed`).
       parameters:
         - $ref: "#/components/parameters/VersionId"
       requestBody:
@@ -737,11 +884,17 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Job"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
+        "404": {$ref: "#/components/responses/NotFound"}
         "409":
-          description: Version is not approved
+          description: |
+            Version is not approved (CR-26). Codes: `not_approved` (draft, checked, returned or never reviewed; the
+            status is in `details`), `rejected` (a reject is terminal), `version_superseded` (a newer version
+            voids the approval) and `no_reference` (approved, but no generated artwork to compare with).
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Error"}
+        "422": {$ref: "#/components/responses/Invalid"}
 
   /print-verifications/{verification_id}:
     get:
@@ -759,6 +912,7 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/PrintVerification"}
+        "401": {$ref: "#/components/responses/Unauthorized"}
         "404": {$ref: "#/components/responses/NotFound"}
 
   # ---------------------------------------------------------------- public medicine mode
@@ -803,18 +957,67 @@ paths:
               schema: {$ref: "#/components/schemas/PublicMatchResult"}
         "404": {$ref: "#/components/responses/NotFound"}
 
+  /public/match:
+    post:
+      tags: [public]
+      operationId: matchMedicine
+      summary: Match a product name to the nearest of the reference medicine products (CR-23)
+      description: |
+        Matches the name with the frozen E5b recipe over the reference products and decides with a cosine threshold.
+        `outcome` is `matched`, `needs_review` or `no_reference_match` (then `candidates` is empty and no summary or
+        section is returned). Reference fields are derived from the product's own label text; a field no rule found is
+        omitted and listed in `not_in_corpus` (the manufacturer is never in the corpus).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product_name]
+              additionalProperties: false
+              properties:
+                product_name: {type: string, minLength: 1, maxLength: 200}
+      responses:
+        "200":
+          description: Match result
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/PublicMatchResult"}
+        "422": {$ref: "#/components/responses/Invalid"}
+        "503":
+          description: retrieval_unavailable (the matching models cannot be loaded)
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
   /public/ask:
     post:
       tags: [public]
       operationId: askPublic
       summary: Ask about the matched label. Answers only from retrieved passages, or abstains.
       security: []
+      parameters:
+        - name: mode
+          in: query
+          required: false
+          description: |
+            `extractive` (default, instant, no language model) or `ai` (CR-21). With `ai` the answer is a 202
+            Job (kind `ask`); poll GET /jobs/{job_id}. The finished job carries `result` (AskJobResult). The AI
+            answer never fails the request: a missing model, a model slower than 90 s or an answer that fails
+            verification end with the extractive passages and a `fallback_reason`.
+          schema: {type: string, enum: [extractive, ai], default: extractive}
       requestBody:
         required: true
         content:
           application/json:
             schema: {$ref: "#/components/schemas/QuestionRequest"}
       responses:
+        "202":
+          description: Accepted (only with mode=ai). Job envelope of kind ask; poll GET /jobs/{job_id}.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Job"}
         "200":
           description: Cited answer or abstention
           content:
@@ -831,6 +1034,49 @@ paths:
                     threshold: null
                     message: I can only explain what the packaging label says. Please ask a pharmacist or doctor.
                     banner: Authenticity not verified. Based on a reference label match.
+        "422": {$ref: "#/components/responses/Invalid"}
+        "503": {$ref: "#/components/responses/Unavailable"}
+
+  /ask:
+    post:
+      tags: [device]
+      operationId: askProfessional
+      summary: Ask a question about the device labeling regulations (21 CFR 8xx). Answers only from retrieved passages, or abstains.
+      description: |
+        Professional twin of askPublic (Step 23, CR-19). Module is fixed to device, so device and medicine
+        content never mix. There is no banner and no matched label. An abstained answer may carry `sources`
+        (CR-18): verbatim passages shown when generation was off or failed verification. They are not an answer.
+      security:
+        - {}
+        - UserHeader: []
+      parameters:
+        - name: mode
+          in: query
+          required: false
+          description: |
+            `extractive` (default, instant, no language model) or `ai` (CR-21). With `ai` the answer is a 202
+            Job (kind `ask`); poll GET /jobs/{job_id}. The finished job carries `result` (AskJobResult). The AI
+            answer never fails the request: a missing model, a model slower than 90 s or an answer that fails
+            verification end with the extractive passages and a `fallback_reason`.
+          schema: {type: string, enum: [extractive, ai], default: extractive}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ProfessionalQuestionRequest"}
+      responses:
+        "202":
+          description: Accepted (only with mode=ai). Job envelope of kind ask; poll GET /jobs/{job_id}.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Job"}
+        "200":
+          description: Cited answer or abstention
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ProfessionalAnswerResponse"}
+        "422": {$ref: "#/components/responses/Invalid"}
+        "503": {$ref: "#/components/responses/Unavailable"}
 
 components:
   securitySchemes:
@@ -883,6 +1129,11 @@ components:
           schema: {$ref: "#/components/schemas/Error"}
     Forbidden:
       description: The user's role may not do this (role_forbidden)
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/Error"}
+    Unavailable:
+      description: A service the operation needs is not available (retrieval_unavailable)
       content:
         application/json:
           schema: {$ref: "#/components/schemas/Error"}
@@ -948,7 +1199,18 @@ components:
             without check_id), comment_required (422, return or reject without comment), parser_not_implemented
             (422, plain-language change), artifact_hash_required (422), hash_mismatch (409), check_not_passed
             (409), version_superseded (409), change_closed (409), template_product_mismatch (409), needs_input
-            (409), label_product_mismatch (409).
+            (409), label_product_mismatch (409), no_change (422, an edit equals the current value),
+            duplicate_field (422), parse_not_confirmed (422), edits_not_supported (422, confirm with edits),
+            unknown_impact (422), nothing_to_confirm (409), change_not_confirmed (409, approve before the
+            change was confirmed). Upload codes (CR-20): unsupported_media_type, file_too_large, image_too_large,
+            invalid_file (all 422 on uploadScan); retake_photo, extractor_unavailable and scan_failed appear in
+            Scan.error and Job.error with state failed. retake_photo carries details {reasons, metrics, thresholds}.
+            Generate and export codes (CR-22): nothing_assessed, template_required, stale_change,
+            barcode_decision_mismatch (all 409 on generateArtwork); unsupported_edits, unsupported_template,
+            template_background_unsupported, product_incomplete, generation_refused (422); layout_failed,
+            renderer_unavailable (503), product_changed, template_changed and generation_failed appear in Job.error
+            with state failed; no_artifacts (404 on getExports), artifact_missing (404) and not_published (409) on
+            downloadArtifact.
         message: {type: string}
         details: {type: object}
     User:
@@ -966,12 +1228,32 @@ components:
       additionalProperties: false
       properties:
         job_id: {type: string}
-        kind: {type: string, enum: [scan, inspect, generate, recheck, print_verify, public_scan]}
+        kind: {type: string, enum: [scan, inspect, generate, recheck, print_verify, public_scan, ask]}
         state: {type: string, enum: [queued, processing, done, failed]}
         progress: {type: number, minimum: 0, maximum: 1}
         message: {type: string}
         result_url: {type: string, description: Where to GET the result when state is done}
         error: {$ref: "#/components/schemas/Error"}
+        result: {$ref: "#/components/schemas/AskJobResult", description: "Set when an ask job is done (CR-21)"}
+    AskJobResult:
+      type: object
+      description: |
+        Result of an AI ask job (CR-21). `answer` is exactly the 200 body of the extractive operation (an answer, or
+        an abstention that may carry quotes). `model_used` is false when the passages are shown instead of a model
+        answer. `fallback_reason` explains why: model_unavailable (Ollama missing or failing), timeout (no answer
+        within 90 seconds) or verification_failed (the answer did not pass the citation checks). It is absent when
+        the model ran, including when the model said the passages do not answer.
+      required: [answer, model, model_used]
+      additionalProperties: false
+      properties:
+        answer:
+          anyOf:
+            - {$ref: "#/components/schemas/AnswerResponse"}
+            - {$ref: "#/components/schemas/ProfessionalAnswerResponse"}
+        model: {type: string}
+        model_used: {type: boolean}
+        latency_s: {type: number}
+        fallback_reason: {type: string, enum: [model_unavailable, timeout, verification_failed]}
 
     # ------------------------------------------------------------ products (ProductRecord)
     ProductRecord:
@@ -1015,7 +1297,14 @@ components:
         udi_di: {type: string, description: Leave empty if not yet allocated; never filled in by LabelLens}
         sterilization: {type: string}
         storage: {type: string}
-        extra: {type: object, additionalProperties: {type: string}}
+        extra:
+          type: object
+          additionalProperties: {type: string}
+          description: |
+            Free text fields. Two keys are read by the checker: `ref` (a reference number, used when `model` is empty)
+            and `rx_only` (the string `true` when the device is prescription only, so the checker looks for the Rx
+            statement of 21 CFR 801.109). The registration form should offer `rx_only` as a checkbox.
+          examples: [{ref: "EX-100", rx_only: "true"}]
         intended_market: {type: array, items: {type: string}}
     Product:
       type: object
@@ -1270,7 +1559,20 @@ components:
             citations: {type: array, items: {$ref: "#/components/schemas/Citation"}}
             field: {type: string}
             bbox: {$ref: "#/components/schemas/PixelBox"}
+            rule_id: {type: string, description: "Checker rule that raised the finding, for example B-EXP (docs/CHECKER_SPEC.md). Absent on layout findings (CR-17)"}
       unevaluatedProperties: false
+    RuleOutcome:
+      type: object
+      required: [rule_id, outcome]
+      additionalProperties: false
+      description: |
+        What one checker rule concluded (CR-17). Findings list only problems, so coverage is how a client
+        sees which rules ran and why a rule did not decide. A rule with outcome needs_human may or may not have a
+        finding: a symbol the detector found is not confirmed as a pass, so it stays needs_human with no finding.
+      properties:
+        rule_id: {type: string}
+        outcome: {type: string, enum: [pass, fail, needs_human, not_applicable, not_checked]}
+        reason: {type: string}
     CheckResult:
       type: object
       required: [check_id, kind, run_at, findings, critical_count, review_count, info_count, passed]
@@ -1280,7 +1582,7 @@ components:
         a template) or a layout check before rendering has no label version yet, so it names template_id.
       allOf:
         - if: {properties: {kind: {enum: [inspection, self_check]}}}
-          then: {required: [label_id, version_id]}
+          then: {required: [label_id, version_id, needs_human_count, coverage]}
         - if: {properties: {kind: {enum: [template, layout]}}}
           then: {required: [template_id]}
       properties:
@@ -1295,7 +1597,10 @@ components:
         critical_count: {type: integer, minimum: 0}
         review_count: {type: integer, minimum: 0}
         info_count: {type: integer, minimum: 0}
-        passed: {type: boolean, description: True when critical_count is 0}
+        passed: {type: boolean, description: True when critical_count is 0. It does not mean the label is compliant}
+        needs_human_count: {type: integer, minimum: 0, description: "Number of coverage entries with outcome needs_human (CR-17). Passed can be true while this is above 0, so show both"}
+        coverage: {type: array, items: {$ref: "#/components/schemas/RuleOutcome"}, description: "One entry per checker rule (CR-17). Findings contain only problems"}
+        retrieval_config: {type: object, description: "Retrieval settings the citations were found with (method, module, k, rrf_k, stem, prefix)"}
         disclaimer: {type: string}
 
     # ------------------------------------------------------------ search
@@ -1306,7 +1611,7 @@ components:
         off. The four flags are optional experiments and default to false.
       additionalProperties: false
       properties:
-        method: {type: string, enum: [hybrid_rrf, bm25, tfidf, dense], default: hybrid_rrf}
+        method: {type: string, enum: [hybrid_rrf, bm25, tfidf, dense, e5b], default: hybrid_rrf, description: "e5b is the frozen Step 18 system (CR-25)"}
         stem: {type: boolean, default: false, description: Stem query and index terms}
         prefix: {type: boolean, default: false, description: Add the dense model query prefix (Step 15a)}
         rerank: {type: boolean, default: false, description: Rerank the fused list}
@@ -1399,6 +1704,12 @@ components:
         suggestion: {type: string, enum: [review_suggested, edit_required, no_change]}
         evidence_chunk_ids: {type: array, items: {type: string}}
         user_decision: {type: string, enum: [pending, confirmed, dismissed]}
+        needs_human: {type: boolean, description: "CR-18. False only when a rule decided the item and its citation requirement is met."}
+        reason: {type: string, description: "CR-18. Plain-language reason for this item."}
+        rule_ids: {type: array, items: {type: string}, description: "CR-18. Rules that fired (I-TEXT, I-SYMBOL, I-NOSLOT, BC-KEEP and so on)."}
+        barcode_decision:
+          description: CR-18. Only on item_kind barcode.
+          $ref: "#/components/schemas/BarcodeDecision"
     AffectedLabelList:
       type: object
       required: [change_id, items]
@@ -1414,17 +1725,30 @@ components:
         change: {$ref: "#/components/schemas/ChangeRequest"}
         parser:
           type: string
-          enum: [not_implemented, mock]
+          enum: [not_implemented, mock, rules, llm]
           description: |
-            not_implemented means nothing was parsed or checked: affected is empty because no impact analysis
-            ran, not because nothing is affected, and checklist_complete is false. mock marks a canned example
-            response. Other values are added when a parser exists.
+            rules: the deterministic parser and impact rules ran. llm: the optional provider proposed the edits
+            (off by default), the impact rules still decide. not_implemented means nothing could be assessed:
+            affected is empty because no impact analysis ran, not because nothing is affected, and
+            checklist_complete is false. mock marks a canned example response.
         affected: {type: array, items: {$ref: "#/components/schemas/AffectedLabel"}}
         citations: {type: array, items: {$ref: "#/components/schemas/Citation"}}
         checklist_complete: {type: boolean, description: True when every affected item is confirmed or dismissed}
         needs_human_review:
           type: string
           description: NEEDS_HUMAN_REVIEW reason when the evidence is weak; absent otherwise
+        unassessed_edits:
+          description: CR-18. Edits that were not assessed (unknown_field, invalid_value, ambiguous_date) and why.
+          type: array
+          items:
+            type: object
+            required: [field, reason, message]
+            additionalProperties: false
+            properties:
+              field: {type: string}
+              reason: {type: string}
+              message: {type: string}
+        assessment_id: {type: string, description: "CR-18. The stored assessment this response shows (asm_...)."}
     ChangeConfirm:
       type: object
       required: [parse_confirmed, decisions]
@@ -1544,6 +1868,7 @@ components:
         comment: {type: string}
         artifact_sha256: {$ref: "#/components/schemas/Sha256"}
         check_id: {type: string, description: Passed CheckResult of the same version and hash}
+        assessment_id: {type: string, description: "CR-18. The change's latest assessment when the review was recorded, if the change has one."}
         resulting_status: {$ref: "#/components/schemas/Status"}
         decided_at: {$ref: "#/components/schemas/Timestamp"}
       allOf:
@@ -1653,6 +1978,25 @@ components:
             glare: {type: number, minimum: 0, maximum: 1}
             confidence: {type: number, minimum: 0, maximum: 1}
         rescan_reason: {type: string}
+        fields:
+          type: array
+          description: Added by CR-26. Every compared field with its evidence (absent on older mocks)
+          items:
+            type: object
+            required: [field, expected, status]
+            properties:
+              field: {type: string}
+              expected: {type: string}
+              observed: {type: [string, "null"]}
+              status: {type: string, enum: [MATCH, MISMATCH, NEEDS_HUMAN_REVIEW]}
+              confidence: {type: [number, "null"], description: OCR evidence strength, not a probability of being right}
+              bbox:
+                oneOf:
+                  - $ref: "#/components/schemas/PixelBox"
+                  - type: "null"
+        notes:
+          type: object
+          description: Added by CR-26. What was not compared (symbols), engine status, warnings, quality numbers
         created_at: {$ref: "#/components/schemas/Timestamp"}
 
     # ------------------------------------------------------------ audit (CR-12)
@@ -1694,6 +2038,19 @@ components:
         match_confidence: {type: number, minimum: 0, maximum: 1}
         read_from_photo: {type: object, additionalProperties: {type: string}}
         from_reference_label: {type: object, additionalProperties: {type: string}}
+        not_in_corpus:
+          type: array
+          items: {type: string}
+          description: Reference fields no rule could fill from the label text (CR-23); they are omitted above
+        evidence:
+          type: object
+          description: For each derived field, the chunk and the verbatim words it came from (CR-23)
+          additionalProperties:
+            type: object
+            required: [chunk_id, quote]
+            properties:
+              chunk_id: {type: string}
+              quote: {type: string}
     PublicMatchResult:
       type: object
       required: [banner, candidates]
@@ -1706,6 +2063,38 @@ components:
           items: {$ref: "#/components/schemas/MedicineMatch"}
         summary: {type: string}
         sources: {type: array, items: {$ref: "#/components/schemas/Citation"}}
+        outcome:
+          type: string
+          enum: [matched, needs_review, no_reference_match]
+          description: Added by CR-23. Absent on older mocks.
+        score_name: {type: string, description: "bge_large_cosine (CR-23)"}
+        score: {type: number}
+        threshold: {type: number}
+        message: {type: string, description: Shown instead of a summary when nothing matched}
+        sections:
+          type: object
+          description: |
+            Added by CR-23, present when there is a candidate. Section chunks of the best candidate from the medicine
+            corpus: summary (uses), ingredients (description, else the package panel, see ingredients_note),
+            warnings (up to 6) and sources (the pinned DailyMed document).
+          properties:
+            summary: {type: array, items: {$ref: "#/components/schemas/Citation"}}
+            ingredients: {type: array, items: {$ref: "#/components/schemas/Citation"}}
+            warnings: {type: array, items: {$ref: "#/components/schemas/Citation"}}
+            sources:
+              type: array
+              items:
+                type: object
+                required: [source, url, setid, version, effective_date, fetched, chunk_ids]
+                properties:
+                  source: {type: string}
+                  url: {type: string}
+                  setid: {type: string}
+                  version: {type: integer}
+                  effective_date: {type: string}
+                  fetched: {type: string}
+                  chunk_ids: {type: array, items: {type: string}}
+            ingredients_note: {type: string}
     PublicBanner:
       type: string
       const: Authenticity not verified. Based on a reference label match.
@@ -1745,9 +2134,51 @@ components:
         score: {type: [number, "null"], description: Null when a scope rule decided, not a score}
         threshold: {type: [number, "null"], description: Null when a scope rule decided, not a score}
         message: {type: string}
+        sources:
+          type: array
+          description: |
+            Optional (CR-18). Verbatim passages shown when no answer was generated or it failed verification.
+            They are not an answer and no claim is made from them.
+          items: {$ref: "#/components/schemas/Citation"}
         banner: {$ref: "#/components/schemas/PublicBanner"}
     AnswerResponse:
       description: Exactly one of the two shapes, told apart by the boolean abstained
       oneOf:
         - $ref: "#/components/schemas/AnsweredAnswer"
         - $ref: "#/components/schemas/AbstainedAnswer"
+    ProfessionalQuestionRequest:
+      type: object
+      required: [question]
+      additionalProperties: false
+      properties:
+        question: {type: string, minLength: 1}
+    ProfessionalAnsweredAnswer:
+      type: object
+      required: [abstained, answer, sources]
+      additionalProperties: false
+      properties:
+        abstained: {type: boolean, const: false}
+        answer: {type: string}
+        sources:
+          type: array
+          minItems: 1
+          items: {$ref: "#/components/schemas/Citation"}
+    ProfessionalAbstainedAnswer:
+      type: object
+      required: [abstained, reason, score_name, score, threshold, message]
+      additionalProperties: false
+      properties:
+        abstained: {type: boolean, const: true}
+        reason: {type: string, enum: [no_evidence, low_confidence, out_of_scope, needs_human_check]}
+        score_name: {type: string, minLength: 1}
+        score: {type: [number, "null"]}
+        threshold: {type: [number, "null"]}
+        message: {type: string}
+        sources:
+          type: array
+          items: {$ref: "#/components/schemas/Citation"}
+    ProfessionalAnswerResponse:
+      description: Exactly one of the two shapes, told apart by the boolean abstained
+      oneOf:
+        - $ref: "#/components/schemas/ProfessionalAnsweredAnswer"
+        - $ref: "#/components/schemas/ProfessionalAbstainedAnswer"

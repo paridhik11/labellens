@@ -155,6 +155,15 @@
       "schemas_py": "ChangeRequest"
     },
     {
+      "file": "professional/changes/assess_rules.json",
+      "screen": "D6 Changes",
+      "state": "rules",
+      "operationId": "assessChange",
+      "status": 201,
+      "schema": "ChangeAssessment",
+      "schemas_py": "ChangeRequest"
+    },
+    {
       "file": "professional/changes/affected_success.json",
       "screen": "D6 Changes",
       "state": "success",
@@ -439,6 +448,62 @@
       "operationId": "publishVersion",
       "status": 201,
       "schema": "PublishedPage"
+    },
+    {
+      "file": "professional/ask/success.json",
+      "screen": "D5 Evidence",
+      "state": "success",
+      "operationId": "askProfessional",
+      "status": 200,
+      "schema": "ProfessionalAnswerResponse"
+    },
+    {
+      "file": "professional/ask/abstained_out_of_scope.json",
+      "screen": "D5 Evidence",
+      "state": "abstained",
+      "operationId": "askProfessional",
+      "status": 200,
+      "schema": "ProfessionalAnswerResponse"
+    },
+    {
+      "file": "professional/ask/abstained_needs_human_check.json",
+      "screen": "D5 Evidence",
+      "state": "abstained",
+      "operationId": "askProfessional",
+      "status": 200,
+      "schema": "ProfessionalAnswerResponse"
+    },
+    {
+      "file": "public/ask/ai_accepted.json",
+      "screen": "P3 Ask about this label",
+      "state": "ai_accepted",
+      "operationId": "askPublic",
+      "status": 202,
+      "schema": "Job"
+    },
+    {
+      "file": "professional/ask/ai_accepted.json",
+      "screen": "Professional evidence",
+      "state": "ai_accepted",
+      "operationId": "askProfessional",
+      "status": 202,
+      "schema": "Job"
+    },
+    {
+      "file": "public/ask/ai_job_done.json",
+      "screen": "P3 Ask about this label",
+      "state": "ai_done",
+      "operationId": "getJob",
+      "status": 200,
+      "schema": "Job"
+    },
+    {
+      "file": "public/ask/ai_job_fallback_timeout.json",
+      "screen": "P3 Ask about this label",
+      "state": "ai_fallback_timeout",
+      "operationId": "getJob",
+      "status": 200,
+      "schema": "Job"
     }
   ]
 }

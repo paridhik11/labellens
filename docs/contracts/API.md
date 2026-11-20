@@ -8,7 +8,7 @@ Entities and field meanings are in [`DATA_MODEL.md`](DATA_MODEL.md). Template an
 
 - **JSON everywhere**, except file uploads (`multipart/form-data`) and the files behind export URLs (PDF, SVG).
 - **Errors** use one shape: `{error, message, details?}`, where `error` is a short code such as `not_found`, `hash_mismatch` or `needs_input`.
-- **Long work returns 202 and a Job envelope.** Scan (`POST /scans`, `POST /public/scans`), generate (`POST /changes/{id}/generate`) and print verify (`POST /label-versions/{id}/print-verifications`) always answer `202` with `{job_id, kind, state, progress}`. Inspect and re-check answer `200` when fast and `202` when slow. The UI polls `GET /jobs/{job_id}` and shows its loading state until `state` is `done` or `failed`. When `done`, `result_url` names the GET endpoint for the result (`/scans/{scan_id}`, `/artworks/{artwork_id}`, `/print-verifications/{verification_id}`, `/public/scans/{scan_id}`).
+- **Long work returns 202 and a Job envelope.** Scan (`POST /scans`, `POST /public/scans`), generate (`POST /changes/{id}/generate`) and print verify (`POST /label-versions/{id}/print-verifications`) always answer `202` with `{job_id, kind, state, progress}`. Inspect and re-check answer `200` when the version already has a stored extraction (only the rules run) and `202` when the extraction must be computed first (Step 21). The UI polls `GET /jobs/{job_id}` and shows its loading state until `state` is `done` or `failed`. When `done`, `result_url` names the GET endpoint for the result (`/scans/{scan_id}`, `/artworks/{artwork_id}`, `/print-verifications/{verification_id}`, `/public/scans/{scan_id}`).
 - **Users.** A minimal User (`user_id`, `name`, `role`: editor, reviewer or admin) is identified by the `X-User-Id` header, a stub with no login flow. `GET /me` returns it. Public endpoints, `/health`, `/jobs` and `/search` work without the header.
 - **Versions are pinned.** Anything about one artwork uses `version_id`, the id of one immutable LabelVersion. `label_id` is the label family. Reports and published pages keep their `version_id` forever.
 - **Status is derived, never sent.** No endpoint accepts a `status` field. The server computes it from the record trail (DATA_MODEL.md, "Status derivation") and returns `latest_review_id` so the UI can explain it.
@@ -34,19 +34,21 @@ Entities and field meanings are in [`DATA_MODEL.md`](DATA_MODEL.md). Template an
 | `GET /label-versions/{version_id}` | getLabelVersion | One version with derived status | 200 LabelVersion | 404 |
 | `GET /label-versions/{version_id}/extraction` | getExtraction | Text, barcodes, symbols, unclear fields | 200 Extraction | 404 |
 | `POST /label-versions/{version_id}/extraction/confirm` | confirmExtraction | "Confirm extraction" with corrections | 200 Extraction | |
-| `POST /label-versions/{version_id}/inspect` | inspectLabel | Compare with the record and retrieved requirements | 200 CheckResult (kind `inspection`) | 202 Job |
+| `POST /label-versions/{version_id}/inspect` | inspectLabel | Compare with the record and retrieved requirements | 200 CheckResult (kind `inspection`) | 202 Job, 404, 422 |
+| `GET /check-results/{check_id}` | getCheckResult | One stored check result (the `result_url` of a finished inspect or re-check job) | 200 CheckResult | 404 |
 | `POST /search` | searchEvidence | Evidence retrieval for one module | 200 SearchResponse | 422 |
 | `POST /changes` | assessChange | Parse a change, list affected items and evidence | 201 ChangeAssessment | 422 |
 | `GET /changes/{change_id}` | getChange | A change with derived status | 200 ChangeRequest | 404 |
 | `POST /changes/{change_id}/confirm` | confirmChange | Confirm the parse and the checklist | 200 ChangeAssessment | |
 | `GET /changes/{change_id}/affected` | listAffectedLabels | Affected labels and fields | 200 AffectedLabelList | |
-| `POST /changes/{change_id}/generate` | generateArtwork | Fill the template, render a DRAFT | 202 Job | 409 NeedsInput or change_closed, 422 CheckResult |
+| `POST /changes/{change_id}/generate` | generateArtwork | Fill the template, render a DRAFT (real, Step 24b) | 202 Job | 409 NeedsInput, change_closed or change_not_confirmed, 422 CheckResult (layout) or Error, 503 renderer_unavailable |
 | `GET /artworks/{artwork_id}` | getArtwork | Result of a generate job | 200 GeneratedArtwork | 404 |
-| `POST /label-versions/{version_id}/recheck` | recheckArtwork | Closed-loop self-check and layout checks | 200 CheckResult (kind `self_check`) | 202 Job |
+| `POST /label-versions/{version_id}/recheck` | recheckArtwork | Closed-loop self-check and layout checks | 200 CheckResult (kind `self_check`) | 202 Job, 404, 409 not_generated |
 | `GET /label-versions/{version_id}/reviews` | listReviews | Review history of a version | 200 ReviewList | |
 | `POST /label-versions/{version_id}/reviews` | reviewArtwork | Approve, return or reject | 201 Review | 403 role_forbidden or self_approval_forbidden, 409 |
 | `POST /label-versions/{version_id}/publish` | publishVersion | Publish an approved version | 201 PublishedPage | 409 |
-| `GET /label-versions/{version_id}/exports` | getExports | PDF at physical size, editable SVG, report, QR | 200 ExportPackage | 404 |
+| `GET /label-versions/{version_id}/exports` | getExports | PDF at physical size, editable SVG, report, QR (real, Step 24b) | 200 ExportPackage | 404 |
+| `GET /artifacts/{artifact_sha256}` | downloadArtifact | One stored file by its sha256 (CR-22) | 200 file bytes | 404, 409 not_published, 422 |
 | `GET /label-versions/{version_id}/print-verifications` | listPrintVerifications | Past print checks | 200 | |
 | `POST /label-versions/{version_id}/print-verifications` | verifyPrint | Compare a print photo with the approved version | 202 Job | 409 not approved |
 | `GET /print-verifications/{verification_id}` | getPrintVerification | Result of a print verify job | 200 PrintVerification | 404 |
@@ -57,7 +59,8 @@ Entities and field meanings are in [`DATA_MODEL.md`](DATA_MODEL.md). Template an
 |---|---|---|---|---|
 | `POST /public/scans` | publicScan | Scan packaging, find reference label candidates | 202 Job | |
 | `GET /public/scans/{scan_id}` | getPublicScan | Match candidates (picker when several) | 200 PublicMatchResult | 404 |
-| `POST /public/ask` | askPublic | Ask about the matched label | 200 AnswerResponse (answer or abstain) | |
+| `POST /public/ask` | askPublic | Ask about the matched label. `?mode=ai` starts a job (CR-21) | 200 AnswerResponse (answer or abstain); 202 Job (kind `ask`) with `mode=ai` | 422, 503 |
+| `POST /ask` | askProfessional | Ask about the device regulations (CR-19). `?mode=ai` as above | 200 ProfessionalAnswerResponse; 202 Job (kind `ask`) with `mode=ai` | 422, 503 |
 | `POST /search` with `module: medicine` | searchEvidence | Shared search endpoint, medicine data only | 200 SearchResponse | |
 
 ### Common
@@ -127,7 +130,7 @@ Further rules, all enforced by the server:
 | `out_of_scope` | Medical advice, dosing for a person, or anything outside 21 CFR 201, 208, 211 and the matched label. |
 | `needs_human_check` | Evidence conflicts or the product match is uncertain. |
 
-`score_name` is a free string (for example `hybrid_top_score`, the Step 16 primary score) so the score can be swapped later without changing the API. `score` and `threshold` are `null` when a scope rule, not a score, made the decision. The banner "Authenticity not verified. Based on a reference label match." is always present.
+Step 23: an abstain with `reason: needs_human_check` may carry `sources`, verbatim passages (CR-18). They are shown when the language model is off or its answer failed verification. They are not an answer. Step 23 reports a score below the threshold as `needs_human_check` with `score_name: e5b_top_score`; `no_evidence` and `low_confidence` are not produced. `score_name` is a free string (for example `hybrid_top_score`, the Step 16 primary score) so the score can be swapped later without changing the API. `score` and `threshold` are `null` when a scope rule, not a score, made the decision. The banner "Authenticity not verified. Based on a reference label match." is always present.
 
 The public corpus is 21 CFR Parts 201, 208 and 211 only. The reference label corpus (DailyMed or openFDA) is not built yet.
 
@@ -147,7 +150,7 @@ Error codes (body `{error, message, details?}`):
 | `unknown_user` | 401 | `X-User-Id` header missing or no such user |
 | `role_forbidden` | 403 | The user's role may not do this |
 | `self_approval_forbidden` | 403 | The submitter of a change tried to approve it |
-| `not_found` | 404 | Unknown product, template, label, version or change |
+| `not_found` | 404 | Unknown product, template, label, version, change, check result or job |
 | `validation_error` | 422 | Request body has the wrong shape |
 | `check_required` | 422 | Approve without a `check_id` |
 | `comment_required` | 422 | Return or reject without a comment |
@@ -160,15 +163,32 @@ Error codes (body `{error, message, details?}`):
 | `template_product_mismatch` | 409 | The `template_id` belongs to another product |
 | `label_product_mismatch` | 409 | The `label_id` belongs to another product |
 | `needs_input` | 409 | Generate needs an identifier (see above) |
+| `not_generated` | 409 | `recheckArtwork` on a version that is not generated artwork with an `artifact_sha256` |
 
-## Implementation status (Step 20)
+### Inspection and coverage (Step 21)
+
+`inspectLabel` and `recheckArtwork` run the checker described in [`../CHECKER_SPEC.md`](../CHECKER_SPEC.md): rules decide, retrieval cites, no LLM. A `CheckResult` of kind `inspection` or `self_check` carries:
+
+- `findings`: **only problems**. A rule that passed raises nothing.
+- `coverage`: one entry per rule (`rule_id`, `outcome` of `pass`, `fail`, `needs_human`, `not_applicable` or `not_checked`, `reason`), so "no finding" is never mistaken for "checked and fine".
+- `needs_human_count`: the number of coverage entries with outcome `needs_human`.
+- `passed`: still zero critical findings. It can be `true` while `needs_human_count` is above 0 (for example while the symbol detector is untrusted, every label has two symbol outcomes that need a person), so show both numbers. Passed is never a compliance verdict.
+- `retrieval_config`: the settings the citations were found with.
+
+The first inspect of a version starts a job (the extraction is computed with the CV extractor in blind mode and stored in the append-only `extractions` table). The job's states are rows of the append-only `jobs` table. Later inspects of the same version answer `200` at once. A job that cannot finish ends in state `failed` with an `error` such as `extractor_unavailable` (CV libraries not installed on the server), `artwork_not_found` (no image for the version) or `check_failed`. Job ids this server issues look like `job_1a2b3c4d`, and an unknown id of that form is `404`. Any other id (the scan and generate jobs are still mocks) is answered with the mock job and the header `X-Mock`.
+
+A generated version's artwork is an SVG. The checker reads the rendered `label.png` that the renderer writes next to it. `recheckArtwork` copies the version's `artifact_sha256` into the self-check, so the approval rules of Step 20 (passed check, same version, same hash) work on it. The layout half of the re-check (text overflow and the like) is produced when artwork is generated, which is not real yet, so a real self-check holds checker findings only.
+
+`/search` is real: bm25, tfidf, dense or hybrid RRF over one module's chunks, with one citation per hit. `rerank` and `expansion` answer `422` because no reranker or query expansion exists in `src/ir`.
+
+## Implementation status (Step 20 and 21)
 
 | Operation | Status |
 |---|---|
-| `getHealth`, `getCurrentUser`, `listProducts`, `registerProduct`, `getProduct`, `listProductVersions`, `registerTemplate`, `getTemplate`, `getProductHistory`, `listLabelVersions`, `getLabelVersion`, `assessChange`, `getChange`, `listReviews`, `reviewArtwork` | Real (SQLite). |
+| `getHealth`, `getCurrentUser`, `listProducts`, `registerProduct`, `getProduct`, `listProductVersions`, `registerTemplate`, `getTemplate`, `getProductHistory`, `listLabelVersions`, `getLabelVersion`, `assessChange`, `getChange`, `listReviews`, `reviewArtwork`, `inspectLabel`, `recheckArtwork`, `getJob`, `getCheckResult`, `searchEvidence` | Real (SQLite, retrieval). |
 | Every other operation | Mock JSON, response header `X-Mock: true`. `?mock_state=<state>` picks another mock of the same operation. |
 
-Limits of the real operations: `registerTemplate` validates the shape only, so the layout findings (`422 CheckResult`) are not produced yet. `assessChange` stores a structured change and answers `parser: not_implemented` with an empty `affected` list, `checklist_complete: false` and a `needs_human_review` message, so an unchecked change cannot be mistaken for a clean one. `listAffectedLabels` is a mock until an impact analysis exists.
+Limits of the real operations (an older `data/api/labellens.db` gets the new `check_results` columns added on start; delete it to re-seed): `registerTemplate` validates the shape only, so the layout findings (`422 CheckResult`) are not produced yet. `assessChange` stores a structured change and answers `parser: not_implemented` with an empty `affected` list, `checklist_complete: false` and a `needs_human_review` message, so an unchecked change cannot be mistaken for a clean one. `listAffectedLabels` is a mock until an impact analysis exists.
 
 ## Mapping from the old draft
 
@@ -195,3 +215,18 @@ Limits of the real operations: `registerTemplate` validates the shape only, so t
 8. The all-zero sha256 in the review examples is a placeholder in documentation, not a real hash.
 9. `X-User-Id` is trusted as given. It is a development stub, not security. Any real deployment needs a login and session before it is exposed.
 10. Inspect and re-check may answer 200 or 202. Scan, generate and print verify always answer 202.
+
+## Change assessment (Step 22, CR-18)
+
+- `POST /changes` takes `edits` (structured, canonical field names or aliases) or `raw_text` (rules parser, English sentence shapes listed in `docs/CHANGE_SPEC.md`). Edits win if both are given. 201 `ChangeAssessment` with `parser: rules` or `llm` (the optional provider, off by default), `affected`, `citations`, `unassessed_edits`, `assessment_id`. `parser: not_implemented` when nothing could be assessed (only unknown or invalid edits): `affected` is empty because nothing was checked.
+- Refusals: `422 parser_not_implemented` (text that cannot be parsed without guessing, with `details.status` and `details.issues`), `422 no_change` (new value equals the current value), `422 duplicate_field`.
+- `GET /changes/{id}/affected` returns the stored items with current `user_decision`.
+- `POST /changes/{id}/confirm` appends a confirmation. First confirmation also appends the confirmed assessment, so a barcode decision `NEEDS_INPUT` with `required_identifier: confirm_lot` becomes `REGENERATE` when nothing else blocks it. Errors: 409 `change_closed`, 409 `nothing_to_confirm`, 422 `parse_not_confirmed`, 422 `edits_not_supported`, 422 `unknown_impact`.
+- `POST /label-versions/{id}/reviews` with `approve` returns `409 change_not_confirmed` when the change has an assessment nobody confirmed.
+- A change with no stored assessment (older changes, the seed) keeps the mock for `affected` and `confirm` (`X-Mock: true`).
+
+## Generate and export (Step 24b, CR-22)
+
+`generateArtwork` is real. The request refuses everything it can before a job exists: `change_closed`, `change_not_confirmed` (an assessed change must be confirmed first), `nothing_assessed`, `needs_input` (an encoded value that is not confirmed, a model change without its new `udi_di`, or the placeholder identifier without `test_data`; `task.task_id` is the reason code, for example `task_udi_di` or `task_confirm_lot`), a layout failure (422 CheckResult of kind `layout`), `unsupported_edits` (one generation handles one edit, or a model edit with its new `udi_di`) and `template_required`. An identifier is never invented. The job renders PDF, SVG, a QR and a report, stores each as `artifacts/<sha256>.<ext>` and appends a new draft label version. `GET /artworks/{id}` is its result. `artifact_sha256` is the sha256 of the PDF.
+
+Re-check the generated version with `recheckArtwork` (it reads the PDF back as an image, so the server needs `pypdfium2` and the CV libraries), then approve with that check. The layout check named by `self_check_id` is not accepted for approval. `getExports` lists the stored drafts and `downloadArtifact` serves them after re-hashing. Every stored file carries `DRAFT, not for production` (and `TEST DATA | DRAFT` for test data), the response carries `X-Draft-Mark`, and `draft_watermark` stays true after approval. QR files are served only for a published version, and `publishVersion` is still a mock.

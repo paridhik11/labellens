@@ -41,6 +41,30 @@ def _mock(relative: str) -> dict:
     return json.loads((MOCK / relative).read_text(encoding="utf-8"))
 
 
+def _assess_and_confirm_demo_change(session: Session, change: dict) -> None:
+    """Store the real assessment of the demo change (rules, no retrieval) and its confirmation.
+
+    The demo change is a returned, confirmed one, so a reviewer can approve its draft L3 on the real server.
+    No retriever is used at seed time, so the stored items carry no citations (sterilization has no cited
+    requirement in the corpus anyway).
+    """
+    from src.api import changes
+    from src.api.models import ChangeRequest
+    from src.api.requests import ChangeConfirmCreate, ImpactDecision
+    from src.api.store import current_product_version
+    from src.change.fields import record_values
+    from src.change.models import Edit
+
+    row = session.get(ChangeRequest, CHANGE_ID)
+    current = record_values(changes._record(current_product_version(session, PRODUCT_ID)))
+    edits = [Edit(change["field"], change["old_value"], change["new_value"])]
+    stored = changes.assess_and_store(session, row, edits, current, "rules", [], [], None, {}, 10, "usr_demo_editor")
+    decisions = [ImpactDecision(impact_id=i["impact_id"], user_decision="confirmed") for i in stored.payload["items"]]
+    changes.confirm_change(
+        session, "usr_demo_editor", CHANGE_ID, ChangeConfirmCreate(parse_confirmed=True, decisions=decisions)
+    )
+
+
 def seed_demo(session: Session) -> bool:
     """Insert the demo users and data once. Returns False (and does nothing) if users already exist."""
     if session.query(User).first() is not None:
@@ -102,6 +126,7 @@ def seed_demo(session: Session) -> bool:
         version_id="lbv_exampledevice_carton_l2",
         check_id="chk_0001",
         at="2026-11-10T10:00:00Z",
+        coverage=inspect["coverage"],
     )
 
     change = _mock("changes/change_returned.json")
@@ -117,6 +142,7 @@ def seed_demo(session: Session) -> bool:
         CHANGE_ID,
         at=change["created_at"],
     )
+    _assess_and_confirm_demo_change(session, change)
     add_label_version(
         session,
         "usr_demo_editor",
@@ -139,6 +165,7 @@ def seed_demo(session: Session) -> bool:
         artifact_sha256=L3_SHA256,
         check_id="chk_0003",
         at="2026-11-11T09:05:00Z",
+        coverage=_mock("review/recheck_success.json")["coverage"],
     )
     return True
 

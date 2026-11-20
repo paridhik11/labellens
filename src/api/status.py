@@ -9,7 +9,7 @@ from __future__ import annotations
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from src.api.models import CheckResult, LabelVersion, PublishedPage, Review
+from src.api.models import CheckResult, GeneratedArtwork, LabelVersion, PublishedPage, Review
 
 
 def latest_review(session: Session, version_id: str) -> Review | None:
@@ -19,10 +19,14 @@ def latest_review(session: Session, version_id: str) -> Review | None:
 
 
 def latest_check(session: Session, version_id: str) -> CheckResult | None:
-    """Return the newest CheckResult of one version."""
+    """Return the newest inspection or self-check of one version.
+
+    The layout check written with a generated draft (Step 24b) is not counted: it proves the template fit and the
+    barcode decoded, not that the rendered image reads back correctly, so it never makes a version `checked`.
+    """
     stmt = (
         select(CheckResult)
-        .where(CheckResult.version_id == version_id)
+        .where(CheckResult.version_id == version_id, CheckResult.kind.in_(("inspection", "self_check")))
         .order_by(CheckResult.run_at.desc(), CheckResult.seq.desc())
     )
     return session.scalars(stmt).first()
@@ -42,8 +46,15 @@ def label_version_status(session: Session, version_id: str) -> str:
 
 
 def draft_watermark(session: Session, version_id: str) -> bool:
-    """True until an approval exists for the version (reviewed or published means approved)."""
-    return label_version_status(session, version_id) not in ("reviewed", "published")
+    """True until an approval exists for the version (reviewed or published means approved).
+
+    A generated version stays True after approval: its stored files were rendered as drafts and carry the visible
+    `DRAFT, not for production` mark, and this step does not render an approved variant (docs/contracts, CR-22).
+    """
+    if label_version_status(session, version_id) not in ("reviewed", "published"):
+        return True
+    art = session.scalars(select(GeneratedArtwork).where(GeneratedArtwork.version_id == version_id)).first()
+    return art is not None and bool(art.visible_markings)
 
 
 def latest_version_of_change(session: Session, change_id: str) -> LabelVersion | None:

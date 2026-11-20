@@ -44,6 +44,9 @@ Camera or upload of medication packaging.
 | State | Endpoint | Mock |
 |---|---|---|
 | success | `askPublic`, cited answer | `public/ask/success.json` |
+| AI answer started (`mode=ai`, 202) | `askPublic` | `public/ask/ai_accepted.json` |
+| AI answer done | `getJob` (kind `ask`) | `public/ask/ai_job_done.json` |
+| AI answer fell back (timeout, extractive passages) | `getJob` (kind `ask`) | `public/ask/ai_job_fallback_timeout.json` |
 | abstained (out of scope) | `askPublic` | `public/ask/abstained_out_of_scope.json` |
 | abstained (low confidence) | `askPublic` | `public/ask/abstained_low_confidence.json` |
 | abstained (no evidence) | `askPublic` | `public/ask/abstained_no_evidence.json` |
@@ -94,6 +97,10 @@ Label image with highlighted boxes, extracted fields, findings with observed and
 |---|---|---|
 | success | `searchEvidence` (module device, default hybrid RRF) | `professional/evidence/success.json` |
 | empty | `searchEvidence`, zero hits | `professional/evidence/empty.json` |
+| success | `askProfessional`, cited answer | `professional/ask/success.json` |
+| AI answer started (`mode=ai`, 202) | `askProfessional` | `professional/ask/ai_accepted.json` |
+| abstained (out of scope) | `askProfessional` | `professional/ask/abstained_out_of_scope.json` |
+| abstained (needs human check, with quotes) | `askProfessional` | `professional/ask/abstained_needs_human_check.json` |
 
 ### D6. Changes ("Change impact", mockup panel 4)
 Proposed change, affected items with suggestions, current against draft preview, timeline Draft, Checked, Reviewed, Published.
@@ -102,6 +109,7 @@ Proposed change, affected items with suggestions, current against draft preview,
 |---|---|---|
 | success (assessment) | `assessChange` 201 | `professional/changes/assess_success.json` |
 | success (confirmed checklist) | `confirmChange` 200, every item confirmed or dismissed | `professional/changes/confirm_success.json` |
+| rules (assessment, barcode waits for confirmation) | `assessChange` 201 with `parser: rules` | `professional/changes/assess_rules.json` |
 | needs_review (assessment) | `assessChange` with a NEEDS_HUMAN_REVIEW reason | `professional/changes/assess_needs_review.json` |
 | success (affected list) | `listAffectedLabels` | `professional/changes/affected_success.json` |
 | loading (generate) | `generateArtwork` 202, then `getJob` | `professional/changes/generate_loading.json` |
