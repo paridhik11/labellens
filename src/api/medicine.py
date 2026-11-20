@@ -3,7 +3,8 @@
 The reference catalog is the ten pinned DailyMed products of `data/medicine/` (loaded with `src.gen.medicine`).
 Nothing is invented. A reference field is filled only when a rule finds it in the product's own chunk text, and it
 carries that evidence. When no rule finds it the value is null and the field is listed in `not_in_corpus`:
-the manufacturer is never in the corpus text (the DailyMed labeler was not fetched), so it is null for every product.
+the manufacturer field may carry the sourced SPL labeler, with that role explicitly stated in its evidence.
+The labeler may be a repackager or distributor; a physical manufacturing site is not inferred.
 
 Matching reuses the frozen E5b recipe (stemmed BM25 plus bge-large with the BGE query prefix, fused with RRF k=60)
 over ten small documents (product name plus the package panel text). RRF scores only say "first in both lists",
@@ -19,7 +20,7 @@ from pathlib import Path
 from typing import Any, Protocol
 
 from src.common.schemas import Chunk, Hit
-from src.gen.medicine import load_medicine_corpus
+from src.gen.medicine import load_medicine_corpus, load_medicine_metadata
 
 MEDICINE_DIR = Path(__file__).resolve().parents[2] / "data" / "medicine"
 BANNER = "Authenticity not verified. Based on a reference label match."
@@ -71,6 +72,7 @@ class ReferenceProduct:
     chunk_ids: list[str]
     fields: dict[str, str | None] = field(default_factory=dict)
     evidence: dict[str, dict[str, str]] = field(default_factory=dict)
+    aliases: list[str] = field(default_factory=list)
 
     @property
     def not_in_corpus(self) -> list[str]:
@@ -140,11 +142,12 @@ def derive_fields(chunks: list[Chunk]) -> tuple[dict[str, str | None], dict[str,
 
 
 class MedicineCatalog:
-    """The ten reference products, read once from data/medicine (validated by the corpus loader)."""
+    """Pinned reference products and sourced metadata, read once from the separate medicine corpus."""
 
     def __init__(self, directory: Path = MEDICINE_DIR) -> None:
         self.chunks: dict[str, Chunk] = {c.chunk_id: c for c in load_medicine_corpus(directory / "corpus.jsonl")}
         self.products: dict[str, ReferenceProduct] = {}
+        metadata = load_medicine_metadata(directory)
         for row in json.loads((directory / "products.json").read_text(encoding="utf-8")):
             ids = [cid for s in row["sections"] for cid in s["chunk_ids"]]
             product = ReferenceProduct(
@@ -152,6 +155,16 @@ class MedicineCatalog:
                 version=row["version"], effective_date=row["effective_date"], url=row["url"],
                 fetched=row["fetched"], chunk_ids=ids)
             product.fields, product.evidence = derive_fields([self.chunks[i] for i in ids])
+            sourced = metadata.get(row['setid'], {})
+            product.aliases = list(dict.fromkeys(v['value'] for v in sourced.get('aliases', [])))
+            labelers = sourced.get('labelers', [])
+            if len({v['value'] for v in labelers}) == 1:
+                value = labelers[0]
+                product.fields['manufacturer'] = value['value']
+                product.evidence['manufacturer'] = {
+                    'chunk_id': '', 'quote': value['value'], 'url': value['url'],
+                    'role': 'SPL labeler; physical manufacturer not established', 'source_type': 'spl_metadata',
+                    'xpath': value['xpath'], 'xml_sha256': value['xml_sha256']}
             self.products[product.product_id] = product
 
     def product_chunks(self, product_id: str) -> dict[str, Chunk]:
@@ -164,7 +177,7 @@ class MedicineCatalog:
         for product in self.products.values():
             panels = [self.chunks[i].text for i in product.chunk_ids
                       if _section_code(self.chunks[i].section) in PANEL_CODES]
-            text = f"{product.name}. {panels[0] if panels else ''}".strip()[:600]
+            text = f"{product.name}. {'; '.join(product.aliases)}. {panels[0] if panels else ''}".strip()[:600]
             docs.append(Chunk(chunk_id=product.product_id, source="DailyMed", title=product.name, text=text,
                               module="medicine"))
         return docs
@@ -217,8 +230,10 @@ class ProductMatcher:
     def _load(self) -> None:
         if self._ranker is None:
             from src.ir.step18_config import e5b
-            from src.ir.step18_systems import Context18
+            from src.ir.step18_systems import MODELS, Context18, sentence_model
 
+            # Small pinned catalog: avoid native MPS crashes while preserving E5b/model/threshold.
+            sentence_model(MODELS['large']).to('cpu')
             context = Context18(self.catalog.match_documents())
             self._ranker = context.build(e5b())
             self._dense = context._dense_part(*e5b().dense[0])

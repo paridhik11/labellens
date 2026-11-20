@@ -34,4 +34,4 @@ def test_chunk_loader(tmp_path: Path) -> None:
 def test_repository_corpus() -> None:
     """All committed medicine chunks are indexable without changing retrieval."""
     rows = load_medicine_corpus()
-    assert len(rows) == 147 and {r.module for r in rows} == {'medicine'}
+    assert len(rows) == 618 and {r.module for r in rows} == {'medicine'}

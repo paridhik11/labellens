@@ -17,3 +17,16 @@ Queries are authored examples, not real-photo accuracy. Run once at 0.65 after
 candidate freeze; no tuning on these names. Decoy gate: zero outcome=matched
 on decoys. Also report needs_review/no_reference_match and positive mistakes.
 Failure blocks merging this branch, not the independently gated print branch.
+
+Conservative gate interpretation: any surfaced decoy candidate, including
+needs_review, blocks promotion; no_reference_match is required for all 15.
+Labeler metadata populates the requested manufacturer field with explicit
+evidence role "SPL labeler; physical manufacturer not established" and source URL.
+No branded equivalent is invented when the pinned SPL only names a generic.
+
+Pre-score environment choice: BGE-large preload on default MPS crashed before
+query evaluation. CPU preload succeeded, with the same frozen model and E5b
+recipe. Use CPU and one inference thread for reproducibility. No match query
+was scored during setup. Expansion succeeded: 30 products, 618 chunks, zero
+source failures. Metadata includes 90 alias records, including repeated strings;
+runtime deduplicates aliases per product. Threshold remains exactly 0.65.
