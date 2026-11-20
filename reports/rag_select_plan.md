@@ -59,3 +59,7 @@ Not part of this run. Only if time remains after the run, and then its rule (Min
 ## 8. Known limits stated in advance
 
 LLM grades only, one grader, 40 queries; 15 per module answerable so intervals are wide. The generative comparator was developed on other queries (Step 23e); the select mode has had no tuning on any query. Sentence quality depends on a regex splitter on legal text with 200-word windows.
+
+## 9. Addendum before the run (technical, no scored query involved)
+
+A smoke test on two Step 23e queries (not in the 40, not scored) showed the model returning 4 numbers for a "1 to 3" instruction, and warm latency about 19 s (the first, cold calls took 65 to 69 s, so the run does one warm-up call). Before freezing, the schema gets `"maxItems": 3` on `sentences`, so the server enforces the limit. The in-code check stays. Prompt text and everything else in this plan are unchanged. The smoke test showed no_answer on one answerable query; that is not acted on.
