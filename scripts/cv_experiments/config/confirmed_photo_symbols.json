@@ -1,0 +1,114 @@
+{
+  "provenance": {
+    "reviewer": "parth2",
+    "date": "2026-11-20",
+    "method": "AI-assisted, human-confirmed",
+    "basis": "User reported human confirmation in conversation; not blinded or independently witnessed",
+    "source_attachment": "afa6fe0b-bb52-4805-9ab9-0e4906ac6ff3/Pasted text.txt"
+  },
+  "categories": [
+    "manufacturer",
+    "expiry",
+    "sterile_eo",
+    "sterile_r",
+    "do_not_reuse",
+    "consult_instructions"
+  ],
+  "photos": [
+    {
+      "filename": "clear_01_crylrex.jpg",
+      "present": [
+        "expiry",
+        "sterile_eo",
+        "do_not_reuse"
+      ],
+      "sha256": "497677f538a064f0a7dd0141d6f30eafff2d1861e6a6cd5ff53e6006b6bf55af"
+    },
+    {
+      "filename": "clear_02_braisorb.jpg",
+      "present": [
+        "expiry",
+        "sterile_eo",
+        "do_not_reuse"
+      ],
+      "sha256": "4589687165df7d1f16f5e757dd053e3ec2809686341da7a970557eb34834fadc"
+    },
+    {
+      "filename": "clear_03_cranberry.jpg",
+      "present": [
+        "expiry",
+        "sterile_eo",
+        "do_not_reuse"
+      ],
+      "sha256": "ef602a0aa05323f646baf90e54466e6221a5ecc191b8a50bc3e0758f77c9b9ad"
+    },
+    {
+      "filename": "clear_04_cook_airway.jpg",
+      "present": [
+        "manufacturer",
+        "expiry",
+        "sterile_eo",
+        "do_not_reuse",
+        "consult_instructions"
+      ],
+      "sha256": "c23bda60f598e56921531bdbaa9a7b9722c301639b9353067d5ff2821f69a771"
+    },
+    {
+      "filename": "clear_05_stratafix.jpg",
+      "present": [],
+      "sha256": "ad87ae24df48e571d55d0739661fff2a3995f799cb10acc7ce4f5069de2605c7"
+    },
+    {
+      "filename": "clear_06_medtronic_introducer.jpg",
+      "present": [
+        "manufacturer",
+        "expiry",
+        "sterile_eo",
+        "do_not_reuse",
+        "consult_instructions"
+      ],
+      "sha256": "e32e9cafa4b1bbd670713e20e1b250f786d3612a737fe6f5bcdfa8254229c08d"
+    },
+    {
+      "filename": "clear_07_introcan_safety.jpg",
+      "present": [
+        "expiry",
+        "sterile_eo",
+        "do_not_reuse",
+        "consult_instructions"
+      ],
+      "sha256": "fca1f592ddb33d7d86ae76a5b705f6f0414af8df598eb1217bbb926d5af6036e"
+    },
+    {
+      "filename": "clear_08_introcan_safety2.jpg",
+      "present": [
+        "expiry",
+        "sterile_eo",
+        "do_not_reuse",
+        "consult_instructions"
+      ],
+      "sha256": "0b908764641fe4bb44c2ea809e50945fb9245f1f65bd5baa585a6554beac5660"
+    },
+    {
+      "filename": "clear_09_introcan.jpg",
+      "present": [
+        "manufacturer",
+        "expiry",
+        "sterile_eo",
+        "do_not_reuse",
+        "consult_instructions"
+      ],
+      "sha256": "92dd526be827449690dc8aad36ded7d863a44d7ab453642e27416bf52cdb15b5"
+    },
+    {
+      "filename": "clear_10_ethibond.jpg",
+      "present": [
+        "manufacturer",
+        "expiry",
+        "sterile_r",
+        "do_not_reuse"
+      ],
+      "sha256": "0bbdba1963dcf616759d3311c0d0db2bccd5470d9679780295d18ebbc3be4a11"
+    }
+  ]
+}
