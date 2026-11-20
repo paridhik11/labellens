@@ -2,8 +2,8 @@
 
 The API owns the approval gate. `src.cv.verify_print` has its own gate too, but that gate binds an approval to the
 sha256 of a legacy manifest file, while this API binds approval to the sha256 of the PDF (CR-22), so the two hashes can
-never agree and nothing here fakes a record to satisfy it. The job instead runs the same three steps `verify_print`
-runs after its gate (blind extraction with post-correction, `compare_fields`, `compare_extraction`) on the photo.
+never agree and nothing here fakes a record to satisfy it. After the API gate, the job verifies cropped text slots
+from the approved version's pinned template and its decoded GS1 payload with `src.cv.template_print`.
 
 Expected content comes from the approved version only: the product record pinned to it and the barcode payload the
 renderer encoded (stored with the generated artwork). Symbols are not compared: the detector is not trusted

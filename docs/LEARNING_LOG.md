@@ -2,6 +2,23 @@
 
 A sequential log of progress, implementation decisions, worked examples, and verification steps.
 
+## Print template verification, 2026-11-21
+
+1. What I did: Bound print verification to approved template slots, masked the
+   DRAFT band and read bare values without field-name guesses. Kept CV2 default.
+2. Files: src/cv/template_print.py, src/api/printverify.py, src/gen/eval_template_print.py,
+   tests/test_template_print.py and reports/print_template_mode*.md.
+3. How it works: Each slot acts as an addressed envelope: its pixels determine
+   observed text; the approved record supplies only the comparison value.
+4. Verification: Conda pytest -q -p no:cacheprovider -m "not slow":
+   `950 passed, 5 deselected, 1 warning in 62.53s (0:01:02)`.
+   Ruff src tests: `All checks passed!`. Frozen final: zero false matches,
+   correct matches clean/moderate/hard 16/16,16/16,14/16; two hard rescans.
+5. Check yourself: approved template-version binding; text-only wrong-label
+   negatives with the correct barcode; confidence gate remains 0.8.
+6. Limits: simulated prints of one template, no new real-camera evidence;
+   multiline slots request review; quality gate remains separate.
+
 ## CV step 46: confirmed photo symbol presence evaluation
 
 1. What I did: Converted the ten updated entries into six-category annotations.
