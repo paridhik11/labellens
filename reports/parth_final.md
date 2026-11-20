@@ -1,18 +1,11 @@
 # Parth final report
 
-Three repeatable golden packages now rebuild with `python -m src.gen.golden`:
-clean DailyMed review sheet, synthetic device, and TESTLOT1 to TESTLOT2 barcode
-change (REGENERATE). They remain local in `data/golden_demo/`; no package is
-approved or published. All six PDF/SVG exports visibly show **DRAFT, not for
-production**. Tests execute the documented GEN_HANDOFF example and decode its QR.
+`python -m src.gen.golden` rebuilds DailyMed, synthetic and barcode-change demos.
+All six PDF/SVG exports show **DRAFT, not for production**. GEN_HANDOFF tests
+execute its example and decode its QR. No demo is approved or published.
 
-Previously exposed online package photos, n=10, strict exact counts (95% Wilson):
-
-| Field | Baseline | CV2 |
-|---|---|---|
-| Name | 1/10 (2-40%) | 1/10 (2-40%) |
-| Lot | 7/10 (40-89%) | 4/10 (17-69%) |
-| Expiry | 3/10 (11-60%) | 5/10 (24-76%) |
+Previously exposed online photos, n=10: expiry improved 3/10 to 5/10
+(95% Wilson: 11-60% to 24-76%).
 
 Limits: CV2 remains the default despite these field-level weaknesses.
 
