@@ -1,0 +1,17 @@
+{
+  "version": "1.4.4",
+  "models": [
+    "rapidocr_onnxruntime/models/ch_PP-OCRv4_det_infer.onnx",
+    "rapidocr_onnxruntime/models/ch_PP-OCRv4_rec_infer.onnx",
+    "rapidocr_onnxruntime/models/ch_ppocr_mobile_v2.0_cls_infer.onnx"
+  ],
+  "newer_models": [],
+  "modern_api_available": false,
+  "available": false,
+  "fallback": "existing OCR",
+  "files_sha256": {
+    "src/cv/cv3.py": "fa9fc0f2a3defc4cda643e591675c11b6ad35f2b04b49bd406462b4a7f04f4c2",
+    "src/cv/extract.py": "b365b7aeec92ce848e6920ff9dafbf99e0394292cc8f7ea13122514a05e7bfb7",
+    "scripts/cv_experiments/cv3_eval.py": "34973e238b9a855d211657f5140b98ef8c2f79447c1b90c1cec36a544f4b3c0f"
+  }
+}
