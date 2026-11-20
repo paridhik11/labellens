@@ -1,0 +1,36 @@
+{
+  "prefill_retained": true,
+  "baseline_counts": {
+    "name": [
+      1,
+      20
+    ],
+    "lot": [
+      8,
+      17
+    ],
+    "expiry": [
+      16,
+      19
+    ]
+  },
+  "stage1_counts": {
+    "name": [
+      1,
+      20
+    ],
+    "lot": [
+      10,
+      17
+    ],
+    "expiry": [
+      16,
+      19
+    ]
+  },
+  "printed_unchanged": true,
+  "stage2": "Already connected in origin/main; no duplicate warp, preserve original-photo fallback; no new stage retained",
+  "stage3": "Pending dev only",
+  "stage4": "RapidOCR 1.4.4 bundles PP-OCRv4; newer PP-OCRv5/v6 absent; retain existing engine",
+  "test_predictions_opened": false
+}
