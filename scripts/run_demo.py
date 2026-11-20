@@ -128,11 +128,13 @@ def choose_retrieval() -> str:
 
 
 def find_ui() -> Path | None:
-    """A built UI in the repo (index.html inside ui/dist, ui/out or ui/build), else None."""
+    """A built UI (ui/dist, ui/out or ui/build), else the static UI in ui/ itself, else None."""
     for name in ("dist", "out", "build"):
         folder = ROOT / "ui" / name
         if (folder / "index.html").is_file():
             return folder
+    if (ROOT / "ui" / "index.html").is_file():
+        return ROOT / "ui"
     return None
 
 
@@ -225,12 +227,16 @@ def main() -> int:
         from fastapi.staticfiles import StaticFiles
 
         app.mount("/ui", StaticFiles(directory=ui, html=True), name="ui")
+        # The static UI reads its mock responses from /src/api/mock (CONFIG.mode "mock" in ui/js/data.js).
+        mock_dir = ROOT / "src" / "api" / "mock"
+        if ui == ROOT / "ui" and mock_dir.is_dir():
+            app.mount("/src/api/mock", StaticFiles(directory=mock_dir), name="ui-mocks")
     threading.Thread(target=warm_and_seed, args=(base, not args.no_golden, caps), daemon=True).start()
     print("\n" + "=" * 64)
     print(f"LabelLens demo   {base}")
     print(f"  API docs                {base}/docs")
     print(f"  public medicine page    {base}/public/medicine")
-    print(f"  UI                      {base + '/ui/' if ui else 'no UI build in the repo (ui/dist, ui/out or ui/build); use /docs'}")
+    print(f"  UI                      {base + '/ui/' if ui else 'no UI in the repo (ui/index.html); use /docs'}")
     print(f"  checker retrieval       {method}")
     print("  demo users (X-User-Id)  usr_demo_editor, usr_demo_reviewer, usr_demo_admin")
     print(f"  check everything        python scripts/demo_e2e.py --base {base}")

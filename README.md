@@ -91,8 +91,8 @@ py -3.12 -m venv .venv312
 
 `scripts/run_demo.py` is the one command. It checks the environment, builds or copies the dense indexes, seeds the demo
 database, chooses the checker retrieval, starts the API, warms the models and prints the URLs:
-the API at `http://127.0.0.1:8000` (docs at `/docs`), the public medicine page at `/public/medicine`, and a UI at `/ui/`
-only if a UI build exists in the repo (none does yet). Options: `--port`, `--fresh` (new database), `--skip-indexes`, `--no-golden`.
+the API at `http://127.0.0.1:8000` (docs at `/docs`), the public medicine page at `/public/medicine`, and the static UI (`ui/`, plain HTML and JS, no build) at `/ui/`,
+served next to the API with its mock JSON (`CONFIG.mode` in `ui/js/data.js`, default `mock`). Options: `--port`, `--fresh` (new database), `--skip-indexes`, `--no-golden`.
 
 First run on a new machine:
 - The embedding model (BAAI/bge-large-en-v1.5, 1.3 GB) downloads from Hugging Face once. After that the app runs offline.
