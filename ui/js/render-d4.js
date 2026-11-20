@@ -1,470 +1,241 @@
 /**
  * ui/js/render-d4.js
- * Renderer for Screen D4: Inspect ("Label review", Mockup Panel 3)
- * 
+ * Renderer for Screen D4: Inspect (extraction, confirmation, inspection result)
+ *
  * Hard rules:
  * - Professional workspace only (21 CFR 801, 820, 830).
- * - Mark drafts clearly: prominent DRAFT watermark/badge and required disclaimer:
- *   "Draft generated for review. Not a compliance determination."
- * - Test identifiers labelled TEST.
- * - Never invent data. Every value on screen comes from a mock.
- * - Citations show regulation section, verbatim quote, and source type (cfr or label_section).
+ * - Every value on screen comes from the payload (mock or live). No hard-coded product, date or barcode text.
+ * - Low-confidence (unclear) fields are editable until the extraction is confirmed.
+ * - DRAFT disclaimer on the screen. A passed check is not a compliance determination.
  * - No em dashes.
  */
 
 (function() {
-  function escapeHtml(str) {
-    if (window.LabelLensData && window.LabelLensData.escapeHtml) {
-      return window.LabelLensData.escapeHtml(str);
-    }
-    if (!str) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
+  const esc = (s) => window.LabelLensData.escapeHtml(s);
+  const testBadge = (v) => window.LabelLensData.renderTestBadge(v);
+  const isApi = () => window.LabelLensData.CONFIG.mode === 'api';
+  const kindText = (k) => String(k || 'finding').split('_').join(' ');
+
+  function banner(d) {
+    return window.LabelLensData.renderDraftBanner(d && d.disclaimer && d.disclaimer !== window.LabelLensData.DRAFT_DISCLAIMER ? d.disclaimer : '');
   }
 
-  function renderTestBadge(val) {
-    if (window.LabelLensData && window.LabelLensData.renderTestBadge) {
-      return window.LabelLensData.renderTestBadge(val);
-    }
-    return '';
+  function goto(screen, state) {
+    if (window.LabelLensStateSwitcher) window.LabelLensStateSwitcher.setScreen(screen, state || null);
+  }
+
+  function renderLoading(container, d) {
+    const pct = Math.round((typeof d.progress === 'number' ? d.progress : 0.4) * 100);
+    container.innerHTML = `
+      ${banner(d)}
+      <div class="card" data-testid="inspect-loading" style="text-align: center; padding: 48px 24px; max-width: 600px; margin: 0 auto;">
+        <div class="text-xs font-semibold text-muted" style="margin-bottom: 8px;">Job <code>${esc(d.job_id)}</code> | ${esc(d.kind)} | ${esc(d.state)}</div>
+        <h3>Running the checks...</h3>
+        <p class="text-muted text-sm" style="margin-top: 8px;">${esc(d.message || '')}</p>
+        <div style="width: 280px; height: 6px; background: #e2e8f0; border-radius: 99px; margin: 24px auto; overflow: hidden;">
+          <div style="width: ${pct}%; height: 100%; background: var(--color-primary-blue);"></div>
+        </div>
+        <div class="text-xs text-muted">${pct}%</div>
+        ${isApi() ? '' : '<div style="margin-top: 16px;"><button class="btn btn-sm btn-primary" type="button" id="btnSkipInspectLoading">View inspection results &rarr;</button></div>'}
+      </div>`;
+    const skip = container.querySelector('#btnSkipInspectLoading');
+    if (skip) skip.addEventListener('click', () => goto('D4 Inspect', 'success'));
+  }
+
+  function barcodesHtml(barcodes) {
+    if (!barcodes || !barcodes.length) return '<div class="text-xs text-muted">No barcode was decoded.</div>';
+    return barcodes.map(b => `
+      <div style="border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 8px 10px; background: var(--color-bg-subtle);" data-testid="barcode">
+        <div class="font-semibold text-xs">${esc(b.type)}</div>
+        <div class="font-mono text-xs" style="word-break: break-all;">${esc(b.raw)}</div>
+        ${b.parsed ? `<div class="text-xs text-muted" style="margin-top: 4px;">${Object.entries(b.parsed).map(([k, v]) => `(${esc(k)}) ${esc(v)} ${testBadge(v)}`).join(' | ')}</div>` : ''}
+      </div>`).join('');
+  }
+
+  function renderExtraction(container, d) {
+    const fields = d.fields || {};
+    const unclear = d.unclear_fields || [];
+    const warnings = d.warnings || [];
+    const confirmed = d.confirmed === true;
+    const symbols = d.symbols || [];
+    const blocks = d.ocr_blocks || [];
+    const title = fields.product_name || fields.name || d.version_id || 'Label';
+    container.innerHTML = `
+      ${banner(d)}
+      <div class="flex-between" style="margin-bottom: 16px;">
+        <div>
+          <div class="flex-row" style="gap: 8px;">
+            <h2>Label extraction: ${esc(title)}</h2>
+            <span class="badge ${confirmed ? 'badge-teal' : (unclear.length ? 'badge-warning' : 'badge-blue')}" data-testid="extraction-status">
+              ${confirmed ? 'Extraction confirmed' : (unclear.length ? 'Review needed' : 'Extraction done, not confirmed')}
+            </span>
+          </div>
+          <div class="text-xs text-muted" style="margin-top: 4px;">
+            Label <code>${esc(d.label_id)}</code> | Version <code>${esc(d.version_id)}</code>${d.confirmed_by ? ` | Confirmed by <code>${esc(d.confirmed_by)}</code>` : ''}
+          </div>
+        </div>
+        <div class="flex-row" style="gap: 8px;">
+          ${confirmed ? '' : '<button class="btn btn-sm btn-primary" type="button" id="btnConfirmExtractionAction">Confirm extraction</button>'}
+          <button class="btn btn-sm ${confirmed ? 'btn-primary' : 'btn-secondary'}" type="button" id="btnRunInspectionNow">Run inspection checks &rarr;</button>
+        </div>
+      </div>
+      <div class="text-xs text-muted" id="d4Note" data-testid="d4-note" style="margin-bottom: 10px;"></div>
+
+      ${!confirmed && unclear.length ? `
+        <div class="notice-banner notice-warning" data-testid="unclear-banner">
+          <div class="notice-icon">i</div>
+          <div style="flex: 1;">
+            <div class="notice-title">Confirm extracted fields (${unclear.length} unclear)</div>
+            <div class="notice-text">Reading confidence was low for <strong>${unclear.map(esc).join(', ')}</strong>. Correct them below, then confirm.${warnings.length ? ' Warnings: ' + warnings.map(esc).join('; ') : ''}</div>
+          </div>
+        </div>` : (warnings.length ? `<div class="notice-banner notice-warning"><div class="notice-icon">i</div><div class="notice-text">Warnings: ${warnings.map(esc).join('; ')}</div></div>` : '')}
+
+      <div class="grid-two-col">
+        <div class="card">
+          <div class="card-header-clean font-semibold text-sm">Extracted fields (${Object.keys(fields).length})</div>
+          <div class="kv-table">
+            ${Object.entries(fields).map(([k, v]) => {
+              const edit = !confirmed && unclear.includes(k);
+              return `
+                <div class="kv-row" style="${edit ? 'background: rgba(245, 158, 11, 0.08); padding: 6px;' : ''}">
+                  <span class="kv-label">${esc(k)}</span>
+                  <span class="kv-value">${edit
+                    ? `<input type="text" data-field="${esc(k)}" data-testid="edit-${esc(k)}" value="${esc(v)}" style="width: 100%; border: 1px solid #f59e0b; border-radius: 4px; padding: 4px 8px; font-size: 0.8rem;"><span class="badge badge-warning" style="margin-top: 4px;">Needs confirmation</span>`
+                    : `${esc(v)} ${testBadge(v)}`}</span>
+                </div>`;
+            }).join('')}
+          </div>
+        </div>
+        <div class="flex-col" style="gap: 16px;">
+          <div class="card">
+            <div class="card-header-clean font-semibold text-sm">Barcodes (${(d.barcodes || []).length})</div>
+            <div class="flex-col" style="gap: 8px;">${barcodesHtml(d.barcodes)}</div>
+          </div>
+          <div class="card">
+            <div class="card-header-clean flex-between"><span class="font-semibold text-sm">Detected symbols (${symbols.length})</span><span class="badge badge-purple">ISO 15223-1</span></div>
+            <div class="flex-col" style="gap: 6px;">
+              ${symbols.length ? symbols.map(sym => `
+                <div class="flex-between" style="border: 1px solid var(--color-border); padding: 6px 10px; border-radius: 4px; background: var(--color-bg-subtle);">
+                  <span class="font-semibold text-xs">${esc(sym.name)}</span>
+                  <span class="text-xs text-muted">Confidence: ${Math.round((sym.conf || 0) * 100)}%</span>
+                </div>`).join('') : '<div class="text-xs text-muted">No symbol detected.</div>'}
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header-clean font-semibold text-sm">Text read from the label (${blocks.length} blocks)</div>
+            <div class="flex-col" style="gap: 4px; max-height: 220px; overflow: auto;">
+              ${blocks.map(b => `<div class="flex-between text-xs"><span class="font-mono">${esc(b.text)}</span><span class="text-muted">${Math.round((b.conf || 0) * 100)}%</span></div>`).join('') || '<div class="text-xs text-muted">No text blocks.</div>'}
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+    const note = container.querySelector('#d4Note');
+    const confirmBtn = container.querySelector('#btnConfirmExtractionAction');
+    if (confirmBtn) confirmBtn.addEventListener('click', async () => {
+      if (!isApi()) { goto('D4 Inspect', 'success (confirmed extraction)'); return; }
+      const values = {};
+      const inputs = container.querySelectorAll('input[data-field]');
+      inputs.forEach(i => { values[i.dataset.field] = i.value; });
+      // With nothing unclear the confirmation carries the values as read, so the record shows who confirmed what.
+      const body = inputs.length ? values : Object.fromEntries(Object.entries(fields).map(([k, v]) => [k, String(v)]));
+      note.textContent = 'Confirming...';
+      try {
+        const res = await window.LabelLensActions.confirmExtraction(d.version_id, body);
+        renderExtraction(container, res);
+        const n = container.querySelector('#d4Note');
+        if (n) n.textContent = 'Extraction confirmed.';
+      } catch (e) { note.textContent = 'Confirm failed: ' + e.message; }
+    });
+    const runBtn = container.querySelector('#btnRunInspectionNow');
+    if (runBtn) runBtn.addEventListener('click', async () => {
+      if (!isApi()) { goto('D4 Inspect', 'success'); return; }
+      note.textContent = 'Running the checks...';
+      try {
+        const res = await window.LabelLensActions.inspect(d.version_id, (j) => renderLoading(container, j));
+        renderInspection(container, res);
+      } catch (e) { renderExtraction(container, d); container.querySelector('#d4Note').textContent = 'Inspection failed: ' + e.message; }
+    });
+  }
+
+  function renderInspection(container, d) {
+    const findings = d.findings || [];
+    const isPassed = d.passed === true;
+    const needsHuman = d.needs_human_count || 0;
+    const coverage = d.coverage || [];
+    container.innerHTML = `
+      ${banner(d)}
+      <div class="flex-between" style="margin-bottom: 16px; align-items: flex-start;">
+        <div>
+          <div class="flex-row" style="gap: 8px;">
+            <h2>Label review</h2>
+            <span class="badge ${isPassed ? 'badge-teal' : 'badge-danger'}" data-testid="inspect-outcome">${isPassed ? 'No critical findings' : `${d.critical_count || 0} critical finding(s)`}</span>
+            ${needsHuman ? `<span class="badge badge-warning" data-testid="needs-human-badge">${needsHuman} need a person</span>` : ''}
+          </div>
+          <div class="text-xs text-muted" style="margin-top: 4px;">
+            Check <code>${esc(d.check_id)}</code> | Label <code>${esc(d.label_id)}</code> | Version <code>${esc(d.version_id)}</code> | Kind ${esc(d.kind)}
+          </div>
+        </div>
+        <div class="flex-row" style="gap: 8px;">
+          <button class="btn btn-sm btn-secondary" type="button" id="btnGoToChanges">Create a change &rarr;</button>
+          <button class="btn btn-sm btn-secondary" type="button" id="btnExportInspectReport">Export &rarr;</button>
+        </div>
+      </div>
+
+      ${isPassed ? `
+        <div class="notice-banner notice-warning" data-testid="passed-note"><div class="notice-icon">i</div><div class="notice-text">No critical finding was raised by the rules that ran. This is not a compliance determination${needsHuman ? `, and ${needsHuman} rule(s) need a person` : ''}.</div></div>` : ''}
+
+      <div class="card">
+        <div class="card-header-clean flex-between">
+          <span class="font-semibold text-sm">Findings (${findings.length})</span>
+          <span class="text-xs text-muted">${d.critical_count || 0} critical, ${d.review_count || 0} review, ${d.info_count || 0} info</span>
+        </div>
+        <div class="flex-col" style="gap: 12px;">
+          ${findings.length === 0 ? '<div class="text-sm text-muted">No problem findings.</div>' : findings.map(f => `
+            <div style="border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px; background: var(--color-bg-subtle);" data-testid="finding">
+              <div class="flex-between">
+                <div class="flex-row" style="gap: 6px;">
+                  <span class="badge ${f.severity === 'critical' ? 'badge-danger' : (f.severity === 'review' ? 'badge-warning' : 'badge-blue')}">${esc(f.severity)}</span>
+                  <span class="font-semibold text-xs">${esc(kindText(f.kind))}</span>
+                  ${f.needs_human ? '<span class="badge badge-warning">needs a person</span>' : ''}
+                </div>
+                <span class="text-xs text-muted">${f.rule_id ? 'Rule <code>' + esc(f.rule_id) + '</code> | ' : ''}Field <code>${esc(f.field || '')}</code></span>
+              </div>
+              <div class="text-xs" style="margin-top: 6px;">${esc(f.message)}</div>
+              ${f.observed || f.expected ? `<div class="text-xs" style="margin-top: 4px;">Observed <span class="badge badge-danger">${esc(f.observed)}</span> Expected <span class="badge badge-teal">${esc(f.expected)}</span></div>` : ''}
+              ${(f.citations || []).map(c => `
+                <div style="margin-top: 8px; padding: 8px; background: #ffffff; border-radius: 4px; border: 1px solid var(--color-border); font-size: 0.75rem;" data-testid="citation">
+                  <div class="flex-between">
+                    <span class="font-semibold"><span class="badge badge-teal">${esc(c.source_type || 'cfr')}</span> 21 CFR ${esc(c.section)}: ${esc(c.title)}</span>
+                    ${c.url ? `<a href="${esc(c.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-secondary" style="font-size: 0.7rem; padding: 1px 6px;">View regulation &rarr;</a>` : ''}
+                  </div>
+                  ${c.quote ? `<div style="font-style: italic; margin-top: 4px; border-left: 2px solid var(--color-primary-teal); padding-left: 8px;">"${esc(c.quote)}"</div>` : ''}
+                </div>`).join('')}
+            </div>`).join('')}
+        </div>
+      </div>
+
+      ${coverage.length ? `
+        <div class="card" style="margin-top: 16px;" data-testid="coverage">
+          <div class="card-header-clean font-semibold text-sm">Rule coverage (${coverage.length} rules)</div>
+          <div class="flex-col" style="gap: 2px;">
+            ${coverage.map(c => `<div class="flex-between text-xs"><span class="font-mono">${esc(c.rule_id)}</span><span class="badge ${c.outcome === 'pass' ? 'badge-teal' : (c.outcome === 'needs_human' ? 'badge-warning' : (c.outcome === 'fail' ? 'badge-danger' : 'badge-blue'))}">${esc(c.outcome)}</span><span class="text-muted" style="flex: 1; margin-left: 12px;">${esc(c.reason || '')}</span></div>`).join('')}
+          </div>
+        </div>` : ''}`;
+
+    container.querySelector('#btnExportInspectReport').addEventListener('click', () => goto('D8 Export'));
+    container.querySelector('#btnGoToChanges').addEventListener('click', () => goto('D6 Changes'));
   }
 
   function renderScreenD4(container, state, meta, data) {
     if (!container) return;
-    const safeData = data || {};
-
-    const draftDisclaimer = safeData.disclaimer || 'Draft generated for review. Not a compliance determination.';
-    const draftBannerHtml = `
-      <div class="notice-banner notice-warning" style="margin-bottom: 16px;">
-        <div class="notice-icon">i</div>
-        <div style="flex: 1;">
-          <div class="flex-between">
-            <span class="notice-title">DRAFT ARTIFACT PREVIEW</span>
-            <span class="badge badge-draft">DRAFT</span>
-          </div>
-          <div class="notice-text" style="margin-top: 4px;">
-            ${escapeHtml(draftDisclaimer)}
-          </div>
-        </div>
-      </div>
-    `;
-
-    // 1. Loading State (professional/inspect/loading.json)
-    if (state === 'loading' || (safeData.state && safeData.state === 'queued')) {
-      container.innerHTML = `
-        ${draftBannerHtml}
-        <div class="card" style="text-align: center; padding: 48px 24px; max-width: 600px; margin: 0 auto;">
-          <div style="font-size: 2.2rem; margin-bottom: 12px; color: var(--color-primary-blue);">⏳</div>
-          <div class="text-xs font-semibold text-muted" style="margin-bottom: 8px;">
-            Job ID: <code>${escapeHtml(safeData.job_id || 'job_inspect_0001')}</code>
-          </div>
-          <h3>Running regulatory inspection checks...</h3>
-          <p class="text-muted text-sm" style="margin-top: 8px;">
-            Kind: <strong>${escapeHtml(safeData.kind || 'inspect')}</strong> | State: <strong>${escapeHtml(safeData.state || 'queued')}</strong>
-          </p>
-          <div style="width: 280px; height: 6px; background: #e2e8f0; border-radius: 99px; margin: 24px auto; overflow: hidden;">
-            <div style="width: 40%; height: 100%; background: var(--color-primary-blue);"></div>
-          </div>
-          <div style="margin-top: 20px;">
-            <button class="btn btn-sm btn-primary" type="button" id="btnSkipInspectLoading">
-              View Inspection Results &rarr;
-            </button>
-          </div>
-        </div>
-      `;
-
-      const skipBtn = container.querySelector('#btnSkipInspectLoading');
-      if (skipBtn) {
-        skipBtn.addEventListener('click', () => {
-          if (window.LabelLensStateSwitcher) {
-            window.LabelLensStateSwitcher.setScreen('D4 Inspect', 'success');
-          }
-        });
-      }
-      return;
-    }
-
-    // 2. Extraction Needs Review (professional/inspect/extraction_needs_review.json)
-    const isExtractionNeedsReview = (state && state.includes('needs_review')) || (safeData.unclear_fields && safeData.unclear_fields.length > 0);
-    if (isExtractionNeedsReview && !safeData.findings) {
-      const unclear = safeData.unclear_fields || [];
-      const fields = safeData.fields || {};
-      const warnings = safeData.warnings || [];
-      const barcodes = safeData.barcodes || [];
-
-      container.innerHTML = `
-        ${draftBannerHtml}
-        <div class="flex-between" style="margin-bottom: 16px;">
-          <div>
-            <div class="flex-row" style="gap: 8px;">
-              <h2>Confirm extraction: ExampleDevice</h2>
-              <span class="badge badge-warning">Review Needed</span>
-            </div>
-            <div class="text-xs text-muted" style="margin-top: 4px;">
-              Label ID: <code>${escapeHtml(safeData.label_id || '')}</code> | Version: <strong>v${escapeHtml(String(safeData.version || 2))}</strong> | ID: <code>${escapeHtml(safeData.version_id || '')}</code>
-            </div>
-          </div>
-          <button class="btn btn-sm btn-primary" type="button" id="btnConfirmExtractionAction">
-            Confirm extraction &rarr;
-          </button>
-        </div>
-
-        <div class="notice-banner notice-warning">
-          <div class="notice-icon">i</div>
-          <div style="flex: 1;">
-            <div class="notice-title">Confirm extracted fields (${unclear.length} unclear)</div>
-            <div class="notice-text">
-              OCR confidence was below threshold for: <strong>${unclear.map(escapeHtml).join(', ')}</strong>.
-              ${warnings.length > 0 ? `Warnings: ${warnings.map(escapeHtml).join('; ')}` : ''}
-            </div>
-          </div>
-        </div>
-
-        <div class="grid-two-col">
-          <!-- Left: Label Canvas with Ambiguous Field Highlight -->
-          <div class="card">
-            <div class="card-header-clean flex-between">
-              <span class="font-semibold text-sm">Detected Label Artwork</span>
-              <span class="badge badge-test">${renderTestBadge('00000000000000')} (01)00000000000000 [TEST]</span>
-            </div>
-            <div class="label-canvas-box" style="background: #ffffff; border: 2px solid #334155; position: relative; padding: 18px;">
-              <div style="font-size: 1.15rem; font-weight: 800; color: #0f172a;">${escapeHtml(fields.product_name || 'ExampleDevice')}</div>
-              <div class="text-xs text-muted" style="margin-top: 2px;">Model: ${escapeHtml(fields.model || 'ED-100')}</div>
-
-              <div class="flex-row" style="margin-top: 10px; gap: 8px;">
-                <span class="badge badge-blue">${escapeHtml(fields.sterilization || 'STERILE EO')}</span>
-                <span class="badge badge-teal">Lot: ${escapeHtml(fields.lot || 'LOT0001')}</span>
-              </div>
-
-              <div style="margin: 16px 0;">
-                <span class="font-mono text-xs">EXP ${escapeHtml(fields.expiry || '2028-04-30')}</span>
-              </div>
-
-              <!-- Ambiguous Bounding Box Highlight -->
-              <div style="border: 2px dashed #f59e0b; background: rgba(245, 158, 11, 0.1); padding: 8px; border-radius: 4px; margin-top: 14px;">
-                <div class="text-xs font-semibold" style="color: #b45309;">OCR Block 7 (Ambiguous match):</div>
-                <div class="text-xs font-mono" style="margin-top: 2px;">${escapeHtml(fields.manufacturer_address || '')}</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right: Extraction Table with Resolution Input -->
-          <div class="card">
-            <div class="card-header-clean flex-between">
-              <span class="font-semibold text-sm">Extracted Field Values</span>
-              <span class="text-xs text-muted">Confirmed: <strong>false</strong></span>
-            </div>
-            <div class="kv-table">
-              ${Object.entries(fields).map(([k, v]) => {
-                const isUnclear = unclear.includes(k);
-                return `
-                  <div class="kv-row" style="${isUnclear ? 'background: rgba(245, 158, 11, 0.08); padding: 6px;' : ''}">
-                    <span class="kv-label">${escapeHtml(k)}</span>
-                    <span class="kv-value">
-                      ${isUnclear ? `
-                        <input type="text" value="${escapeHtml(String(v))}" class="input-sm" style="width: 100%; border: 1px solid #f59e0b; border-radius: 4px; padding: 4px 8px; font-size: 0.8rem;">
-                        <span class="badge badge-warning" style="margin-top: 4px;">Needs Confirmation</span>
-                      ` : `
-                        <span>${escapeHtml(String(v))} ${renderTestBadge(v)}</span>
-                      `}
-                    </span>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-          </div>
-        </div>
-      `;
-
-      const confirmBtn = container.querySelector('#btnConfirmExtractionAction');
-      if (confirmBtn) {
-        confirmBtn.addEventListener('click', () => {
-          if (window.LabelLensStateSwitcher) {
-            window.LabelLensStateSwitcher.setScreen('D4 Inspect', 'success (confirmed extraction)');
-          }
-        });
-      }
-      return;
-    }
-
-    // 3. Extraction Success or Confirmed (professional/inspect/extraction_success.json or extraction_confirmed.json)
-    if (safeData.fields && !safeData.findings) {
-      const fields = safeData.fields || {};
-      const barcodes = safeData.barcodes || [];
-      const symbols = safeData.symbols || [];
-      const isConfirmed = safeData.confirmed === true;
-
-      container.innerHTML = `
-        ${draftBannerHtml}
-        <div class="flex-between" style="margin-bottom: 16px;">
-          <div>
-            <div class="flex-row" style="gap: 8px;">
-              <h2>Label extraction: ${escapeHtml(fields.product_name || 'ExampleDevice')}</h2>
-              <span class="badge ${isConfirmed ? 'badge-teal' : 'badge-blue'}">
-                ${isConfirmed ? 'Extraction Confirmed' : 'Extraction Done'}
-              </span>
-            </div>
-            <div class="text-xs text-muted" style="margin-top: 4px;">
-              Label: <code>${escapeHtml(safeData.label_id || '')}</code> | Version ID: <code>${escapeHtml(safeData.version_id || '')}</code> ${safeData.confirmed_by ? `| Confirmed by: <code>${escapeHtml(safeData.confirmed_by)}</code>` : ''}
-            </div>
-          </div>
-          <button class="btn btn-sm btn-primary" type="button" id="btnRunInspectionNow">
-            Run Inspection Checks &rarr;
-          </button>
-        </div>
-
-        <div class="grid-two-col">
-          <!-- Label Artwork Simulation -->
-          <div class="card">
-            <div class="card-header-clean flex-between">
-              <span class="font-semibold text-sm">Extracted Artwork Boxes</span>
-              <span class="badge badge-test">(01)00000000000000 [TEST]</span>
-            </div>
-
-            <div class="label-canvas-box" style="background: #ffffff; border: 2px solid #334155; position: relative; padding: 18px;">
-              <div style="font-size: 1.2rem; font-weight: 800; color: #0f172a;">${escapeHtml(fields.product_name || '')}</div>
-              <div class="text-xs text-muted" style="margin-top: 2px;">Model: ${escapeHtml(fields.model || '')}</div>
-
-              <div class="flex-row" style="margin-top: 10px; gap: 8px;">
-                <span style="border: 1px solid #0f172a; padding: 2px 6px; font-size: 0.75rem; font-weight: 700;">${escapeHtml(fields.sterilization || 'STERILE EO')}</span>
-                <span style="border: 1px solid #0f172a; padding: 2px 6px; font-size: 0.75rem; font-weight: 700;">LOT ${escapeHtml(fields.lot || '')}</span>
-              </div>
-
-              <div style="margin: 16px 0;">
-                <span class="font-mono text-xs font-semibold">EXP ${escapeHtml(fields.expiry || '')}</span>
-              </div>
-
-              <div style="border: 1px solid #cbd5e1; background: #f8fafc; padding: 8px; border-radius: 4px; margin-top: 12px; font-size: 0.75rem;">
-                <div class="font-mono text-xs" style="font-weight: 700;">GS1 DataMatrix (01)00000000000000 [TEST]</div>
-                <div class="text-xs text-muted" style="margin-top: 4px;">${escapeHtml(fields.manufacturer || '')} | ${escapeHtml(fields.manufacturer_address || '')}</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Fields and Symbols Table -->
-          <div class="flex-col" style="gap: 16px;">
-            <div class="card">
-              <div class="card-header-clean font-semibold text-sm">Extracted Fields (${Object.keys(fields).length})</div>
-              <div class="kv-table">
-                ${Object.entries(fields).map(([k, v]) => `
-                  <div class="kv-row">
-                    <span class="kv-label">${escapeHtml(k)}</span>
-                    <span class="kv-value">${escapeHtml(String(v))} ${renderTestBadge(v)}</span>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-
-            <div class="card">
-              <div class="card-header-clean flex-between">
-                <span class="font-semibold text-sm">Detected Symbols (${symbols.length})</span>
-                <span class="badge badge-purple">ISO 15223-1</span>
-              </div>
-              <div class="flex-col" style="gap: 6px;">
-                ${symbols.map(sym => `
-                  <div class="flex-between" style="border: 1px solid var(--color-border); padding: 6px 10px; border-radius: 4px; background: var(--color-bg-subtle);">
-                    <span class="font-semibold text-xs">${escapeHtml(sym.name)}</span>
-                    <span class="text-xs text-muted">Confidence: ${Math.round((sym.conf || 0) * 100)}%</span>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-
-      const runInspectBtn = container.querySelector('#btnRunInspectionNow');
-      if (runInspectBtn) {
-        runInspectBtn.addEventListener('click', () => {
-          if (window.LabelLensStateSwitcher) {
-            window.LabelLensStateSwitcher.setScreen('D4 Inspect', 'success');
-          }
-        });
-      }
-      return;
-    }
-
-    // 4. Inspection Results View: Success or Failed Check (professional/inspect/success.json or failed_check.json)
-    const findings = safeData.findings || [];
-    const criticalCount = safeData.critical_count || 0;
-    const isPassed = safeData.passed === true;
-    const criticalFinding = findings.find(f => f.severity === 'critical');
-
-    container.innerHTML = `
-      ${draftBannerHtml}
-      <div class="flex-between" style="margin-bottom: 16px; align-items: flex-start;">
-        <div>
-          <div class="flex-row" style="gap: 8px;">
-            <h2>Label review: ExampleDevice</h2>
-            <span class="badge ${isPassed ? 'badge-teal' : 'badge-danger'}">
-              ${isPassed ? 'All Checks Passed' : `${criticalCount} Finding(s) Require Review`}
-            </span>
-          </div>
-          <div class="text-xs text-muted" style="margin-top: 4px;">
-            Check ID: <code>${escapeHtml(safeData.check_id || '')}</code> | Label ID: <code>${escapeHtml(safeData.label_id || '')}</code> | Version: <code>${escapeHtml(safeData.version_id || '')}</code>
-          </div>
-        </div>
-        <div class="flex-row" style="gap: 8px;">
-          <button class="btn btn-sm btn-secondary" type="button" id="btnExportInspectReport">
-            Export Report &rarr;
-          </button>
-        </div>
-      </div>
-
-      ${!isPassed && criticalFinding ? `
-        <div class="notice-banner notice-danger">
-          <div class="notice-icon">!</div>
-          <div style="flex: 1;">
-            <div class="flex-between">
-              <span class="notice-title">Critical Compliance Finding: ${escapeHtml(criticalFinding.kind.replace('_', ' '))}</span>
-              <span class="badge badge-danger">Needs Human Review</span>
-            </div>
-            <div class="notice-text" style="margin-top: 4px;">
-              ${escapeHtml(criticalFinding.message)}
-            </div>
-          </div>
-        </div>
-      ` : ''}
-
-      <div class="grid-two-col">
-        <!-- Left: Simulated Device Label with Bounding Box Overlay -->
-        <div class="card">
-          <div class="card-header-clean flex-between">
-            <span class="font-semibold text-sm">Label Inspection Overlay</span>
-            <span class="badge badge-test">(01)00000000000000 [TEST]</span>
-          </div>
-
-          <div class="label-canvas-box" style="background: #ffffff; border: 2px solid #334155; position: relative; padding: 20px;">
-            <div>
-              <div style="font-size: 1.25rem; font-weight: 800; color: #0f172a;">ExampleDevice™</div>
-              <div class="text-xs text-muted" style="margin-top: 2px;">Sterile Medical Device | Single use only</div>
-              <div class="flex-row" style="margin-top: 10px; gap: 10px;">
-                <span style="border: 1px solid #0f172a; padding: 2px 6px; font-size: 0.75rem; font-weight: 700;">STERILE EO</span>
-                <span style="border: 1px solid #0f172a; padding: 2px 6px; font-size: 0.75rem; font-weight: 700;">REF ED-100</span>
-              </div>
-            </div>
-
-            <!-- Bounding Box around Expiry -->
-            <div style="margin: 20px 0;">
-              <div style="display: inline-block; padding: 4px 8px; border: 2px solid ${!isPassed ? '#ef4444' : '#10b981'}; background: ${!isPassed ? 'rgba(239, 68, 68, 0.08)' : 'rgba(16, 185, 129, 0.08)'}; border-radius: 4px;">
-                <span class="text-xs font-mono font-semibold" style="color: ${!isPassed ? '#dc2626' : '#059669'};">
-                  EXP ${!isPassed ? '2028-04-30' : '2028-03-31'}
-                </span>
-                ${!isPassed ? `<span class="badge badge-danger text-xs" style="margin-left: 6px;">Mismatch</span>` : ''}
-              </div>
-            </div>
-
-            <div style="border: 1px solid #cbd5e1; background: #f8fafc; padding: 10px; border-radius: 4px;">
-              <div class="font-mono text-xs font-semibold" style="letter-spacing: 1px;">
-                GS1 DataMatrix: (01)00000000000000(17)280331(10)LOT0001
-              </div>
-              <div class="text-xs text-muted" style="margin-top: 6px;">
-                Example Devices Ltd | Sample City, Country
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right: Observed vs Reference and Regulatory Findings -->
-        <div class="flex-col" style="gap: 16px;">
-          ${criticalFinding ? `
-            <div class="card">
-              <div class="card-header-clean font-semibold text-sm">Observed vs Reference Discrepancy</div>
-              <div class="kv-table">
-                <div class="kv-row">
-                  <span class="kv-label">Printed on label</span>
-                  <span class="kv-value font-mono">
-                    <span class="badge badge-danger">${escapeHtml(criticalFinding.observed || '')}</span>
-                  </span>
-                </div>
-                <div class="kv-row">
-                  <span class="kv-label">From barcode (reference)</span>
-                  <span class="kv-value font-mono">
-                    <span class="badge badge-teal">${escapeHtml(criticalFinding.expected || '')}</span>
-                  </span>
-                </div>
-              </div>
-            </div>
-          ` : `
-            <div class="card" style="text-align: center; padding: 24px; background: rgba(16, 185, 129, 0.06); border-color: rgba(16, 185, 129, 0.3);">
-              <div style="color: var(--color-success-text); font-size: 2rem;">✓</div>
-              <div class="font-semibold" style="margin-top: 6px; color: var(--color-success-text);">
-                All Label Checks Passed
-              </div>
-              <div class="text-xs text-muted" style="margin-top: 4px;">
-                0 critical findings. Extraction confirmed compliant with 21 CFR 801.
-              </div>
-            </div>
-          `}
-
-          <!-- Regulatory Findings with Citations -->
-          <div class="card">
-            <div class="card-header-clean flex-between">
-              <span class="font-semibold text-sm">Regulatory Findings (${findings.length})</span>
-              <span class="text-xs text-muted">21 CFR 801 Evidence</span>
-            </div>
-            <div class="flex-col" style="gap: 12px;">
-              ${findings.map(f => `
-                <div style="border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px; background: var(--color-bg-subtle);">
-                  <div class="flex-between">
-                    <div class="flex-row" style="gap: 6px;">
-                      <span class="badge ${f.severity === 'critical' ? 'badge-danger' : 'badge-teal'}">
-                        ${escapeHtml(f.severity)}
-                      </span>
-                      <span class="font-semibold text-xs">${escapeHtml(f.kind.replace('_', ' '))}</span>
-                    </div>
-                    <span class="text-xs text-muted">Field: <code>${escapeHtml(f.field || '')}</code></span>
-                  </div>
-                  <div class="text-xs text-muted" style="margin-top: 6px;">
-                    ${escapeHtml(f.message)}
-                  </div>
-                  ${(f.citations || []).map(cit => `
-                    <div style="margin-top: 8px; padding: 8px; background: #ffffff; border-radius: 4px; border: 1px solid var(--color-border); font-size: 0.75rem;">
-                      <div class="flex-between">
-                        <span class="font-semibold">
-                          <span class="badge badge-teal">${escapeHtml(cit.source_type || 'cfr')}</span>
-                          21 CFR ${escapeHtml(cit.section || '')}: ${escapeHtml(cit.title || '')}
-                        </span>
-                        ${cit.url ? `
-                          <a href="${escapeHtml(cit.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-secondary" style="font-size: 0.7rem; padding: 1px 6px;">
-                            View regulation &rarr;
-                          </a>
-                        ` : ''}
-                      </div>
-                      ${cit.quote ? `
-                        <div style="font-style: italic; color: var(--color-text-muted); margin-top: 4px; border-left: 2px solid var(--color-primary-teal); padding-left: 8px;">
-                          "${escapeHtml(cit.quote)}"
-                        </div>
-                      ` : ''}
-                    </div>
-                  `).join('')}
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-
-    const exportBtn = container.querySelector('#btnExportInspectReport');
-    if (exportBtn) {
-      exportBtn.addEventListener('click', () => {
-        if (window.LabelLensStateSwitcher) {
-          window.LabelLensStateSwitcher.setScreen('D8 Export');
-        } else {
-          window.dispatchEvent(new CustomEvent('labellens:screen-navigated', {
-            detail: { screen: 'D8 Export' }
-          }));
-        }
-      });
-    }
+    const d = data || {};
+    if (d.job_id && d.kind) { renderLoading(container, d); return; }
+    if (d.findings) { renderInspection(container, d); return; }
+    if (d.fields) { renderExtraction(container, d); return; }
+    container.innerHTML = `${banner(d)}<div class="card" style="text-align:center;padding:32px;"><h3>Nothing to show</h3><p class="text-muted text-sm">No extraction or check result for this state.</p></div>`;
   }
 
-  // Register renderer
   window.LabelLensRenderers = window.LabelLensRenderers || {};
   window.LabelLensRenderers['D4 Inspect'] = renderScreenD4;
   window.LabelLensRenderers['D4'] = renderScreenD4;
