@@ -1,0 +1,41 @@
+qid	text	module	answerable
+s01	What must the principal display panel of a medical device show?	device	1
+s02	When does the label of a device have to carry a unique device identifier?	device	1
+s03	Which devices must be directly marked with a unique device identifier?	device	1
+s04	What date format is required on a medical device label?	device	1
+s05	What labeling does stand-alone device software need?	device	1
+s06	What does the labeling of latex condoms have to include?	device	1
+s07	How can a labeler ask for an exception from the unique device identifier requirement?	device	1
+s08	What reporting requirements apply to a device user facility?	device	1
+s09	In what circumstances must a manufacturer submit a supplemental medical device report?	device	1
+s10	What does a 510(k) summary have to contain?	device	1
+s11	What must a firm record about a correction or removal that is not reported to FDA?	device	1
+s12	What must a foreign establishment do to register its devices?	device	1
+s13	What must the labeling of a prescription hearing aid include?	device	1
+s14	What are the responsibilities of an FDA accredited issuing agency for device identifiers?	device	1
+s15	What controls does the quality system require for device labeling and packaging?	device	1
+s16	What must a drug label say about sodium content?	medicine	1
+s17	What must be declared on a drug that contains FD&C Yellow No. 5?	medicine	1
+s18	What warning statement is required for prescription drugs that contain sulfites?	medicine	1
+s19	What are the bar code requirements for drug labels?	medicine	1
+s20	What labeling does an over-the-counter sunscreen product need?	medicine	1
+s21	What are the tamper-evident packaging requirements for over-the-counter drug products?	medicine	1
+s22	How is the expiration date of a drug product established?	medicine	1
+s23	What must a drug manufacturer keep in its complaint files?	medicine	1
+s24	What responsibilities does the quality control unit have for a drug manufacturer?	medicine	1
+s25	What warnings are required on over-the-counter internal analgesic and antipyretic products?	medicine	1
+s26	Who has to distribute a Medication Guide and when?	medicine	1
+s27	What must appear on the principal display panel of a nonprescription drug?	medicine	1
+s28	What are the labeling rules for medical gas containers?	medicine	1
+s29	What must the label of ipecac syrup warn about?	medicine	1
+s30	What does a drug label have to say about calcium content?	medicine	1
+s31	What are the labeling requirements for medical devices sold in Canada?	device	0
+s32	How much does an ISO 13485 certification audit cost?	device	0
+s33	Which notified body should I choose for a Class IIa device?	device	0
+s34	What is the penalty in euros for a missed device recall notice in Germany?	device	0
+s35	How do I label a veterinary orthopedic implant for sale in Australia?	device	0
+s36	How long can an opened insulin pen be kept according to the manufacturer?	medicine	0
+s37	What claims can a dietary supplement make about structure and function?	medicine	0
+s38	How do I register a drug manufacturing site in Brazil?	medicine	0
+s39	What is the FDA fee for submitting a new drug application?	medicine	0
+s40	What health warnings must appear on cigarette packages?	medicine	0
