@@ -59,13 +59,18 @@ def summarize(records: list[dict[str, Any]], predictions: list[dict[str, Any]]) 
 
 
 def improves(before: dict[str, Any], after: dict[str, Any]) -> bool:
-    """Require an effective-field gain with no field loss in any condition."""
+    """Require an effective-field gain without losing printed or effective counts."""
     changes = []
     for condition, groups in before.items():
+        for kind, cells in groups.items():
+            for field, cell in cells.items():
+                other = after[condition][kind][field]
+                if cell['n'] != other['n']:
+                    raise ValueError('Scoring populations differ')
+                if other['k'] < cell['k']:
+                    return False
         for field, cell in groups['effective'].items():
             other = after[condition]['effective'][field]
-            if cell['n'] != other['n']:
-                raise ValueError('Scoring populations differ')
             changes.append(other['k']-cell['k'])
     return bool(changes) and min(changes) >= 0 and max(changes) > 0
 

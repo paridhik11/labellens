@@ -9,8 +9,9 @@ from typing import Any
 import pytest
 
 from scripts.cv_experiments import cv3_eval as bench
+from scripts.cv_experiments.cv3_crops import anchored_crops, read_anchors
 from src.common.schemas import BarcodeResult, LabelExtraction, OcrBlock
-from src.cv.cv3 import anchored_crops, available_ocr_models, barcode_prefill, read_anchors
+from src.cv.cv3 import available_ocr_models, barcode_prefill
 from src.gen.cv3_acquire import acquire, fetch_frozen
 
 
@@ -35,6 +36,10 @@ def test_reference_split_and_strict_scoring() -> None:
     assert not bench.improves(after, after)
     assert after['photo']['effective']['lot']['n'] == 1
     assert after['photo']['printed']['lot']['k'] == 0
+    assert not bench.improves(
+        bench.summarize(refs, [{'fields': {'lot': 'ABC'}}]),
+        bench.summarize(refs, [{'fields': {'lot': 'WRONG', 'prefill_lot': 'ABC'}}]),
+    )
     printed = bench.summarize(refs, [{'fields': {'lot': 'ABC'}, 'details': {'raw_fields': {'lot': 'ABO'}}}])
     assert printed['photo']['printed']['lot']['k'] == 0
     with pytest.raises(ValueError, match='populations'):
@@ -199,6 +204,8 @@ def test_extractor_keeps_perspective_and_print_fields(tmp_path: Path, monkeypatc
     assert public.fields['prefill_lot'] == 'OTHERLOT' and public.fields['lot'] == printed['lot']
     with pytest.raises(ValueError, match='cv3_stage'):
         extract.extract_label_modes(path, cv3_stage=99)
+    with pytest.raises(ValueError, match='not retained'):
+        extract.extract_label_modes(path, cv3_stage=3)
 
 
 def test_prediction_and_evaluation_have_no_reference_access(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

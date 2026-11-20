@@ -296,13 +296,12 @@ def extract_label_modes(
     arrangement, symbols are searched over the whole label, and when no label
     boundary is found the whole photo is read instead.
 
-    ``cv3_stage`` is an isolated experiment: zero preserves CV2; one adds
-    separately sourced record suggestions; three also reads keyed crops.
-    ``cv3_prefill=False`` allows crop evaluation when dev rejected prefill.
-    Stage two audits the existing warp path; four probes installed models.
+    ``cv3_stage`` zero preserves CV2; one opts into separately sourced record
+    suggestions. Rejected keyed crops are outside the extractor. Existing
+    perspective correction and the installed OCR models remain unchanged.
     """
-    if cv3_stage not in (0, 1, 2, 3, 4):
-        raise ValueError("cv3_stage must be between 0 and 4")
+    if cv3_stage not in (0, 1):
+        raise ValueError("cv3_stage must be 0 or 1; other experimental stages were not retained")
     if not np.isfinite(min_confidence) or not 0 <= min_confidence <= 1:
         raise ValueError("min_confidence must be finite and between zero and one")
     if not np.isfinite(blur_threshold) or blur_threshold < 0:
@@ -445,16 +444,6 @@ def extract_label_modes(
             mapper = map_photo_fields if photo_profile == "baseline" else map_cv2_fields
             fields, field_warnings = mapper(evidence, min_confidence=field_confidence)
         details["raw_fields"] = dict(fields)
-        if cv3_stage >= 3 and mode == "blind":
-            from src.cv.cv3 import read_anchors
-
-            try:
-                crop_fields, crop_blocks = read_anchors(image, output.ocr_blocks, min_confidence=field_confidence)
-                fields.update(crop_fields)
-                output.ocr_blocks.extend(crop_blocks)
-                details["anchor_fields"] = crop_fields
-            except Exception as error:
-                field_warnings.append(f"ANCHOR_OCR_FAILED: {type(error).__name__}: {error}")
         printed = dict(fields)
         if postcorrect:
             fields, notes = _postcorrect(fields, barcodes)
@@ -471,10 +460,6 @@ def extract_label_modes(
                 if field in prefill:
                     output.fields[f"prefill_{field}"] = prefill[field]["value"]
                     field_warnings.append(f"BARCODE_PREFILL_AVAILABLE: {field}; source=GS1 AI {prefill[field]['ai']}")
-            if cv3_stage == 4:
-                from src.cv.cv3 import available_ocr_models
-
-                details["ocr_model_probe"] = available_ocr_models()
         output.warnings.extend(field_warnings)
         output.warnings = list(dict.fromkeys(output.warnings))
         outputs[mode] = (output, details)
