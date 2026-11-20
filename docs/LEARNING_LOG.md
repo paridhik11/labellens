@@ -2,6 +2,25 @@
 
 A sequential log of progress, implementation decisions, worked examples, and verification steps.
 
+## Medicine aliases and sourced labelers, 2026-11-21
+
+1. What I did: Expanded the pinned medicine set to 30 products and 618 chunks.
+   Extracted alias strings and labelers from verified SPL metadata. Scored 60
+   names once after committing names, threshold and candidate.
+2. Files: src/gen/medicine*.py, src/gen/eval_medicine_aliases.py, src/api/medicine.py,
+   medicine data/source catalog, focused tests and reports/medicine_aliases*.md.
+3. How it works: The matcher indexes observed metadata names rather than a
+   handwritten brand dictionary. The manufacturer evidence explicitly labels
+   its value as SPL labeler, which is not necessarily a physical manufacturer.
+4. Verification: Full fast suite with HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
+   OMP_NUM_THREADS=1: `949 passed, 1 skipped, 5 deselected in 66.51s (0:01:06)`.
+   Ruff src/tests: `All checks passed!`. Real E5b score: 15/15 decoys rejected;
+   31/45 positive matches correct, 10 review, 4 rejected, zero wrong matches.
+5. Check yourself: metadata URLs/hashes, labeler role, and every decoy row in
+   results/medicine_aliases_fresh60.jsonl. Threshold remains 0.65.
+6. Limits: authored names, only 15 decoys, no real OCR claims. Model setup moved
+   to CPU after an unscored MPS crash; no final query tuning or retrieval edits.
+
 ## Print template verification, 2026-11-21
 
 1. What I did: Bound print verification to approved template slots, masked the
