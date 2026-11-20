@@ -138,9 +138,7 @@
       const auditBtn = container.querySelector('#btnSwitchToAuditLog');
       if (auditBtn) {
         auditBtn.addEventListener('click', () => {
-          window.dispatchEvent(new CustomEvent('labellens:state-changed', {
-            detail: { screen: 'D9 History', state: 'success (audit)' }
-          }));
+          window.LabelLensStateSwitcher.setScreen('D9 History', 'success (audit)');
         });
       }
       return;
@@ -197,9 +195,7 @@
     const versionsBtn = container.querySelector('#btnSwitchToVersions');
     if (versionsBtn) {
       versionsBtn.addEventListener('click', () => {
-        window.dispatchEvent(new CustomEvent('labellens:state-changed', {
-          detail: { screen: 'D9 History', state: 'success (label versions)' }
-        }));
+        window.LabelLensStateSwitcher.setScreen('D9 History', 'success (label versions)');
       });
     }
   }

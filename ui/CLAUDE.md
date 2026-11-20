@@ -23,6 +23,9 @@ python -m http.server 8000
 Then navigate in your browser to:
 `http://localhost:8000/ui/` or `http://localhost:8000/ui/index.html`
 
+With the demo: `python scripts/run_demo.py` serves the UI at `http://127.0.0.1:8000/ui/` next to the API (mock mode by default, `?mode=api` for live calls with mock fallback).
+Checks: `PLAYWRIGHT_DIR=<dir with node_modules/playwright> node ui/tools/check_screens.cjs [--shots]` (set `MODE=api` for api mode) and `ui/tools/live_flows.cjs`.
+
 ## Architecture Overview
 
 - `ui/index.html`: Main shell with two distinct entry points (Public Medicine and Professional Device Workspace).

@@ -34,6 +34,11 @@
     return '';
   }
 
+  /** Switch the screen to another mock state through the state switcher so the payload is loaded too. */
+  function gotoState(label) {
+    if (window.LabelLensStateSwitcher) window.LabelLensStateSwitcher.setScreen('D6 Changes', label);
+  }
+
   function renderScreenD6(container, state, meta, data) {
     if (!container) return;
     const safeData = data || {};
@@ -268,9 +273,7 @@
       const backBtn = container.querySelector('#btnGoToChangesForm');
       if (backBtn) {
         backBtn.addEventListener('click', () => {
-          window.dispatchEvent(new CustomEvent('labellens:state-changed', {
-            detail: { screen: 'D6 Changes', state: 'success (assessment)' }
-          }));
+          gotoState('success (assessment)');
         });
       }
       return;
@@ -557,18 +560,39 @@
     const confirmBtn = container.querySelector('#btnConfirmChecklist');
     if (confirmBtn) {
       confirmBtn.addEventListener('click', () => {
-        window.dispatchEvent(new CustomEvent('labellens:state-changed', {
-          detail: { screen: 'D6 Changes', state: 'success (confirmed change)' }
-        }));
+        gotoState('success (confirmed change)');
       });
     }
 
     const generateBtn = container.querySelector('#btnGenerateDraftArtwork');
     if (generateBtn) {
-      generateBtn.addEventListener('click', () => {
-        window.dispatchEvent(new CustomEvent('labellens:state-changed', {
-          detail: { screen: 'D6 Changes', state: 'success (draft artwork)' }
-        }));
+      generateBtn.addEventListener('click', async () => {
+        if (window.LabelLensData.CONFIG.mode !== 'api') {
+          gotoState('success (draft artwork)');
+          return;
+        }
+        const override = window.LabelLensData.CONFIG.ids || {};
+        const changeId = override.change_id || (safeData.change || {}).change_id;
+        const labelId = override.label_id || ((safeData.affected || [])[0] || {}).label_id;
+        let note = container.querySelector('#d6GenNote');
+        if (!note) {
+          generateBtn.parentElement.insertAdjacentHTML('afterend', '<div class="text-xs text-muted" id="d6GenNote" style="margin-top: 8px;"></div>');
+          note = container.querySelector('#d6GenNote');
+        }
+        if (!changeId || !labelId) { note.textContent = 'This sample has no change id or label id.'; return; }
+        generateBtn.disabled = true;
+        note.textContent = 'Generating the draft (the API plans first, then renders a job)...';
+        try {
+          const artwork = await window.LabelLensActions.generate(changeId, labelId, (j) => renderScreenD6(container, 'loading', null, j));
+          // Later screens (review, export, print check) now point at the version that was just generated.
+          window.LabelLensData.CONFIG.ids = Object.assign({}, window.LabelLensData.CONFIG.ids, {
+            version_id: artwork.version_id, label_id: artwork.label_id, artwork_id: artwork.artwork_id, change_id: artwork.change_id });
+          renderScreenD6(container, 'success (draft artwork)', null, artwork);
+        } catch (e) {
+          renderScreenD6(container, state, meta, data);
+          const n = container.querySelector('#btnGenerateDraftArtwork');
+          if (n) n.parentElement.insertAdjacentHTML('afterend', '<div class="notice-banner notice-danger" data-testid="generate-error" style="margin-top: 10px;"><div class="notice-icon">!</div><div class="notice-text">' + escapeHtml(e.message) + '</div></div>');
+        }
       });
     }
   }

@@ -9,12 +9,18 @@
  * - No em dashes.
  */
 
+const _params = new URLSearchParams((typeof location !== 'undefined' && location.search) || '');
 const CONFIG = {
-  mode: 'mock', // 'mock' or 'api'
+  // 'mock' (default) reads static JSON from src/api/mock. 'api' calls the API and falls back to the mock
+  // (marked X-Mock) when a call fails or the server answers with its own mock. Switch with ?mode=api.
+  mode: _params.get('mode') === 'api' ? 'api' : 'mock',
   mockIndexUrl: '/src/api/mock/index.json',
   mockBaseUrl: '/src/api/mock/',
-  apiBaseUrl: 'http://localhost:8000',
-  currentUserHeader: 'usr_demo_editor'
+  apiBaseUrl: _params.get('api') || ((typeof location !== 'undefined' && location.protocol.startsWith('http')) ? location.origin : 'http://localhost:8000'),
+  // Point the screens at a live package instead of the seeded demo ids: ?product=..&label=..&version=..&change=..
+  ids: Object.fromEntries([['product_id', 'product'], ['label_id', 'label'], ['version_id', 'version'], ['change_id', 'change'],
+    ['verification_id', 'verification'], ['artwork_id', 'artwork']].filter(([, q]) => _params.get(q)).map(([k, q]) => [k, _params.get(q)])),
+  currentUserHeader: _params.get('user') || 'usr_demo_editor'
 };
 
 const DEMO_BANNER_TEXT = 'DEMO MODE: Sample data for course evaluation. Not for clinical use.';
@@ -202,8 +208,8 @@ async function getStatesForScreen(screen) {
  * @param {Object} [options] - Optional filters like specific file or operationId
  * @returns {Promise<Object>} Object containing screen metadata, mock payload, and HTTP status.
  */
-async function loadScreen(screen, state, options = {}) {
-  if (CONFIG.mode === 'mock') {
+async function loadMockScreen(screen, state, options = {}) {
+  if (CONFIG.mode === 'mock' || CONFIG.mode === 'api') {
     const index = await getMockIndex();
     const screenName = normalizeScreenName(screen);
 
@@ -264,13 +270,48 @@ async function loadScreen(screen, state, options = {}) {
 
     return fetchMockPayload(target);
 
-  } else if (CONFIG.mode === 'api') {
-    // API mode placeholder
-    console.warn('API mode is not yet connected to the backend. Set CONFIG.mode = "mock" to use mock contracts.');
-    throw new Error('API mode not implemented yet. Please switch CONFIG.mode to "mock".');
   } else {
     throw new Error(`Unsupported mode in CONFIG.mode: ${CONFIG.mode}`);
   }
+}
+
+/**
+ * Load one screen state. In mock mode this is the static mock. In api mode the mock entry says which operation
+ * the state belongs to; if the API answers that operation for real the live body is used, otherwise the mock is
+ * shown and marked X-Mock. The badge in the corner always says where the data on screen came from.
+ */
+async function loadScreen(screen, state, options = {}) {
+  const mock = await loadMockScreen(screen, state, options);
+  if (CONFIG.mode !== 'api' || !window.LabelLensApi || !mock || !mock.file) {
+    setDataSource(CONFIG.mode === 'api' ? 'x-mock' : 'mock', CONFIG.mode === 'api' ? 'idle screen, no request' : '');
+    return mock;
+  }
+  const live = await window.LabelLensApi.tryLive(mock);
+  if (live.ok) {
+    setDataSource('api', mock.operationId);
+    return Object.assign({}, mock, { data: live.data, status: live.status, source: 'api' });
+  }
+  setDataSource('x-mock', live.reason);
+  return Object.assign({}, mock, { source: 'x-mock', fallbackReason: live.reason });
+}
+
+/** Badge fixed to the corner: MOCK (mode mock), API (live) or X-Mock (api mode fell back to a mock). */
+function setDataSource(kind, detail) {
+  if (typeof document === 'undefined') return;
+  let el = document.getElementById('dataSourceBadge');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'dataSourceBadge';
+    el.setAttribute('data-testid', 'source-badge');
+    el.style.cssText = 'position:fixed;bottom:12px;left:12px;z-index:9999;padding:3px 10px;border-radius:99px;font:600 11px system-ui;box-shadow:0 1px 3px rgba(0,0,0,.2);';
+    (document.body || document.documentElement).appendChild(el);
+  }
+  const label = { 'mock': 'MOCK MODE', 'api': 'LIVE API', 'x-mock': 'X-Mock (fallback)' }[kind] || kind;
+  el.textContent = label;
+  el.dataset.kind = kind;
+  el.title = detail || '';
+  el.style.background = kind === 'api' ? '#0b7d7e' : (kind === 'x-mock' ? '#b45309' : '#475569');
+  el.style.color = '#fff';
 }
 
 /**
@@ -380,5 +421,6 @@ window.LabelLensData = {
   getMockIndex,
   getStatesForScreen,
   loadScreen,
+  setDataSource,
   normalizeScreenName
 };

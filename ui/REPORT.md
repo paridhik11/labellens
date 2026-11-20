@@ -74,3 +74,18 @@ All UI notes, gaps, schema clarifications, and step reports are maintained in th
 
 ### 3. What we need
 - None for Round B. Everything required is present in the mock contracts.
+
+## 2026-11-20: Finish (branch ui-finish)
+
+### Report (under 250 words)
+- **Round C.** D7 shows blocked reasons from the mock state (failed re-check, self approval 403), the rule coverage table and needs_human items, and a decision panel whose Approve button is disabled when blocked. D8 shows the DRAFT banner on every export, including approved, plus the `draft_watermark` flag; QR only when published. D10 uses the API words `match`, `mismatch`, `rescan_needed` and never "verified"; a rescan shows "No result", never a pass.
+- **Check pass.** Headless Chromium (Playwright), `ui/tools/check_screens.cjs`: all 61 mock states and 7 click-throughs pass with 0 console or page errors, in mock mode and in api mode. Per-state tables: `ui/check_results.md`, `ui/check_results_api.md`. The first pass was too weak: it missed D5 not rendering the ask mocks, P3 ignoring AI states and several buttons that rendered an empty payload (D6, D9). All fixed, and the check now asserts what each state must show.
+- **Serve.** `scripts/run_demo.py` serves `ui/` at `/ui/` and the mock JSON at `/src/api/mock`. Default `CONFIG.mode` is mock; `?mode=api` switches. A corner badge shows MOCK MODE, LIVE API or X-Mock (fallback).
+- **API mode** (done, verified with `ui/tools/live_flows.cjs` on a running demo): job polling, upload with `product_id`, `retake_photo` reasons, extractive answer plus Ask AI, generate, real PDF download with the DRAFT mark.
+- **Screenshots:** `ui/screenshots/` (13, demo order).
+
+### Choices and limits
+- Only reads with a matching mock state go live; action and error samples stay mock. Point screens at a live package with `?product=&label=&version=&change=`.
+- `ask-panel.js` is shared by P3 and D5 for drawing only; no data is shared.
+- Not wired: P1 camera scan, D2 template register, D4 inspect and confirm, D7 recheck, D10 upload (mock fallback, badge says so).
+- Seeded demo change `chg_0002` cannot generate (template background, D-5); the golden package can.
