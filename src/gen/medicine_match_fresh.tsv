@@ -1,0 +1,61 @@
+kind	query	expected
+brand	Pain Relief Extra Strength acetaminophen 500 milligram	Pain Relief Extra Strength
+brand	Childrens Ibuprofen Albertsons suspension	Childrens Ibuprofen
+brand	Walgreen Loratadine allergy tablets	Loratadine
+brand	Twin Med Omeprazole acid reducer	Omeprazole
+brand	Kesin Famotidine suspension powder	FAMOTIDINE
+brand	Proficient Rx Amoxicillin capsule	Amoxicillin
+brand	Proficient Rx metformin hydrochloride medicine	METFORMIN HYDROCHLORIDE
+brand	RemedyRepack atorvastatin calcium tablets	Atorvastatin Calcium
+brand	Proficient Rx levothyroxine sodium tablets	Levothyroxine Sodium
+brand	Luoxin Aurovitas albuterol sulfate inhalation	ALBUTEROL SULFATE
+brand	Pain Relief Extra Strength fever caplet	Pain Relief Extra Strength
+brand	Childrens Ibuprofen liquid fever medicine	Childrens Ibuprofen
+brand	Loratadine once daily allergy medicine	Loratadine
+brand	Omeprazole acid reducing delayed tablet	Omeprazole
+brand	FAMOTIDINE oral powder suspension	FAMOTIDINE
+generic	acetaminophen 500 milligram pain relief	Pain Relief Extra Strength
+generic	ibuprofen 100 mg per 5 mL liquid	Childrens Ibuprofen
+generic	loratadine antihistamine 10 milligram	Loratadine
+generic	omeprazole delayed release oral 20 milligram	Omeprazole
+generic	famotidine powder reconstituted suspension	FAMOTIDINE
+generic	amoxicillin oral antibiotic capsule 500 milligram	Amoxicillin
+generic	metformin hydrochloride oral glucose tablets	METFORMIN HYDROCHLORIDE
+generic	atorvastatin calcium lipid tablets	Atorvastatin Calcium
+generic	levothyroxine sodium oral thyroid hormone	Levothyroxine Sodium
+generic	albuterol sulfate nebulizer 0.083 percent	ALBUTEROL SULFATE
+generic	acetaminophen extra strength oral caplets	Pain Relief Extra Strength
+generic	ibuprofen pediatric oral suspension	Childrens Ibuprofen
+generic	loratadine oral allergy relief tablet	Loratadine
+generic	omeprazole stomach acid tablet	Omeprazole
+generic	famotidine suspension oral route	FAMOTIDINE
+misspelled	Pain Releif Extra Strenght	Pain Relief Extra Strength
+misspelled	Childrens Ibuprofenn suspension	Childrens Ibuprofen
+misspelled	Loratadinne allergy tablet	Loratadine
+misspelled	Omeprazolle delayed release	Omeprazole
+misspelled	Famotidinne oral liquid	FAMOTIDINE
+misspelled	Amoxycillin oral capsule	Amoxicillin
+misspelled	Metformim hydrochloride	METFORMIN HYDROCHLORIDE
+misspelled	Atorvastatine calcium	Atorvastatin Calcium
+misspelled	Levothyroxin sodium tablets	Levothyroxine Sodium
+misspelled	Albuteroll sulfate inhalation solution	ALBUTEROL SULFATE
+misspelled	Acetaminophenn pain relief extra strength	Pain Relief Extra Strength
+misspelled	Ibuprofem childrens liquid	Childrens Ibuprofen
+misspelled	Loratadin tablet 10 milligram	Loratadine
+misspelled	Omeprozole acid reduction	Omeprazole
+misspelled	Famotidene suspension powder	FAMOTIDINE
+decoy	Keytruda pembrolizumab infusion	
+decoy	Humira adalimumab injection	
+decoy	Dupixent dupilumab pen	
+decoy	Eliquis apixaban tablet	
+decoy	Xarelto rivaroxaban tablets	
+decoy	Biktarvy antiviral tablets	
+decoy	Genvoya antiviral tablets	
+decoy	Entyvio vedolizumab infusion	
+decoy	Cosentyx secukinumab injection	
+decoy	Skyrizi risankizumab injection	
+decoy	sterile polypropylene suture	
+decoy	blood glucose test strip	
+decoy	forehead digital thermometer	
+decoy	Zorplax imaginary medicine	
+decoy	unlabelled blue mystery capsule	

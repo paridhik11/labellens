@@ -1021,5 +1021,2894 @@
         ]
       }
     ]
+  },
+  {
+    "setid": "c3099892-a8cd-4574-a6f9-041e59e2feae",
+    "version": 11,
+    "product_name": "Aspirin",
+    "xml_sha256": "328a406aba96a3fe2298c173c93283b9ec75dcaf04a860f2b331bc434e9819b7",
+    "effective_date": "2026-11-16",
+    "fetched": "2026-11-21",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c3099892-a8cd-4574-a6f9-041e59e2feae&version=11",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "labelling/34067-9/4",
+        "title": "Uses",
+        "chunk_ids": [
+          "dailymed_c3099892-a8cd-4574-a6f9-041e59e2feae_v11_s4_c1"
+        ]
+      },
+      {
+        "section": "warnings/34071-1/5",
+        "title": "Warnings",
+        "chunk_ids": [
+          "dailymed_c3099892-a8cd-4574-a6f9-041e59e2feae_v11_s5_c1"
+        ]
+      },
+      {
+        "section": "warnings/50570-1/6",
+        "title": "Do not use",
+        "chunk_ids": [
+          "dailymed_c3099892-a8cd-4574-a6f9-041e59e2feae_v11_s6_c1"
+        ]
+      },
+      {
+        "section": "warnings/50569-3/7",
+        "title": "Ask a doctor before use if",
+        "chunk_ids": [
+          "dailymed_c3099892-a8cd-4574-a6f9-041e59e2feae_v11_s7_c1"
+        ]
+      },
+      {
+        "section": "warnings/50568-5/8",
+        "title": "Ask a doctor or pharmacist before use if you are",
+        "chunk_ids": [
+          "dailymed_c3099892-a8cd-4574-a6f9-041e59e2feae_v11_s8_c1"
+        ]
+      },
+      {
+        "section": "warnings/50566-9/9",
+        "title": "Stop use and ask a doctor if",
+        "chunk_ids": [
+          "dailymed_c3099892-a8cd-4574-a6f9-041e59e2feae_v11_s9_c1"
+        ]
+      },
+      {
+        "section": "warnings/53414-9/10",
+        "title": "If pregnant or breast-feeding,",
+        "chunk_ids": [
+          "dailymed_c3099892-a8cd-4574-a6f9-041e59e2feae_v11_s10_c1"
+        ]
+      },
+      {
+        "section": "warnings/50565-1/11",
+        "title": "Keep out of reach of children.",
+        "chunk_ids": [
+          "dailymed_c3099892-a8cd-4574-a6f9-041e59e2feae_v11_s11_c1"
+        ]
+      },
+      {
+        "section": "dosage/34068-7/12",
+        "title": "Directions",
+        "chunk_ids": [
+          "dailymed_c3099892-a8cd-4574-a6f9-041e59e2feae_v11_s12_c1"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/16",
+        "title": "Principal display panel",
+        "chunk_ids": [
+          "dailymed_c3099892-a8cd-4574-a6f9-041e59e2feae_v11_s16_c1"
+        ]
+      }
+    ]
+  },
+  {
+    "setid": "caa22bcb-6617-4724-8dcb-e63bfeef41a9",
+    "version": 6,
+    "product_name": "Berkley and Jensen Allergy Relief",
+    "xml_sha256": "32ee7a60f484dabcee83c8dc3671ec41a25b21f94bcc7af40c6a968b0a784158",
+    "effective_date": "2026-11-16",
+    "fetched": "2026-11-21",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=caa22bcb-6617-4724-8dcb-e63bfeef41a9&version=6",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "labelling/34067-9/4",
+        "title": "Uses",
+        "chunk_ids": [
+          "dailymed_caa22bcb-6617-4724-8dcb-e63bfeef41a9_v6_s4_c1"
+        ]
+      },
+      {
+        "section": "warnings/50570-1/6",
+        "title": "Do not use",
+        "chunk_ids": [
+          "dailymed_caa22bcb-6617-4724-8dcb-e63bfeef41a9_v6_s6_c1"
+        ]
+      },
+      {
+        "section": "warnings/50569-3/7",
+        "title": "Ask a doctor before use if you have",
+        "chunk_ids": [
+          "dailymed_caa22bcb-6617-4724-8dcb-e63bfeef41a9_v6_s7_c1"
+        ]
+      },
+      {
+        "section": "warnings/50567-7/9",
+        "title": "When using this product",
+        "chunk_ids": [
+          "dailymed_caa22bcb-6617-4724-8dcb-e63bfeef41a9_v6_s9_c1"
+        ]
+      },
+      {
+        "section": "warnings/50566-9/10",
+        "title": "Stop use and ask a doctor if",
+        "chunk_ids": [
+          "dailymed_caa22bcb-6617-4724-8dcb-e63bfeef41a9_v6_s10_c1"
+        ]
+      },
+      {
+        "section": "warnings/53414-9/11",
+        "title": "If pregnant or breast-feeding:",
+        "chunk_ids": [
+          "dailymed_caa22bcb-6617-4724-8dcb-e63bfeef41a9_v6_s11_c1"
+        ]
+      },
+      {
+        "section": "warnings/50565-1/12",
+        "title": "Keep out of reach of children.",
+        "chunk_ids": [
+          "dailymed_caa22bcb-6617-4724-8dcb-e63bfeef41a9_v6_s12_c1"
+        ]
+      },
+      {
+        "section": "dosage/34068-7/13",
+        "title": "Directions",
+        "chunk_ids": [
+          "dailymed_caa22bcb-6617-4724-8dcb-e63bfeef41a9_v6_s13_c1"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/17",
+        "title": "Principal Display Panel",
+        "chunk_ids": [
+          "dailymed_caa22bcb-6617-4724-8dcb-e63bfeef41a9_v6_s17_c1"
+        ]
+      }
+    ]
+  },
+  {
+    "setid": "6286ea54-2350-49fc-8f37-4b979bd7f986",
+    "version": 9,
+    "product_name": "Losartan Potassium",
+    "xml_sha256": "27257387e110c7c6814991cc7a99ab779447072896d274fd753abe5027cee8ab",
+    "effective_date": "2026-11-12",
+    "fetched": "2026-11-21",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=6286ea54-2350-49fc-8f37-4b979bd7f986&version=9",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "warnings/34066-1/2",
+        "title": "WARNING: FETAL TOXICITY",
+        "chunk_ids": [
+          "dailymed_6286ea54-2350-49fc-8f37-4b979bd7f986_v9_s2_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/4",
+        "title": "1.1 Hypertension",
+        "chunk_ids": [
+          "dailymed_6286ea54-2350-49fc-8f37-4b979bd7f986_v9_s4_c1",
+          "dailymed_6286ea54-2350-49fc-8f37-4b979bd7f986_v9_s4_c2"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/5",
+        "title": "1.2 Hypertensive Patients with Left Ventricular Hypertrophy",
+        "chunk_ids": [
+          "dailymed_6286ea54-2350-49fc-8f37-4b979bd7f986_v9_s5_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/6",
+        "title": "1.3 Nephropathy in Type 2 Diabetic Patients",
+        "chunk_ids": [
+          "dailymed_6286ea54-2350-49fc-8f37-4b979bd7f986_v9_s6_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/8",
+        "title": "2.1 Hypertension",
+        "chunk_ids": [
+          "dailymed_6286ea54-2350-49fc-8f37-4b979bd7f986_v9_s8_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/9",
+        "title": "2.2 Hypertensive Patients with Left Ventricular Hypertrophy",
+        "chunk_ids": [
+          "dailymed_6286ea54-2350-49fc-8f37-4b979bd7f986_v9_s9_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/10",
+        "title": "2.3 Nephropathy in Type 2 Diabetic Patients",
+        "chunk_ids": [
+          "dailymed_6286ea54-2350-49fc-8f37-4b979bd7f986_v9_s10_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/11",
+        "title": "2.4 Dosage Modifications in Patients with Hepatic Impairment",
+        "chunk_ids": [
+          "dailymed_6286ea54-2350-49fc-8f37-4b979bd7f986_v9_s11_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/12",
+        "title": "2.5 Preparation of Suspension (for 200 mL of a 2.5 mg/mL suspension)",
+        "chunk_ids": [
+          "dailymed_6286ea54-2350-49fc-8f37-4b979bd7f986_v9_s12_c1"
+        ]
+      },
+      {
+        "section": "warnings/34070-3/14",
+        "title": "4 CONTRAINDICATIONS",
+        "chunk_ids": [
+          "dailymed_6286ea54-2350-49fc-8f37-4b979bd7f986_v9_s14_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/16",
+        "title": "5.1 Fetal Toxicity",
+        "chunk_ids": [
+          "dailymed_6286ea54-2350-49fc-8f37-4b979bd7f986_v9_s16_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/17",
+        "title": "5.2 Hypotension in Volume - or Salt-Depleted Patients",
+        "chunk_ids": [
+          "dailymed_6286ea54-2350-49fc-8f37-4b979bd7f986_v9_s17_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/18",
+        "title": "5.3 Renal Function Deterioration",
+        "chunk_ids": [
+          "dailymed_6286ea54-2350-49fc-8f37-4b979bd7f986_v9_s18_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/19",
+        "title": "5.4 Hyperkalemia",
+        "chunk_ids": [
+          "dailymed_6286ea54-2350-49fc-8f37-4b979bd7f986_v9_s19_c1"
+        ]
+      },
+      {
+        "section": "labelling/34089-3/37",
+        "title": "11 DESCRIPTION",
+        "chunk_ids": [
+          "dailymed_6286ea54-2350-49fc-8f37-4b979bd7f986_v9_s37_c1"
+        ]
+      },
+      {
+        "section": "warnings/34076-0/49",
+        "title": "17 PATIENT COUNSELING INFORMATION",
+        "chunk_ids": [
+          "dailymed_6286ea54-2350-49fc-8f37-4b979bd7f986_v9_s49_c1"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/51",
+        "title": "labelling",
+        "chunk_ids": [
+          "dailymed_6286ea54-2350-49fc-8f37-4b979bd7f986_v9_s51_c1"
+        ]
+      }
+    ]
+  },
+  {
+    "setid": "b17cd16b-8d0a-4cfa-bd48-2529983fcd12",
+    "version": 7,
+    "product_name": "Lisinopril",
+    "xml_sha256": "382ff54d38bc4a74aa72a157cfd5838ee01b335a3381f21a9a646b95a3a3902b",
+    "effective_date": "2026-11-10",
+    "fetched": "2026-11-21",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=b17cd16b-8d0a-4cfa-bd48-2529983fcd12&version=7",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "warnings/34066-1/2",
+        "title": "WARNING: FETAL TOXICITY",
+        "chunk_ids": [
+          "dailymed_b17cd16b-8d0a-4cfa-bd48-2529983fcd12_v7_s2_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/4",
+        "title": "1.1 Hypertension",
+        "chunk_ids": [
+          "dailymed_b17cd16b-8d0a-4cfa-bd48-2529983fcd12_v7_s4_c1",
+          "dailymed_b17cd16b-8d0a-4cfa-bd48-2529983fcd12_v7_s4_c2"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/5",
+        "title": "1.2 Heart Failure",
+        "chunk_ids": [
+          "dailymed_b17cd16b-8d0a-4cfa-bd48-2529983fcd12_v7_s5_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/6",
+        "title": "1.3 Reduction of Mortality in Acute Myocardial Infarction",
+        "chunk_ids": [
+          "dailymed_b17cd16b-8d0a-4cfa-bd48-2529983fcd12_v7_s6_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/8",
+        "title": "2.1 Hypertension",
+        "chunk_ids": [
+          "dailymed_b17cd16b-8d0a-4cfa-bd48-2529983fcd12_v7_s8_c1",
+          "dailymed_b17cd16b-8d0a-4cfa-bd48-2529983fcd12_v7_s8_c2"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/9",
+        "title": "2.2 Heart Failure",
+        "chunk_ids": [
+          "dailymed_b17cd16b-8d0a-4cfa-bd48-2529983fcd12_v7_s9_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/10",
+        "title": "2.3 Reduction of Mortality in Acute Myocardial Infarction",
+        "chunk_ids": [
+          "dailymed_b17cd16b-8d0a-4cfa-bd48-2529983fcd12_v7_s10_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/11",
+        "title": "2.4 Dose in Patients with Renal Impairment",
+        "chunk_ids": [
+          "dailymed_b17cd16b-8d0a-4cfa-bd48-2529983fcd12_v7_s11_c1"
+        ]
+      },
+      {
+        "section": "warnings/34070-3/13",
+        "title": "4 CONTRAINDICATIONS",
+        "chunk_ids": [
+          "dailymed_b17cd16b-8d0a-4cfa-bd48-2529983fcd12_v7_s13_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/15",
+        "title": "5.1 Fetal Toxicity",
+        "chunk_ids": [
+          "dailymed_b17cd16b-8d0a-4cfa-bd48-2529983fcd12_v7_s15_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/16",
+        "title": "5.2 Angioedema and Anaphylactoid Reactions",
+        "chunk_ids": [
+          "dailymed_b17cd16b-8d0a-4cfa-bd48-2529983fcd12_v7_s16_c1",
+          "dailymed_b17cd16b-8d0a-4cfa-bd48-2529983fcd12_v7_s16_c2"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/17",
+        "title": "5.3 Impaired Renal Function",
+        "chunk_ids": [
+          "dailymed_b17cd16b-8d0a-4cfa-bd48-2529983fcd12_v7_s17_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/18",
+        "title": "5.4 Hypotension",
+        "chunk_ids": [
+          "dailymed_b17cd16b-8d0a-4cfa-bd48-2529983fcd12_v7_s18_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/19",
+        "title": "5.5 Hyperkalemia",
+        "chunk_ids": [
+          "dailymed_b17cd16b-8d0a-4cfa-bd48-2529983fcd12_v7_s19_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/20",
+        "title": "5.6 Hepatic Failure",
+        "chunk_ids": [
+          "dailymed_b17cd16b-8d0a-4cfa-bd48-2529983fcd12_v7_s20_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/21",
+        "title": "5.7 Risk of Allergic Reactions due to Tartrazine",
+        "chunk_ids": [
+          "dailymed_b17cd16b-8d0a-4cfa-bd48-2529983fcd12_v7_s21_c1"
+        ]
+      },
+      {
+        "section": "labelling/34089-3/42",
+        "title": "11 DESCRIPTION",
+        "chunk_ids": [
+          "dailymed_b17cd16b-8d0a-4cfa-bd48-2529983fcd12_v7_s42_c1"
+        ]
+      },
+      {
+        "section": "warnings/34076-0/54",
+        "title": "17 PATIENT COUNSELING INFORMATION",
+        "chunk_ids": [
+          "dailymed_b17cd16b-8d0a-4cfa-bd48-2529983fcd12_v7_s54_c1",
+          "dailymed_b17cd16b-8d0a-4cfa-bd48-2529983fcd12_v7_s54_c2"
+        ]
+      }
+    ]
+  },
+  {
+    "setid": "687ebdc4-6946-454e-8d46-3207488ccf32",
+    "version": 13,
+    "product_name": "Sertraline Hydrochloride",
+    "xml_sha256": "4feb28bb1ad4959a064d6025cd381989baaac693cf784e49e70e237ee068424c",
+    "effective_date": "2026-11-05",
+    "fetched": "2026-11-21",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=687ebdc4-6946-454e-8d46-3207488ccf32&version=13",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "warnings/34066-1/2",
+        "title": "WARNING: SUICIDAL THOUGHTS AND BEHAVIORS",
+        "chunk_ids": [
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s2_c1"
+        ]
+      },
+      {
+        "section": "labelling/34067-9/3",
+        "title": "1 INDICATIONS AND USAGE",
+        "chunk_ids": [
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s3_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/5",
+        "title": "2.1 Dosage in Patients with MDD, OCD, PD, PTSD, and SAD",
+        "chunk_ids": [
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s5_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/6",
+        "title": "2.2 Dosage in Patients with PMDD",
+        "chunk_ids": [
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s6_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/7",
+        "title": "2.3 Screen for Bipolar Disorder Prior to Starting Sertraline Hydrochloride Tablets",
+        "chunk_ids": [
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s7_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/8",
+        "title": "2.4 Dosage Modifications in Patients with Hepatic Impairment",
+        "chunk_ids": [
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s8_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/9",
+        "title": "2.5 Switching Patients to or from a Monoamine Oxidase Inhibitor Antidepressant",
+        "chunk_ids": [
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s9_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/10",
+        "title": "2.6 Discontinuation of Treatment with Sertraline Hydrochloride Tablets",
+        "chunk_ids": [
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s10_c1"
+        ]
+      },
+      {
+        "section": "warnings/34070-3/12",
+        "title": "4 CONTRAINDICATIONS",
+        "chunk_ids": [
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s12_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/14",
+        "title": "5.1 Suicidal Thoughts and Behaviors in Pediatric and Young Adult Patients",
+        "chunk_ids": [
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s14_c1",
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s14_c2"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/15",
+        "title": "5.2 Serotonin Syndrome",
+        "chunk_ids": [
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s15_c1",
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s15_c2"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/16",
+        "title": "5.3 Increased Risk of Bleeding",
+        "chunk_ids": [
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s16_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/17",
+        "title": "5.4 Activation of Mania or Hypomania",
+        "chunk_ids": [
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s17_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/18",
+        "title": "5.5 Discontinuation Syndrome",
+        "chunk_ids": [
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s18_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/19",
+        "title": "5.6 Seizures",
+        "chunk_ids": [
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s19_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/20",
+        "title": "5.7 Angle-Closure Glaucoma",
+        "chunk_ids": [
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s20_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/21",
+        "title": "5.8 Hyponatremia",
+        "chunk_ids": [
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s21_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/22",
+        "title": "5.9 False-Positive Effects on Screening Tests for Benzodiazepines",
+        "chunk_ids": [
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s22_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/23",
+        "title": "5.10 QTc Prolongation",
+        "chunk_ids": [
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s23_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/24",
+        "title": "5.11 Sexual Dysfunction",
+        "chunk_ids": [
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s24_c1"
+        ]
+      },
+      {
+        "section": "labelling/34089-3/43",
+        "title": "11 DESCRIPTION",
+        "chunk_ids": [
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s43_c1"
+        ]
+      },
+      {
+        "section": "warnings/34076-0/58",
+        "title": "17 PATIENT COUNSELING INFORMATION",
+        "chunk_ids": [
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s58_c1",
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s58_c2",
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s58_c3"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/60",
+        "title": "PRINCIPAL DISPLAY PANEL",
+        "chunk_ids": [
+          "dailymed_687ebdc4-6946-454e-8d46-3207488ccf32_v13_s60_c1"
+        ]
+      }
+    ]
+  },
+  {
+    "setid": "318fdf0d-c03a-4b48-a380-b7bb630363fb",
+    "version": 7,
+    "product_name": "PredniSONE",
+    "xml_sha256": "28921aeb11bde4a33e48dd74f9505ce7467230c05dd8b7e61ac286da7df224e5",
+    "effective_date": "2026-11-10",
+    "fetched": "2026-11-21",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=318fdf0d-c03a-4b48-a380-b7bb630363fb&version=7",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "labelling/34089-3/3",
+        "title": "DESCRIPTION",
+        "chunk_ids": [
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s3_c1"
+        ]
+      },
+      {
+        "section": "labelling/34067-9/5",
+        "title": "INDICATIONS",
+        "chunk_ids": [
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s5_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/6",
+        "title": "1. Endocrine Disorders",
+        "chunk_ids": [
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s6_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/7",
+        "title": "2. Rheumatic Disorders",
+        "chunk_ids": [
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s7_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/8",
+        "title": "3. Collagen Diseases",
+        "chunk_ids": [
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s8_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/9",
+        "title": "4. Dermatologic Diseases",
+        "chunk_ids": [
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s9_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/10",
+        "title": "5. Allergic States",
+        "chunk_ids": [
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s10_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/11",
+        "title": "6. Ophthalmic Diseases",
+        "chunk_ids": [
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s11_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/12",
+        "title": "7. Respiratory Diseases",
+        "chunk_ids": [
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s12_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/13",
+        "title": "8. Hematologic Disorders",
+        "chunk_ids": [
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s13_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/14",
+        "title": "9. Neoplastic Diseases",
+        "chunk_ids": [
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s14_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/15",
+        "title": "10. Edematous States",
+        "chunk_ids": [
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s15_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/16",
+        "title": "11. Gastrointestinal Diseases",
+        "chunk_ids": [
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s16_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/17",
+        "title": "12. Nervous System",
+        "chunk_ids": [
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s17_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/18",
+        "title": "13. Miscellaneous",
+        "chunk_ids": [
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s18_c1"
+        ]
+      },
+      {
+        "section": "warnings/34070-3/19",
+        "title": "CONTRAINDICATIONS",
+        "chunk_ids": [
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s19_c1"
+        ]
+      },
+      {
+        "section": "warnings/34071-1/20",
+        "title": "WARNINGS",
+        "chunk_ids": [
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s20_c1",
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s20_c2",
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s20_c3",
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s20_c4"
+        ]
+      },
+      {
+        "section": "warnings/34072-9/22",
+        "title": "General Precautions",
+        "chunk_ids": [
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s22_c1",
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s22_c2"
+        ]
+      },
+      {
+        "section": "dosage/34068-7/33",
+        "title": "DOSAGE AND ADMINISTRATION",
+        "chunk_ids": [
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s33_c1",
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s33_c2"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/34",
+        "title": "Multiple Sclerosis",
+        "chunk_ids": [
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s34_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/35",
+        "title": "ADT \u00ae (Alternate Day Therapy)",
+        "chunk_ids": [
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s35_c1",
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s35_c2",
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s35_c3",
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s35_c4",
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s35_c5",
+          "dailymed_318fdf0d-c03a-4b48-a380-b7bb630363fb_v7_s35_c6"
+        ]
+      }
+    ]
+  },
+  {
+    "setid": "3f1535d9-6c3b-4355-a2ef-eb6ee33054a5",
+    "version": 1,
+    "product_name": "Gabapentin",
+    "xml_sha256": "8fb466058aac6299190fb9081ae6fcc5b349aba32a294a2db446200605bc0fa9",
+    "effective_date": "2026-11-16",
+    "fetched": "2026-11-21",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=3f1535d9-6c3b-4355-a2ef-eb6ee33054a5&version=1",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "labelling/34067-9/3",
+        "title": "1 INDICATIONS AND USAGE",
+        "chunk_ids": [
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s3_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/5",
+        "title": "2.1 Dosage for Postherpetic Neuralgia",
+        "chunk_ids": [
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s5_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/6",
+        "title": "2.2 Dosage for Epilepsy with Partial Onset Seizures",
+        "chunk_ids": [
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s6_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/7",
+        "title": "2.3 Dosage Adjustment in Patients with Renal Impairment",
+        "chunk_ids": [
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s7_c1",
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s7_c2"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/8",
+        "title": "2.4 Dosage in Elderly",
+        "chunk_ids": [
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s8_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/9",
+        "title": "2.5 Administration Information",
+        "chunk_ids": [
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s9_c1"
+        ]
+      },
+      {
+        "section": "warnings/34070-3/11",
+        "title": "4 CONTRAINDICATIONS",
+        "chunk_ids": [
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s11_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/13",
+        "title": "5.1 Drug Reaction with Eosinophilia and Systemic Symptoms (DRESS)/Multiorgan Hypersensitivity",
+        "chunk_ids": [
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s13_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/14",
+        "title": "5.2 Anaphylaxis and Angioedema",
+        "chunk_ids": [
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s14_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/15",
+        "title": "5.3 Effects on Driving and Operating Heavy Machinery",
+        "chunk_ids": [
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s15_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/16",
+        "title": "5.4 Somnolence/Sedation and Dizziness",
+        "chunk_ids": [
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s16_c1",
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s16_c2"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/17",
+        "title": "5.5 Suicidal Behavior and Ideation",
+        "chunk_ids": [
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s17_c1",
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s17_c2",
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s17_c3",
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s17_c4"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/18",
+        "title": "5.6 Increased Risk of Seizures and Other Adverse Reactions with Abrupt or Rapid Discontinuation",
+        "chunk_ids": [
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s18_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/19",
+        "title": "5.7 Status Epilepticus",
+        "chunk_ids": [
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s19_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/20",
+        "title": "5.8 Respiratory Depression",
+        "chunk_ids": [
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s20_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/21",
+        "title": "5.9 Neuropsychiatric Adverse Reactions (Pediatric Patients 3 to 12 Years of Age)",
+        "chunk_ids": [
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s21_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/22",
+        "title": "5.10 Tumorigenic Potential",
+        "chunk_ids": [
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s22_c1"
+        ]
+      },
+      {
+        "section": "labelling/34089-3/42",
+        "title": "11 DESCRIPTION",
+        "chunk_ids": [
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s42_c1"
+        ]
+      },
+      {
+        "section": "warnings/34076-0/52",
+        "title": "17 PATIENT COUNSELING INFORMATION",
+        "chunk_ids": [
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s52_c1",
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s52_c2",
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s52_c3"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/54",
+        "title": "labelling",
+        "chunk_ids": [
+          "dailymed_3f1535d9-6c3b-4355-a2ef-eb6ee33054a5_v1_s54_c1"
+        ]
+      }
+    ]
+  },
+  {
+    "setid": "de803217-6d32-4ef8-afe7-02462f37bf0c",
+    "version": 3,
+    "product_name": "Escitalopram",
+    "xml_sha256": "70b7dbaf471e9d43870736781c6b595db503902b417c4fc90db7fe5a3e592c95",
+    "effective_date": "2026-11-12",
+    "fetched": "2026-11-21",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=de803217-6d32-4ef8-afe7-02462f37bf0c&version=3",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "warnings/34066-1/2",
+        "title": "WARNINGS: SUICIDAL THOUGHTS AND BEHAVIORS",
+        "chunk_ids": [
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s2_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/4",
+        "title": "labelling",
+        "chunk_ids": [
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s4_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/7",
+        "title": "dosage",
+        "chunk_ids": [
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s7_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/8",
+        "title": "dosage",
+        "chunk_ids": [
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s8_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/10",
+        "title": "dosage",
+        "chunk_ids": [
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s10_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/11",
+        "title": "2.3 Administration Information",
+        "chunk_ids": [
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s11_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/12",
+        "title": "2.4 Screen for Bipolar Disorder Prior to Starting Escitalopram Tablets",
+        "chunk_ids": [
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s12_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/13",
+        "title": "2.5 Recommended Dosage for Specific Populations",
+        "chunk_ids": [
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s13_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/14",
+        "title": "2.6 Discontinuation of Treatment with Escitalopram Tablets",
+        "chunk_ids": [
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s14_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/15",
+        "title": "2.7 Switching Patients to or from a Monoamine Oxidase Inhibitor (MAOI) Antidepressant",
+        "chunk_ids": [
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s15_c1"
+        ]
+      },
+      {
+        "section": "warnings/34070-3/17",
+        "title": "4 CONTRAINDICATIONS",
+        "chunk_ids": [
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s17_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/20",
+        "title": "5.2 Serotonin Syndrome",
+        "chunk_ids": [
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s20_c1",
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s20_c2"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/21",
+        "title": "5.3 Discontinuation Syndrome",
+        "chunk_ids": [
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s21_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/22",
+        "title": "5.4 Seizures",
+        "chunk_ids": [
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s22_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/23",
+        "title": "5.5 Activation of Mania or Hypomania",
+        "chunk_ids": [
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s23_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/24",
+        "title": "5.6 Hyponatremia",
+        "chunk_ids": [
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s24_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/25",
+        "title": "5.7 Increased Risk of Bleeding",
+        "chunk_ids": [
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s25_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/26",
+        "title": "5.8 Interference with Cognitive and Motor Performance",
+        "chunk_ids": [
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s26_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/27",
+        "title": "5.9 Angle Closure Glaucoma",
+        "chunk_ids": [
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s27_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/28",
+        "title": "5.10 Use in Patients with Concomitant Illness",
+        "chunk_ids": [
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s28_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/29",
+        "title": "5.11 Sexual Dysfunction",
+        "chunk_ids": [
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s29_c1"
+        ]
+      },
+      {
+        "section": "labelling/34089-3/66",
+        "title": "11 DESCRIPTION",
+        "chunk_ids": [
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s66_c1"
+        ]
+      },
+      {
+        "section": "warnings/34076-0/81",
+        "title": "17 PATIENT COUNSELING INFORMATION",
+        "chunk_ids": [
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s81_c1",
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s81_c2",
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s81_c3",
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s81_c4"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/93",
+        "title": "Package/Label Display Panel \u2013 Carton \u2013 10 mg",
+        "chunk_ids": [
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s93_c1"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/94",
+        "title": "Package/Label Display Panel \u2013 Blister \u2013 10 mg",
+        "chunk_ids": [
+          "dailymed_de803217-6d32-4ef8-afe7-02462f37bf0c_v3_s94_c1"
+        ]
+      }
+    ]
+  },
+  {
+    "setid": "d889c656-f024-4e18-b83c-68a7707945d8",
+    "version": 1,
+    "product_name": "Amlodipine Besylate",
+    "xml_sha256": "75fc6cad90a1290f8c22436a93c0b23c9ad9cd22db35f560758020efea924e1d",
+    "effective_date": "2026-11-17",
+    "fetched": "2026-11-21",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=d889c656-f024-4e18-b83c-68a7707945d8&version=1",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "labelling/42229-5/3",
+        "title": "1.1 Hypertension",
+        "chunk_ids": [
+          "dailymed_d889c656-f024-4e18-b83c-68a7707945d8_v1_s3_c1",
+          "dailymed_d889c656-f024-4e18-b83c-68a7707945d8_v1_s3_c2"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/4",
+        "title": "1.2 Coronary Artery Disease (CAD)",
+        "chunk_ids": [
+          "dailymed_d889c656-f024-4e18-b83c-68a7707945d8_v1_s4_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/6",
+        "title": "2.1 Adults",
+        "chunk_ids": [
+          "dailymed_d889c656-f024-4e18-b83c-68a7707945d8_v1_s6_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/7",
+        "title": "2.2 Children",
+        "chunk_ids": [
+          "dailymed_d889c656-f024-4e18-b83c-68a7707945d8_v1_s7_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/11",
+        "title": "warnings",
+        "chunk_ids": [
+          "dailymed_d889c656-f024-4e18-b83c-68a7707945d8_v1_s11_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/13",
+        "title": "5.1 Hypotension",
+        "chunk_ids": [
+          "dailymed_d889c656-f024-4e18-b83c-68a7707945d8_v1_s13_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/14",
+        "title": "5.2 Increased Angina or Myocardial Infarction",
+        "chunk_ids": [
+          "dailymed_d889c656-f024-4e18-b83c-68a7707945d8_v1_s14_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/15",
+        "title": "5.3 Patients with Hepatic Failure",
+        "chunk_ids": [
+          "dailymed_d889c656-f024-4e18-b83c-68a7707945d8_v1_s15_c1"
+        ]
+      },
+      {
+        "section": "labelling/34089-3/28",
+        "title": "11 DESCRIPTION",
+        "chunk_ids": [
+          "dailymed_d889c656-f024-4e18-b83c-68a7707945d8_v1_s28_c1"
+        ]
+      }
+    ]
+  },
+  {
+    "setid": "a569ba80-ffea-40b2-9fbe-a42810b1fccb",
+    "version": 34,
+    "product_name": "Doxycycline Hyclate",
+    "xml_sha256": "11426d1bb985b72dedcbab87f7c74e1f5b47ded459f223acf640ca2135d6f184",
+    "effective_date": "2025-06-26",
+    "fetched": "2026-11-21",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=a569ba80-ffea-40b2-9fbe-a42810b1fccb&version=34",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "labelling/34089-3/3",
+        "title": "DESCRIPTION",
+        "chunk_ids": [
+          "dailymed_a569ba80-ffea-40b2-9fbe-a42810b1fccb_v34_s3_c1"
+        ]
+      },
+      {
+        "section": "labelling/34067-9/12",
+        "title": "INDICATIONS AND USAGE",
+        "chunk_ids": [
+          "dailymed_a569ba80-ffea-40b2-9fbe-a42810b1fccb_v34_s12_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/13",
+        "title": "Treatment :",
+        "chunk_ids": [
+          "dailymed_a569ba80-ffea-40b2-9fbe-a42810b1fccb_v34_s13_c1",
+          "dailymed_a569ba80-ffea-40b2-9fbe-a42810b1fccb_v34_s13_c2",
+          "dailymed_a569ba80-ffea-40b2-9fbe-a42810b1fccb_v34_s13_c3"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/14",
+        "title": "Prophylaxis:",
+        "chunk_ids": [
+          "dailymed_a569ba80-ffea-40b2-9fbe-a42810b1fccb_v34_s14_c1"
+        ]
+      },
+      {
+        "section": "warnings/34070-3/15",
+        "title": "CONTRAINDICATIONS",
+        "chunk_ids": [
+          "dailymed_a569ba80-ffea-40b2-9fbe-a42810b1fccb_v34_s15_c1"
+        ]
+      },
+      {
+        "section": "warnings/34071-1/16",
+        "title": "WARNINGS",
+        "chunk_ids": [
+          "dailymed_a569ba80-ffea-40b2-9fbe-a42810b1fccb_v34_s16_c1",
+          "dailymed_a569ba80-ffea-40b2-9fbe-a42810b1fccb_v34_s16_c2",
+          "dailymed_a569ba80-ffea-40b2-9fbe-a42810b1fccb_v34_s16_c3",
+          "dailymed_a569ba80-ffea-40b2-9fbe-a42810b1fccb_v34_s16_c4"
+        ]
+      },
+      {
+        "section": "warnings/34072-9/18",
+        "title": "General",
+        "chunk_ids": [
+          "dailymed_a569ba80-ffea-40b2-9fbe-a42810b1fccb_v34_s18_c1"
+        ]
+      },
+      {
+        "section": "warnings/34076-0/19",
+        "title": "Information For Patients",
+        "chunk_ids": [
+          "dailymed_a569ba80-ffea-40b2-9fbe-a42810b1fccb_v34_s19_c1",
+          "dailymed_a569ba80-ffea-40b2-9fbe-a42810b1fccb_v34_s19_c2",
+          "dailymed_a569ba80-ffea-40b2-9fbe-a42810b1fccb_v34_s19_c3"
+        ]
+      },
+      {
+        "section": "dosage/34068-7/30",
+        "title": "DOSAGE AND ADMINISTRATION",
+        "chunk_ids": [
+          "dailymed_a569ba80-ffea-40b2-9fbe-a42810b1fccb_v34_s30_c1",
+          "dailymed_a569ba80-ffea-40b2-9fbe-a42810b1fccb_v34_s30_c2",
+          "dailymed_a569ba80-ffea-40b2-9fbe-a42810b1fccb_v34_s30_c3",
+          "dailymed_a569ba80-ffea-40b2-9fbe-a42810b1fccb_v34_s30_c4"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/34",
+        "title": "Principal Display Panel",
+        "chunk_ids": [
+          "dailymed_a569ba80-ffea-40b2-9fbe-a42810b1fccb_v34_s34_c1"
+        ]
+      }
+    ]
+  },
+  {
+    "setid": "15e4c3a3-7d64-471e-bfdf-6156731e24aa",
+    "version": 7,
+    "product_name": "FUROSEMIDE",
+    "xml_sha256": "5f1094cdfad9d14741ff8386a16e7660f2c088848d8ee513622ed1c96ac4a016",
+    "effective_date": "2026-11-16",
+    "fetched": "2026-11-21",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=15e4c3a3-7d64-471e-bfdf-6156731e24aa&version=7",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "warnings/34066-1/2",
+        "title": "BOXED WARNING",
+        "chunk_ids": [
+          "dailymed_15e4c3a3-7d64-471e-bfdf-6156731e24aa_v7_s2_c1"
+        ]
+      },
+      {
+        "section": "labelling/34089-3/3",
+        "title": "\ufeffDESCRIPTION",
+        "chunk_ids": [
+          "dailymed_15e4c3a3-7d64-471e-bfdf-6156731e24aa_v7_s3_c1"
+        ]
+      },
+      {
+        "section": "labelling/34067-9/5",
+        "title": "INDICATIONS AND USAGE",
+        "chunk_ids": [
+          "dailymed_15e4c3a3-7d64-471e-bfdf-6156731e24aa_v7_s5_c1"
+        ]
+      },
+      {
+        "section": "warnings/34070-3/6",
+        "title": "CONTRAINDICATIONS",
+        "chunk_ids": [
+          "dailymed_15e4c3a3-7d64-471e-bfdf-6156731e24aa_v7_s6_c1"
+        ]
+      },
+      {
+        "section": "warnings/34071-1/7",
+        "title": "\ufeffWARNINGS",
+        "chunk_ids": [
+          "dailymed_15e4c3a3-7d64-471e-bfdf-6156731e24aa_v7_s7_c1",
+          "dailymed_15e4c3a3-7d64-471e-bfdf-6156731e24aa_v7_s7_c2"
+        ]
+      },
+      {
+        "section": "dosage/34068-7/11",
+        "title": "\ufeffDOSAGE AND ADMINISTRATION",
+        "chunk_ids": [
+          "dailymed_15e4c3a3-7d64-471e-bfdf-6156731e24aa_v7_s11_c1",
+          "dailymed_15e4c3a3-7d64-471e-bfdf-6156731e24aa_v7_s11_c2",
+          "dailymed_15e4c3a3-7d64-471e-bfdf-6156731e24aa_v7_s11_c3"
+        ]
+      }
+    ]
+  },
+  {
+    "setid": "307aa67f-53b9-4c60-a328-091bbf6338d4",
+    "version": 9,
+    "product_name": "Naproxen",
+    "xml_sha256": "f0ab799964b7346f9f3a3a6241958fdfb03dd0e5e3e0e4a2ce89daee5c473333",
+    "effective_date": "2026-11-10",
+    "fetched": "2026-11-21",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=307aa67f-53b9-4c60-a328-091bbf6338d4&version=9",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "warnings/34066-1/2",
+        "title": "WARNING: RISK OF SERIOUS CARDIOVASCULAR AND GASTROINTESTINAL EVENTS",
+        "chunk_ids": [
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s2_c1"
+        ]
+      },
+      {
+        "section": "labelling/34067-9/4",
+        "title": "1 INDICATIONS AND USAGE",
+        "chunk_ids": [
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s4_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/6",
+        "title": "2.1 General Dosing Instructions",
+        "chunk_ids": [
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s6_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/7",
+        "title": "2.2 Rheumatoid Arthritis, Osteoarthritis and Ankylosing Spondylitis",
+        "chunk_ids": [
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s7_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/8",
+        "title": "2.3 Polyarticular Juvenile Idiopathic Arthritis",
+        "chunk_ids": [
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s8_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/9",
+        "title": "2.4 Management of Pain, Primary Dysmenorrhea, and Acute Tendonitis and Bursitis",
+        "chunk_ids": [
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s9_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/10",
+        "title": "2.5 Acute Gout",
+        "chunk_ids": [
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s10_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/11",
+        "title": "2.6 Non-Interchangeability with Other Formulations of Naproxen",
+        "chunk_ids": [
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s11_c1"
+        ]
+      },
+      {
+        "section": "warnings/34070-3/13",
+        "title": "4 CONTRAINDICATIONS",
+        "chunk_ids": [
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s13_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/15",
+        "title": "5.1 Cardiovascular Thrombotic Events",
+        "chunk_ids": [
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s15_c1",
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s15_c2",
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s15_c3"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/16",
+        "title": "5.2 Gastrointestinal Bleeding, Ulceration, and Perforation",
+        "chunk_ids": [
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s16_c1",
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s16_c2"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/17",
+        "title": "5.3 Hepatotoxicity",
+        "chunk_ids": [
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s17_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/18",
+        "title": "5.4 Hypertension",
+        "chunk_ids": [
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s18_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/19",
+        "title": "5.5 Heart Failure and Edema",
+        "chunk_ids": [
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s19_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/20",
+        "title": "5.6 Renal Toxicity and Hyperkalemia",
+        "chunk_ids": [
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s20_c1",
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s20_c2"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/21",
+        "title": "5.7 Anaphylactic Reactions",
+        "chunk_ids": [
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s21_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/22",
+        "title": "5.8 Exacerbation of Asthma Related to Aspirin Sensitivity",
+        "chunk_ids": [
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s22_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/23",
+        "title": "5.9 Serious Skin Reactions",
+        "chunk_ids": [
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s23_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/24",
+        "title": "5.10 Drug Reaction with Eosinophilia and Systemic Symptoms (DRESS)",
+        "chunk_ids": [
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s24_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/25",
+        "title": "5.11 Fetal Toxicity",
+        "chunk_ids": [
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s25_c1",
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s25_c2"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/26",
+        "title": "5.12 Hematologic Toxicity",
+        "chunk_ids": [
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s26_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/27",
+        "title": "5.13 Masking of Inflammation and Fever",
+        "chunk_ids": [
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s27_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/28",
+        "title": "5.14 Long-Term Use and Laboratory Monitoring",
+        "chunk_ids": [
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s28_c1"
+        ]
+      },
+      {
+        "section": "labelling/34089-3/42",
+        "title": "11 DESCRIPTION",
+        "chunk_ids": [
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s42_c1"
+        ]
+      },
+      {
+        "section": "warnings/34076-0/51",
+        "title": "17 PATIENT COUNSELING INFORMATION",
+        "chunk_ids": [
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s51_c1",
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s51_c2",
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s51_c3",
+          "dailymed_307aa67f-53b9-4c60-a328-091bbf6338d4_v9_s51_c4"
+        ]
+      }
+    ]
+  },
+  {
+    "setid": "b4831735-6731-473a-b4f0-1f4a67aa7120",
+    "version": 8,
+    "product_name": "Fluoxetine",
+    "xml_sha256": "2f0411631fc25b69f995b1c499c17f671a9860d5fcf176255840addd2a4d1a07",
+    "effective_date": "2026-11-10",
+    "fetched": "2026-11-21",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=b4831735-6731-473a-b4f0-1f4a67aa7120&version=8",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "warnings/34066-1/2",
+        "title": "WARNING: SUICIDAL THOUGHTS AND BEHAVIORS",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s2_c1"
+        ]
+      },
+      {
+        "section": "labelling/34067-9/4",
+        "title": "1 INDICATIONS AND USAGE",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s4_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/6",
+        "title": "2.1 Major Depressive Disorder",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s6_c1",
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s6_c2"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/7",
+        "title": "2.2 Obsessive Compulsive Disorder",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s7_c1",
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s7_c2"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/8",
+        "title": "2.3 Bulimia Nervosa",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s8_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/9",
+        "title": "2.4 Panic Disorder",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s9_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/10",
+        "title": "2.5 Fluoxetine and Olanzapine in Combination: Depressive Episodes Associated with Bipolar I Disorder",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s10_c1",
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s10_c2"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/11",
+        "title": "2.6 Fluoxetine and Olanzapine in Combination: Treatment Resistant Depression",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s11_c1",
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s11_c2"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/12",
+        "title": "2.7 Dosing in Specific Populations",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s12_c1",
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s12_c2"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/13",
+        "title": "2.8 Discontinuation of Treatment",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s13_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/14",
+        "title": "2.9 Switching a Patient To or From a Monoamine Oxidase Inhibitor (MAOI) Intended to Treat Psychiatric Disorders",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s14_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/15",
+        "title": "2.10 Use of Fluoxetine with Other MAOIs such as Linezolid or Methylene Blue",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s15_c1",
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s15_c2"
+        ]
+      },
+      {
+        "section": "warnings/34070-3/17",
+        "title": "4 CONTRAINDICATIONS",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s17_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/18",
+        "title": "4.1 Monoamine Oxidase Inhibitors (MAOIs)",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s18_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/19",
+        "title": "4.2 Other Contraindications",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s19_c1"
+        ]
+      },
+      {
+        "section": "warnings/43685-7/20",
+        "title": "5 WARNINGS AND PRECAUTIONS",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s20_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/21",
+        "title": "5.1 Suicidal Thoughts and Behaviors in Children, Adolescents, and Young Adults",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s21_c1",
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s21_c2",
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s21_c3",
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s21_c4",
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s21_c5"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/22",
+        "title": "5.2 Serotonin Syndrome",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s22_c1",
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s22_c2"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/23",
+        "title": "5.3 Allergic Reactions and Rash",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s23_c1",
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s23_c2"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/24",
+        "title": "5.4 Screening Patients for Bipolar Disorder and Monitoring for Mania/Hypomania",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s24_c1",
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s24_c2"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/25",
+        "title": "5.5 Seizures",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s25_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/26",
+        "title": "5.6 Altered Appetite and Weight",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s26_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/27",
+        "title": "5.7 Increased Risk of Bleeding",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s27_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/28",
+        "title": "5.8 Angle-Closure Glaucoma",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s28_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/29",
+        "title": "5.9 Hyponatremia",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s29_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/30",
+        "title": "5.10 Anxiety and Insomnia",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s30_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/31",
+        "title": "5.11 QT Prolongation",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s31_c1",
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s31_c2"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/32",
+        "title": "5.12 Use in Patients with Concomitant Illness",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s32_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/33",
+        "title": "5.13 Potential for Cognitive and Motor Impairment",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s33_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/34",
+        "title": "5.14 Long Elimination Half-Life",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s34_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/35",
+        "title": "5.15 Discontinuation Adverse Reactions",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s35_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/36",
+        "title": "5.16 Fluoxetine and Olanzapine in Combination",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s36_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/37",
+        "title": "5.17 Sexual Dysfunction",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s37_c1"
+        ]
+      },
+      {
+        "section": "labelling/34089-3/59",
+        "title": "11 DESCRIPTION",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s59_c1"
+        ]
+      },
+      {
+        "section": "warnings/34076-0/76",
+        "title": "17 PATIENT COUNSELING INFORMATION",
+        "chunk_ids": [
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s76_c1",
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s76_c2",
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s76_c3",
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s76_c4",
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s76_c5",
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s76_c6",
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s76_c7",
+          "dailymed_b4831735-6731-473a-b4f0-1f4a67aa7120_v8_s76_c8"
+        ]
+      }
+    ]
+  },
+  {
+    "setid": "a6b5edf2-1ef8-46b7-977a-8c303900f3f0",
+    "version": 17,
+    "product_name": "Cephalexin",
+    "xml_sha256": "0a71b5fe534fee57f24b34a90927a8daaf79cbf1d78fc71eadb58515808c742a",
+    "effective_date": "2026-11-17",
+    "fetched": "2026-11-21",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=a6b5edf2-1ef8-46b7-977a-8c303900f3f0&version=17",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "labelling/42229-5/3",
+        "title": "1.1 Respiratory Tract Infections",
+        "chunk_ids": [
+          "dailymed_a6b5edf2-1ef8-46b7-977a-8c303900f3f0_v17_s3_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/4",
+        "title": "1.2 Otitis Media",
+        "chunk_ids": [
+          "dailymed_a6b5edf2-1ef8-46b7-977a-8c303900f3f0_v17_s4_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/5",
+        "title": "1.3 Skin and Skin Structure Infections",
+        "chunk_ids": [
+          "dailymed_a6b5edf2-1ef8-46b7-977a-8c303900f3f0_v17_s5_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/6",
+        "title": "1.4 Bone Infections",
+        "chunk_ids": [
+          "dailymed_a6b5edf2-1ef8-46b7-977a-8c303900f3f0_v17_s6_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/7",
+        "title": "1.5 Genitourinary Tract Infections",
+        "chunk_ids": [
+          "dailymed_a6b5edf2-1ef8-46b7-977a-8c303900f3f0_v17_s7_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/8",
+        "title": "1.6 Usage",
+        "chunk_ids": [
+          "dailymed_a6b5edf2-1ef8-46b7-977a-8c303900f3f0_v17_s8_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/10",
+        "title": "2.1 Adults and Pediatric Patients at Least 15 Years of Age",
+        "chunk_ids": [
+          "dailymed_a6b5edf2-1ef8-46b7-977a-8c303900f3f0_v17_s10_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/11",
+        "title": "2.2 Pediatric Patients (over 1 year of age)",
+        "chunk_ids": [
+          "dailymed_a6b5edf2-1ef8-46b7-977a-8c303900f3f0_v17_s11_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/12",
+        "title": "2.3 Dosage Adjustments in Adult and Pediatric Patients at Least 15 Years of Age with Renal Impairment",
+        "chunk_ids": [
+          "dailymed_a6b5edf2-1ef8-46b7-977a-8c303900f3f0_v17_s12_c1"
+        ]
+      },
+      {
+        "section": "warnings/34070-3/14",
+        "title": "4 CONTRAINDICATIONS",
+        "chunk_ids": [
+          "dailymed_a6b5edf2-1ef8-46b7-977a-8c303900f3f0_v17_s14_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/16",
+        "title": "5.1 Hypersensitivity Reactions",
+        "chunk_ids": [
+          "dailymed_a6b5edf2-1ef8-46b7-977a-8c303900f3f0_v17_s16_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/17",
+        "title": "5.2 Clostridium difficile-Associated Diarrhea",
+        "chunk_ids": [
+          "dailymed_a6b5edf2-1ef8-46b7-977a-8c303900f3f0_v17_s17_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/18",
+        "title": "5.3 Direct Coombs\u2019 Test Seroconversion",
+        "chunk_ids": [
+          "dailymed_a6b5edf2-1ef8-46b7-977a-8c303900f3f0_v17_s18_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/19",
+        "title": "5.4 Seizure Potential",
+        "chunk_ids": [
+          "dailymed_a6b5edf2-1ef8-46b7-977a-8c303900f3f0_v17_s19_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/20",
+        "title": "5.5 Prolonged Prothrombin Time",
+        "chunk_ids": [
+          "dailymed_a6b5edf2-1ef8-46b7-977a-8c303900f3f0_v17_s20_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/21",
+        "title": "5.6 Development of Drug-Resistant Bacteria",
+        "chunk_ids": [
+          "dailymed_a6b5edf2-1ef8-46b7-977a-8c303900f3f0_v17_s21_c1"
+        ]
+      },
+      {
+        "section": "labelling/34089-3/35",
+        "title": "11 DESCRIPTION",
+        "chunk_ids": [
+          "dailymed_a6b5edf2-1ef8-46b7-977a-8c303900f3f0_v17_s35_c1"
+        ]
+      },
+      {
+        "section": "warnings/34076-0/43",
+        "title": "17 PATIENT COUNSELING INFORMATION",
+        "chunk_ids": [
+          "dailymed_a6b5edf2-1ef8-46b7-977a-8c303900f3f0_v17_s43_c1",
+          "dailymed_a6b5edf2-1ef8-46b7-977a-8c303900f3f0_v17_s43_c2"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/44",
+        "title": "labelling",
+        "chunk_ids": [
+          "dailymed_a6b5edf2-1ef8-46b7-977a-8c303900f3f0_v17_s44_c1"
+        ]
+      }
+    ]
+  },
+  {
+    "setid": "4cd07a3c-9673-4aa0-b76a-d79df2399ee1",
+    "version": 11,
+    "product_name": "Clopidogrel",
+    "xml_sha256": "89f0772ee7d379ee19653fc1454814047691880e55ea15eade68bd5fe55ff7a8",
+    "effective_date": "2026-11-11",
+    "fetched": "2026-11-21",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=4cd07a3c-9673-4aa0-b76a-d79df2399ee1&version=11",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "warnings/42229-5/3",
+        "title": "warnings",
+        "chunk_ids": [
+          "dailymed_4cd07a3c-9673-4aa0-b76a-d79df2399ee1_v11_s3_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/5",
+        "title": "1.1 Acute Coronary Syndrome (ACS)",
+        "chunk_ids": [
+          "dailymed_4cd07a3c-9673-4aa0-b76a-d79df2399ee1_v11_s5_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/6",
+        "title": "1.2 Recent MI, Recent Stroke, or Established Peripheral Arterial Disease",
+        "chunk_ids": [
+          "dailymed_4cd07a3c-9673-4aa0-b76a-d79df2399ee1_v11_s6_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/8",
+        "title": "2.1 Acute Coronary Syndrome",
+        "chunk_ids": [
+          "dailymed_4cd07a3c-9673-4aa0-b76a-d79df2399ee1_v11_s8_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/9",
+        "title": "2.2 Recent MI, Recent Stroke, or Established Peripheral Arterial Disease",
+        "chunk_ids": [
+          "dailymed_4cd07a3c-9673-4aa0-b76a-d79df2399ee1_v11_s9_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/12",
+        "title": "4.1 Active Bleeding",
+        "chunk_ids": [
+          "dailymed_4cd07a3c-9673-4aa0-b76a-d79df2399ee1_v11_s12_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/13",
+        "title": "4.2 Hypersensitivity",
+        "chunk_ids": [
+          "dailymed_4cd07a3c-9673-4aa0-b76a-d79df2399ee1_v11_s13_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/15",
+        "title": "5.1 Diminished Antiplatelet Activity in Patients with Impaired CYP2C19 Function",
+        "chunk_ids": [
+          "dailymed_4cd07a3c-9673-4aa0-b76a-d79df2399ee1_v11_s15_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/16",
+        "title": "5.2 General Risk of Bleeding",
+        "chunk_ids": [
+          "dailymed_4cd07a3c-9673-4aa0-b76a-d79df2399ee1_v11_s16_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/17",
+        "title": "5.3 Discontinuation of Clopidogrel Tablets",
+        "chunk_ids": [
+          "dailymed_4cd07a3c-9673-4aa0-b76a-d79df2399ee1_v11_s17_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/18",
+        "title": "5.4 Thrombotic Thrombocytopenic Purpura (TTP)",
+        "chunk_ids": [
+          "dailymed_4cd07a3c-9673-4aa0-b76a-d79df2399ee1_v11_s18_c1"
+        ]
+      },
+      {
+        "section": "warnings/43685-7/19",
+        "title": "5.5 Cross-Reactivity among Thienopyridines",
+        "chunk_ids": [
+          "dailymed_4cd07a3c-9673-4aa0-b76a-d79df2399ee1_v11_s19_c1"
+        ]
+      },
+      {
+        "section": "labelling/34089-3/40",
+        "title": "11 DESCRIPTION",
+        "chunk_ids": [
+          "dailymed_4cd07a3c-9673-4aa0-b76a-d79df2399ee1_v11_s40_c1",
+          "dailymed_4cd07a3c-9673-4aa0-b76a-d79df2399ee1_v11_s40_c2"
+        ]
+      },
+      {
+        "section": "warnings/34076-0/53",
+        "title": "17 PATIENT COUNSELING INFORMATION",
+        "chunk_ids": [
+          "dailymed_4cd07a3c-9673-4aa0-b76a-d79df2399ee1_v11_s53_c1",
+          "dailymed_4cd07a3c-9673-4aa0-b76a-d79df2399ee1_v11_s53_c2"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/55",
+        "title": "Package/Label Display Panel",
+        "chunk_ids": [
+          "dailymed_4cd07a3c-9673-4aa0-b76a-d79df2399ee1_v11_s55_c1"
+        ]
+      }
+    ]
+  },
+  {
+    "setid": "3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b",
+    "version": 15,
+    "product_name": "Protonix I.V.",
+    "xml_sha256": "3971881d35861a5c2d1b2e83df9b89e8c45137cc4cfdc5dff51828116e8f9a78",
+    "effective_date": "2026-11-06",
+    "fetched": "2026-11-21",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b&version=15",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "labelling/34067-9/3",
+        "title": "1 INDICATIONS AND USAGE",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s3_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/5",
+        "title": "2.1 Recommended Dosage for GERD Associated with a History of EE",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s5_c1",
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s5_c2"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/7",
+        "title": "dosage",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s7_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/8",
+        "title": "2.3 Preparation and Administration Instructions for GERD Associated with a History of EE",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s8_c1",
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s8_c2"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/10",
+        "title": "dosage",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s10_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/11",
+        "title": "dosage",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s11_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/12",
+        "title": "dosage",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s12_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/13",
+        "title": "dosage",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s13_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/14",
+        "title": "2.5 Compatibility Information",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s14_c1"
+        ]
+      },
+      {
+        "section": "warnings/34070-3/16",
+        "title": "4 CONTRAINDICATIONS",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s16_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/18",
+        "title": "5.1 Presence of Gastric Malignancy",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s18_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/19",
+        "title": "5.2 Injection Site Reactions",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s19_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/20",
+        "title": "5.3 Potential for Exacerbation of Zinc Deficiency",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s20_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/21",
+        "title": "5.4 Acute Tubulointerstitial Nephritis",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s21_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/22",
+        "title": "5.5 Clostridioides difficile- Associated Diarrhea",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s22_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/23",
+        "title": "5.6 Bone Fracture",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s23_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/24",
+        "title": "5.7 Severe Cutaneous Adverse Reactions",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s24_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/25",
+        "title": "5.8 Cutaneous and Systemic Lupus Erythematosus",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s25_c1",
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s25_c2"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/26",
+        "title": "5.9 Hepatic Effects",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s26_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/27",
+        "title": "5.10 Hypomagnesemia and Mineral Metabolism",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s27_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/28",
+        "title": "5.11 Fundic Gland Polyps",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s28_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/29",
+        "title": "5.12 Interference with Investigations for Neuroendocrine Tumors",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s29_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/30",
+        "title": "5.13 Interference with Urine Screen for THC",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s30_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/31",
+        "title": "5.14 Concomitant Use of PROTONIX I.V. with Methotrexate",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s31_c1"
+        ]
+      },
+      {
+        "section": "labelling/34089-3/51",
+        "title": "11 DESCRIPTION",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s51_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/86",
+        "title": "warnings",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s86_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/87",
+        "title": "warnings",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s87_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/88",
+        "title": "warnings",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s88_c1"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/90",
+        "title": "Package/Label Display Panel",
+        "chunk_ids": [
+          "dailymed_3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b_v15_s90_c1"
+        ]
+      }
+    ]
+  },
+  {
+    "setid": "176b400b-2b4e-481d-b6c4-0f99e4c711c3",
+    "version": 3,
+    "product_name": "valsartan and hydrochlorothiazide",
+    "xml_sha256": "6521c7736cfb90f02a3ab2c67b324720b11efb168bd1e4242013429676cf1003",
+    "effective_date": "2026-11-17",
+    "fetched": "2026-11-21",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=176b400b-2b4e-481d-b6c4-0f99e4c711c3&version=3",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "warnings/34066-1/2",
+        "title": "WARNING: FETAL TOXICITY",
+        "chunk_ids": [
+          "dailymed_176b400b-2b4e-481d-b6c4-0f99e4c711c3_v3_s2_c1"
+        ]
+      },
+      {
+        "section": "labelling/34067-9/3",
+        "title": "1 INDICATIONS AND USAGE",
+        "chunk_ids": [
+          "dailymed_176b400b-2b4e-481d-b6c4-0f99e4c711c3_v3_s3_c1",
+          "dailymed_176b400b-2b4e-481d-b6c4-0f99e4c711c3_v3_s3_c2",
+          "dailymed_176b400b-2b4e-481d-b6c4-0f99e4c711c3_v3_s3_c3",
+          "dailymed_176b400b-2b4e-481d-b6c4-0f99e4c711c3_v3_s3_c4"
+        ]
+      },
+      {
+        "section": "dosage/unknown/5",
+        "title": "2.1 General Considerations",
+        "chunk_ids": [
+          "dailymed_176b400b-2b4e-481d-b6c4-0f99e4c711c3_v3_s5_c1"
+        ]
+      },
+      {
+        "section": "dosage/unknown/6",
+        "title": "2.2 Add-On Therapy",
+        "chunk_ids": [
+          "dailymed_176b400b-2b4e-481d-b6c4-0f99e4c711c3_v3_s6_c1"
+        ]
+      },
+      {
+        "section": "dosage/unknown/7",
+        "title": "2.3 Replacement Therapy",
+        "chunk_ids": [
+          "dailymed_176b400b-2b4e-481d-b6c4-0f99e4c711c3_v3_s7_c1"
+        ]
+      },
+      {
+        "section": "dosage/unknown/8",
+        "title": "2.4 Initial Therapy",
+        "chunk_ids": [
+          "dailymed_176b400b-2b4e-481d-b6c4-0f99e4c711c3_v3_s8_c1"
+        ]
+      },
+      {
+        "section": "dosage/unknown/9",
+        "title": "2.5 Use with Other Antihypertensive Drugs",
+        "chunk_ids": [
+          "dailymed_176b400b-2b4e-481d-b6c4-0f99e4c711c3_v3_s9_c1"
+        ]
+      },
+      {
+        "section": "warnings/34070-3/11",
+        "title": "4 CONTRAINDICATIONS",
+        "chunk_ids": [
+          "dailymed_176b400b-2b4e-481d-b6c4-0f99e4c711c3_v3_s11_c1"
+        ]
+      },
+      {
+        "section": "warnings/unknown/13",
+        "title": "5.1 Fetal Toxicity",
+        "chunk_ids": [
+          "dailymed_176b400b-2b4e-481d-b6c4-0f99e4c711c3_v3_s13_c1"
+        ]
+      },
+      {
+        "section": "warnings/unknown/14",
+        "title": "5.2 Hypotension in Volume- and/or Salt-Depleted Patients",
+        "chunk_ids": [
+          "dailymed_176b400b-2b4e-481d-b6c4-0f99e4c711c3_v3_s14_c1"
+        ]
+      },
+      {
+        "section": "warnings/unknown/15",
+        "title": "5.3 Impaired Renal Function",
+        "chunk_ids": [
+          "dailymed_176b400b-2b4e-481d-b6c4-0f99e4c711c3_v3_s15_c1"
+        ]
+      },
+      {
+        "section": "warnings/unknown/16",
+        "title": "5.4 Hypersensitivity Reaction",
+        "chunk_ids": [
+          "dailymed_176b400b-2b4e-481d-b6c4-0f99e4c711c3_v3_s16_c1"
+        ]
+      },
+      {
+        "section": "warnings/unknown/17",
+        "title": "5.5 Systemic Lupus Erythematosus",
+        "chunk_ids": [
+          "dailymed_176b400b-2b4e-481d-b6c4-0f99e4c711c3_v3_s17_c1"
+        ]
+      },
+      {
+        "section": "warnings/unknown/18",
+        "title": "5.6 Lithium Interaction",
+        "chunk_ids": [
+          "dailymed_176b400b-2b4e-481d-b6c4-0f99e4c711c3_v3_s18_c1"
+        ]
+      },
+      {
+        "section": "warnings/unknown/19",
+        "title": "5.7 Potassium Abnormalities",
+        "chunk_ids": [
+          "dailymed_176b400b-2b4e-481d-b6c4-0f99e4c711c3_v3_s19_c1"
+        ]
+      },
+      {
+        "section": "warnings/unknown/20",
+        "title": "5.8 Acute Myopia and Secondary Angle-Closure Glaucoma",
+        "chunk_ids": [
+          "dailymed_176b400b-2b4e-481d-b6c4-0f99e4c711c3_v3_s20_c1"
+        ]
+      },
+      {
+        "section": "warnings/unknown/21",
+        "title": "5.9 Metabolic Disturbances",
+        "chunk_ids": [
+          "dailymed_176b400b-2b4e-481d-b6c4-0f99e4c711c3_v3_s21_c1"
+        ]
+      },
+      {
+        "section": "labelling/34089-3/34",
+        "title": "11 DESCRIPTION",
+        "chunk_ids": [
+          "dailymed_176b400b-2b4e-481d-b6c4-0f99e4c711c3_v3_s34_c1",
+          "dailymed_176b400b-2b4e-481d-b6c4-0f99e4c711c3_v3_s34_c2"
+        ]
+      },
+      {
+        "section": "warnings/34076-0/45",
+        "title": "17 PATIENT COUNSELING INFORMATION",
+        "chunk_ids": [
+          "dailymed_176b400b-2b4e-481d-b6c4-0f99e4c711c3_v3_s45_c1",
+          "dailymed_176b400b-2b4e-481d-b6c4-0f99e4c711c3_v3_s45_c2"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/49",
+        "title": "PACKAGE LABEL.PRINCIPAL DISPLAY PANEL",
+        "chunk_ids": [
+          "dailymed_176b400b-2b4e-481d-b6c4-0f99e4c711c3_v3_s49_c1"
+        ]
+      }
+    ]
+  },
+  {
+    "setid": "682dd8b8-fc6e-47c5-95b7-82d7ad96b750",
+    "version": 14,
+    "product_name": "Allopurinol",
+    "xml_sha256": "c6c9c576d1c4e7695bfd3da18cdbfb1b828b8c94720ea3d230dd0233955e137e",
+    "effective_date": "2026-11-05",
+    "fetched": "2026-11-21",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=682dd8b8-fc6e-47c5-95b7-82d7ad96b750&version=14",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "labelling/34067-9/2",
+        "title": "1 INDICATIONS AND USAGE",
+        "chunk_ids": [
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s2_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/4",
+        "title": "2.1 Recommended Testing Prior to Treatment Initiation",
+        "chunk_ids": [
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s4_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/5",
+        "title": "2.2 Recommended Prophylaxis for Gout Flares",
+        "chunk_ids": [
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s5_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/6",
+        "title": "2.3 Recommended Dosage for Gout",
+        "chunk_ids": [
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s6_c1",
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s6_c2",
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s6_c3"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/7",
+        "title": "2.4 Recommended Dosage for Hyperuricemia Associated with Cancer Therapy",
+        "chunk_ids": [
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s7_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/8",
+        "title": "2.5 Recommended Dosage for Management of Recurrent Calcium Oxalate Calculi in Hyperuricosuric Patients",
+        "chunk_ids": [
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s8_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/9",
+        "title": "2.6 Recommended Dosage in Patients with Renal Impairment",
+        "chunk_ids": [
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s9_c1",
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s9_c2",
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s9_c3"
+        ]
+      },
+      {
+        "section": "warnings/34070-3/11",
+        "title": "4 CONTRAINDICATIONS",
+        "chunk_ids": [
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s11_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/13",
+        "title": "5.1 Skin Rash and Hypersensitivity",
+        "chunk_ids": [
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s13_c1",
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s13_c2"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/14",
+        "title": "5.2 Gout Flares",
+        "chunk_ids": [
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s14_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/15",
+        "title": "5.3 Nephrotoxicity",
+        "chunk_ids": [
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s15_c1",
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s15_c2"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/16",
+        "title": "5.4 Hepatotoxicity",
+        "chunk_ids": [
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s16_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/17",
+        "title": "5.5 Myelosuppression",
+        "chunk_ids": [
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s17_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/18",
+        "title": "5.6 Potential Effect on Driving and Use of Machinery",
+        "chunk_ids": [
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s18_c1"
+        ]
+      },
+      {
+        "section": "labelling/34089-3/29",
+        "title": "11 DESCRIPTION",
+        "chunk_ids": [
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s29_c1"
+        ]
+      },
+      {
+        "section": "warnings/34076-0/38",
+        "title": "17 PATIENT COUNSELING INFORMATION",
+        "chunk_ids": [
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s38_c1",
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s38_c2",
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s38_c3",
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s38_c4"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/39",
+        "title": "PACKAGE LABEL.PRINCIPAL DISPLAY PANEL",
+        "chunk_ids": [
+          "dailymed_682dd8b8-fc6e-47c5-95b7-82d7ad96b750_v14_s39_c1"
+        ]
+      }
+    ]
+  },
+  {
+    "setid": "c9ec1996-6a54-4622-b8a6-57dea49f6b35",
+    "version": 23,
+    "product_name": "Montelukast Sodium",
+    "xml_sha256": "a7d9755c49e1db68096737515caae41814568a2432606a19364a4138d543ae18",
+    "effective_date": "2026-11-10",
+    "fetched": "2026-11-21",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c9ec1996-6a54-4622-b8a6-57dea49f6b35&version=23",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "warnings/34066-1/2",
+        "title": "WARNING: SERIOUS NEUROPSYCHIATRIC EVENTS",
+        "chunk_ids": [
+          "dailymed_c9ec1996-6a54-4622-b8a6-57dea49f6b35_v23_s2_c1",
+          "dailymed_c9ec1996-6a54-4622-b8a6-57dea49f6b35_v23_s2_c2"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/5",
+        "title": "1.1 Asthma",
+        "chunk_ids": [
+          "dailymed_c9ec1996-6a54-4622-b8a6-57dea49f6b35_v23_s5_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/6",
+        "title": "1.2 Exercise-Induced Bronchoconstriction (EIB)",
+        "chunk_ids": [
+          "dailymed_c9ec1996-6a54-4622-b8a6-57dea49f6b35_v23_s6_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/7",
+        "title": "1.3 Allergic Rhinitis",
+        "chunk_ids": [
+          "dailymed_c9ec1996-6a54-4622-b8a6-57dea49f6b35_v23_s7_c1"
+        ]
+      },
+      {
+        "section": "labelling/42229-5/8",
+        "title": "1.4 Limitations of Use",
+        "chunk_ids": [
+          "dailymed_c9ec1996-6a54-4622-b8a6-57dea49f6b35_v23_s8_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/10",
+        "title": "2.1 Asthma",
+        "chunk_ids": [
+          "dailymed_c9ec1996-6a54-4622-b8a6-57dea49f6b35_v23_s10_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/11",
+        "title": "2.2 Exercise-Induced Bronchoconstriction (EIB)",
+        "chunk_ids": [
+          "dailymed_c9ec1996-6a54-4622-b8a6-57dea49f6b35_v23_s11_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/12",
+        "title": "2.3 Allergic Rhinitis",
+        "chunk_ids": [
+          "dailymed_c9ec1996-6a54-4622-b8a6-57dea49f6b35_v23_s12_c1"
+        ]
+      },
+      {
+        "section": "dosage/42229-5/13",
+        "title": "2.4 Asthma and Allergic Rhinitis",
+        "chunk_ids": [
+          "dailymed_c9ec1996-6a54-4622-b8a6-57dea49f6b35_v23_s13_c1"
+        ]
+      },
+      {
+        "section": "warnings/34070-3/15",
+        "title": "4 CONTRAINDICATIONS",
+        "chunk_ids": [
+          "dailymed_c9ec1996-6a54-4622-b8a6-57dea49f6b35_v23_s15_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/17",
+        "title": "5.1 Neuropsychiatric Events",
+        "chunk_ids": [
+          "dailymed_c9ec1996-6a54-4622-b8a6-57dea49f6b35_v23_s17_c1",
+          "dailymed_c9ec1996-6a54-4622-b8a6-57dea49f6b35_v23_s17_c2"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/18",
+        "title": "5.2 Acute Asthma",
+        "chunk_ids": [
+          "dailymed_c9ec1996-6a54-4622-b8a6-57dea49f6b35_v23_s18_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/19",
+        "title": "5.3 Concomitant Corticosteroid Use",
+        "chunk_ids": [
+          "dailymed_c9ec1996-6a54-4622-b8a6-57dea49f6b35_v23_s19_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/20",
+        "title": "5.4 Aspirin Sensitivity",
+        "chunk_ids": [
+          "dailymed_c9ec1996-6a54-4622-b8a6-57dea49f6b35_v23_s20_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/21",
+        "title": "5.5 Eosinophilic Conditions",
+        "chunk_ids": [
+          "dailymed_c9ec1996-6a54-4622-b8a6-57dea49f6b35_v23_s21_c1"
+        ]
+      },
+      {
+        "section": "labelling/34089-3/34",
+        "title": "11 DESCRIPTION",
+        "chunk_ids": [
+          "dailymed_c9ec1996-6a54-4622-b8a6-57dea49f6b35_v23_s34_c1"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/47",
+        "title": "warnings",
+        "chunk_ids": [
+          "dailymed_c9ec1996-6a54-4622-b8a6-57dea49f6b35_v23_s47_c1",
+          "dailymed_c9ec1996-6a54-4622-b8a6-57dea49f6b35_v23_s47_c2"
+        ]
+      },
+      {
+        "section": "warnings/42229-5/48",
+        "title": "warnings",
+        "chunk_ids": [
+          "dailymed_c9ec1996-6a54-4622-b8a6-57dea49f6b35_v23_s48_c1"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/50",
+        "title": "",
+        "chunk_ids": [
+          "dailymed_c9ec1996-6a54-4622-b8a6-57dea49f6b35_v23_s50_c1"
+        ]
+      }
+    ]
+  },
+  {
+    "setid": "02797697-300a-43db-92cf-9b78f08626be",
+    "version": 7,
+    "product_name": "Rosuvastatin Calcium",
+    "xml_sha256": "277e1d0861b0115d3cccb0d6e47c8cb12ed1ee5d5fc330a40ed0cde084b643cc",
+    "effective_date": "2026-11-17",
+    "fetched": "2026-11-21",
+    "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=02797697-300a-43db-92cf-9b78f08626be&version=7",
+    "module": "medicine",
+    "sections": [
+      {
+        "section": "labelling/34067-9/3",
+        "title": "1 INDICATIONS AND USAGE",
+        "chunk_ids": [
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s3_c1"
+        ]
+      },
+      {
+        "section": "dosage/unknown/5",
+        "title": "2.1 General Dosage and Administration Information",
+        "chunk_ids": [
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s5_c1"
+        ]
+      },
+      {
+        "section": "dosage/unknown/6",
+        "title": "2.2 Recommended Dosage in Adult Patients",
+        "chunk_ids": [
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s6_c1"
+        ]
+      },
+      {
+        "section": "dosage/unknown/7",
+        "title": "2.3 Recommended Dosage in Pediatric Patients",
+        "chunk_ids": [
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s7_c1"
+        ]
+      },
+      {
+        "section": "dosage/unknown/8",
+        "title": "2.4 Dosing in Asian Patients",
+        "chunk_ids": [
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s8_c1"
+        ]
+      },
+      {
+        "section": "dosage/unknown/9",
+        "title": "2.5 Recommended Dosage in Patients with Renal Impairment",
+        "chunk_ids": [
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s9_c1"
+        ]
+      },
+      {
+        "section": "dosage/unknown/10",
+        "title": "2.6 Dosage Modifications Due to Drug Interactions",
+        "chunk_ids": [
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s10_c1",
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s10_c2"
+        ]
+      },
+      {
+        "section": "warnings/34070-3/12",
+        "title": "4 CONTRAINDICATIONS",
+        "chunk_ids": [
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s12_c1"
+        ]
+      },
+      {
+        "section": "warnings/unknown/14",
+        "title": "5.1 Myopathy and Rhabdomyolysis",
+        "chunk_ids": [
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s14_c1",
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s14_c2"
+        ]
+      },
+      {
+        "section": "warnings/unknown/15",
+        "title": "5.2 Immune-Mediated Necrotizing Myopathy",
+        "chunk_ids": [
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s15_c1"
+        ]
+      },
+      {
+        "section": "warnings/unknown/16",
+        "title": "5.3 Hepatic Dysfunction",
+        "chunk_ids": [
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s16_c1"
+        ]
+      },
+      {
+        "section": "warnings/unknown/17",
+        "title": "5.4 Proteinuria and Hematuria",
+        "chunk_ids": [
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s17_c1"
+        ]
+      },
+      {
+        "section": "warnings/unknown/18",
+        "title": "5.5 Increases in HbA1c and Fasting Serum Glucose Levels",
+        "chunk_ids": [
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s18_c1"
+        ]
+      },
+      {
+        "section": "labelling/34089-3/35",
+        "title": "11 DESCRIPTION",
+        "chunk_ids": [
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s35_c1"
+        ]
+      },
+      {
+        "section": "warnings/34076-0/45",
+        "title": "17 PATIENT COUNSELING INFORMATION",
+        "chunk_ids": [
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s45_c1",
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s45_c2",
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s45_c3",
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s45_c4",
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s45_c5",
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s45_c6",
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s45_c7",
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s45_c8",
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s45_c9",
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s45_c10",
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s45_c11"
+        ]
+      },
+      {
+        "section": "labelling/51945-4/46",
+        "title": "PACKAGE LABEL.PRINCIPAL DISPLAY PANEL",
+        "chunk_ids": [
+          "dailymed_02797697-300a-43db-92cf-9b78f08626be_v7_s46_c1"
+        ]
+      }
+    ]
   }
 ]
