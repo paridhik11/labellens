@@ -35,6 +35,8 @@ def test_reference_split_and_strict_scoring() -> None:
     assert not bench.improves(after, after)
     assert after['photo']['effective']['lot']['n'] == 1
     assert after['photo']['printed']['lot']['k'] == 0
+    printed = bench.summarize(refs, [{'fields': {'lot': 'ABC'}, 'details': {'raw_fields': {'lot': 'ABO'}}}])
+    assert printed['photo']['printed']['lot']['k'] == 0
     with pytest.raises(ValueError, match='populations'):
         bench.improves(before, bench.summarize(refs*2, [{'fields': {}}]*2))
 
@@ -254,3 +256,21 @@ def test_synthetic_builder_protocol(tmp_path: Path, monkeypatch: pytest.MonkeyPa
     assert {r['seed'] for r in records} == set(range(12000, 12016))
     assert sum(c['allow_print_barcode_mismatch'] for c in calls) == 6
     assert bench.build_synthetic(tmp_path/'synthetic') == records
+
+
+def test_release_requires_every_field_and_safety_case() -> None:
+    """An aggregate improvement cannot hide a printed-field or condition-specific regression."""
+    import copy
+
+    totals = bench.summarize([{'fields': {'lot': 'ABC', 'expiry': '2028-01-01'}}], [{'fields': {}}])
+    safety = [{'filename': str(i), 'prediction': LabelExtraction(label_id=str(i)).model_dump()} for i in range(6)]
+    before = {'test': {'totals': totals}, 'synthetic': {'totals': totals, 'safety': safety}}
+    after = copy.deepcopy(before)
+    assert not bench.release_gate(before, after)[0]
+    after['test']['totals']['photo']['effective']['lot']['k'] = 1
+    assert bench.release_gate(before, after)[0]
+    before['synthetic']['totals']['photo']['printed']['expiry']['k'] = 1
+    assert not bench.release_gate(before, after)[0]
+    after['synthetic']['totals']['photo']['printed']['expiry']['k'] = 1
+    after['synthetic']['safety'][0]['prediction']['error'] = 'timeout'
+    assert not bench.release_gate(before, after)[0]

@@ -45,7 +45,9 @@ def summarize(records: list[dict[str, Any]], predictions: list[dict[str, Any]]) 
                 if field not in ('product_name', 'lot', 'expiry'):
                     continue
                 key = f'prefill_{field}' if kind == 'effective' else f'printed_{field}'
-                observed = fields.get(key, fields.get(field, ''))
+                fallback = (prediction.get('details', {}).get('raw_fields', fields)
+                            if kind == 'printed' else fields)
+                observed = fields.get(key, fallback.get(field, ''))
                 cell = cells.setdefault(field, {'k': 0, 'n': 0})
                 cell['n'] += 1
                 cell['k'] += int(canonical(field, observed) == canonical(field, expected))
@@ -66,6 +68,44 @@ def improves(before: dict[str, Any], after: dict[str, Any]) -> bool:
                 raise ValueError('Scoring populations differ')
             changes.append(other['k']-cell['k'])
     return bool(changes) and min(changes) >= 0 and max(changes) > 0
+
+
+def release_gate(before: dict[str, Any], after: dict[str, Any]) -> tuple[bool, list[str]]:
+    """Reject any real/synthetic field loss or suppressed safety flag; require a gain.
+
+    Both printed-only and effective counts are protected. Wilson intervals are
+    descriptive; this gate compares exact counts, not significance claims.
+    """
+    from src.common.schemas import LabelExtraction
+    from src.cv.consistency import check_extraction
+
+    reasons = []
+    gain = False
+    for split in ('test', 'synthetic'):
+        for condition, groups in before[split]['totals'].items():
+            for kind, cells in groups.items():
+                for field, cell in cells.items():
+                    other = after[split]['totals'][condition][kind][field]
+                    if cell['n'] != other['n'] or other['k'] < cell['k']:
+                        reasons.append(f'{split}/{condition}/{kind}/{field} regressed or population differs')
+                    gain |= kind == 'effective' and other['k'] > cell['k']
+    if not gain:
+        reasons.append('No effective held-out or synthetic field gain')
+    a, b = before['synthetic']['safety'], after['synthetic']['safety']
+    if len(a) != 6 or [r['filename'] for r in a] != [r['filename'] for r in b]:
+        reasons.append('Incomplete or different safety cases')
+    else:
+        for old, new in zip(a, b, strict=True):
+            if old['prediction'].get('error') or new['prediction'].get('error'):
+                reasons.append('Safety extraction failed')
+                continue
+            old_flags = check_extraction(LabelExtraction.model_validate(old['prediction']))
+            new_flags = check_extraction(LabelExtraction.model_validate(new['prediction']))
+            required = {f.flag_id for f in old_flags if f.kind == 'barcode_mismatch'}
+            found = {f.flag_id for f in new_flags if f.kind == 'barcode_mismatch'}
+            if not required <= found:
+                reasons.append(f"Safety mismatch suppressed: {old['filename']}")
+    return not reasons, reasons
 
 
 def predict(task: tuple[str, str, str]) -> dict[str, Any]:
