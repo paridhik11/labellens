@@ -93,6 +93,7 @@ def test_anchor_crop_pixels_and_projection(monkeypatch: pytest.MonkeyPatch) -> N
     field, box, pixels = crops[0]
     assert field == 'lot' and box == (10, 25, 210, 55)
     assert pixels.shape == (90, 600, 3) and (pixels == 127).all()
+    assert not anchored_crops(image, [key], min_confidence=1.0)
 
     def recognize(crop: Any, **kwargs: Any) -> list[OcrBlock]:
         """Return a known observed crop row without accessing any reference value."""
@@ -194,6 +195,8 @@ def test_extractor_keeps_perspective_and_print_fields(tmp_path: Path, monkeypatc
     assert candidate.fields['expiry'] == base.fields['expiry'] == printed['expiry']
     assert candidate.fields['printed_lot'] == printed['lot']
     assert candidate.fields['prefill_lot'] == details['record_prefill']['lot']['value'] == 'OTHERLOT'
+    public = extract.extract_label(path, mode='blind', cv3_stage=1)
+    assert public.fields['prefill_lot'] == 'OTHERLOT' and public.fields['lot'] == printed['lot']
     with pytest.raises(ValueError, match='cv3_stage'):
         extract.extract_label_modes(path, cv3_stage=99)
 

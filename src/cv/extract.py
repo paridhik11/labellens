@@ -449,7 +449,7 @@ def extract_label_modes(
             from src.cv.cv3 import read_anchors
 
             try:
-                crop_fields, crop_blocks = read_anchors(image, output.ocr_blocks)
+                crop_fields, crop_blocks = read_anchors(image, output.ocr_blocks, min_confidence=field_confidence)
                 fields.update(crop_fields)
                 output.ocr_blocks.extend(crop_blocks)
                 details["anchor_fields"] = crop_fields
@@ -490,6 +490,8 @@ def extract_label(
     postcorrect: bool = False,
     symbol_detector: str = "v1",
     photo_profile: str = DEFAULT_PHOTO_PROFILE,
+    cv3_stage: int = 0,
+    cv3_prefill: bool = True,
 ) -> LabelExtraction:
     """Extract one label photo into the unchanged shared schema.
 
@@ -507,10 +509,15 @@ def extract_label(
 
     ``symbol_detector`` is "v1" (the default, behaviour unchanged: slot windows in template mode, whole-label
     template matching in blind mode) or "v2" (``src.cv.symbols_v2``, whole-label search in either mode).
+    ``cv3_stage`` opts into the isolated CV3 experiment; see ``extract_label_modes``.
+    Barcode suggestions use ``prefill_lot``/``prefill_expiry`` and observed OCR uses
+    ``printed_lot``/``printed_expiry``. Existing ``lot``/``expiry`` remain checker inputs.
+    Call ``extract_label_modes`` for the full suggestion provenance dictionary.
     """
     return extract_label_modes(
         image_path, modes=(mode,), min_confidence=min_confidence, blur_threshold=blur_threshold,
         postcorrect=postcorrect, symbol_detector=symbol_detector, photo_profile=photo_profile,
+        cv3_stage=cv3_stage, cv3_prefill=cv3_prefill,
     )[mode][0]
 
 

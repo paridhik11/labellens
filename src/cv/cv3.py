@@ -41,7 +41,9 @@ def barcode_prefill(barcodes: list[BarcodeResult]) -> dict[str, dict[str, Any]]:
     return result
 
 
-def anchored_crops(image: Any, blocks: list[OcrBlock]) -> list[tuple[str, tuple[int, int, int, int], Any]]:
+def anchored_crops(
+    image: Any, blocks: list[OcrBlock], *, min_confidence: float = 0.5,
+) -> list[tuple[str, tuple[int, int, int, int], Any]]:
     """Crop keyed rows from original pixels, with fixed margins and 3x upscaling.
 
     Exact observed LOT/BATCH/EXP keys anchor a short row to their right, including
@@ -55,7 +57,7 @@ def anchored_crops(image: Any, blocks: list[OcrBlock]) -> list[tuple[str, tuple[
     seen = set()
     for block in blocks:
         match = re.match(r'^\s*[\[({]?(LOT|BATCH|EXP|EXPIRY)\b', block.text, re.I)
-        if not match or block.conf < 0.5:
+        if not match or block.conf < min_confidence:
             continue
         field = 'lot' if match[1].upper() in ('LOT', 'BATCH') else 'expiry'
         x, y, w, h = block.bbox
@@ -69,16 +71,18 @@ def anchored_crops(image: Any, blocks: list[OcrBlock]) -> list[tuple[str, tuple[
     return crops
 
 
-def read_anchors(image: Any, blocks: list[OcrBlock]) -> tuple[dict[str, str], list[OcrBlock]]:
+def read_anchors(
+    image: Any, blocks: list[OcrBlock], *, min_confidence: float = 0.5,
+) -> tuple[dict[str, str], list[OcrBlock]]:
     """Read anchored crop pixels and accept a field only when crop readings agree."""
     from src.cv.ocr import read_text_robust
     from src.cv.photo_cv2 import map_cv2_fields
 
     observed: list[OcrBlock] = []
     values: dict[str, set[str]] = {}
-    for field, box, crop in anchored_crops(image, blocks):
+    for field, box, crop in anchored_crops(image, blocks, min_confidence=min_confidence):
         readings = read_text_robust(crop, pad_ratios=(0.3,), dither_pad_ratios=())
-        fields, _ = map_cv2_fields(readings, min_confidence=0.5)
+        fields, _ = map_cv2_fields(readings, min_confidence=min_confidence)
         if field in fields:
             values.setdefault(field, set()).add(fields[field])
         observed.extend(b.model_copy(update={'bbox': (
