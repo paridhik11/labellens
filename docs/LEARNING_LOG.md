@@ -2,6 +2,26 @@
 
 A sequential log of progress, implementation decisions, worked examples, and verification steps.
 
+## CV step 46: confirmed photo symbol presence evaluation
+
+1. What I did: Converted the ten updated entries into six-category annotations.
+   Recorded the user-reported provenance as AI-assisted, human-confirmed by
+   parth2 on 2026-11-20. Ran the deployed standalone v1 detector unchanged.
+2. Files: `eval_confirmed_symbols.py` runs/scorers; its config pins annotations
+   and photo hashes; `test_confirmed_symbols.py` checks scoring; the report
+   `reports/parth_symbol_eval.md` records results and limits.
+3. How it works: One photo/category is one yes/no decision. A present hourglass
+   with no returned detection is a false negative, meaning a missed symbol.
+4. How I verified it: Conda `python -m pytest -q -p no:cacheprovider tests/test_confirmed_symbols.py`:
+   `3 passed in 0.03s`. Conda `python -m ruff check scripts/cv_experiments/eval_confirmed_symbols.py tests/test_confirmed_symbols.py`:
+   `All checks passed!`. Actual detector run: manufacturer TP=0 FP=0 FN=4 TN=6;
+   hourglass TP=0 FP=0 FN=9 TN=1; exceptions=0. Four categories unsupported.
+5. What you should check yourself: Inspect category support and the distinction
+   between manufacturer/date-of-manufacture; compare missed-photo IDs in report.
+6. What I am unsure about or assumed: Human confirmation is user-reported and
+   unblinded. Localization and unseen-photo accuracy remain unmeasured. This is
+   original-image detector evaluation, not the extractor's rectified path.
+
 ---
 
 ## Step 1: Environment and Baseline Evaluation
