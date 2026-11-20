@@ -29,3 +29,13 @@ and rescan rates with Wilson 95% intervals per condition. Gate: zero wrong-label
 matches in every condition, and at least one correct match in clean and moderate.
 One false match blocks merging this branch. No tuning/rescoring final seeds.
 Run full fast pytest and ruff before no-ff promotion and public-API CI check.
+
+Debug choice: recognize one line per bound slot with RapidOCR recognition-only,
+after trimming blank margins; reject multiline slots rather than guessing line
+assignment. Two debug correct clean prints and one moderate print matched.
+When contour detection fails on a flat white scan, accept its full frame only
+when aspect differs by under 0.01 and over 98% of perimeter pixels exceed 245.
+These pixel-only conditions were chosen before fresh scoring. OCR uses no expected
+strings. Barcode search is restricted to DataMatrix in its template crop.
+No full-extractor blind fallback is permitted. Text-only negatives retain the
+barcode; alternating lot/expiry negatives also encode the changed value.
