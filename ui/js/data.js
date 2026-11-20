@@ -18,6 +18,7 @@ const CONFIG = {
 };
 
 const DEMO_BANNER_TEXT = 'DEMO MODE: Sample data for course evaluation. Not for clinical use.';
+const DRAFT_DISCLAIMER = 'Draft generated for review. Not a compliance determination.';
 const PUBLIC_NOTICE_TEXT = 'Authenticity not verified. Based on a reference label match.';
 
 // Cached mock index data
@@ -95,7 +96,9 @@ async function getStatesForScreen(screen) {
   const index = await getMockIndex();
   const screenName = normalizeScreenName(screen);
 
-  const matched = index.mocks.filter(m => m.screen === screenName);
+  // index.json files the professional AI-answer mock under its own screen name; it belongs to D5.
+  const matched = index.mocks.filter(m => m.screen === screenName ||
+    (screenName === 'D5 Evidence' && m.screen === 'Professional evidence'));
 
   // Derive human-readable labels for state variants
   const items = matched.map((item, idx) => {
@@ -348,10 +351,28 @@ function renderTestBadge(val) {
   return '';
 }
 
+/**
+ * Shared DRAFT banner used on review, export and change screens.
+ * @param {string} [extra] - Optional second sentence (already escaped HTML-safe text).
+ * @returns {string} HTML
+ */
+function renderDraftBanner(extra) {
+  return `
+    <div class="notice-banner notice-warning" data-testid="draft-banner">
+      <div class="notice-icon">i</div>
+      <div>
+        <div class="notice-title"><span class="badge badge-draft">DRAFT</span> ${escapeHtml(DRAFT_DISCLAIMER)}</div>
+        ${extra ? `<div class="notice-text">${escapeHtml(extra)}</div>` : ''}
+      </div>
+    </div>`;
+}
+
 // Attach to window for global access
 window.LabelLensData = {
   CONFIG,
   DEMO_BANNER_TEXT,
+  DRAFT_DISCLAIMER,
+  renderDraftBanner,
   PUBLIC_NOTICE_TEXT,
   escapeHtml,
   isTestIdentifier,
