@@ -48,6 +48,21 @@ const EXPECT = {
   'professional/print_verify/loading.json': ['pv-loading'],
   'professional/print_verify/empty.json': ['pv-empty'],
   'professional/upload/failed.json': ['upload-card'],
+  'professional/upload/success.json': ['upload-card'],
+  'professional/inspect/extraction_needs_review.json': ['extraction-status', 'unclear-banner', 'edit-manufacturer_address'],
+  'professional/inspect/extraction_success.json': ['extraction-status', 'barcode'],
+  'professional/inspect/extraction_confirmed.json': ['extraction-status'],
+  'professional/inspect/failed_check.json': ['finding', 'citation', 'coverage'],
+  'professional/inspect/success.json': ['passed-note', 'coverage'],
+  'professional/inspect/loading.json': ['inspect-loading'],
+};
+// Extra controls that exist only in api mode.
+const EXPECT_API = {
+  'professional/template_setup/success.json': ['register-card'],
+  'professional/template_setup/failed_check.json': ['register-card'],
+  'professional/changes/assess_success.json': ['assess-btn'],
+  'professional/review/recheck_success.json': ['recheck-card'],
+  'professional/review/approved.json': ['recheck-card'],
 };
 const demoOrder = [
   'P1 Scan and Understand', 'P2 Product information', 'P3 Ask about this label',
@@ -109,7 +124,7 @@ const demoOrder = [
           for (const re of BAD) if (re.test(text)) { status = 'FAIL'; notes.push('text matches ' + re); }
           if (/verified/i.test(text) && screen.startsWith('D10')) { status = 'FAIL'; notes.push('word "verified" on D10'); }
           if ((screen.startsWith('D8') || screen.startsWith('D7')) && !/DRAFT/.test(text)) { status = 'FAIL'; notes.push('no DRAFT mark'); }
-          for (const id of EXPECT[m.file] || []) {
+          for (const id of [...(EXPECT[m.file] || []), ...(MODE === 'api' ? EXPECT_API[m.file] || [] : [])]) {
             if (!(await page.$(`[data-testid="${id}"]`))) { status = 'FAIL'; notes.push('missing ' + id); }
           }
           source = await page.$eval('#dataSourceBadge', (b) => b.dataset.kind).catch(() => 'none');
@@ -146,6 +161,7 @@ const demoOrder = [
       const { page } = await openState('D6 Changes', 'professional/changes/assess_success.json');
       await page.click('#btnConfirmChecklist'); await page.waitForTimeout(400);
       const t = await text(page);
+      if (MODE === 'api') return /Assess a change first/.test(t) ? '' : 'api mode must refuse to confirm a mock checklist';
       return /Generate Draft Artwork/.test(t) && !/undefined/.test(t) ? '' : 'confirm did not reach a confirmed state: ' + t.slice(0, 80);
     }],
     ['D6 generate draft button (mock)', async () => {
@@ -178,10 +194,31 @@ const demoOrder = [
       const n = await page.$eval('#downloadNote', (e) => e.textContent);
       return n.length > 5 ? '' : 'no download note';
     }],
+    ['D4 confirm button reaches a confirmed extraction (mock)', async () => {
+      if (MODE === 'api') return '';
+      const { page } = await openState('D4 Inspect', 'professional/inspect/extraction_needs_review.json');
+      await page.$eval('#btnConfirmExtractionAction', (e) => e.click()); await page.waitForTimeout(500);
+      return /Extraction confirmed/.test(await text(page)) ? '' : 'did not reach the confirmed extraction';
+    }],
+    ['D4 run inspection reaches the check result', async () => {
+      if (MODE === 'api') return '';
+      const { page } = await openState('D4 Inspect', 'professional/inspect/extraction_success.json');
+      await page.$eval('#btnRunInspectionNow', (e) => e.click()); await page.waitForTimeout(500);
+      return (await page.$('[data-testid="inspect-outcome"]')) ? '' : 'no inspection result after Run inspection';
+    }],
+    ['D4 unclear field is editable, confirmed field is not', async () => {
+      const { page } = await openState('D4 Inspect', 'professional/inspect/extraction_needs_review.json');
+      const editable = await page.$$eval('input[data-field]', (i) => i.length);
+      const { page: p2 } = await openState('D4 Inspect', 'professional/inspect/extraction_confirmed.json');
+      const after = await p2.$$eval('input[data-field]', (i) => i.length);
+      return editable > 0 && after === 0 ? '' : `editable ${editable}, after confirm ${after}`;
+    }],
     ['D5 ask click', async () => {
       const { page } = await openState('D5 Evidence', 'professional/evidence/success.json');
       await page.fill('#d5Question', 'how must a date be written?');
-      await page.click('#d5Ask'); await page.waitForTimeout(500);
+      await page.click('#d5Ask');
+      if (MODE === 'api') await page.waitForFunction(() => /Extractive answer|Abstained|Search is not available|HTTP|error/.test(document.getElementById('professionalDynamicContent').innerText), null, { timeout: 30000 }).catch(() => {});
+      await page.waitForTimeout(500);
       const t = await text(page);
       return MODE === 'api' ? (/Extractive answer|Abstained|Search is not available|HTTP|error/.test(t) ? '' : 'no answer or message: ' + t.slice(-120)) : (/Mock mode/.test(t) ? '' : 'no mock note');
     }],
