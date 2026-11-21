@@ -1,0 +1,42 @@
+{
+  "frozen_at_utc": "2026-11-21T10:14:15.073542+00:00",
+  "status_at_freeze": "Held-out positives and negatives not run",
+  "candidate_code_commit": "56559f367bef990e5737e85cb188ac8a3420c553",
+  "baseline_commit": "c4ac3d9",
+  "integrated_main": "5706ddbbab40e1d798279c1223529eb55b147c74",
+  "baseline_extractor_unchanged": true,
+  "selected": "cv2",
+  "dev": {
+    "blind": 3,
+    "known_cv2": 13,
+    "known_ppocrv6_small": 12,
+    "n": 20,
+    "dev_false_found_cv2": 0,
+    "dev_false_found_ppocrv6": 0,
+    "cv2_timeouts": 1,
+    "ppocrv6_timeouts": 0
+  },
+  "source_sha256": {
+    "src/cv/known_product.py": "7e34b02e2fe04d60ae0005de19e2337cffffb7f354f1815f0856a83ecb095c9b",
+    "src/cv/ocr_modern.py": "bea0953eddcd3202a106ecc5f5b7c6848eb870f9bdea914f360f053b345c4723",
+    "src/cv/cv4_release.json": "6f15337d7b951bd642ce00428de317a265a586359127cd68b4aee49befd4e956",
+    "src/api/known_name.py": "9486905d36f803fb7cac54d1e2ae3024bd3b4560f7fb97bb44315985ee64905d",
+    "src/api/scans.py": "c53f613b2902a4b2c66a8d63a351f7a3f5c5f90a2f4fd4173166d6a58d1b1b6f",
+    "src/api/checks.py": "1f49cdb157ae619bcfa89b988216d4c2038a11e21f513813d609eadbd0eae1c6",
+    "scripts/cv_experiments/cv4_eval.py": "0f9b19a4465fe0ca36abc832f3aa4fb17e0b196fb2bff6fcb46386190894ade2",
+    "src/gen/cv4_dataset.json": "420a58b44154242527467e18a76ecfef53289dbb3cef23619344d5a19e2e4172"
+  },
+  "model_sha256": {
+    "rapidocr_onnxruntime/models/ch_PP-OCRv4_det_infer.onnx": "d2a7720d45a54257208b1e13e36a8479894cb74155a5efe29462512d42f49da9",
+    "rapidocr_onnxruntime/models/ch_PP-OCRv4_rec_infer.onnx": "48fc40f24f6d2a207a2b1091d3437eb3cc3eb6b676dc3ef9c37384005483683b",
+    "rapidocr_onnxruntime/models/ch_ppocr_mobile_v2.0_cls_infer.onnx": "e47acedf663230f8863ff1ab0e64dd2d82b838fceb5957146dab185a89d6215c"
+  },
+  "rapidocr_onnxruntime_version": "1.4.4",
+  "test_positive": 10,
+  "test_negative": 15,
+  "timeout_seconds": 300,
+  "workers": 2,
+  "gate": "Positive found strictly above CV2 blind exact names on same 10 photos, wrong-product false found 0/15, complete observations; no OCR failures accepted as negative evidence",
+  "scope": "Name-evidence component after OCR; full upload latency and photo-quality acceptance are not benchmarked; existing barcode pipeline remains unchanged",
+  "modern_final_trial": "NOT_RUN: PP-OCRv6 small rejected on dev; no post-test model selection"
+}
