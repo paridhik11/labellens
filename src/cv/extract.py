@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from src.common.schemas import BarcodeResult, LabelExtraction, OcrBlock
 from src.cv._optional import LazyModule, deferred
+from src.cv.budget import Deadline, expired
 from src.cv.fields import normalise_field, reconcile_with_barcode
 from src.cv.photo_fields import map_photo_fields
 
@@ -193,21 +194,23 @@ def _template_barcodes(
 
 def _blind_barcodes(
     barcodes: list[BarcodeResult], warnings: list[str], image: np.ndarray, corrected: np.ndarray | None,
-    inverse: np.ndarray | None, image_size: tuple[int, int],
+    inverse: np.ndarray | None, image_size: tuple[int, int], deadline: Deadline | None = None,
 ) -> tuple[list[BarcodeResult], list[str], str | None]:
     """Blind barcode chain: no slot position. Located regions on the label, then on the photo."""
     if barcodes:
         return barcodes, warnings, "original_image"
     try:
         if corrected is not None and inverse is not None:
-            results, blind_warnings, attempt = decode_barcodes_blind(corrected)
+            results, blind_warnings, attempt = decode_barcodes_blind(corrected, deadline=deadline)
             if results:
                 return (
                     _project_barcodes(results, inverse, image_size),
                     [*_without_not_decoded(warnings), *blind_warnings, "BARCODE_DECODED_BLIND"],
                     f"rectified_{attempt}",
                 )
-        results, blind_warnings, attempt = decode_barcodes_blind(image)
+        if expired(deadline):
+            return [], [*warnings, "BARCODE_TIME_BUDGET: barcode search stopped by the time budget"], None
+        results, blind_warnings, attempt = decode_barcodes_blind(image, deadline=deadline)
         if results:
             return (
                 results, [*_without_not_decoded(warnings), *blind_warnings, "BARCODE_DECODED_BLIND"],
@@ -240,21 +243,29 @@ def resolve_photo_profile(profile: str) -> str:
 
 def _read_blind_photo(
     image: np.ndarray, corrected: np.ndarray | None, inverse: np.ndarray | None,
-    profile: str = "baseline",
+    profile: str = "baseline", deadline: Deadline | None = None, search_side: int | None = None,
 ) -> tuple[PhotoReading | None, list[str]]:
     """Choose original or rectified evidence using visible fields and OCR coverage only."""
     readings, warnings = [], []
     views = [("original", image, np.eye(3))]
     if corrected is not None and inverse is not None:
         views.append(("rectified", corrected, inverse))
+    cut_short = False
     for view, pixels, transform in views:
+        if readings and expired(deadline):  # one complete view is read first; the second is optional
+            cut_short = True
+            continue
         try:
             if profile == "baseline":
-                readings.append(read_photo(pixels, view=view, to_original=transform))
+                readings.append(read_photo(pixels, view=view, to_original=transform, deadline=deadline))
             else:
-                readings.append(read_cv2(pixels, view=view, to_original=transform, second_engine=profile == "cv2"))
+                readings.append(read_cv2(pixels, view=view, to_original=transform,
+                                         second_engine=profile == "cv2", deadline=deadline,
+                                         search_side=search_side))
         except Exception as error:
             warnings.append(f"OCR_VIEW_FAILED: {view}: {type(error).__name__}: {error}")
+    if cut_short or any(not getattr(r, "complete", True) for r in readings):
+        warnings.append("OCR_TIME_BUDGET: text reading was stopped by the time budget; evidence is incomplete")
     if not readings:
         return None, [*warnings, "OCR_FAILED: no usable photo view"]
     ranked = []
@@ -281,8 +292,18 @@ def extract_label_modes(
     photo_profile: str = DEFAULT_PHOTO_PROFILE,
     cv3_stage: int = 0,
     cv3_prefill: bool = True,
+    max_side: int | None = None,
+    budget_s: float | None = None,
+    search_side: int | None = None,
 ) -> dict[str, tuple[LabelExtraction, dict[str, Any]]]:
     """Run the extraction once and return one result per requested mode.
+
+    ``max_side`` (pixels, default off) shrinks the photo's long side before any stage runs and maps every output
+    box back to the original photo. ``budget_s`` (seconds, default off) is a cooperative wall-clock budget: text
+    reading may use 80 percent of it, symbol and barcode search only run while time remains, and a reading cut
+    short adds the warning ``OCR_TIME_BUDGET``. Native calls cannot be interrupted, so the overshoot is at most
+    one engine call. ``search_side`` (default off, cv2 profile only) picks the quarter turn on a copy shrunk to that
+    long side. All three options are off by default and then behaviour is unchanged.
 
     Label detection, rectification, the plain barcode attempt and OCR are
     shared, so asking for both modes costs little more than one. Each value is
@@ -313,8 +334,15 @@ def extract_label_modes(
     if symbol_detector not in ("v1", "v2"):
         raise ValueError("symbol_detector must be v1 or v2")
     path = Path(image_path)
+    budget = Deadline(budget_s)
+    ocr_budget = budget.stage(0.8)
     with Image.open(path) as photo:
-        image = np.asarray(photo.convert("RGB"))
+        photo = photo.convert("RGB")
+        shrink = 1.0
+        if max_side is not None and max(photo.size) > max_side:
+            shrink = max_side/max(photo.size)
+            photo = photo.resize((round(photo.width*shrink), round(photo.height*shrink)), Image.LANCZOS)
+        image = np.asarray(photo)
     _validate_image(image)
     image_size = (image.shape[1], image.shape[0])
     plain_barcodes, plain_warnings = _decode_safely(image)
@@ -363,7 +391,9 @@ def extract_label_modes(
     ]
     photo_reading, photo_warnings = (None, [])
     if "blind" in modes:
-        photo_reading, photo_warnings = _read_blind_photo(image, corrected, inverse, photo_profile)
+        photo_reading, photo_warnings = _read_blind_photo(
+            image, corrected, inverse, photo_profile, ocr_budget, search_side
+        )
     outputs: dict[str, tuple[LabelExtraction, dict[str, Any]]] = {}
     for mode in modes:
         output = LabelExtraction(label_id=path.stem)
@@ -394,7 +424,10 @@ def extract_label_modes(
         if corrected is None:
             output.warnings.append("LABEL_NOT_FOUND: no suitable boundary; the whole photo was read instead")
         try:
-            if symbol_detector == "v2":
+            if expired(budget):
+                detected = []
+                output.warnings.append("SYMBOL_TIME_BUDGET: symbol search skipped by the time budget")
+            elif symbol_detector == "v2":
                 from src.cv.symbols_v2 import detect_symbols_v2
 
                 detected = detect_symbols_v2(corrected if corrected is not None else image)
@@ -418,7 +451,7 @@ def extract_label_modes(
             )
         else:
             barcodes, barcode_warnings, method = _blind_barcodes(
-                plain_barcodes, list(plain_warnings), image, corrected, inverse, image_size
+                plain_barcodes, list(plain_warnings), image, corrected, inverse, image_size, budget
             )
         output.barcodes = barcodes
         details["barcode_method"] = method
@@ -462,8 +495,24 @@ def extract_label_modes(
                     field_warnings.append(f"BARCODE_PREFILL_AVAILABLE: {field}; source=GS1 AI {prefill[field]['ai']}")
         output.warnings.extend(field_warnings)
         output.warnings = list(dict.fromkeys(output.warnings))
+        if shrink < 1.0:
+            _rescale_boxes(output, 1.0/shrink)
+            output.warnings.append(f"IMAGE_DOWNSCALED: long side {max_side} px; boxes are in original-photo pixels")
+            if details["corners"] is not None:
+                details["corners"] = (np.asarray(details["corners"])/shrink).tolist()
         outputs[mode] = (output, details)
     return outputs
+
+
+def _rescale_boxes(output: LabelExtraction, factor: float) -> None:
+    """Multiply every box of an extraction by ``factor`` (maps a downscaled read back to the original photo)."""
+    def scaled(box: tuple[float, float, float, float]) -> tuple[float, float, float, float]:
+        return (box[0]*factor, box[1]*factor, box[2]*factor, box[3]*factor)
+
+    output.ocr_blocks = [b.model_copy(update={"bbox": scaled(b.bbox)}) for b in output.ocr_blocks]
+    output.barcodes = [b if b.bbox is None else b.model_copy(update={"bbox": scaled(b.bbox)})
+                       for b in output.barcodes]
+    output.symbols = [s.model_copy(update={"bbox": scaled(s.bbox)}) for s in output.symbols]
 
 
 def extract_label(
@@ -477,6 +526,9 @@ def extract_label(
     photo_profile: str = DEFAULT_PHOTO_PROFILE,
     cv3_stage: int = 0,
     cv3_prefill: bool = True,
+    max_side: int | None = None,
+    budget_s: float | None = None,
+    search_side: int | None = None,
 ) -> LabelExtraction:
     """Extract one label photo into the unchanged shared schema.
 
@@ -502,7 +554,8 @@ def extract_label(
     return extract_label_modes(
         image_path, modes=(mode,), min_confidence=min_confidence, blur_threshold=blur_threshold,
         postcorrect=postcorrect, symbol_detector=symbol_detector, photo_profile=photo_profile,
-        cv3_stage=cv3_stage, cv3_prefill=cv3_prefill,
+        cv3_stage=cv3_stage, cv3_prefill=cv3_prefill, max_side=max_side, budget_s=budget_s,
+        search_side=search_side,
     )[mode][0]
 
 

@@ -921,6 +921,12 @@ paths:
       tags: [public]
       operationId: publicScan
       summary: Scan medication packaging and find reference label candidates
+      description: |
+        Real since CR-27. A photo (PNG, JPEG or a PDF page) is checked by its first bytes, capped at 15 MB and 40
+        megapixels. The job reads every text line of the photo (OCR, 1600 px, 55 s budget), matches single lines,
+        line pairs and the whole text with the medicine matcher and keeps the best. A photo that fails the quality
+        gate ends the job `failed` with `retake_photo`. A budget cut ends it `done` with `outcome: no_reference_match`
+        and `reason: timeout`. At most two photos are read at once, another gets 429 `busy`.
       requestBody:
         required: true
         content:
@@ -937,6 +943,12 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/Job"}
+        "422": {$ref: "#/components/responses/Invalid"}
+        "429":
+          description: busy (two photos are being read already)
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
 
   /public/scans/{scan_id}:
     get:
@@ -956,6 +968,11 @@ paths:
             application/json:
               schema: {$ref: "#/components/schemas/PublicMatchResult"}
         "404": {$ref: "#/components/responses/NotFound"}
+        "409":
+          description: The scan is still running (scan_not_ready) or failed (the Error says why, for example retake_photo)
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
 
   /public/match:
     post:
@@ -1202,7 +1219,7 @@ components:
             (409), label_product_mismatch (409), no_change (422, an edit equals the current value),
             duplicate_field (422), parse_not_confirmed (422), edits_not_supported (422, confirm with edits),
             unknown_impact (422), nothing_to_confirm (409), change_not_confirmed (409, approve before the
-            change was confirmed). Upload codes (CR-20): unsupported_media_type, file_too_large, image_too_large,
+            change was confirmed). Public scan codes (CR-27): busy (429), scan_not_ready (409); a public scan's Error is the same as uploadScan's (invalid_file, file_too_large, retake_photo ...). Upload codes (CR-20): unsupported_media_type, file_too_large, image_too_large,
             invalid_file (all 422 on uploadScan); retake_photo, extractor_unavailable and scan_failed appear in
             Scan.error and Job.error with state failed. retake_photo carries details {reasons, metrics, thresholds}.
             Generate and export codes (CR-22): nothing_assessed, template_required, stale_change,
@@ -2071,6 +2088,25 @@ components:
         score: {type: number}
         threshold: {type: number}
         message: {type: string, description: Shown instead of a summary when nothing matched}
+        reason:
+          type: string
+          enum: [no_text, no_match, timeout]
+          description: |
+            Added by CR-27, only on a photo scan with outcome no_reference_match. no_text: no readable line;
+            no_match: no candidate string reached the threshold; timeout: the time budget cut the reading or the
+            matching, so nothing is identified. The page then offers to type the name.
+        matched_text: {type: string, description: "CR-27. The OCR text (a line, two lines or the whole text) that gave the best match; empty when nothing matched"}
+        read_lines:
+          type: array
+          description: "CR-27. The OCR lines of a photo scan (at most 80) in reading order, shown as evidence. `used` marks the lines of matched_text."
+          items:
+            type: object
+            required: [text, confidence, used]
+            additionalProperties: false
+            properties:
+              text: {type: string}
+              confidence: {type: number}
+              used: {type: boolean}
         sections:
           type: object
           description: |

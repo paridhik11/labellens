@@ -27,7 +27,7 @@ State of `main` at the v1.0 release check (Step 26). Step numbers match `CLAUDE.
 - [ ] Larger medicine corpus (30 products now) and non-US sources
 - [ ] Approved (non-DRAFT) export variant; templates with a background image (D-5)
 - [ ] Template registration beyond shape and layout checks
-- [ ] Multi-side scan (the public scan entry `publicScan` is still a mock)
+- [ ] Multi-side scan (`publicScan` is real for one photo; faster reading and real phone photos are unmeasured)
 - [ ] Human grades for more than the 308-row sample
 - [ ] Open contract items: D-3, D-5, D-6, D-9 and the remaining D-7 kind names in `docs/contracts/SCHEMA_CHANGE_REQUESTS.md`
 - [ ] Report, slides, rehearsal (course deliverables)

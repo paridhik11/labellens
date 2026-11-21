@@ -6,6 +6,7 @@ review. Reads need a known user.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Iterator
 from typing import Any
 
@@ -14,7 +15,20 @@ from fastapi.responses import HTMLResponse, JSONResponse, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from src.api import artwork, ask_jobs, changes, checks, medicine, pages, printverify, publish, scans, uploads, views
+from src.api import (
+    artwork,
+    ask_jobs,
+    changes,
+    checks,
+    medicine,
+    pages,
+    printverify,
+    public_scans,
+    publish,
+    scans,
+    uploads,
+    views,
+)
 from src.api.errors import ApiError
 from src.api.models import (
     ChangeRequest,
@@ -88,6 +102,8 @@ REAL_OPERATIONS = frozenset(
         "getPrintVerification",
         "listPrintVerifications",
         "matchMedicine",
+        "publicScan",
+        "getPublicScan",
     }
 )
 router = APIRouter()
@@ -678,6 +694,51 @@ def match_medicine(body: MedicineMatchCreate, request: Request) -> Any:
         return medicine.match_result(service.catalog, service.matcher, body.product_name)
     except Exception as error:  # the E5b models could not be loaded (offline cache missing)
         raise ApiError(503, "retrieval_unavailable", f"medicine matching is not available: {error}") from error
+
+
+@router.post("/public/scans", operation_id="publicScan", status_code=202, tags=["public"])
+async def public_scan(
+    request: Request, background: BackgroundTasks, file: UploadFile = File(...),  # noqa: B008
+) -> JSONResponse:
+    """Accept a photo (PNG, JPEG or a PDF page) of a medicine pack and answer 202 with a public_scan Job (CR-27).
+
+    No login. The file is checked by its first bytes, capped at 15 MB and 40 megapixels. At most two photos are
+    read at once; another is answered with 429 `busy`. Poll GET /jobs/{job_id}, then GET /public/scans/{scan_id}.
+    """
+    data = await file.read(uploads.MAX_BYTES + 1)
+    upload = uploads.validate_upload(data)
+    public_scans.try_acquire()
+    try:
+        session: Session = request.app.state.session_factory()
+        with session:
+            stored = uploads.store_bytes(checks.files_dir(), upload, data)
+            row = public_scans.add_row(session, upload, stored)
+            job = checks.new_job(session, "public_scan", None, public_scans.PUBLIC_USER,
+                                 result_url=f"/public/scans/{row.scan_id}")
+            public_scans.add_row(session, None, "", scan_id=row.scan_id, job_id=job.job_id)
+            body = checks.job_json(job)
+    except BaseException:
+        public_scans.release()
+        raise
+    background.add_task(public_scans.run_job, request.app, job.job_id, row.scan_id)
+    return JSONResponse(body, status_code=202)
+
+
+@router.get("/public/scans/{scan_id}", operation_id="getPublicScan", tags=["public"])
+def get_public_scan(scan_id: str, request: Request, session: Session = Depends(get_session)) -> Any:
+    """The match result of a finished public scan. 409 while it runs or after it failed (the Error says why)."""
+    row = public_scans.latest(session, scan_id)
+    if row is not None:
+        if row.state == "done":
+            return public_scans.result_json(row)
+        if row.state == "failed" and row.error:
+            return JSONResponse(row.error, status_code=409)
+        raise ApiError(409, "scan_not_ready", "The photo is still being read. Poll the job first.")
+    if re.match(public_scans.REAL_PUBLIC_SCAN_ID, scan_id):
+        raise ApiError(404, "not_found", f"No public scan {scan_id!r}.")
+    from src.api.mock_server import mock_response  # imported here: mock_server imports this module
+
+    return mock_response("getPublicScan", request)
 
 
 @router.get("/public/medicine", include_in_schema=False)

@@ -24,6 +24,7 @@ import zxingcpp
 
 from src.common.schemas import BarcodeResult
 from src.cv.barcode import TEMPLATE_PATH, parse_gs1
+from src.cv.budget import Deadline, expired
 from src.cv.preprocess import _validate_image
 
 # Symbologies that can carry GS1 data on a device label.
@@ -204,10 +205,12 @@ def _to_result(
 
 
 def decode_crop(
-    gray: np.ndarray, to_source: np.ndarray, image_size: tuple[int, int]
+    gray: np.ndarray, to_source: np.ndarray, image_size: tuple[int, int], deadline: Deadline | None = None,
 ) -> tuple[list[BarcodeResult], list[str], str | None]:
-    """Try every enhancement on one crop and stop at the first complete GS1 decode."""
+    """Try every enhancement on one crop and stop at the first complete GS1 decode (or the deadline)."""
     for name, scale, view in crop_views(gray):
+        if expired(deadline):
+            break
         valid = [item for item in _read(view) if _is_valid_gs1(item)]
         if valid:
             unscale = to_source @ np.diag([1 / scale, 1 / scale, 1.0])
@@ -217,7 +220,7 @@ def decode_crop(
 
 
 def decode_barcodes_blind(
-    image: np.ndarray, *, whole_image_fallback: bool = True
+    image: np.ndarray, *, whole_image_fallback: bool = True, deadline: Deadline | None = None
 ) -> tuple[list[BarcodeResult], list[str], str | None]:
     """Decode barcodes in an RGB image without any layout knowledge.
 
@@ -241,12 +244,16 @@ def decode_barcodes_blind(
             warnings.extend(item_warnings)
         return results, warnings, "plain"
     for box in locate_barcode_candidates(gray):
+        if expired(deadline):
+            return [], ["BARCODE_TIME_BUDGET: barcode search stopped by the time budget"], None
         crop, to_source = _upright_crop(gray, box)
-        results, warnings, name = decode_crop(crop, to_source, size)
+        results, warnings, name = decode_crop(crop, to_source, size, deadline)
         if results:
             return results, warnings, f"located_{name}"
     if whole_image_fallback:
         for sigma in DEBLUR_SIGMAS[:4]:
+            if expired(deadline):
+                return [], ["BARCODE_TIME_BUDGET: barcode search stopped by the time budget"], None
             view = cv2.resize(wiener_deblur(gray, sigma), None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
             valid = [item for item in _read(view) if _is_valid_gs1(item)]
             if valid:

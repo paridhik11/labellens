@@ -13,7 +13,9 @@ from typing import Any
 from src.common.schemas import OcrBlock
 
 
-def tesseract_lines(image: Any, *, executable: str | None = None) -> list[OcrBlock]:
+def tesseract_lines(
+    image: Any, *, executable: str | None = None, timeout: float | None = None,
+) -> list[OcrBlock]:
     """Read sparse upright text as TSV lines; do not infer fields or fabricate characters."""
     from PIL import Image
 
@@ -24,7 +26,8 @@ def tesseract_lines(image: Any, *, executable: str | None = None) -> list[OcrBlo
         path = Path(folder)/'input.png'
         Image.fromarray(image).save(path)
         result = subprocess.run([program, str(path), 'stdout', '-l', 'eng', '--psm', '11', 'tsv'],
-                                capture_output=True, text=True, check=True, timeout=60,
+                                capture_output=True, text=True, check=True,
+                                timeout=60 if timeout is None else min(60.0, timeout),
                                 env={**os.environ, 'OMP_THREAD_LIMIT': '1'})
     groups: dict[tuple[str, ...], list[dict[str, str]]] = {}
     for row in csv.DictReader(StringIO(result.stdout), delimiter='\t'):

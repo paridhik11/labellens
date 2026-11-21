@@ -149,10 +149,10 @@
     container.innerHTML = `
       <div style="text-align: center; max-width: 600px; margin: 0 auto 24px auto;">
         <h2>Understand your label</h2>
-        <p class="text-muted text-sm" style="margin-top: 8px;">Scan or upload a photo to extract and explain key information from a medical product label.</p>
+        <p class="text-muted text-sm" style="margin-top: 8px;">Take or upload a photo of a medicine pack. The name printed on it is matched against the reference labels.</p>
         <div class="flex-row" style="justify-content: center; gap: 12px; margin-top: 16px;">
-          <button class="btn btn-primary" type="button" id="btnP1UseCamera">Use camera</button>
-          <button class="btn btn-secondary" type="button" id="btnP1UploadImage">Upload image</button>
+          <button class="btn btn-primary" type="button" id="btnP1UseCamera" data-testid="take-photo">Take a photo</button>
+          <button class="btn btn-secondary" type="button" id="btnP1UploadImage" data-testid="upload-photo">Upload a photo</button>
         </div>
       </div>
 
@@ -175,45 +175,18 @@
       }
     };
 
-    // api mode: a real file picker or camera capture, sent to publicScan, 202 job polled.
+    // api mode: the public scan panel (ui/js/public-scan.js) takes the photo, sends it to publicScan and shows the result.
     const isApi = window.LabelLensData.CONFIG.mode === 'api';
-    const note = document.createElement('div');
-    note.className = 'text-xs text-muted';
-    note.setAttribute('data-testid', 'p1-note');
-    note.style.cssText = 'text-align:center;margin-top:10px;';
-    container.appendChild(note);
-    const picker = (capture) => {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
-      if (capture) input.setAttribute('capture', 'environment');
-      input.setAttribute('data-testid', capture ? 'p1-camera-input' : 'p1-file-input');
-      input.style.display = 'none';
-      container.appendChild(input);
-      input.addEventListener('change', async () => {
-        const file = input.files[0];
-        if (!file) return;
-        note.textContent = 'Uploading...';
-        try {
-          const res = await window.LabelLensActions.publicScan(file, (j) => { note.textContent = `Scanning: ${j.state}${j.message ? ' (' + j.message + ')' : ''}`; });
-          if (res.mock) {
-            note.textContent = 'The public scan is answered with a mock by this server (X-Mock). Showing the mock product page.';
-            window.LabelLensStateSwitcher.setScreen('P2 Product information', 'success');
-          } else if (res.job.state === 'failed') {
-            window.LabelLensStateSwitcher.setScreen('P1 Scan and Understand', 'failed');
-          } else {
-            window.LabelLensStateSwitcher.setScreen('P2 Product information', 'success');
-          }
-        } catch (e) {
-          note.textContent = 'Scan failed: ' + e.message;
-        }
-      });
-      input.click();
-    };
     const cameraBtn = container.querySelector('#btnP1UseCamera');
     const uploadBtn = container.querySelector('#btnP1UploadImage');
-    if (cameraBtn) cameraBtn.addEventListener('click', () => (isApi ? picker(true) : startMockScan()));
-    if (uploadBtn) uploadBtn.addEventListener('click', () => (isApi ? picker(false) : startMockScan()));
+    if (isApi && window.LabelLensPublicScan) {
+      const panel = window.LabelLensPublicScan.mount(container);
+      if (cameraBtn) cameraBtn.addEventListener('click', () => panel.openCamera());
+      if (uploadBtn) uploadBtn.addEventListener('click', () => panel.chooseFile(false));
+    } else {
+      if (cameraBtn) cameraBtn.addEventListener('click', startMockScan);
+      if (uploadBtn) uploadBtn.addEventListener('click', startMockScan);
+    }
   }
 
   // Register renderer

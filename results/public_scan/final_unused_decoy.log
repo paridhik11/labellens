@@ -1,0 +1,49 @@
+Could not reach the Hub (Cannot reach https://huggingface.co/api/models/BAAI/bge-large-en-v1.5: offline mode is enabled. To disable it, please unset the `HF_HUB_OFFLINE` environment variable.). Using cached commit hash for 'BAAI/bge-large-en-v1.5'.
+Loading weights:   0%|          | 0/391 [00:00<?, ?it/s]Loading weights:   2%|2         | 9/391 [00:00<00:05, 76.28it/s]Loading weights:   4%|4         | 17/391 [00:00<00:05, 69.82it/s]Loading weights:   6%|6         | 24/391 [00:00<00:05, 67.86it/s]Loading weights:   9%|9         | 36/391 [00:00<00:04, 80.76it/s]Loading weights:  12%|#1        | 46/391 [00:00<00:04, 77.75it/s]Loading weights:  14%|#3        | 54/391 [00:00<00:05, 64.09it/s]Loading weights:  18%|#8        | 71/391 [00:00<00:03, 85.27it/s]Loading weights:  24%|##3       | 92/391 [00:01<00:02, 110.95it/s]Loading weights:  27%|##6       | 104/391 [00:01<00:03, 80.32it/s]Loading weights:  29%|##9       | 114/391 [00:01<00:03, 70.33it/s]Loading weights:  31%|###1      | 123/391 [00:01<00:04, 60.82it/s]Loading weights:  33%|###3      | 130/391 [00:01<00:04, 59.77it/s]Loading weights: 100%|##########| 391/391 [00:01<00:00, 211.41it/s]
+[DenseRetriever] Loading cached embeddings from data\processed\dense_cache_BAAI_bge-large-en-v1.5_de490422ee2fe6d9.npy
+b6752b08__Remedy_Label__artwork timeout 50.3
+b6752b08__Remedy_Label__moderate review 45.9
+b6752b08__Remedy_Label__hard not_identified 43.7
+58e9b4c6__mirtazapine_fig2__artwork timeout 50.2
+58e9b4c6__mirtazapine_fig2__moderate not_identified 50.3
+58e9b4c6__mirtazapine_fig2__hard review 37.6
+174e45e0__zetia_02__artwork not_identified 47.0
+174e45e0__zetia_02__moderate not_identified 34.7
+174e45e0__zetia_02__hard review 34.2
+1760ccdc__pregabalin_caps_100mg_30s_count__artwork timeout 50.3
+1760ccdc__pregabalin_caps_100mg_30s_count__moderate not_identified 46.0
+1760ccdc__pregabalin_caps_100mg_30s_count__hard not_identified 30.5
+41a133ef__71610_0662_18__artwork timeout 50.2
+41a133ef__71610_0662_18__moderate not_identified 44.8
+41a133ef__71610_0662_18__hard not_identified 40.1
+8f41912e__hydrOXYzine_HCl_25mg_70518_4141_00__artwork review 54.5
+8f41912e__hydrOXYzine_HCl_25mg_70518_4141_00__moderate not_identified 44.3
+8f41912e__hydrOXYzine_HCl_25mg_70518_4141_00__hard review 48.7
+c829b7bf__55289806__artwork timeout 50.2
+c829b7bf__55289806__moderate timeout 47.6
+c829b7bf__55289806__hard timeout 50.3
+29ec1221__a83b8840_dd78_46f1_b952_893c30bf5bf9_01__artwork timeout 50.2
+29ec1221__a83b8840_dd78_46f1_b952_893c30bf5bf9_01__moderate review 49.1
+29ec1221__a83b8840_dd78_46f1_b952_893c30bf5bf9_01__hard not_identified 29.2
+3f99b26b__Topiramate_50mg_70518_4340_00__artwork review 48.0
+3f99b26b__Topiramate_50mg_70518_4340_00__moderate review 40.5
+3f99b26b__Topiramate_50mg_70518_4340_00__hard not_identified 43.0
+fbb587fa__69292_601_01__artwork timeout 50.2
+fbb587fa__69292_601_01__moderate not_identified 37.8
+fbb587fa__69292_601_01__hard not_identified 36.6
+84ef7b29__Clonidine_HCl_0.1mg_70518_0898_00__artwork review 51.9
+84ef7b29__Clonidine_HCl_0.1mg_70518_0898_00__moderate review 39.2
+84ef7b29__Clonidine_HCl_0.1mg_70518_0898_00__hard not_identified 34.6
+ac903bda__Duloxetine_60mg_70518_2630_00__artwork review 52.1
+ac903bda__Duloxetine_60mg_70518_2630_00__moderate not_identified 38.2
+ac903bda__Duloxetine_60mg_70518_2630_00__hard review 36.3
+415bd983__Tadalafil_5mg_70518_3434_00__artwork review 54.3
+415bd983__Tadalafil_5mg_70518_3434_00__moderate review 32.0
+415bd983__Tadalafil_5mg_70518_3434_00__hard review 21.0
+0930965b__43063833__artwork timeout 50.3
+0930965b__43063833__moderate timeout 50.2
+0930965b__43063833__hard not_identified 40.4
+625fad5b__spl_zolpidem_label_2__artwork timeout 50.2
+625fad5b__spl_zolpidem_label_2__moderate timeout 50.3
+625fad5b__spl_zolpidem_label_2__hard not_identified 49.8
+{"set": "unused_decoy", "config": {"name": "E", "max_candidates": 8, "min_letters": 4, "min_conf": 0.0, "pairs": true, "full_text": true, "order": "score", "max_chars": 300, "name_evidence": true, "max_words": 5, "other_ingredient_check": true}, "config_commit": "66cf3d5c386fe34322360b1a413f28947960be92", "photos": 45, "ignoring_gate": {"timeout": 13, "review": 15, "not_identified": 17}, "pipeline_view": {"timeout": 13, "review": 14, "not_identified": 17, "retake": 1}, "wrong_total": 0, "wrong_interval": [0.0, 0.079], "not_in_corpus_photos": 45, "wrong_on_not_in_corpus": 0, "review_on_not_in_corpus": 15, "by_condition": {"decoy/artwork": {"n": 15, "timeout": 9, "not_identified": 1, "review": 5, "wrong_interval": [-0.0, 0.204], "retake": 0}, "decoy/hard": {"n": 15, "not_identified": 9, "review": 5, "timeout": 1, "wrong_interval": [-0.0, 0.204], "retake": 1}, "decoy/moderate": {"n": 15, "review": 5, "not_identified": 7, "timeout": 3, "wrong_interval": [-0.0, 0.204], "retake": 0}}, "seconds": {"median": 47.0, "p90": 50.3, "max": 54.5, "over_60": 0}}

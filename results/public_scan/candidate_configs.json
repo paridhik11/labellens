@@ -1,0 +1,28 @@
+{
+ "A": {
+  "name": "A",
+  "max_candidates": 12
+ },
+ "B": {
+  "name": "B",
+  "max_candidates": 12,
+  "order": "outcome"
+ },
+ "C": {
+  "name": "C",
+  "max_candidates": 20
+ },
+ "D": {
+  "name": "D",
+  "max_candidates": 8,
+  "name_evidence": true,
+  "max_words": 5
+ },
+ "E": {
+  "name": "E",
+  "max_candidates": 8,
+  "name_evidence": true,
+  "max_words": 5,
+  "other_ingredient_check": true
+ }
+}

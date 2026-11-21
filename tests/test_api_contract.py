@@ -294,6 +294,27 @@ def test_every_real_response_conforms_to_openapi(run: Run, tmp_path, monkeypatch
     run.client.app.state.medicine = stub_medicine(broken=True)
     c("matchMedicine", 503, "POST", "/public/match", user=None, json={"product_name": "Childrens Ibuprofen"})
     run.client.app.state.medicine = stub_medicine()
+    # public photo scan (CR-27): stub reader, real matcher thresholds over the stub ranker
+    from src.api import public_scans
+    from tests.test_public_scan import FIRST, reader
+
+    run.client.app.state.public_reader = reader([FIRST])
+    shot = {"file": ("pack.png", png_bytes(), "image/png")}
+    sent = c("publicScan", 202, "POST", "/public/scans", user=None, files=shot)
+    c("getPublicScan", 200, "GET", sent.json()["result_url"], user=None)
+    c("getPublicScan", 404, "GET", "/public/scans/pscn_00000000", user=None)
+    c("publicScan", 422, "POST", "/public/scans", user=None, files={"file": ("a.png", b"junk", "image/png")})
+    run.client.app.state.quality_gate = rejecting_gate
+    failed = c("publicScan", 202, "POST", "/public/scans", user=None, files=shot)
+    c("getPublicScan", 409, "GET", failed.json()["result_url"], user=None)
+    run.client.app.state.quality_gate = passing_gate
+    taken = [public_scans.SLOTS.acquire(blocking=False) for _ in range(public_scans.MAX_RUNNING)]
+    try:
+        c("publicScan", 429, "POST", "/public/scans", user=None, files=shot)
+    finally:
+        for ok in taken:
+            if ok:
+                public_scans.release()
     # optional AI answer (Step 24c): a fake provider whose reply fails verification, so the job falls back
     from src.rag.provider import FakeProvider
 

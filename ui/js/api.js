@@ -181,15 +181,26 @@
       return a.body;
     },
 
-    /** Public scan (no product_id, CR-23 matcher is separate). The server answers this operation with its mock. */
+    /**
+     * Public photo scan (CR-27, no login, no product_id). Resolves {job, result}: result is the PublicMatchResult of a
+     * finished scan; a failed job (retake_photo, busy, scan_failed) comes back as job.state 'failed' with job.error.
+     * A server that still answers with its mock resolves {job, mock: true}.
+     */
     async publicScan(file, onProgress) {
       const form = new FormData();
-      form.append('file', file);
+      form.append('file', file, file.name || 'photo.jpg');
       const r = await request('POST', '/public/scans', { form });
+      if (r.status === 429) return { job: { state: 'failed', error: r.body } };
       if (r.status !== 202) throw apiError(r);
       D().setDataSource(r.mock ? 'x-mock' : 'api', 'publicScan');
       const job = await pollJob(r.body.job_id, onProgress);
-      return { job, mock: !!(r.mock || job._mock) };
+      if (r.mock || job._mock) return { job, mock: true };
+      let result = null;
+      if (job.state === 'done' && job.result_url) {
+        const s = await request('GET', job.result_url);
+        if (s.status === 200) result = s.body;
+      }
+      return { job, result, mock: false };
     },
 
     /** Read the stored extraction of a version. */

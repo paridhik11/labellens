@@ -1,0 +1,352 @@
+[
+ {
+  "setid": "2ad0606c-7a90-44bd-a75d-d256de30fbcf",
+  "product_name": "Metoprolol Tartrate",
+  "ingredient": "metoprolol"
+ },
+ {
+  "setid": "fbb587fa-75c0-4f4d-8eaf-f0e7ba8b5c75",
+  "product_name": "Bupropion Hydrochloride",
+  "ingredient": "bupropion"
+ },
+ {
+  "setid": "5bacc909-6b02-4815-85ef-55fd25b1b1f7",
+  "product_name": "Hydrochlorothiazide",
+  "ingredient": "hydrochlorothiazide"
+ },
+ {
+  "setid": "602d3866-7ff4-71aa-e063-6294a90a9521",
+  "product_name": "Trazodone HCL",
+  "ingredient": "trazodone"
+ },
+ {
+  "setid": "f6b6aeab-bedd-4254-8811-4f65cf8a351f",
+  "product_name": "Tamsulosin Hydrochloride",
+  "ingredient": "tamsulosin"
+ },
+ {
+  "setid": "41a133ef-e461-48ad-8221-b735bdd0ec25",
+  "product_name": "ELIQUIS",
+  "ingredient": "apixaban"
+ },
+ {
+  "setid": "c85d6d02-6cf6-4995-a590-cfca302ea0c9",
+  "product_name": "Simvastatin",
+  "ingredient": "simvastatin"
+ },
+ {
+  "setid": "20ec4646-9d1c-41c9-93f6-754b3a4f234f",
+  "product_name": "meloxicam",
+  "ingredient": "meloxicam"
+ },
+ {
+  "setid": "ac903bda-76af-4aba-9c8a-ebf7066e05ee",
+  "product_name": "Duloxetine",
+  "ingredient": "duloxetine"
+ },
+ {
+  "setid": "0930965b-80e3-4a0c-bffc-14ac32a47894",
+  "product_name": "Carvedilol",
+  "ingredient": "carvedilol"
+ },
+ {
+  "setid": "a9fc7091-b3ce-45fd-8d89-aeebdd81c327",
+  "product_name": "Buspirone Hydrochloride",
+  "ingredient": "buspirone"
+ },
+ {
+  "setid": "5fecf4b2-67fe-a7e9-e063-6394a90a793e",
+  "product_name": "Venlafaxine",
+  "ingredient": "venlafaxine"
+ },
+ {
+  "setid": "9f0e33bd-65f8-446a-886f-e7e16a142ce5",
+  "product_name": "Tramadol Hydrochloride",
+  "ingredient": "tramadol"
+ },
+ {
+  "setid": "8f41912e-12ce-4174-a0fb-cfb4888d8d58",
+  "product_name": "HYDROXYZINE HYDROCHLORIDE",
+  "ingredient": "hydroxyzine"
+ },
+ {
+  "setid": "2fa30bdb-f60e-40a7-98b4-c346bc85d539",
+  "product_name": "Ondansetron Hydrochloride",
+  "ingredient": "ondansetron"
+ },
+ {
+  "setid": "34e57aff-dc4b-4631-9d57-31020244835d",
+  "product_name": "Cyclobenzaprine Hydrochloride",
+  "ingredient": "cyclobenzaprine"
+ },
+ {
+  "setid": "ae0dcb4e-63df-459c-8e60-0caa817b8135",
+  "product_name": "SPIRONOLACTONE",
+  "ingredient": "spironolactone"
+ },
+ {
+  "setid": "c4da6de7-9ab1-4fcf-88f3-fe785019e6e7",
+  "product_name": "Estradiol",
+  "ingredient": "estradiol"
+ },
+ {
+  "setid": "c829b7bf-1a12-44b2-b5ce-fd44a1f0d333",
+  "product_name": "Glipizide",
+  "ingredient": "glipizide"
+ },
+ {
+  "setid": "625fad5b-8817-4773-a2fc-20b662140e6e",
+  "product_name": "Zolpidem Tartrate",
+  "ingredient": "zolpidem"
+ },
+ {
+  "setid": "70cd448a-2921-4c69-bdf2-5a6ce883bd07",
+  "product_name": "Lamotrigine",
+  "ingredient": "lamotrigine"
+ },
+ {
+  "setid": "0a967468-3869-4c8c-849f-9fc3a8dcc489",
+  "product_name": "Citalopram",
+  "ingredient": "citalopram"
+ },
+ {
+  "setid": "1760ccdc-46f7-4182-a563-96b13212cb7e",
+  "product_name": "Pregabalin",
+  "ingredient": "pregabalin"
+ },
+ {
+  "setid": "6cb41b00-0589-42d0-9e3e-230385768875",
+  "product_name": "Azithromycin",
+  "ingredient": "azithromycin"
+ },
+ {
+  "setid": "fa152ce7-6c07-4aaf-9374-932ce81d0cf9",
+  "product_name": "Pravastatin sodium",
+  "ingredient": "pravastatin"
+ },
+ {
+  "setid": "7ea2fdf1-4fda-47a7-8110-62fb6468c989",
+  "product_name": "Valsartan",
+  "ingredient": "valsartan"
+ },
+ {
+  "setid": "174e45e0-45bb-48b7-9e60-8f6cfc1d22bb",
+  "product_name": "Zetia",
+  "ingredient": "ezetimibe"
+ },
+ {
+  "setid": "5dbffab4-d287-f0e3-e063-6394a90a311d",
+  "product_name": "Diclofenac Sodium",
+  "ingredient": "diclofenac"
+ },
+ {
+  "setid": "601b8b7e-763f-2466-e063-6294a90aa688",
+  "product_name": "Propranolol Hydrochloride",
+  "ingredient": "propranolol"
+ },
+ {
+  "setid": "70d7a585-7a46-4eac-b2b5-2ac5b98d9882",
+  "product_name": "Atenolol",
+  "ingredient": "atenolol"
+ },
+ {
+  "setid": "b99f7199-e407-442d-849f-6a1c4837e12f",
+  "product_name": "celecoxib",
+  "ingredient": "celecoxib"
+ },
+ {
+  "setid": "e482a50d-db15-4407-85c9-160c88e8a657",
+  "product_name": "Finasteride",
+  "ingredient": "finasteride"
+ },
+ {
+  "setid": "6562eb60-0d70-4909-bd07-88d5c9241516",
+  "product_name": "Quetiapine Fumarate",
+  "ingredient": "quetiapine"
+ },
+ {
+  "setid": "84ef7b29-dd48-43d3-bda8-d6337bc22891",
+  "product_name": "Clonidine Hydrochloride",
+  "ingredient": "clonidine"
+ },
+ {
+  "setid": "b6752b08-4c93-4e5f-895d-40f189bd356d",
+  "product_name": "Aripiprazole",
+  "ingredient": "aripiprazole"
+ },
+ {
+  "setid": "69f9c6f8-a8df-4ddf-8fb1-2768eb099ada",
+  "product_name": "Alendronate Sodium",
+  "ingredient": "alendronate"
+ },
+ {
+  "setid": "3f99b26b-79b9-4efb-aa2c-2868e1e126c8",
+  "product_name": "Topiramate",
+  "ingredient": "topiramate"
+ },
+ {
+  "setid": "25db7cc0-604c-3d6b-e063-6394a90a337f",
+  "product_name": "Tizanidine",
+  "ingredient": "tizanidine"
+ },
+ {
+  "setid": "204592ba-a68f-452a-9987-1b33b7b6c4d5",
+  "product_name": "olmesartan medoxomil / amlodipine besylate / hydrochlorothiazide",
+  "ingredient": "olmesartan"
+ },
+ {
+  "setid": "29ec1221-04d8-4b21-822e-2779fcaae62c",
+  "product_name": "Amitriptyline Hydrochloride",
+  "ingredient": "amitriptyline"
+ },
+ {
+  "setid": "e98f6d83-5172-97a1-ee41-5d7d1d8ba2fd",
+  "product_name": "Rivaroxaban",
+  "ingredient": "rivaroxaban"
+ },
+ {
+  "setid": "3f4e5db8-5bfb-4b24-8465-9757cbaad2be",
+  "product_name": "FENOFIBRATE",
+  "ingredient": "fenofibrate"
+ },
+ {
+  "setid": "ab6c4a4b-97b3-3631-e053-2a95a90a614a",
+  "product_name": "Paroxetine",
+  "ingredient": "paroxetine"
+ },
+ {
+  "setid": "73b8e5ab-86f8-44f8-b290-346acb81c9ae",
+  "product_name": "Warfarin Sodium",
+  "ingredient": "warfarin"
+ },
+ {
+  "setid": "495f22cc-18d4-4264-9313-7ab20e7b5bc9",
+  "product_name": "Valacyclovir Hydrochloride",
+  "ingredient": "valacyclovir"
+ },
+ {
+  "setid": "5e55526f-bb34-4b67-85ea-b2765e8066bb",
+  "product_name": "Methocarbamol",
+  "ingredient": "methocarbamol"
+ },
+ {
+  "setid": "850566b1-0c8e-42bc-85fa-c8ee710f34ba",
+  "product_name": "Diltiazem Hydrochloride",
+  "ingredient": "diltiazem"
+ },
+ {
+  "setid": "95755a7b-4a9f-45ea-a381-d3f661150efe",
+  "product_name": "Baclofen",
+  "ingredient": "baclofen"
+ },
+ {
+  "setid": "1bf70380-8272-4c0d-8841-d39ef2772351",
+  "product_name": "Sumatriptan Succinate",
+  "ingredient": "sumatriptan"
+ },
+ {
+  "setid": "b1a6714a-cdeb-4502-b44b-a4f08cc1cde1",
+  "product_name": "Esomeprazole Magnesium",
+  "ingredient": "esomeprazole"
+ },
+ {
+  "setid": "58e9b4c6-531f-49c4-a640-6953e70892fe",
+  "product_name": "Mirtazapine",
+  "ingredient": "mirtazapine"
+ },
+ {
+  "setid": "5feca839-8554-739b-e063-6394a90a4e65",
+  "product_name": "Levetiracetam",
+  "ingredient": "levetiracetam"
+ },
+ {
+  "setid": "415bd983-86f3-4f38-917a-9805024f31cb",
+  "product_name": "Tadalafil",
+  "ingredient": "tadalafil"
+ },
+ {
+  "setid": "86c1bdae-c749-4ec3-90f6-7ebe8e76c461",
+  "product_name": "Nifedipine",
+  "ingredient": "nifedipine"
+ },
+ {
+  "setid": "0c7f9bd0-6c0a-4521-b77a-3582faa96874",
+  "product_name": "Hydralazine Hydrochloride",
+  "ingredient": "hydralazine"
+ },
+ {
+  "setid": "2794f86b-d521-414b-8154-5dd1e2519653",
+  "product_name": "Glimepiride",
+  "ingredient": "glimepiride"
+ },
+ {
+  "setid": "8d252dab-e868-42d3-95ea-69423d909e84",
+  "product_name": "Pioglitazone Hydrochloride and Metformin Hydrochloride",
+  "ingredient": "pioglitazone"
+ },
+ {
+  "setid": "5ca218af-b3f4-512a-e063-6394a90a3ec6",
+  "product_name": "HYDROXYCHLOROQUINE SULFATE",
+  "ingredient": "hydroxychloroquine"
+ },
+ {
+  "setid": "ce4afef1-22c1-4a1c-a102-a32fb6a2e045",
+  "product_name": "Nitrofurantoin Macrocrystals",
+  "ingredient": "nitrofurantoin"
+ },
+ {
+  "setid": "b52bdaf7-3b54-4165-9ab0-9dfa08170e47",
+  "product_name": "clindamycin phosphate",
+  "ingredient": "clindamycin"
+ },
+ {
+  "setid": "5723eaf9-8659-4730-b792-4e4c33690ccb",
+  "product_name": "Ciprofloxacin",
+  "ingredient": "ciprofloxacin"
+ },
+ {
+  "setid": "2f7d84d4-1085-4243-be88-442eecb85205",
+  "product_name": "Metronidazole",
+  "ingredient": "metronidazole"
+ },
+ {
+  "setid": "126406ae-1fdc-df20-e063-6294a90a2718",
+  "product_name": "Fluconazole",
+  "ingredient": "fluconazole"
+ },
+ {
+  "setid": "5fa4920c-ec29-b879-e063-6294a90adcad",
+  "product_name": "Sildenafil",
+  "ingredient": "sildenafil"
+ },
+ {
+  "setid": "603c07bb-61bf-410f-8abf-01ef09d61c14",
+  "product_name": "donepezil hydrochloride",
+  "ingredient": "donepezil"
+ },
+ {
+  "setid": "0f692652-4451-4eef-901d-1e6aadc43847",
+  "product_name": "Olanzapine",
+  "ingredient": "olanzapine"
+ },
+ {
+  "setid": "cf79ac74-017e-4fb4-85d3-4ea944080e89",
+  "product_name": "MECLIZINE",
+  "ingredient": "meclizine"
+ },
+ {
+  "setid": "1a7b373a-9b74-4b9d-93fb-081614222e30",
+  "product_name": "Benazepril Hydrochloride",
+  "ingredient": "benazepril"
+ },
+ {
+  "setid": "8cd22728-34b4-4e55-8339-580138fe46d8",
+  "product_name": "Acyclovir",
+  "ingredient": "acyclovir"
+ },
+ {
+  "setid": "9391b8d8-2217-4838-8976-1a5ad90ef4ca",
+  "product_name": "Enalapril maleate oral solution",
+  "ingredient": "enalapril"
+ }
+]

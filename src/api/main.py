@@ -54,6 +54,7 @@ def create_app(db_url: str | None = None, seed: bool | None = None) -> FastAPI:
         app.state.ai_provider = None  # tests put a fake provider here; None means Ollama (src/rag/settings.AI_MODEL)
         app.state.rag = RagService(threshold=frozen_threshold())  # Step 23: E5b retrieval loads on the first question
         app.state.print_engine = RealPrintEngine()  # CV pieces behind verify_print; tests replace it
+        app.state.public_reader = None  # None: the OCR child process (src/api/public_scan.py); tests stub it
         app.state.medicine = MedicineService()  # Step 25a: ten reference products, E5b name matcher (lazy)
         app.state.edit_provider = None  # optional LLM text parser, off by default (src/change/parser.py)
         if seed if seed is not None else os.environ.get("LABELLENS_SEED", "1") != "0":
@@ -67,7 +68,7 @@ def create_app(db_url: str | None = None, seed: bool | None = None) -> FastAPI:
     @app.middleware("http")
     async def refuse_oversize_upload(request: Request, call_next):  # noqa: ANN001, ANN202
         """Answer a too-large POST /scans from its Content-Length before the body is parsed or stored."""
-        if request.method == "POST" and request.url.path == "/scans":
+        if request.method == "POST" and request.url.path in ("/scans", "/public/scans"):
             declared = request.headers.get("content-length", "")
             if declared.isdigit() and int(declared) > MAX_BYTES + FORM_OVERHEAD:
                 error = ApiError(422, "file_too_large", f"The upload is larger than {MAX_BYTES // (1024 * 1024)} MB.")
