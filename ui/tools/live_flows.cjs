@@ -112,7 +112,7 @@ const BASE = process.env.BASE || 'http://127.0.0.1:8000';
       }
     } catch (e) { log('D6 generate and D8 download', 'FAIL', e.message.split('\n')[0]); }
   }
-  // 6. D2 register (real endpoint) and P1 public scan (the server answers it with a mock: the badge must say so).
+  // 6. D2 register (real endpoint) and P1 public scan (real since CR-27: badge api, retake panel or result).
   if (process.env.GOLDEN_JSON) {
     const g = JSON.parse(require('fs').readFileSync(process.env.GOLDEN_JSON, 'utf8'));
     try {
@@ -135,9 +135,11 @@ const BASE = process.env.BASE || 'http://127.0.0.1:8000';
       await page.waitForSelector('#btnP1UploadImage');
       const [fc] = await Promise.all([page.waitForEvent('filechooser'), page.$eval('#btnP1UploadImage', (e) => e.click())]);
       await fc.setFiles(process.env.BLUR_IMAGE);
-      await page.waitForFunction(() => /Product information|ExampleMed|Authenticity not verified/.test(document.getElementById('publicDynamicContent').innerText) && !!document.querySelector('[data-testid="source-badge"]'), null, { timeout: 30000 });
+      // publicScan is real (CR-27): a blurry photo must come back as a retake panel with reasons, a readable one as a result.
+      await page.waitForFunction(() => !!document.querySelector('[data-testid="scan-failed"], [data-testid="scan-extra"], [data-testid="scan-evidence"]'), null, { timeout: 125000 });
       const kind = await page.$eval('#dataSourceBadge', (b) => b.dataset.kind);
-      log('P1 upload (public scan)', kind === 'x-mock' ? 'FALLBACK' : 'PASS', `badge ${kind}: publicScan is a mock on this server, the page says so`);
+      const retake = !!(await page.$('[data-testid="retake-reasons"]'));
+      log('P1 upload (public scan)', kind === 'api' ? 'PASS' : 'FAIL', `badge ${kind}; ${retake ? 'retake panel with reasons' : 'result page'}`);
     } catch (e) { log('P1 upload (public scan)', 'FAIL', e.message.split('\n')[0]); }
   }
   // 5. End to end on the golden package through the UI (GOLDEN_JSON from golden_setup.py).

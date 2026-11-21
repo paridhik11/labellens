@@ -96,9 +96,11 @@
         <div class="notice-banner notice-warning">
           <div class="notice-icon">i</div>
           <div>
-            <div class="notice-title">Multiple candidates found</div>
+            <div class="notice-title">${safeData.matched_text ? 'Is this your product?' : 'Multiple candidates found'}</div>
             <div class="notice-text">
-              The scan matched more than one reference label. Please select the product packaging in your hand.
+              ${safeData.matched_text
+                ? `We read <strong>${escapeHtml(safeData.matched_text)}</strong> on the pack. It is close to the reference labels below but not certain. Pick the one that matches your pack, or none of them.`
+                : 'The scan matched more than one reference label. Please select the product packaging in your hand.'}
             </div>
           </div>
         </div>
