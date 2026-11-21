@@ -1,0 +1,46 @@
+candidate	role	family	name	evidence
+02	positive	ethicon_vicryl	Coated VICRYL™ Plus Antibacterial	Central three-line heading; standalone suture size excluded.
+04	positive	ethicon_vicryl	Coated VICRYL™ Plus Antibacterial	Central three-line heading.
+08	positive	covidien_ta	TA™ Auto Suture™ Stapler with DST Series™ Technology	Three front heading lines above instrument drawing.
+10	positive	imperative_zoom	ZOOM™ 55 Reperfusion Catheter	Central two-line heading above drawing.
+11	positive	ethicon_vicryl	Coated VICRYL*	Upper pouch heading; handwritten expiry is not part of name.
+12	positive	ethicon_vicryl	Coated VICRYL™ Plus Antibacterial	Central three-line heading.
+16	positive	penumbra_indigo	Indigo® Aspiration Catheter	Large top heading.
+17	positive	imperative_zoom	ZOOM™ 45 Reperfusion Catheter	Central two-line heading above drawing.
+19	positive	asahi_gaia	ASAHI Gaia® Third 190cm	Top bold product heading, including inline length.
+20	positive	asahi_gaia	ASAHI Gaia® Second 190cm	Top bold product heading, including inline length.
+23	positive	abbott_viatrac	RX Viatrac 14 Plus Peripheral Dilatation Catheter	Large two-line front heading; not the separate small inventory sticker.
+24	positive	abbott_viatrac	RX Viatrac 14 Plus Peripheral Dilatation Catheter	Large two-line front heading.
+25	positive	abbott_viatrac	RX Viatrac 14 Plus Peripheral Dilatation Catheter	Large two-line front heading.
+26	positive	abbott_viatrac	RX Viatrac 14 Plus Peripheral Dilatation Catheter	Large two-line front heading.
+54	positive	terumo_progreat	Progreat	Large main product logo; manufacturer and small-label subtype excluded.
+59	positive	terumo_progreat	Progreat	Large main product logo; manufacturer and small-label subtype excluded.
+62	positive	covidien_surgipro	Surgipro™ Monofilament Polypropylene	Front heading and directly adjacent subtitle.
+63	positive	livanova_pureflex	PureFlex™ Arterial Cannulae	Top of original product sticker; model is on separate line.
+64	positive	livanova_pureflex	PureFlex™ Arterial Cannulae	Top of original product sticker; model is on separate line.
+65	positive	boston_cre	CRE™ Wireguided	Product heading on white label, excluding manufacturer logo.
+66	positive	boston_cre	CRE™ PRO Wireguided	Product heading on white label, including PRO variant.
+67	positive	venclose_rf	RF Ablation Catheter	Upper product heading; manufacturer and separate length excluded.
+68	positive	boston_hydratome	Hydratome™ RX 44	Upper product heading on pouch label.
+71	positive	boston_zipwire	ZIPwire™ Hydrophilic Guidewire	Main blue-panel heading; separate Standard variant excluded.
+79	positive	kci_prevena	PREVENA™ PEEL & PLACE™ DRESSING - 13CM	Central two-line product heading including inline size.
+85	positive	depuy_quickanchor	GII™ QUICKANCHOR™ Plus	Original label heading below REF; no catalog transcription used.
+84	positive	covidien_steel	Steel Monofilament Stainless Steel	Lower original-label heading and subtitle.
+87	positive	stryker_excelsior	Excelsior® XT-17™ FLEX	Main heading above black STRAIGHT bar.
+88	positive	boston_filterwire	FilterWire EZ™	Main heading above LARGE VESSEL bar.
+89	positive	microvention_headway	Headway 17 Advanced	Stylized main heading on cream panel; small descriptive subtitle excluded.
+03	negative	ethicon_ethibond	ETHIBOND* EXCEL	Upper two-line product heading.
+05	negative	ethicon_gut	PLAIN GUT	Large central heading.
+06	negative	ethicon_permahand	PERMA-HAND™ SILK	Upper central heading.
+07	negative	arthrex_passport	PassPort Button™ Cannula	Upper-left heading on original label.
+09	negative	ethicon_ils	Endoscopic Curved Intraluminal Stapler (ILS)	Top product heading, excluding manufacturer block.
+13	negative	shockwave_s4	SHOCKWAVE S⁴	Large central logo/name; manufacturer is not inferred from catalog.
+18	negative	asahi_tornus	Tornus	Large central product logo.
+21	negative	csi_viperwire	VIPERWIRE Advance CORONARY GUIDE WIRE	Top two-line heading; separate FlexTip attribute excluded.
+22	negative	csi_vipercath	VIPERCATH™ XC PERIPHERAL EXCHANGE CATHETER	Lower-left two-line product heading.
+30	negative	terumo_metacross	R2P Metacross™ RX	Main heading and adjacent R2P mark.
+32	negative	terumo_metacross	Metacross™ OTW	Main central heading.
+34	negative	terumo_crosstella	R2P Crosstella™ RX	Main heading and adjacent R2P mark.
+43	negative	terumo_crosperio	Crosperio™ OTW	Main central heading.
+80	negative	ethicon_ethilon	ETHILON™	Main front heading.
+90	negative	biosense_celsius	CELSIUS® ELECTROPHYSIOLOGY CATHETER	Three-line black-panel product heading.
