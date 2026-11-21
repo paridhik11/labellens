@@ -1,0 +1,1 @@
+{"name": "D", "max_candidates": 8, "min_letters": 4, "min_conf": 0.0, "pairs": true, "full_text": true, "order": "score", "max_chars": 300, "name_evidence": true, "max_words": 5}
