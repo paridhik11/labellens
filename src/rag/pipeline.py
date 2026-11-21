@@ -11,6 +11,7 @@ from typing import Any
 from src.checker.citations import best_quote
 from src.common.schemas import Chunk
 from src.ir.base import Retriever
+from src.rag import selection
 from src.rag.prompt import ANSWER_SCHEMA, PROMPTS, build_user
 from src.rag.provider import Provider, ProviderError, ProviderTimeout, ProviderUnavailable
 from src.rag.scope import out_of_scope
@@ -119,7 +120,13 @@ def answer_question(
         result.mode = "extractive"
         return done("needs_human_check", cause)
 
+    candidates: list[selection.Candidate] = []
     try:
+        if cfg.output == "select":
+            candidates = selection.build_candidates(context)
+            raw = provider.generate_json(selection.SYSTEM_V4, selection.build_user(question, candidates),
+                                         selection.SELECT_SCHEMA, max_tokens=cfg.max_tokens)
+            return _selected(result, raw, candidates, context, done, fall_back)
         user = build_user(question, context, cfg.prompt)
         if cfg.output == "json":
             raw = provider.generate_json(PROMPTS[cfg.prompt][0], user, ANSWER_SCHEMA, max_tokens=cfg.max_tokens)
@@ -161,4 +168,35 @@ def answer_question(
         result.sentences.append({"text": s.text, "chunk_ids": [context[m - 1].chunk_id for m in dict.fromkeys(s.markers)]})  # noqa: E501
     result.answer = " ".join(parts)
     result.mode = "generated"
+    return done("answered", "ok")
+
+
+def _selected(
+    result: RagResult, raw: str, candidates: list[selection.Candidate], context: list[Chunk], done: Any,
+    fall_back: Any,
+) -> RagResult:
+    """Finish selection mode: the answer is the chosen sentences, verbatim, each cited to its chunk."""
+    result.raw = raw
+    sel = selection.parse_selection(raw, len(candidates))
+    if sel.no_answer:
+        return done("needs_human_check", "no_answer")
+    result.checks = {"ok": not sel.failed, "failed": sel.failed, "detail": sel.detail,
+                     "n_sentences": len(sel.numbers), "n_valid_sentences": len(sel.numbers),
+                     "n_candidates": len(candidates)}
+    if sel.failed:
+        return fall_back("verification")
+    chosen = [candidates[n - 1] for n in sel.numbers]
+    order: list[str] = []
+    for c in chosen:
+        if c.chunk_id not in order:
+            order.append(c.chunk_id)
+    chunk_by_id = {ch.chunk_id: ch for ch in context}
+    result.sources = [_citation(chunk_by_id[cid], " ".join(c.text for c in chosen if c.chunk_id == cid))
+                      for cid in order]
+    parts = []
+    for c in chosen:
+        parts.append(f"{c.text.rstrip()} [{order.index(c.chunk_id) + 1}]")
+        result.sentences.append({"text": c.text, "chunk_ids": [c.chunk_id]})
+    result.answer = " ".join(parts)
+    result.mode = "selected"
     return done("answered", "ok")

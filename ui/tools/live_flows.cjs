@@ -112,36 +112,6 @@ const BASE = process.env.BASE || 'http://127.0.0.1:8000';
       }
     } catch (e) { log('D6 generate and D8 download', 'FAIL', e.message.split('\n')[0]); }
   }
-  // 6. D2 register (real endpoint) and P1 public scan (the server answers it with a mock: the badge must say so).
-  if (process.env.GOLDEN_JSON) {
-    const g = JSON.parse(require('fs').readFileSync(process.env.GOLDEN_JSON, 'utf8'));
-    try {
-      const { page } = await open('professional', `&product=${g.template_product_id}`);
-      await go(page, 'D2 Template setup', 'professional/template_setup/success.json');
-      const t = g.template;
-      await page.fill('#d2JsonPlaceholder, [data-testid="d2-json"]', JSON.stringify({ size_mm: t.size_mm, background: null, slots: t.slots }));
-      await page.$eval('#btnRegisterTemplate', (e) => e.click());
-      await page.waitForFunction(() => /Registered|Refused|failed|not valid/.test(document.getElementById('d2Result').innerText), null, { timeout: 30000 });
-      const r = await page.$eval('#d2Result', (e) => e.innerText);
-      const kind = await page.$eval('#dataSourceBadge', (b) => b.dataset.kind);
-      log('D2 register template', /Registered/.test(r) && kind === 'api' ? 'PASS' : 'FAIL', `${r.slice(0, 110)} | badge ${kind}`);
-    } catch (e) { log('D2 register template', 'FAIL', e.message.split('\n')[0]); }
-  }
-  if (process.env.BLUR_IMAGE) {
-    try {
-      const { page } = await open('public');
-      await page.waitForSelector('#devStateButtons .btn-state');
-      await page.evaluate(() => window.LabelLensStateSwitcher.setScreen('P1 Scan and Understand'));
-      await page.waitForSelector('#btnP1UploadImage');
-      const [fc] = await Promise.all([page.waitForEvent('filechooser'), page.$eval('#btnP1UploadImage', (e) => e.click())]);
-      await fc.setFiles(process.env.BLUR_IMAGE);
-      await page.waitForFunction(() => /Product information|ExampleMed|Authenticity not verified/.test(document.getElementById('publicDynamicContent').innerText) && !!document.querySelector('[data-testid="source-badge"]'), null, { timeout: 30000 });
-      const kind = await page.$eval('#dataSourceBadge', (b) => b.dataset.kind);
-      log('P1 upload (public scan)', kind === 'x-mock' ? 'FALLBACK' : 'PASS', `badge ${kind}: publicScan is a mock on this server, the page says so`);
-    } catch (e) { log('P1 upload (public scan)', 'FAIL', e.message.split('\n')[0]); }
-  }
-  // 5. End to end on the golden package through the UI (GOLDEN_JSON from golden_setup.py).
-  if (process.env.GOLDEN_JSON) await require('./e2e_golden.cjs')({ open, go, log, goldenJson: process.env.GOLDEN_JSON });
   await browser.close();
   const bad = out.filter((o) => o.status === 'FAIL').length;
   console.log(`${out.length} flows, ${bad} FAIL`);

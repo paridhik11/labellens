@@ -165,10 +165,9 @@
         btn.dataset.state = item.state;
         btn.dataset.file = item.file || '';
 
-        // Select initial state or match currentState: an exact label wins over a shared state name
-        // (D4 has two states named "success", the extraction and the inspection).
-        const wanted = currentState && (availableStates.find(i => i.label === currentState) || availableStates.find(i => i.state === currentState));
-        const isMatch = (wanted && item === wanted) || (!currentState && index === 0);
+        // Select initial state or match currentState
+        const isMatch = (currentState && (item.label === currentState || item.state === currentState)) ||
+                        (!currentState && index === 0);
 
         if (isMatch) {
           btn.classList.add('active');
@@ -188,7 +187,7 @@
       });
 
       // Automatically load the active state if none triggered yet
-      const activeItem = availableStates.find(item => item.label === currentState) || availableStates.find(item => item.state === currentState) || availableStates[0];
+      const activeItem = availableStates.find(item => item.label === currentState || item.state === currentState) || availableStates[0];
       if (activeItem) {
         await activateState(activeItem);
       }

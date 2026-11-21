@@ -10,7 +10,7 @@ class RagSettings:
 
     k: int = 5
     prompt: str = "v1"  # v1 is the frozen run. v2 is an unused experiment (failed a 6-query dev check, spec section 14)
-    output: str = "text"  # "text" (markers in prose, Step 23) or "json" (structured outputs, Step 23e)
+    output: str = "text"  # "text" (Step 23), "json" (Step 23e) or "select" (sentence numbers, rag-select)
     max_sentences: int = 4
     min_overlap: float = 0.40  # a guess made before any run, frozen in the spec
     fallback_quotes: int = 3

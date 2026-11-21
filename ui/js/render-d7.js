@@ -152,7 +152,7 @@
     bindDecision(container, { check_id: d.check_id, version_id: d.version_id, label_id: d.label_id, artifact_sha256: d.artifact_sha256 });
   }
 
-  function renderBodyD7(container, state, meta, data) {
+  function renderScreenD7(container, state, meta, data) {
     if (!container) return;
     const d = data || {};
 
@@ -239,36 +239,6 @@
         window.dispatchEvent(new CustomEvent('labellens:screen-navigated', { detail: { screen: 'D8 Export' } }));
       });
     }
-  }
-
-  /** In api mode a card on top runs the real re-check on the live version (the one just generated, or ?version=). */
-  function renderScreenD7(container, state, meta, data) {
-    if (!container) return;
-    if (window.LabelLensData.CONFIG.mode !== 'api') { renderBodyD7(container, state, meta, data); return; }
-    const vid = (window.LabelLensData.CONFIG.ids || {}).version_id;
-    const user = window.LabelLensData.CONFIG.currentUserHeader;
-    container.innerHTML = `
-      <div class="card" style="margin-bottom: 16px;" data-testid="recheck-card">
-        <div class="card-header-clean font-semibold text-sm">Re-check a generated version (live)</div>
-        <div class="text-xs text-muted">Version: ${vid ? '<code>' + esc(vid) + '</code>' : 'none yet. Generate a draft in Changes first, or open the page with ?version=...'} | Acting as <code id="d7Acting">${esc(user)}</code> (switch in the header)</div>
-        <div class="flex-row" style="gap: 8px; margin-top: 8px;">
-          <button class="btn btn-primary btn-sm" type="button" id="btnLiveRecheck" ${vid ? '' : 'disabled aria-disabled="true"'}>Run re-check</button>
-        </div>
-        <div class="text-xs text-muted" id="d7LiveNote" style="margin-top: 6px;"></div>
-      </div>
-      <div id="d7Body"></div>`;
-    const body = container.querySelector('#d7Body');
-    renderBodyD7(body, state, meta, data);
-    const note = container.querySelector('#d7LiveNote');
-    container.querySelector('#btnLiveRecheck').addEventListener('click', async () => {
-      note.textContent = 'Reading the rendered PDF back and running the checker...';
-      try {
-        const res = await window.LabelLensActions.recheck(vid, (j) => { note.textContent = `${j.state}${j.message ? ': ' + j.message : ''}`; });
-        window.LabelLensData.setDataSource('api', 'recheckArtwork');
-        renderBodyD7(body, 'success', null, res);
-        note.textContent = `Check ${res.check_id}: ${res.passed ? 'passed' : 'did not pass'}.`;
-      } catch (e) { note.textContent = 'Re-check failed: ' + e.message; }
-    });
   }
 
   window.LabelLensRenderers = window.LabelLensRenderers || {};

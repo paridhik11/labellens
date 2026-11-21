@@ -42,10 +42,6 @@
   function renderScreenD6(container, state, meta, data) {
     if (!container) return;
     const safeData = data || {};
-    const apiMode = window.LabelLensData.CONFIG.mode === 'api';
-    // Live means this payload came from the API (or from a step done here), not from a mock sample.
-    const liveData = apiMode && !!(meta && meta.source === 'api');
-    const dflt = (v) => (apiMode && !liveData ? '' : v);
     const stateStr = String(state || '').toLowerCase();
 
     // 1. Loading State (202 Job envelope: generateArtwork)
@@ -390,22 +386,17 @@
         <form id="formStructuredChange" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 8px;">
           <div>
             <label class="text-xs font-semibold text-muted" style="display: block; margin-bottom: 4px;">Target Field:</label>
-            <input type="text" id="changeField" class="form-control text-sm" style="width: 100%; padding: 8px; border: 1px solid var(--color-border); border-radius: var(--radius-sm);" value="${escapeHtml(change.field || dflt('sterilization'))}" ${isRejected ? 'disabled' : ''}>
+            <input type="text" id="changeField" class="form-control text-sm" style="width: 100%; padding: 8px; border: 1px solid var(--color-border); border-radius: var(--radius-sm);" value="${escapeHtml(change.field || 'sterilization')}" ${isRejected ? 'disabled' : ''}>
           </div>
           <div>
             <label class="text-xs font-semibold text-muted" style="display: block; margin-bottom: 4px;">Current / Old Value:</label>
-            <input type="text" id="changeOldVal" class="form-control text-sm" style="width: 100%; padding: 8px; border: 1px solid var(--color-border); border-radius: var(--radius-sm);" value="${escapeHtml(change.old_value || dflt('Ethylene oxide (EO)'))}" ${isRejected ? 'disabled' : ''}>
+            <input type="text" id="changeOldVal" class="form-control text-sm" style="width: 100%; padding: 8px; border: 1px solid var(--color-border); border-radius: var(--radius-sm);" value="${escapeHtml(change.old_value || 'Ethylene oxide (EO)')}" ${isRejected ? 'disabled' : ''}>
           </div>
           <div>
             <label class="text-xs font-semibold text-muted" style="display: block; margin-bottom: 4px;">Proposed New Value:</label>
-            <input type="text" id="changeNewVal" class="form-control text-sm" style="width: 100%; padding: 8px; border: 1px solid var(--color-border); border-radius: var(--radius-sm);" value="${escapeHtml(change.new_value || dflt('Gamma irradiation'))}" ${isRejected ? 'disabled' : ''}>
+            <input type="text" id="changeNewVal" class="form-control text-sm" style="width: 100%; padding: 8px; border: 1px solid var(--color-border); border-radius: var(--radius-sm);" value="${escapeHtml(change.new_value || 'Gamma irradiation')}" ${isRejected ? 'disabled' : ''}>
           </div>
         </form>
-        ${apiMode ? `
-          <div class="flex-row" style="gap: 8px; margin-top: 10px;">
-            <button class="btn btn-primary btn-sm" type="button" id="btnAssessChange" data-testid="assess-btn">Assess change</button>
-            <span class="text-xs text-muted" id="d6AssessNote" data-testid="assess-note">${liveData ? '' : 'Type the field and the new value. The checklist below is a mock sample until you assess.'}</span>
-          </div>` : ''}
 
         <!-- Typed text convenience field -->
         <div style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--color-border);">
@@ -413,7 +404,7 @@
             <label class="text-xs font-semibold text-muted">Free-text Description (Convenience Only):</label>
             <span class="text-xs text-muted">Parser: <code>${escapeHtml(safeData.parser || 'mock')}</code></span>
           </div>
-          <input type="text" class="form-control text-xs" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); margin-top: 4px; color: var(--color-text-muted);" value="${escapeHtml(change.raw_text || dflt('Update the sterilization method from ethylene oxide (EO) to gamma irradiation.'))}" ${isRejected ? 'disabled' : ''}>
+          <input type="text" class="form-control text-xs" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); margin-top: 4px; color: var(--color-text-muted);" value="${escapeHtml(change.raw_text || 'Update the sterilization method from ethylene oxide (EO) to gamma irradiation.')}" ${isRejected ? 'disabled' : ''}>
         </div>
       </div>
 
@@ -566,50 +557,10 @@
       });
     }
 
-    const assessBtn = container.querySelector('#btnAssessChange');
-    if (assessBtn) {
-      assessBtn.addEventListener('click', async () => {
-        const note = container.querySelector('#d6AssessNote');
-        const field = container.querySelector('#changeField').value.trim();
-        const value = container.querySelector('#changeNewVal').value.trim();
-        const pid = (window.LabelLensData.CONFIG.ids || {}).product_id;
-        if (!pid) { note.textContent = 'No live product yet: upload a label in Upload first (or open with ?product=...).'; return; }
-        if (!field || !value) { note.textContent = 'Fill the target field and the new value.'; return; }
-        note.textContent = 'Assessing...';
-        try {
-          const res = await window.LabelLensActions.assessChange(pid, [{ field, new_value: value }]);
-          window.LabelLensData.setIds({ change_id: res.change.change_id });
-          window.LabelLensData.setDataSource('api', 'assessChange');
-          renderScreenD6(container, 'success (assessment)', { source: 'api' }, res);
-        } catch (e) { note.textContent = 'Assess failed: ' + e.message; }
-      });
-    }
-
-    // Per-item decisions (live only): remembered here, sent with "Confirm All Items".
-    const decisions = {};
-    const items = safeData.affected || [];
-    container.querySelectorAll('.btn-decision-confirm').forEach((b, i) => b.addEventListener('click', () => {
-      if (items[i]) decisions[items[i].impact_id] = 'confirmed';
-      b.classList.add('btn-primary'); const o = b.nextElementSibling; if (o) o.classList.remove('btn-primary');
-    }));
-    container.querySelectorAll('.btn-decision-dismiss').forEach((b, i) => b.addEventListener('click', () => {
-      if (items[i]) decisions[items[i].impact_id] = 'dismissed';
-      b.classList.add('btn-primary'); const o = b.previousElementSibling; if (o) o.classList.remove('btn-primary');
-    }));
-
     const confirmBtn = container.querySelector('#btnConfirmChecklist');
     if (confirmBtn) {
-      confirmBtn.addEventListener('click', async () => {
-        if (!apiMode) { gotoState('success (confirmed change)'); return; }
-        const note = container.querySelector('#d6AssessNote');
-        const changeId = (safeData.change || {}).change_id;
-        if (!liveData || !changeId) { if (note) note.textContent = 'Assess a change first: this checklist is a mock sample.'; return; }
-        const list = items.map(i => ({ impact_id: i.impact_id, user_decision: decisions[i.impact_id] || 'confirmed' }));
-        if (note) note.textContent = 'Confirming...';
-        try {
-          const res = await window.LabelLensActions.confirmChange(changeId, list);
-          renderScreenD6(container, 'success (confirmed change)', { source: 'api' }, res);
-        } catch (e) { if (note) note.textContent = 'Confirm failed: ' + e.message; }
+      confirmBtn.addEventListener('click', () => {
+        gotoState('success (confirmed change)');
       });
     }
 

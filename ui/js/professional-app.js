@@ -14,7 +14,6 @@
 
   function init() {
     setupNav();
-    setupUserSwitch();
     setupScreenListeners();
     loadCurrentUser();
     switchProfessionalScreen(activeScreen);
@@ -42,32 +41,6 @@
     } catch (e) {
       console.warn('Could not load user session:', e);
     }
-  }
-
-  /** api mode: choose which demo user acts (X-User-Id). Approval needs a reviewer, never the author of the change. */
-  function setupUserSwitch() {
-    const D = window.LabelLensData;
-    if (!D || D.CONFIG.mode !== 'api') return;
-    const badge = document.getElementById('headerUserBadge');
-    if (!badge || document.getElementById('demoUserSelect')) return;
-    const sel = document.createElement('select');
-    sel.id = 'demoUserSelect';
-    sel.setAttribute('data-testid', 'user-select');
-    sel.title = 'Demo user sent as X-User-Id';
-    sel.style.cssText = 'margin-right:10px;font-size:0.75rem;padding:2px 6px;border:1px solid var(--color-border);border-radius:6px;';
-    [['usr_demo_editor', 'Editor'], ['usr_demo_reviewer', 'Reviewer'], ['usr_demo_admin', 'Admin']].forEach(([id, label]) => {
-      const o = document.createElement('option');
-      o.value = id; o.textContent = label;
-      if (id === D.CONFIG.currentUserHeader) o.selected = true;
-      sel.appendChild(o);
-    });
-    sel.addEventListener('change', async () => {
-      D.CONFIG.currentUserHeader = sel.value;
-      await loadCurrentUser();
-      const acting = document.getElementById('d7Acting');
-      if (acting) acting.textContent = sel.value;
-    });
-    badge.parentElement.insertBefore(sel, badge);
   }
 
   function setupNav() {

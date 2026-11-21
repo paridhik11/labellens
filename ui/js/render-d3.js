@@ -126,7 +126,7 @@
   function renderScreenD3(container, state, meta, data) {
     if (!container) return;
     const isApi = window.LabelLensData.CONFIG.mode === 'api';
-    const known = (window.LabelLensData.CONFIG.ids || {}).product_id || (data && data.product_id) || '';
+    const known = (data && data.product_id) || '';
     container.innerHTML = `
       <div class="card" style="margin-bottom: 16px;" data-testid="upload-card">
         <div class="card-header-clean font-semibold text-sm">Upload a label (PNG, JPEG or PDF, up to 15 MB)</div>
@@ -135,8 +135,6 @@
           <div><label class="text-xs text-muted" for="d3Product">Product id (required)</label><br><input type="text" id="d3Product" value="${escapeHtml(known)}" placeholder="product id" style="padding: 6px 8px; border: 1px solid var(--color-border); border-radius: var(--radius-md);"></div>
           <div><label class="text-xs text-muted" for="d3Source">Source</label><br><select id="d3Source"><option value="upload">upload</option><option value="camera">camera</option></select></div>
           <button class="btn btn-primary" type="button" id="d3Upload">Upload</button>
-          <button class="btn btn-secondary" type="button" id="d3Photo">Take photo</button>
-          <input type="file" id="d3PhotoInput" accept="image/*" capture="environment" style="display:none" data-testid="d3-photo-input">
         </div>
         <div class="text-xs text-muted" id="d3Note" style="margin-top: 8px;">${isApi ? 'Runs the photo-quality gate, then the extractor. A blurry photo is answered with retake_photo and creates no version.' : 'Mock mode: nothing is uploaded. Open the page with ?mode=api to upload for real.'}</div>
       </div>
@@ -146,14 +144,15 @@
     const note = container.querySelector('#d3Note');
     const tryAgain = stateBox.querySelector('#btnTryUploadAgain');
     if (tryAgain) tryAgain.addEventListener('click', () => { container.querySelector('#d3File').click(); });
-    const run = async (file, source) => {
+    container.querySelector('#d3Upload').addEventListener('click', async () => {
+      const file = container.querySelector('#d3File').files[0];
       const pid = container.querySelector('#d3Product').value.trim();
       if (!isApi) { note.textContent = 'Mock mode: nothing was uploaded.'; return; }
       if (!file) { note.textContent = 'Choose a file first.'; return; }
       if (!pid) { note.textContent = 'A product id is required.'; return; }
       note.textContent = 'Uploading...';
       try {
-        const res = await window.LabelLensActions.uploadScan(file, pid, source, (j) => {
+        const res = await window.LabelLensActions.uploadScan(file, pid, container.querySelector('#d3Source').value, (j) => {
           renderStateD3(stateBox, 'loading', null, j);
         });
         if (res.job.state === 'failed') {
@@ -162,23 +161,13 @@
         } else if (!res.scan) {
           note.textContent = 'The job finished but the scan record could not be read. Nothing is shown rather than a guess.';
         } else {
-          window.LabelLensData.setIds({ product_id: pid, label_id: res.scan.label_id, version_id: res.scan.version_id });
           renderStateD3(stateBox, 'success', null, res.scan);
           note.textContent = '';
         }
       } catch (e) {
         note.textContent = 'Upload failed: ' + e.message;
       }
-    };
-    container.querySelector('#d3Upload').addEventListener('click', () => {
-      run(container.querySelector('#d3File').files[0], container.querySelector('#d3Source').value);
     });
-    const photoInput = container.querySelector('#d3PhotoInput');
-    container.querySelector('#d3Photo').addEventListener('click', () => {
-      if (!isApi) { note.textContent = 'Mock mode: nothing was uploaded.'; return; }
-      photoInput.click();
-    });
-    photoInput.addEventListener('change', () => run(photoInput.files[0], 'camera'));
   }
 
   // Register renderer

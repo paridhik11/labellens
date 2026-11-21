@@ -27,8 +27,6 @@
     }
     const res = await fetch(base() + path, { method, headers, body });
     const mock = res.headers.get('X-Mock') === 'true';
-    // Actions (not reads or job polls) say where the data on screen now comes from.
-    if (method !== 'GET') D().setDataSource(mock ? 'x-mock' : 'api', `${method} ${path.split('?')[0]}`);
     let parsed = null;
     const type = res.headers.get('Content-Type') || '';
     if (opts.raw) parsed = await res.blob();
@@ -43,8 +41,6 @@
       const r = await request('GET', `/jobs/${encodeURIComponent(jobId)}`);
       if (r.status !== 200) throw new Error(`job ${jobId}: HTTP ${r.status}`);
       if (onProgress) onProgress(r.body);
-      // A job id this server never issued is answered with a mock job that never finishes: stop and say so.
-      if (r.mock) return Object.assign({}, r.body, { _mock: true });
       if (r.body.state === 'done' || r.body.state === 'failed') return r.body;
       if (Date.now() - t0 > timeoutMs) throw new Error('The job took longer than 120 s. Try again later.');
       await new Promise(res => setTimeout(res, intervalMs));
@@ -179,77 +175,6 @@
       const a = await request('GET', job.result_url);
       if (a.status !== 200) throw apiError(a);
       return a.body;
-    },
-
-    /** Public scan (no product_id, CR-23 matcher is separate). The server answers this operation with its mock. */
-    async publicScan(file, onProgress) {
-      const form = new FormData();
-      form.append('file', file);
-      const r = await request('POST', '/public/scans', { form });
-      if (r.status !== 202) throw apiError(r);
-      D().setDataSource(r.mock ? 'x-mock' : 'api', 'publicScan');
-      const job = await pollJob(r.body.job_id, onProgress);
-      return { job, mock: !!(r.mock || job._mock) };
-    },
-
-    /** Read the stored extraction of a version. */
-    async getExtraction(versionId) {
-      const r = await request('GET', `/label-versions/${enc(versionId)}/extraction`);
-      if (r.status !== 200) throw apiError(r);
-      return r.body;
-    },
-
-    /** Confirm an extraction. fields: {name: value} for the unclear fields (corrected or as read). */
-    async confirmExtraction(versionId, fields) {
-      const r = await request('POST', `/label-versions/${enc(versionId)}/extraction/confirm`, { json: { fields } });
-      if (r.status !== 200) throw apiError(r);
-      return r.body;
-    },
-
-    /** Inspect a version: 200 CheckResult, or 202 job (poll, then read result_url). */
-    async inspect(versionId, onProgress) {
-      const r = await request('POST', `/label-versions/${enc(versionId)}/inspect`, { json: {} });
-      if (r.status === 200) return r.body;
-      if (r.status !== 202) throw apiError(r);
-      const job = await pollJob(r.body.job_id, onProgress);
-      if (job.state !== 'done') throw new Error((job.error && job.error.message) || 'Inspection failed.');
-      const c = await request('GET', job.result_url);
-      if (c.status !== 200) throw apiError(c);
-      return c.body;
-    },
-
-    /** Re-check a generated version (reads the rendered PDF back). 200, or 202 job. */
-    async recheck(versionId, onProgress) {
-      const r = await request('POST', `/label-versions/${enc(versionId)}/recheck`);
-      if (r.status === 200) return r.body;
-      if (r.status !== 202) throw apiError(r);
-      const job = await pollJob(r.body.job_id, onProgress);
-      if (job.state !== 'done') throw new Error((job.error && job.error.message) || 'Re-check failed.');
-      const c = await request('GET', job.result_url);
-      if (c.status !== 200) throw apiError(c);
-      return c.body;
-    },
-
-    /** Register a template version for a product. Resolves {status, body}; 422 bodies are CheckResults. */
-    async registerTemplate(productId, template) {
-      const r = await request('POST', `/products/${enc(productId)}/templates`, { json: template });
-      D().setDataSource(r.mock ? 'x-mock' : 'api', 'registerTemplate');
-      if (r.status === 201 || r.status === 422 || r.status === 409) return { status: r.status, body: r.body, mock: r.mock };
-      throw apiError(r);
-    },
-
-    /** Create a change from one structured edit. Resolves the ChangeAssessment. */
-    async assessChange(productId, edits) {
-      const r = await request('POST', '/changes', { json: { product_id: productId, edits } });
-      if (r.status !== 201) throw apiError(r);
-      return r.body;
-    },
-
-    /** Confirm the parsed change and every checklist decision. */
-    async confirmChange(changeId, decisions) {
-      const r = await request('POST', `/changes/${enc(changeId)}/confirm`, { json: { parse_confirmed: true, decisions } });
-      if (r.status !== 200) throw apiError(r);
-      return r.body;
     },
 
     /** Download one stored file by sha256 with the user header, then hand it to the browser. */
