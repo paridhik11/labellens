@@ -1,0 +1,136 @@
+{
+ "set": "fresh_real",
+ "config": {
+  "name": "D",
+  "max_candidates": 8,
+  "min_letters": 4,
+  "min_conf": 0.0,
+  "pairs": true,
+  "full_text": true,
+  "order": "score",
+  "max_chars": 300,
+  "name_evidence": true,
+  "max_words": 5
+ },
+ "config_commit": "6602666fc08e6a8d5c2e8f37d6ff65b045457b4e",
+ "photos": 177,
+ "ignoring_gate": {
+  "not_identified": 62,
+  "timeout": 9,
+  "review": 69,
+  "correct": 34,
+  "wrong": 3
+ },
+ "pipeline_view": {
+  "not_identified": 61,
+  "timeout": 8,
+  "review": 66,
+  "correct": 33,
+  "retake": 6,
+  "wrong": 3
+ },
+ "wrong_total": 3,
+ "wrong_interval": [
+  0.006,
+  0.049
+ ],
+ "not_in_corpus_photos": 120,
+ "wrong_on_not_in_corpus": 3,
+ "review_on_not_in_corpus": 54,
+ "in_corpus_photos": 57,
+ "correct": 34,
+ "correct_interval": [
+  0.467,
+  0.714
+ ],
+ "correct_in_pipeline_view": 33,
+ "review_expected_in_top3": 8,
+ "by_condition": {
+  "decoy/artwork": {
+   "n": 40,
+   "review": 18,
+   "not_identified": 14,
+   "timeout": 7,
+   "wrong": 1,
+   "wrong_interval": [
+    0.004,
+    0.129
+   ],
+   "retake": 1
+  },
+  "decoy/hard": {
+   "n": 40,
+   "review": 14,
+   "not_identified": 25,
+   "wrong": 1,
+   "wrong_interval": [
+    0.004,
+    0.129
+   ],
+   "retake": 2
+  },
+  "decoy/moderate": {
+   "n": 40,
+   "review": 22,
+   "not_identified": 17,
+   "wrong": 1,
+   "wrong_interval": [
+    0.004,
+    0.129
+   ],
+   "retake": 0
+  },
+  "positive/artwork": {
+   "n": 19,
+   "not_identified": 1,
+   "timeout": 2,
+   "correct": 13,
+   "review": 3,
+   "wrong_interval": [
+    0.0,
+    0.168
+   ],
+   "retake": 2,
+   "correct_interval": [
+    0.46,
+    0.846
+   ]
+  },
+  "positive/hard": {
+   "n": 19,
+   "not_identified": 3,
+   "review": 6,
+   "correct": 10,
+   "wrong_interval": [
+    0.0,
+    0.168
+   ],
+   "retake": 1,
+   "correct_interval": [
+    0.317,
+    0.727
+   ]
+  },
+  "positive/moderate": {
+   "n": 19,
+   "not_identified": 2,
+   "review": 6,
+   "correct": 11,
+   "wrong_interval": [
+    0.0,
+    0.168
+   ],
+   "retake": 0,
+   "correct_interval": [
+    0.363,
+    0.769
+   ]
+  }
+ },
+ "seconds": {
+  "median": 22.0,
+  "p90": 39.9,
+  "max": 1613.9,
+  "over_60": 1
+ }
+}

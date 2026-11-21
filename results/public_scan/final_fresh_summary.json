@@ -1,0 +1,54 @@
+{
+ "set": "fresh",
+ "config": {
+  "name": "D",
+  "max_candidates": 8,
+  "min_letters": 4,
+  "min_conf": 0.0,
+  "pairs": true,
+  "full_text": true,
+  "order": "score",
+  "max_chars": 300,
+  "name_evidence": true,
+  "max_words": 5
+ },
+ "config_commit": "6602666fc08e6a8d5c2e8f37d6ff65b045457b4e",
+ "photos": 50,
+ "ignoring_gate": {
+  "not_identified": 44,
+  "timeout": 4,
+  "review": 2
+ },
+ "pipeline_view": {
+  "not_identified": 20,
+  "retake": 29,
+  "timeout": 1
+ },
+ "wrong_total": 0,
+ "wrong_interval": [
+  0.0,
+  0.071
+ ],
+ "not_in_corpus_photos": 50,
+ "wrong_on_not_in_corpus": 0,
+ "review_on_not_in_corpus": 2,
+ "by_condition": {
+  "device/photo": {
+   "n": 50,
+   "not_identified": 44,
+   "timeout": 4,
+   "review": 2,
+   "wrong_interval": [
+    0.0,
+    0.071
+   ],
+   "retake": 29
+  }
+ },
+ "seconds": {
+  "median": 28.5,
+  "p90": 41.8,
+  "max": 50.1,
+  "over_60": 0
+ }
+}

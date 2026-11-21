@@ -1,0 +1,54 @@
+Could not reach the Hub (Cannot reach https://huggingface.co/api/models/BAAI/bge-large-en-v1.5: offline mode is enabled. To disable it, please unset the `HF_HUB_OFFLINE` environment variable.). Using cached commit hash for 'BAAI/bge-large-en-v1.5'.
+Loading weights:   0%|          | 0/391 [00:00<?, ?it/s]Loading weights:   2%|2         | 9/391 [00:00<00:05, 70.53it/s]Loading weights:   5%|4         | 18/391 [00:00<00:04, 78.87it/s]Loading weights:   9%|8         | 34/391 [00:00<00:03, 112.30it/s]Loading weights:  12%|#1        | 46/391 [00:00<00:03, 88.64it/s] Loading weights:  16%|#5        | 62/391 [00:00<00:03, 105.02it/s]Loading weights:  19%|#9        | 76/391 [00:00<00:02, 108.42it/s]Loading weights:  23%|##2       | 88/391 [00:00<00:03, 92.59it/s] Loading weights:  73%|#######3  | 287/391 [00:01<00:00, 556.34it/s]Loading weights: 100%|##########| 391/391 [00:01<00:00, 379.63it/s]
+[DenseRetriever] Loading cached embeddings from data\processed\dense_cache_BAAI_bge-large-en-v1.5_de490422ee2fe6d9.npy
+fresh_001.jpg not_identified 10.5
+fresh_002.jpg not_identified 11.4
+fresh_003.jpg not_identified 16.7
+fresh_005.jpg not_identified 7.7
+fresh_007.jpg not_identified 18.4
+fresh_008.jpg not_identified 10.1
+fresh_010.jpg not_identified 9.7
+fresh_011.jpg not_identified 12.9
+fresh_012.jpg not_identified 10.1
+fresh_013.jpg not_identified 37.0
+fresh_014.jpg not_identified 29.2
+fresh_015.jpg not_identified 34.1
+fresh_016.jpg not_identified 23.6
+fresh_017.jpg not_identified 28.7
+fresh_018.jpg not_identified 26.6
+fresh_019.jpg not_identified 41.8
+fresh_020.jpg not_identified 30.7
+fresh_021.jpg not_identified 34.2
+fresh_022.jpg not_identified 33.7
+fresh_023.jpg not_identified 27.4
+fresh_024.jpg not_identified 27.8
+fresh_025.jpg not_identified 36.5
+fresh_027.jpg not_identified 42.6
+fresh_028.jpg not_identified 19.8
+fresh_029.jpg not_identified 24.8
+fresh_030.jpg not_identified 19.0
+fresh_031.jpg timeout 50.1
+fresh_034.jpg timeout 50.1
+fresh_035.jpg timeout 50.1
+fresh_037.jpg not_identified 34.1
+fresh_040.jpg timeout 47.7
+fresh_041.jpg not_identified 25.7
+fresh_042.jpg not_identified 37.8
+fresh_044.jpg not_identified 14.8
+fresh_045.jpg review 36.8
+fresh_046.jpg not_identified 38.0
+fresh_047.jpg not_identified 40.8
+fresh_048.jpg not_identified 28.4
+fresh_050.jpg not_identified 37.1
+fresh_052.jpg not_identified 41.4
+fresh_053.jpg review 26.9
+fresh_056.jpg not_identified 26.8
+fresh_059.jpg not_identified 26.6
+fresh_060.jpg not_identified 23.9
+fresh_061.jpg not_identified 39.7
+fresh_062.jpg not_identified 34.9
+fresh_063.jpg not_identified 15.5
+fresh_064.jpg not_identified 15.6
+fresh_072.jpg not_identified 41.6
+fresh_073.jpg not_identified 31.5
+{"set": "fresh", "config": {"name": "D", "max_candidates": 8, "min_letters": 4, "min_conf": 0.0, "pairs": true, "full_text": true, "order": "score", "max_chars": 300, "name_evidence": true, "max_words": 5}, "config_commit": "6602666fc08e6a8d5c2e8f37d6ff65b045457b4e", "photos": 50, "ignoring_gate": {"not_identified": 44, "timeout": 4, "review": 2}, "pipeline_view": {"not_identified": 20, "retake": 29, "timeout": 1}, "wrong_total": 0, "wrong_interval": [0.0, 0.071], "not_in_corpus_photos": 50, "wrong_on_not_in_corpus": 0, "review_on_not_in_corpus": 2, "by_condition": {"device/photo": {"n": 50, "not_identified": 44, "timeout": 4, "review": 2, "wrong_interval": [0.0, 0.071], "retake": 29}}, "seconds": {"median": 28.5, "p90": 41.8, "max": 50.1, "over_60": 0}}
