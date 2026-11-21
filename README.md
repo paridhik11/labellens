@@ -38,6 +38,8 @@ The professional workspace is the main project. See `docs/PRODUCT_SPEC.md`.
 
 Systems compared: TF-IDF, BM25 (own implementation), dense (BAAI/bge-small-en-v1.5 with FAISS), hybrid RRF, plus later query expansion, learning to rank and relevance feedback. Evaluation uses pooled qrels, nDCG@10, Recall@20, MRR and MAP, at chunk and section level, with ablations. See `docs/EVALUATION.md`.
 
+**Sentence reranker for the extractive display (T4 display, `reports/rag_rerank.md`).** A MiniLM cross-encoder (ms-marco-MiniLM-L-6-v2) scores the sentences of the 5 retrieved chunks and the answer shows the top 1 to 3 at or above T = 1, chosen on 20 dev queries. Held-out, 20 queries (15 answerable, 5 no_answer), each system run once, LLM grades (not human): direct hit rate 8/15 extractive vs 9/15 rerank; units graded >= 1 33/42 vs 36/40; units graded 2 8/42 vs 15/40; no_answer queries that still show quotes 2/5 vs 1/5; median latency 0.37 s vs 1.04 s. The frozen gate was met on all three points, but the hit gap is one query and the no_answer rate sits exactly on its limit with 5 queries, so unit precision is the clearer gain.
+
 ## 4. Architecture
 
 ```
@@ -99,6 +101,7 @@ First run on a new machine:
 - Index files are keyed by model and corpus hash. If another checkout of this repo on the PC already built them, they are copied
   from `data/cache/indexes` of the main checkout, or from the folder named by the environment variable `LABELLENS_INDEX_DIR` (set it when you cloned the repo again). Otherwise the bge-large build for the regulation corpus
   takes about 40 minutes of CPU, once (`python scripts/build_indexes.py` does only that step).
+- The sentence reranker `cross-encoder/ms-marco-MiniLM-L-6-v2` (87 MB) is downloaded and cached by `scripts/run_demo.py` with the other models (`MODELS` in that script). It is needed for the reranked sentences in the default extractive display; if it is not cached the display falls back to chunk quotes. If the first-run download fails, check the "models:" lines at the start of the output.
 - The optional AI answer needs Ollama with `qwen2.5:3b-instruct-q4_K_M`. Without it the AI answer falls back to the extractive passages.
 
 Check that everything works, in a second terminal while the demo runs:
@@ -111,7 +114,9 @@ It calls the real running API with the real extractor on a rendered golden packa
 PASS (mock), FALLBACK or FAIL per stage. Developer checks: `python -m pytest -q -m "not slow"` and `ruff check src tests`.
 Always run Python as `python -m ...` or `python scripts/...` from the repo root.
 
-### Demo script (about 10 minutes)
+### Demo script
+
+The exact 5 minute click path, with which stages are real and which are mocks, is `docs/DEMO_SCRIPT.md`. The overview below is the longer version.
 
 Users are stubs chosen by the `X-User-Id` header (`usr_demo_editor`, `usr_demo_reviewer`, `usr_demo_admin`), no login.
 Everything below is also one `demo_e2e.py` run.
@@ -127,14 +132,22 @@ Everything below is also one `demo_e2e.py` run.
 
 ### Known limits
 
-- The CV is tuned on synthetic labels of one template family. Very hard photos can make clean labels fail with confident false alarms; photos that are too blurry are rejected with a retake request.
-- The symbol detector is not trusted: symbol checks always ask a human. Real carton photos were not read.
-- Generated labels always carry the DRAFT mark, even after approval (no approved variant is rendered), identifiers are the GS1 test placeholder, and a template with a background image is refused.
-- Publishing is local: the page and QR point at this server (`LABELLENS_PUBLIC_BASE_URL`), they are not hosted anywhere.
-- Public medicine mode has ten reference products (DailyMed). The manufacturer is not in that corpus, so it is never shown. The scan-a-photo entry (`publicScan`) is still a mock, the name is typed. Brand names such as Lipitor do not match their generics.
-- Retrieval evaluation numbers are LLM-graded (`results/`), with wide intervals; the checker and answers are not compliance determinations.
-- No UI build exists in the repo yet: the API docs page and the two small HTML pages are the interface.
-- Still mocks (header `X-Mock: true`): print verification, `publicScan` and its result, and a few listings. `demo_e2e.py` lists any stage that hit one.
+Numbers below come from the reports named in brackets. Every relevance grade in this project is an LLM grade (claude-sonnet-5-5) except a 308-row human validation sample (`results/step13_llm_vs_human.md`); nothing here is a compliance determination.
+
+- **Real-photo extraction is weak.** CV3 on 30 new real device-package photos (10 test): product name 0/10, lot 5/7, expiry 7/8, with the OCR models not upgraded (`reports/cv3.md`). The CV is otherwise tuned and scored on synthetic labels of one template family; very hard photos can make clean labels fail with confident false alarms; photos that are too blurry are rejected with a retake request.
+- **CV2 field regressions.** On the 10 previously exposed real photos CV2 lowered lot reads from 7 to 4 and left product name at 0 (`reports/parth_cv2.md`). CV2 also needs the Tesseract executable; without it the profile falls back to the baseline.
+- **Print verification is measured on simulated photos only.** Template mode: 46/48 correct prints confirmed, 0/48 false matches, 2 hard prints sent to rescan (`reports/print_template_mode.md`). Real print photos were not measured. Symbols are not compared in print verification.
+- **Symbols are not measured on real photos.** The symbol detector is not trusted: symbol checks always ask a human. Real carton photos were not read (`docs/CV_STATUS.md`).
+- **Abstention is weak.** On the 13-query test split no score reaches AUROC 0.90 or precision 0.80 (best 0.800 AUROC); a different 20-query set looked better (hybrid top AUROC 0.985) and was not confirmed (`results/step18_final.md`).
+- **The AI answer is slow and optional.** Extractive passages are the default. The generative 3b answer answered 70% of answerable queries at a median of 38.3 s, with no wrong answers on the 10 no_answer queries; the sentence-selection mode failed its frozen gate and stays off (`reports/rag_select.md`). The AI answer needs Ollama, and always falls back to the passages.
+- **The reranked display is a small gain on a small test.** Held-out hit rate 9/15 vs 8/15 (one query), median latency 1.04 s vs 0.37 s, 1 of 5 no_answer queries still shows quotes; LLM grades, one grader, 20 queries (`reports/rag_rerank.md`). Costs about 1 s per ask and an 87 MB model.
+- **Medicine corpus is 30 products** (DailyMed, 618 chunks). Name matching: 31 of 45 fresh names confidently correct, 10 sent to review, 4 rejected, and 15 of 15 decoys rejected; authored names are not photo-OCR accuracy (`reports/medicine_aliases.md`). The manufacturer is the SPL labeler, not necessarily the physical manufacturer. Brand names without an alias do not match their generics. The scan-a-photo entry (`publicScan`) is a mock; the name is typed.
+- **Exports are DRAFT only.** Generated labels always carry the DRAFT mark, even after approval (no approved variant is rendered). Identifiers are the GS1 test placeholder, and a template with a background image is refused (D-5).
+- **Template registration checks shape and layout only** (slot geometry and the DRAFT band).
+- **No multi-side scan.** One label side per upload.
+- **Publishing is local:** the page and QR point at this server (`LABELLENS_PUBLIC_BASE_URL`), they are not hosted anywhere.
+- **LLM-graded labels.** Retrieval and RAG numbers use LLM relevance grades with wide intervals; the LLM is stricter than humans at the 0/1 boundary (`results/step13_llm_vs_human.md`).
+- **Still mocks (header `X-Mock: true`):** `publicScan` and `getPublicScan`, 2 of 39 operations. Everything else in `docs/contracts/openapi.yaml` is real. `demo_e2e.py` lists any stage that hit a mock or a fallback.
 
 ## 8. Scope
 

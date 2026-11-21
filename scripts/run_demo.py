@@ -61,7 +61,9 @@ def check_environment() -> dict[str, bool]:
     return caps
 
 
-MODELS = ("BAAI/bge-large-en-v1.5", "BAAI/bge-small-en-v1.5")  # the retrieval models (frozen E5b and default hybrid)
+# The retrieval models (frozen E5b and default hybrid) and the sentence reranker of the default extractive display
+# (cross-encoder/ms-marco-MiniLM-L-6-v2, 87 MB, `src/rag/rerank.py`; without it the display falls back to chunk quotes).
+MODELS = ("BAAI/bge-large-en-v1.5", "BAAI/bge-small-en-v1.5", "cross-encoder/ms-marco-MiniLM-L-6-v2")
 
 
 def ensure_models() -> bool:

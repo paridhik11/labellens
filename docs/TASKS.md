@@ -1,53 +1,37 @@
 # Task checklist
 
-Tick items as they are done. Step numbers match `CLAUDE.md` and `docs/LEARNING_LOG.md`; days match `docs/TEAM_PLAN.md`. Human relevance grades are not a task here: the qrels are LLM-assessed with a graded human validation sample (see `docs/LLM_GRADER_PROMPT.md`).
+State of `main` at the v1.0 release check (Step 26). Step numbers match `CLAUDE.md` and `docs/LEARNING_LOG.md`. Every relevance grade here is an LLM grade (claude-sonnet-5-5) except the 308-row human validation sample (see `docs/LLM_GRADER_PROMPT.md`). The honest limits are listed in `README.md` under "Known limits".
 
-## Done
+## Done and merged into main
 - [x] Steps 1 to 10: own index, TF-IDF, BM25, dense (BGE and FAISS), hybrid RRF, metrics, eval harness, eCFR crawler, 903 chunks, qrels tooling
 - [x] Steps 11 to 15: LLM-assessed qrels, human validation sample and agreement (Step 13), results and by-type tables, failures, intervals (Step 14), ablations and depth-20 grading (Step 15)
-- [x] CV fixes (merged): extractor modes, OCR, barcode, fresh-seed evaluation in `results/cv_final_eval.md`
-- [x] Step 19 (merged): data model, template spec, OpenAPI, API guide, 13 screens, 50 mocks, contract tests
+- [x] Step 16 abstention evaluation (medicine), Steps 17 and 18 retrieval experiments (held-out and fresh set, reported honestly; no further tuning on held-out)
+- [x] CV: extractor modes, OCR, barcode (`results/cv_final_eval.md`), CV2 (`reports/parth_cv2.md`), CV3 gated GS1 prefill (`reports/cv3.md`), symbol detector v2 (`reports/symbols_final.md`, not trusted)
+- [x] Step 19: data model, template spec, OpenAPI (39 operations), API guide, 13 screens, 50 mocks, contract tests
+- [x] Step 20: SQLite store, append-only tables, derived status, review rules, role checks
+- [x] Step 21: checker (16 rules, cited evidence, `docs/CHECKER_SPEC.md`)
+- [x] Step 22: change assessment (parser rules, impact, barcode decision, confirmation)
+- [x] Step 23: RAG (scope rule, score gate, extractive default, optional AI answer); selection mode merged but off (`reports/rag_select.md`), MiniLM sentence reranker is the default extractive display (`reports/rag_rerank.md`)
+- [x] Step 24: upload and photo-quality gate, generate artwork with Parth's renderer, DRAFT mark, approval bound to the PDF hash and a passed check, optional AI answer job
+- [x] Step 25: demo PC (`scripts/run_demo.py`, `scripts/demo_e2e.py`), publish, public medicine mode (30 DailyMed products), print verification (API and template mode)
+- [x] Static UI wired to the real API in api mode (`ui/`, `ui/tools/`)
+- [x] Step 26: release check from a fresh clone, `docs/DEMO_SCRIPT.md`, tag v1.0
 
-## Pari
-Retrieval
-- [x] Step 16 abstention evaluation for the medicine mode (branch `step16-abstain`, not merged)
-- [ ] Steps 17 and 18 retrieval experiments (branch `step17-opt`, not merged): report honestly, no further tuning on the held-out half
-- [ ] Decide how to use the LLM grades for queries without human grades; first full results table with the Step 13 caveat
-- [ ] Merge the retrieval branches into main once reviewed
+## Not done, by design or by time (see README "Known limits")
+- [ ] Real-photo extraction: product name 0/10 on the CV3 real photos, lot 5/7, expiry 7/8
+- [ ] Print verification on real print photos (only simulated photos measured)
+- [ ] Symbols measured on real photos (detector not trusted, symbol checks need a human)
+- [ ] Stronger abstention for the public medicine mode (no score meets the pre-declared targets on the test split)
+- [ ] Faster AI answer (about 38 s median on CPU); reranked extractive sentences stay the default (hit 9/15 vs 8/15 held-out, a one-query gap)
+- [ ] D7 screen draws no citation box for review findings (the API result has them)
+- [ ] Larger medicine corpus (30 products now) and non-US sources
+- [ ] Approved (non-DRAFT) export variant; templates with a background image (D-5)
+- [ ] Template registration beyond shape and layout checks
+- [ ] Multi-side scan (the public scan entry `publicScan` is still a mock)
+- [ ] Human grades for more than the 308-row sample
+- [ ] Open contract items: D-3, D-5, D-6, D-9 and the remaining D-7 kind names in `docs/contracts/SCHEMA_CHANGE_REQUESTS.md`
+- [ ] Report, slides, rehearsal (course deliverables)
 
-Backend (Step 20, merged into main at 6e36e47)
-- [x] Phase 0: contract follows the merged renderer (D-2, D-4, D-8, part of D-7)
-- [x] 20a: SQLite store, append-only triggers, derived status, review rules, 20 tests
-- [x] 20b: 15 real endpoints from `openapi.yaml` with role checks (`POST /changes` returns `"parser": "not_implemented"` until the parser exists)
-- [x] 20c: mock fallback with the `X-Mock` header
-- [x] 20d: OpenAPI response tests
-
-Product features (v1 build order, see `docs/TEAM_PLAN.md`)
-- [ ] Checker with evidence (Flag objects from T1 retrieval)
-- [ ] Natural-language change parser, T3 change impact retrieval
-- [ ] RAG with citation check and the abstain rule
-- [ ] Generate endpoint wired to Parth's renderer, DRAFT mark, self-check
-- [ ] Review and approval flow (approval bound to `artifact_sha256` and a passed `check_id`, new version voids it, reject is terminal)
-- [ ] Template registration flow (draw and name slots)
-- [ ] Public medicine mode (small), PDF inspection report
-- [ ] Decide the open contract items: remaining D-7 kind names, CR-1 to CR-16
-- [ ] Feature freeze, integration, final retrieval numbers, tag release
-- [ ] Report, slides, rehearsal
-
-## Parth (from Day 6)
-- [ ] Review CR-1 to CR-16 marked "touches Parth" in `docs/contracts/SCHEMA_CHANGE_REQUESTS.md`
-- [ ] Align the renderer and approval record to the contract: D-3 (background), D-5 (one `artifact_sha256`), D-6 (approval record names, `check_id`), D-9 (named SVG groups)
-- [ ] Layout finding kind names (rest of D-7)
-- [ ] Template rendering engine against `docs/contracts/TEMPLATE_SPEC.md` (slots to SVG to PDF at physical size)
-- [ ] Conditional GS1 barcode (KEEP, REGENERATE, NEEDS_INPUT), layout checks, self-check loop
-- [ ] `extract_label` OCR and barcode decode, report per condition (clean, scan, photo)
-- [ ] Print verification (`verify_print`), final CV and generation numbers
-- [ ] Report chapter
-
-## Ishanvi (from Day 6, small tasks only)
-Build from `src/api/mock/` only, using `docs/contracts/SCREENS.md` for states.
-- [ ] Scan and Understand page (public, P1 and P2)
-- [ ] Inspect page layout (professional, with the DRAFT mark and signed-in user)
-- [ ] Change Impact side-by-side layout
-- [ ] History page and visual polish
-- [ ] Screenshots and slide visuals
+## Possible v1.1
+- [ ] Real print photos and a real-photo extraction set with human references
+- [ ] Hosted publishing instead of the local server
