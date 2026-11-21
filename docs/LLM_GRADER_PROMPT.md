@@ -279,3 +279,10 @@ Graded with the frozen prompt above, into `data/eval/pool_fresh_llm.csv` (batch 
 | 29 | 12 (fresh rows 406 to 417) | fw28 | claude-sonnet-5-5 | 2026-11-16 | Grades: 8 zero, 3 one, 1 two |
 | 30 | 12 (fresh rows 418 to 429) | fw29 | claude-sonnet-5-5 | 2026-11-16 | Grades: 9 zero, 2 one, 1 two |
 | 31 | 16 (fresh rows 430 to 445) | fw30 | claude-sonnet-5-5 | 2026-11-16 | Grades: 13 zero, 2 one, 1 two |
+
+## rag-select grading (relevance and faithfulness, not qrels)
+
+Model: claude-sonnet-5-5 as `/model` showed at grading time. Rubrics are frozen in `reports/rag_select_plan.md` section 4 (relevance 0/1/2 of a shown unit to its question, graded blind with modes pooled; faithfulness 0/1/2 with the `docs/RAG_SPEC.md` rubric). Grades: `results/rag_select_grades_llm.csv`, LLM grades, not human.
+
+- Relevance: 4 batches (25, 30, 35, 28 units) for extractive and select units, 1 batch (36 units) after the generative run; 154 distinct units in all.
+- Faithfulness: select 47 units (pass 1), 9 units (pass 2); generative 37 units (pass 1), 7 units (pass 2).

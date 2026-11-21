@@ -1016,3 +1016,6 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its CV step 16 to 
 4. **Verified:** see `reports/step25.md` for the commands and the real output.
 5. **Check yourself:** `derive_fields` in `src/api/medicine.py` (the rules and the evidence); `publish_version` order of refusals in `src/api/publish.py`; `usable_retrieval` in `src/api/checks.py` (the fallback must say it fell back).
 6. **Assumptions:** the 0.65 threshold is fitted on 30 names I wrote, so it is a sanity check, not an error rate; multi-side scan was not built (time box).
+
+## rag-select: sentence selection answer mode
+The local 3b model picks sentence numbers from the retrieved chunks and the answer is those exact sentences, so verification passes by construction. Frozen rule committed first, 40 fresh queries, scored once. Result: faithful (45/47 supported) but it missed too many (direct hit 0.47 vs 0.70 for the extractive default, answered 0.53, median 36 s), so it is not the AI mode. Files: `src/rag/selection.py`, `src/rag/select_eval.py`, `reports/rag_select.md`.

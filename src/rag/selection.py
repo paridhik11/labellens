@@ -29,7 +29,10 @@ SYSTEM_V4 = (
 USER_V4 = "Sentences:\n{context}\n\nQuestion: {question}"
 SELECT_SCHEMA = {
     "type": "object",
-    "properties": {"no_answer": {"type": "boolean"}, "sentences": {"type": "array", "items": {"type": "integer"}, "maxItems": 3}},
+    "properties": {
+        "no_answer": {"type": "boolean"},
+        "sentences": {"type": "array", "items": {"type": "integer"}, "maxItems": 3},
+    },
     "required": ["no_answer", "sentences"],
 }
 
