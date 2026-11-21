@@ -1,0 +1,1462 @@
+{
+  "split": "synthetic",
+  "stage": 1,
+  "fingerprint": "a870d1f0a409f2354e558cf4524fab1cf22279fb68d19724d7c6d3c86275f6b5",
+  "totals": {
+    "clean": {
+      "effective": {
+        "product_name": {
+          "k": 16,
+          "n": 16,
+          "ci95": [
+            0.8063923194655637,
+            1.0
+          ]
+        },
+        "lot": {
+          "k": 16,
+          "n": 16,
+          "ci95": [
+            0.8063923194655637,
+            1.0
+          ]
+        },
+        "expiry": {
+          "k": 16,
+          "n": 16,
+          "ci95": [
+            0.8063923194655637,
+            1.0
+          ]
+        }
+      },
+      "printed": {
+        "product_name": {
+          "k": 16,
+          "n": 16,
+          "ci95": [
+            0.8063923194655637,
+            1.0
+          ]
+        },
+        "lot": {
+          "k": 16,
+          "n": 16,
+          "ci95": [
+            0.8063923194655637,
+            1.0
+          ]
+        },
+        "expiry": {
+          "k": 16,
+          "n": 16,
+          "ci95": [
+            0.8063923194655637,
+            1.0
+          ]
+        }
+      }
+    },
+    "moderate": {
+      "effective": {
+        "product_name": {
+          "k": 13,
+          "n": 16,
+          "ci95": [
+            0.5699111903802586,
+            0.9340840092857187
+          ]
+        },
+        "lot": {
+          "k": 16,
+          "n": 16,
+          "ci95": [
+            0.8063923194655637,
+            1.0
+          ]
+        },
+        "expiry": {
+          "k": 16,
+          "n": 16,
+          "ci95": [
+            0.8063923194655637,
+            1.0
+          ]
+        }
+      },
+      "printed": {
+        "product_name": {
+          "k": 13,
+          "n": 16,
+          "ci95": [
+            0.5699111903802586,
+            0.9340840092857187
+          ]
+        },
+        "lot": {
+          "k": 14,
+          "n": 16,
+          "ci95": [
+            0.639771727342413,
+            0.9650225122567595
+          ]
+        },
+        "expiry": {
+          "k": 16,
+          "n": 16,
+          "ci95": [
+            0.8063923194655637,
+            1.0
+          ]
+        }
+      }
+    },
+    "hard": {
+      "effective": {
+        "product_name": {
+          "k": 10,
+          "n": 16,
+          "ci95": [
+            0.38641040545502714,
+            0.8151876744113636
+          ]
+        },
+        "lot": {
+          "k": 16,
+          "n": 16,
+          "ci95": [
+            0.8063923194655637,
+            1.0
+          ]
+        },
+        "expiry": {
+          "k": 16,
+          "n": 16,
+          "ci95": [
+            0.8063923194655637,
+            1.0
+          ]
+        }
+      },
+      "printed": {
+        "product_name": {
+          "k": 10,
+          "n": 16,
+          "ci95": [
+            0.38641040545502714,
+            0.8151876744113636
+          ]
+        },
+        "lot": {
+          "k": 16,
+          "n": 16,
+          "ci95": [
+            0.8063923194655637,
+            1.0
+          ]
+        },
+        "expiry": {
+          "k": 16,
+          "n": 16,
+          "ci95": [
+            0.8063923194655637,
+            1.0
+          ]
+        }
+      }
+    }
+  },
+  "errors": 0,
+  "prefilled_photos": 54,
+  "safety": [
+    {
+      "filename": "/Users/parthagarwal/.codex/worktrees/parth-gen/labellens/data/cv3_synthetic/test_cv3_clean_12000_conflict.png",
+      "prediction": {
+        "label_id": "test_cv3_clean_12000_conflict",
+        "version": 1,
+        "fields": {
+          "model": "REF: TEST-M001",
+          "lot": "LOT: R12000X69",
+          "expiry": "EXP: 2028-01-17",
+          "manufacturer_address": "123 Example Road",
+          "manufacturer": "Example Manufacturer",
+          "product_name": "TEST SENSOR 12000",
+          "printed_lot": "LOT: R12000X69",
+          "prefill_lot": "OTHERLOT",
+          "printed_expiry": "EXP: 2028-01-17",
+          "prefill_expiry": "2031-12-31"
+        },
+        "warnings": [
+          "BLIND_MODE: no template layout used; field names come from text rules",
+          "PHOTO_OCR: view=rectified, quarter_turns=0; fixed protocol cv2",
+          "LOW_OCR_CONFIDENCE: photo observations require review",
+          "BARCODE_PREFILL_AVAILABLE: lot; source=GS1 AI 10",
+          "BARCODE_PREFILL_AVAILABLE: expiry; source=GS1 AI 17"
+        ],
+        "barcodes": [
+          {
+            "type": "Data Matrix",
+            "raw": "01000000000000001731123110OTHERLOT\u001d21TESTSER001",
+            "parsed": {
+              "01": "00000000000000",
+              "17": "311231",
+              "10": "OTHERLOT",
+              "21": "TESTSER001"
+            },
+            "bbox": [
+              848.0,
+              327.0,
+              252.0,
+              112.0
+            ]
+          }
+        ],
+        "symbols": [
+          {
+            "name": "manufacturer",
+            "iso_ref": "",
+            "bbox": [
+              840.4324034334763,
+              568.5829419299744,
+              92.0064377682404,
+              91.95345858240819
+            ],
+            "conf": 0.9434754848480225
+          },
+          {
+            "name": "expiry",
+            "iso_ref": "",
+            "bbox": [
+              1005.224070100143,
+              568.4422146313692,
+              92.00643776824052,
+              91.95345858240819
+            ],
+            "conf": 0.9495919942855835
+          }
+        ],
+        "ocr_blocks": [
+          {
+            "text": "TEST DATA | DRAFT",
+            "bbox": [
+              60.0477180480957,
+              41.092464447021484,
+              377.0548210144043,
+              43.29526901245117
+            ],
+            "conf": 0.9522841378571429
+          },
+          {
+            "text": "TEST SENSOR 12000",
+            "bbox": [
+              60.84321212768555,
+              141.9312744140625,
+              474.0601692199707,
+              36.215911865234375
+            ],
+            "conf": 0.9647246859999999
+          },
+          {
+            "text": "Example Manufacturer",
+            "bbox": [
+              62.9306755065918,
+              235.76577758789062,
+              384.8597602844238,
+              37.44195556640625
+            ],
+            "conf": 0.9659910747368421
+          },
+          {
+            "text": "123 Example Road",
+            "bbox": [
+              63.03221130371094,
+              306.8364562988281,
+              268.30250549316406,
+              31.482391357421875
+            ],
+            "conf": 0.9571797314285714
+          },
+          {
+            "text": "REF:TEST-M001",
+            "bbox": [
+              62.50033187866211,
+              390.17083740234375,
+              278.066349029541,
+              29.537445068359375
+            ],
+            "conf": 0.9997577896484962
+          },
+          {
+            "text": "LOT: R12000X69",
+            "bbox": [
+              62.617698669433594,
+              472.2041931152344,
+              285.87781524658203,
+              28.241851806640625
+            ],
+            "conf": 0.9253698476923077
+          },
+          {
+            "text": "EXP: 2028-01-17",
+            "bbox": [
+              62.73693084716797,
+              555.5536499023438,
+              277.4133987426758,
+              28.234619140625
+            ],
+            "conf": 0.9657832971428572
+          },
+          {
+            "text": "cal X",
+            "bbox": [
+              846.046875,
+              571.1953735351562,
+              239.120849609375,
+              114.1484375
+            ],
+            "conf": 0.7045935799999999
+          }
+        ],
+        "details": {
+          "corners": [
+            [
+              4.0,
+              5.0
+            ],
+            [
+              1175.0,
+              4.0
+            ],
+            [
+              1176.0,
+              703.0
+            ],
+            [
+              5.0,
+              704.0
+            ]
+          ],
+          "corner_method": "contour",
+          "barcode_method": "original_image",
+          "raw_fields": {
+            "model": "REF: TEST-M001",
+            "lot": "LOT: R12000X69",
+            "expiry": "EXP: 2028-01-17",
+            "manufacturer_address": "123 Example Road",
+            "manufacturer": "Example Manufacturer",
+            "product_name": "TEST SENSOR 12000"
+          },
+          "record_prefill": {
+            "lot": {
+              "value": "OTHERLOT",
+              "ai": "10",
+              "source": "decoded_gs1",
+              "raw": "01000000000000001731123110OTHERLOT\u001d21TESTSER001",
+              "bbox_input_px": [
+                848.0,
+                327.0,
+                252.0,
+                112.0
+              ]
+            },
+            "expiry": {
+              "value": "2031-12-31",
+              "ai": "17",
+              "source": "decoded_gs1",
+              "raw": "01000000000000001731123110OTHERLOT\u001d21TESTSER001",
+              "bbox_input_px": [
+                848.0,
+                327.0,
+                252.0,
+                112.0
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "filename": "/Users/parthagarwal/.codex/worktrees/parth-gen/labellens/data/cv3_synthetic/test_cv3_clean_12001_conflict.png",
+      "prediction": {
+        "label_id": "test_cv3_clean_12001_conflict",
+        "version": 1,
+        "fields": {
+          "model": "REF: TEST-M001",
+          "lot": "LOT: R12001X70",
+          "expiry": "EXP: 2028-02-18",
+          "manufacturer_address": "123 Example Road",
+          "manufacturer": "Example Manufacturer",
+          "product_name": "TEST SENSOR 12001",
+          "printed_lot": "LOT: R12001X70",
+          "prefill_lot": "OTHERLOT",
+          "printed_expiry": "EXP: 2028-02-18",
+          "prefill_expiry": "2031-12-31"
+        },
+        "warnings": [
+          "BLIND_MODE: no template layout used; field names come from text rules",
+          "PHOTO_OCR: view=rectified, quarter_turns=0; fixed protocol cv2",
+          "LOW_OCR_CONFIDENCE: photo observations require review",
+          "BARCODE_PREFILL_AVAILABLE: lot; source=GS1 AI 10",
+          "BARCODE_PREFILL_AVAILABLE: expiry; source=GS1 AI 17"
+        ],
+        "barcodes": [
+          {
+            "type": "Data Matrix",
+            "raw": "01000000000000001731123110OTHERLOT\u001d21TESTSER001",
+            "parsed": {
+              "01": "00000000000000",
+              "17": "311231",
+              "10": "OTHERLOT",
+              "21": "TESTSER001"
+            },
+            "bbox": [
+              848.0,
+              327.0,
+              252.0,
+              112.0
+            ]
+          }
+        ],
+        "symbols": [
+          {
+            "name": "manufacturer",
+            "iso_ref": "",
+            "bbox": [
+              840.4324034334763,
+              568.5829419299744,
+              92.0064377682404,
+              91.95345858240819
+            ],
+            "conf": 0.9434754848480225
+          },
+          {
+            "name": "expiry",
+            "iso_ref": "",
+            "bbox": [
+              1005.224070100143,
+              568.4422146313692,
+              92.00643776824052,
+              91.95345858240819
+            ],
+            "conf": 0.9495919942855835
+          }
+        ],
+        "ocr_blocks": [
+          {
+            "text": "TEST DATA | DRAFT",
+            "bbox": [
+              60.0477180480957,
+              41.092464447021484,
+              377.0548210144043,
+              43.29526901245117
+            ],
+            "conf": 0.9522841378571429
+          },
+          {
+            "text": "TEST SENSOR 12001",
+            "bbox": [
+              60.84321212768555,
+              141.936279296875,
+              468.20012283325195,
+              36.210906982421875
+            ],
+            "conf": 0.95878584
+          },
+          {
+            "text": "Example Manufacturer",
+            "bbox": [
+              62.9306755065918,
+              235.76577758789062,
+              384.8597602844238,
+              37.44195556640625
+            ],
+            "conf": 0.9659910747368421
+          },
+          {
+            "text": "123 Example Road",
+            "bbox": [
+              63.03221130371094,
+              306.8364562988281,
+              268.30250549316406,
+              31.482391357421875
+            ],
+            "conf": 0.9571797314285714
+          },
+          {
+            "text": "REF:TEST-M001",
+            "bbox": [
+              61.848289489746094,
+              389.5191955566406,
+              279.37137603759766,
+              31.49188232421875
+            ],
+            "conf": 0.9996857964075528
+          },
+          {
+            "text": "LOT: R12001X70",
+            "bbox": [
+              62.617698669433594,
+              472.2036437988281,
+              286.52893829345703,
+              28.242401123046875
+            ],
+            "conf": 0.9197130200000001
+          },
+          {
+            "text": "EXP: 2028-02-18",
+            "bbox": [
+              62.73693084716797,
+              555.55419921875,
+              276.7622756958008,
+              28.23406982421875
+            ],
+            "conf": 0.9627593471428573
+          },
+          {
+            "text": "cal X",
+            "bbox": [
+              846.046875,
+              571.1953735351562,
+              239.120849609375,
+              114.1484375
+            ],
+            "conf": 0.7045935799999999
+          }
+        ],
+        "details": {
+          "corners": [
+            [
+              4.0,
+              5.0
+            ],
+            [
+              1175.0,
+              4.0
+            ],
+            [
+              1176.0,
+              703.0
+            ],
+            [
+              5.0,
+              704.0
+            ]
+          ],
+          "corner_method": "contour",
+          "barcode_method": "original_image",
+          "raw_fields": {
+            "model": "REF: TEST-M001",
+            "lot": "LOT: R12001X70",
+            "expiry": "EXP: 2028-02-18",
+            "manufacturer_address": "123 Example Road",
+            "manufacturer": "Example Manufacturer",
+            "product_name": "TEST SENSOR 12001"
+          },
+          "record_prefill": {
+            "lot": {
+              "value": "OTHERLOT",
+              "ai": "10",
+              "source": "decoded_gs1",
+              "raw": "01000000000000001731123110OTHERLOT\u001d21TESTSER001",
+              "bbox_input_px": [
+                848.0,
+                327.0,
+                252.0,
+                112.0
+              ]
+            },
+            "expiry": {
+              "value": "2031-12-31",
+              "ai": "17",
+              "source": "decoded_gs1",
+              "raw": "01000000000000001731123110OTHERLOT\u001d21TESTSER001",
+              "bbox_input_px": [
+                848.0,
+                327.0,
+                252.0,
+                112.0
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "filename": "/Users/parthagarwal/.codex/worktrees/parth-gen/labellens/data/cv3_synthetic/test_cv3_moderate_12000_conflict.png",
+      "prediction": {
+        "label_id": "test_cv3_moderate_12000_conflict",
+        "version": 1,
+        "fields": {
+          "model": "REF: TEST-M001",
+          "lot": "LOT: R12000X69",
+          "expiry": "EXP: 2028-01-17",
+          "manufacturer_address": "123 Example Road",
+          "manufacturer": "Example Manufacturer",
+          "product_name": "TEST SENSOR 12000",
+          "printed_lot": "LOT: R12000X69",
+          "prefill_lot": "OTHERLOT",
+          "printed_expiry": "EXP: 2028-01-17",
+          "prefill_expiry": "2031-12-31"
+        },
+        "warnings": [
+          "BLIND_MODE: no template layout used; field names come from text rules",
+          "PHOTO_OCR: view=original, quarter_turns=0; fixed protocol cv2",
+          "LOW_OCR_CONFIDENCE: photo observations require review",
+          "OCR_BLOCKS_IGNORED: 1 low-confidence or empty text lines not used for fields",
+          "BARCODE_PREFILL_AVAILABLE: lot; source=GS1 AI 10",
+          "BARCODE_PREFILL_AVAILABLE: expiry; source=GS1 AI 17"
+        ],
+        "barcodes": [
+          {
+            "type": "Data Matrix",
+            "raw": "01000000000000001731123110OTHERLOT\u001d21TESTSER001",
+            "parsed": {
+              "01": "00000000000000",
+              "17": "311231",
+              "10": "OTHERLOT",
+              "21": "TESTSER001"
+            },
+            "bbox": [
+              1251.0,
+              749.0,
+              256.0,
+              118.0
+            ]
+          }
+        ],
+        "symbols": [
+          {
+            "name": "manufacturer",
+            "iso_ref": "",
+            "bbox": [
+              1232.1355319596548,
+              987.4229538329871,
+              97.40735249225509,
+              94.41879772311245
+            ],
+            "conf": 0.9793821573257446
+          },
+          {
+            "name": "expiry",
+            "iso_ref": "",
+            "bbox": [
+              1394.9896161420047,
+              992.0680806735261,
+              98.2976315313415,
+              94.72850246271832
+            ],
+            "conf": 0.9682767391204834
+          }
+        ],
+        "ocr_blocks": [
+          {
+            "text": "as",
+            "bbox": [
+              582.0,
+              408.0,
+              18.0,
+              1.0
+            ],
+            "conf": 0.28868523
+          },
+          {
+            "text": "se",
+            "bbox": [
+              695.0,
+              410.0,
+              18.0,
+              1.0
+            ],
+            "conf": 0.17497587
+          },
+          {
+            "text": "se",
+            "bbox": [
+              752.0,
+              411.0,
+              14.0,
+              1.0
+            ],
+            "conf": 0.17372103
+          },
+          {
+            "text": "TEST DATA| DRAFT",
+            "bbox": [
+              490.0,
+              447.0,
+              371.0,
+              47.0
+            ],
+            "conf": 0.9742415897986468
+          },
+          {
+            "text": "TEST SENSOR 12000",
+            "bbox": [
+              489.0,
+              548.0,
+              464.0,
+              45.0
+            ],
+            "conf": 0.9611879640000001
+          },
+          {
+            "text": "Example Manufacturer",
+            "bbox": [
+              488.0,
+              642.0,
+              376.0,
+              37.0
+            ],
+            "conf": 0.9649666284210526
+          },
+          {
+            "text": "123 Example Road",
+            "bbox": [
+              486.0,
+              712.0,
+              261.0,
+              32.0
+            ],
+            "conf": 0.9658651150000002
+          },
+          {
+            "text": "REF: TEST-M001",
+            "bbox": [
+              479.0,
+              787.0,
+              279.0,
+              44.0
+            ],
+            "conf": 0.9818099141120911
+          },
+          {
+            "text": "LOT: R12000X69",
+            "bbox": [
+              481.0,
+              873.0,
+              277.0,
+              35.0
+            ],
+            "conf": 0.8801703530769229
+          },
+          {
+            "text": "EXP: 2028-01-17",
+            "bbox": [
+              478.0,
+              954.0,
+              269.0,
+              34.0
+            ],
+            "conf": 0.9620474142857143
+          },
+          {
+            "text": "\u533a",
+            "bbox": [
+              1405.0,
+              999.0,
+              73.0,
+              81.0
+            ],
+            "conf": 0.5805898308753967
+          }
+        ],
+        "details": {
+          "corners": [
+            [
+              436.0,
+              407.0
+            ],
+            [
+              1604.0,
+              427.0
+            ],
+            [
+              1568.0,
+              1135.0
+            ],
+            [
+              415.0,
+              1099.0
+            ]
+          ],
+          "corner_method": "contour",
+          "barcode_method": "original_image",
+          "raw_fields": {
+            "model": "REF: TEST-M001",
+            "lot": "LOT: R12000X69",
+            "expiry": "EXP: 2028-01-17",
+            "manufacturer_address": "123 Example Road",
+            "manufacturer": "Example Manufacturer",
+            "product_name": "TEST SENSOR 12000"
+          },
+          "record_prefill": {
+            "lot": {
+              "value": "OTHERLOT",
+              "ai": "10",
+              "source": "decoded_gs1",
+              "raw": "01000000000000001731123110OTHERLOT\u001d21TESTSER001",
+              "bbox_input_px": [
+                1251.0,
+                749.0,
+                256.0,
+                118.0
+              ]
+            },
+            "expiry": {
+              "value": "2031-12-31",
+              "ai": "17",
+              "source": "decoded_gs1",
+              "raw": "01000000000000001731123110OTHERLOT\u001d21TESTSER001",
+              "bbox_input_px": [
+                1251.0,
+                749.0,
+                256.0,
+                118.0
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "filename": "/Users/parthagarwal/.codex/worktrees/parth-gen/labellens/data/cv3_synthetic/test_cv3_moderate_12001_conflict.png",
+      "prediction": {
+        "label_id": "test_cv3_moderate_12001_conflict",
+        "version": 1,
+        "fields": {
+          "model": "REF: TEST-M001",
+          "lot": "LOT: R12001X70",
+          "expiry": "EXP: 2028-02-18",
+          "manufacturer_address": "123 Example Road",
+          "manufacturer": "Example Manufacturer",
+          "product_name": "TEST SENSOR 12001",
+          "printed_lot": "LOT: R12001X70",
+          "prefill_lot": "OTHERLOT",
+          "printed_expiry": "EXP: 2028-02-18",
+          "prefill_expiry": "2031-12-31"
+        },
+        "warnings": [
+          "BLIND_MODE: no template layout used; field names come from text rules",
+          "PHOTO_OCR: view=original, quarter_turns=0; fixed protocol cv2",
+          "LOW_OCR_CONFIDENCE: photo observations require review",
+          "OCR_BLOCKS_IGNORED: 1 low-confidence or empty text lines not used for fields",
+          "BARCODE_PREFILL_AVAILABLE: lot; source=GS1 AI 10",
+          "BARCODE_PREFILL_AVAILABLE: expiry; source=GS1 AI 17"
+        ],
+        "barcodes": [
+          {
+            "type": "Data Matrix",
+            "raw": "01000000000000001731123110OTHERLOT\u001d21TESTSER001",
+            "parsed": {
+              "01": "00000000000000",
+              "17": "311231",
+              "10": "OTHERLOT",
+              "21": "TESTSER001"
+            },
+            "bbox": [
+              1263.0,
+              726.0,
+              247.0,
+              119.0
+            ]
+          }
+        ],
+        "symbols": [
+          {
+            "name": "manufacturer",
+            "iso_ref": "",
+            "bbox": [
+              1261.519548114883,
+              970.0939138045647,
+              96.51345254350599,
+              97.42131380272883
+            ],
+            "conf": 0.9706673622131348
+          },
+          {
+            "name": "expiry",
+            "iso_ref": "",
+            "bbox": [
+              1423.1812568569787,
+              963.0343672076287,
+              95.58144676121265,
+              96.72089807122688
+            ],
+            "conf": 0.9552068710327148
+          }
+        ],
+        "ocr_blocks": [
+          {
+            "text": "TEST DATA | DRAFT",
+            "bbox": [
+              466.0,
+              466.0,
+              383.0,
+              44.0
+            ],
+            "conf": 0.8763256850000001
+          },
+          {
+            "text": "TEST SENSOR 12001",
+            "bbox": [
+              469.0,
+              561.0,
+              476.0,
+              49.0
+            ],
+            "conf": 0.9662545486666666
+          },
+          {
+            "text": "Example Manufacturer",
+            "bbox": [
+              474.0,
+              661.0,
+              392.0,
+              44.0
+            ],
+            "conf": 0.963106347368421
+          },
+          {
+            "text": "123 Example Road",
+            "bbox": [
+              476.0,
+              732.0,
+              274.0,
+              37.0
+            ],
+            "conf": 0.9569006827142503
+          },
+          {
+            "text": "REF: TEST-M001",
+            "bbox": [
+              477.0,
+              817.0,
+              284.0,
+              39.0
+            ],
+            "conf": 0.6580624015384616
+          },
+          {
+            "text": "LOT: R12001X70",
+            "bbox": [
+              479.0,
+              899.0,
+              294.0,
+              41.0
+            ],
+            "conf": 0.91715767
+          },
+          {
+            "text": "\u03b1",
+            "bbox": [
+              1408.0,
+              969.0,
+              98.0,
+              85.0
+            ],
+            "conf": 0.8192282915115356
+          },
+          {
+            "text": "EXP: 2028-02-18",
+            "bbox": [
+              481.0,
+              984.0,
+              285.0,
+              41.0
+            ],
+            "conf": 0.9616637514285715
+          },
+          {
+            "text": "m",
+            "bbox": [
+              1292.0,
+              993.0,
+              57.0,
+              46.0
+            ],
+            "conf": 0.31137028336524963
+          }
+        ],
+        "details": {
+          "corners": [
+            [
+              404.0,
+              431.0
+            ],
+            [
+              1568.0,
+              407.0
+            ],
+            [
+              1599.0,
+              1099.0
+            ],
+            [
+              417.0,
+              1158.0
+            ]
+          ],
+          "corner_method": "contour",
+          "barcode_method": "original_image",
+          "raw_fields": {
+            "model": "REF: TEST-M001",
+            "lot": "LOT: R12001X70",
+            "expiry": "EXP: 2028-02-18",
+            "manufacturer_address": "123 Example Road",
+            "manufacturer": "Example Manufacturer",
+            "product_name": "TEST SENSOR 12001"
+          },
+          "record_prefill": {
+            "lot": {
+              "value": "OTHERLOT",
+              "ai": "10",
+              "source": "decoded_gs1",
+              "raw": "01000000000000001731123110OTHERLOT\u001d21TESTSER001",
+              "bbox_input_px": [
+                1263.0,
+                726.0,
+                247.0,
+                119.0
+              ]
+            },
+            "expiry": {
+              "value": "2031-12-31",
+              "ai": "17",
+              "source": "decoded_gs1",
+              "raw": "01000000000000001731123110OTHERLOT\u001d21TESTSER001",
+              "bbox_input_px": [
+                1263.0,
+                726.0,
+                247.0,
+                119.0
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "filename": "/Users/parthagarwal/.codex/worktrees/parth-gen/labellens/data/cv3_synthetic/test_cv3_hard_12000_conflict.png",
+      "prediction": {
+        "label_id": "test_cv3_hard_12000_conflict",
+        "version": 1,
+        "fields": {
+          "model": "REF: TEST-M001",
+          "lot": "LOT: R12000X69",
+          "expiry": "EXP: 2028-01-17",
+          "manufacturer_address": "123 Example Road",
+          "manufacturer": "Example Manufacturer",
+          "product_name": "TEST SENSOR 12000",
+          "printed_lot": "LOT: R12000X69",
+          "prefill_lot": "OTHERLOT",
+          "printed_expiry": "EXP: 2028-01-17",
+          "prefill_expiry": "2031-12-31"
+        },
+        "warnings": [
+          "BLIND_MODE: no template layout used; field names come from text rules",
+          "PHOTO_OCR: view=rectified, quarter_turns=0; fixed protocol cv2",
+          "LOW_OCR_CONFIDENCE: photo observations require review",
+          "BARCODE_PREFILL_AVAILABLE: lot; source=GS1 AI 10",
+          "BARCODE_PREFILL_AVAILABLE: expiry; source=GS1 AI 17"
+        ],
+        "barcodes": [
+          {
+            "type": "Data Matrix",
+            "raw": "01000000000000001731123110OTHERLOT\u001d21TESTSER001",
+            "parsed": {
+              "01": "00000000000000",
+              "17": "311231",
+              "10": "OTHERLOT",
+              "21": "TESTSER001"
+            },
+            "bbox": [
+              1231.0,
+              761.0,
+              265.0,
+              128.0
+            ]
+          }
+        ],
+        "symbols": [
+          {
+            "name": "manufacturer",
+            "iso_ref": "",
+            "bbox": [
+              1195.8147274117393,
+              996.2243423521306,
+              104.79979396878093,
+              97.12101982206354
+            ],
+            "conf": 0.9489070773124695
+          },
+          {
+            "name": "expiry",
+            "iso_ref": "",
+            "bbox": [
+              1356.2965078676073,
+              1008.3411249325626,
+              107.4543492526384,
+              98.08154596620864
+            ],
+            "conf": 0.9375340938568115
+          }
+        ],
+        "ocr_blocks": [
+          {
+            "text": "TEST DATA| DRAFT",
+            "bbox": [
+              521.5746459960938,
+              439.8757629394531,
+              355.17877197265625,
+              57.695159912109375
+            ],
+            "conf": 0.9326922578571429
+          },
+          {
+            "text": "TEST SENSOR 12000",
+            "bbox": [
+              514.32958984375,
+              537.3457641601562,
+              446.60723876953125,
+              58.663330078125
+            ],
+            "conf": 0.9561841833333332
+          },
+          {
+            "text": "Example Manufacturer",
+            "bbox": [
+              508.37591552734375,
+              627.9807739257812,
+              358.66375732421875,
+              55.83856201171875
+            ],
+            "conf": 0.9644657236842106
+          },
+          {
+            "text": "123 Example Road",
+            "bbox": [
+              504.6385498046875,
+              695.7743530273438,
+              247.3692626953125,
+              44.85552978515625
+            ],
+            "conf": 0.9674354842857142
+          },
+          {
+            "text": "REF: TEST-M001",
+            "bbox": [
+              496.13739013671875,
+              773.5964965820312,
+              257.76995849609375,
+              46.522705078125
+            ],
+            "conf": 0.9782421588897705
+          },
+          {
+            "text": "LOT: R12000X69",
+            "bbox": [
+              490.71429443359375,
+              852.199951171875,
+              262.55322265625,
+              45.53668212890625
+            ],
+            "conf": 0.9003202515384615
+          },
+          {
+            "text": "EXP: 2028-01-17",
+            "bbox": [
+              484.0283508300781,
+              929.5501098632812,
+              253.01516723632812,
+              45.88330078125
+            ],
+            "conf": 0.9519454687833786
+          },
+          {
+            "text": "cal X",
+            "bbox": [
+              1200.1868896484375,
+              1000.1526489257812,
+              249.708984375,
+              130.66583251953125
+            ],
+            "conf": 0.34091068
+          }
+        ],
+        "details": {
+          "corners": [
+            [
+              473.0,
+              399.0
+            ],
+            [
+              1620.0,
+              446.0
+            ],
+            [
+              1527.0,
+              1158.0
+            ],
+            [
+              422.0,
+              1066.0
+            ]
+          ],
+          "corner_method": "contour",
+          "barcode_method": "original_image",
+          "raw_fields": {
+            "model": "REF: TEST-M001",
+            "lot": "LOT: R12000X69",
+            "expiry": "EXP: 2028-01-17",
+            "manufacturer_address": "123 Example Road",
+            "manufacturer": "Example Manufacturer",
+            "product_name": "TEST SENSOR 12000"
+          },
+          "record_prefill": {
+            "lot": {
+              "value": "OTHERLOT",
+              "ai": "10",
+              "source": "decoded_gs1",
+              "raw": "01000000000000001731123110OTHERLOT\u001d21TESTSER001",
+              "bbox_input_px": [
+                1231.0,
+                761.0,
+                265.0,
+                128.0
+              ]
+            },
+            "expiry": {
+              "value": "2031-12-31",
+              "ai": "17",
+              "source": "decoded_gs1",
+              "raw": "01000000000000001731123110OTHERLOT\u001d21TESTSER001",
+              "bbox_input_px": [
+                1231.0,
+                761.0,
+                265.0,
+                128.0
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "filename": "/Users/parthagarwal/.codex/worktrees/parth-gen/labellens/data/cv3_synthetic/test_cv3_hard_12001_conflict.png",
+      "prediction": {
+        "label_id": "test_cv3_hard_12001_conflict",
+        "version": 1,
+        "fields": {
+          "model": "REF: TEST-M001",
+          "lot": "LOT: R12001X70",
+          "expiry": "EXP: 2028-02-18",
+          "manufacturer_address": "123 Example Road",
+          "manufacturer": "Example Manufacturer",
+          "product_name": "TEST SENSOR 12001",
+          "printed_lot": "LOT: R12001X70",
+          "prefill_lot": "OTHERLOT",
+          "printed_expiry": "EXP: 2028-02-18",
+          "prefill_expiry": "2031-12-31"
+        },
+        "warnings": [
+          "BLIND_MODE: no template layout used; field names come from text rules",
+          "PHOTO_OCR: view=rectified, quarter_turns=0; fixed protocol cv2",
+          "LOW_OCR_CONFIDENCE: photo observations require review",
+          "OCR_BLOCKS_IGNORED: 2 low-confidence or empty text lines not used for fields",
+          "BARCODE_PREFILL_AVAILABLE: lot; source=GS1 AI 10",
+          "BARCODE_PREFILL_AVAILABLE: expiry; source=GS1 AI 17"
+        ],
+        "barcodes": [
+          {
+            "type": "Data Matrix",
+            "raw": "01000000000000001731123110OTHERLOT\u001d21TESTSER001",
+            "parsed": {
+              "01": "00000000000000",
+              "17": "311231",
+              "10": "OTHERLOT",
+              "21": "TESTSER001"
+            },
+            "bbox": [
+              1263.0,
+              704.0,
+              240.0,
+              130.0
+            ]
+          }
+        ],
+        "symbols": [
+          {
+            "name": "manufacturer",
+            "iso_ref": "",
+            "bbox": [
+              1276.6012446429988,
+              951.1411898761527,
+              100.5884483659986,
+              103.17321063484053
+            ],
+            "conf": 0.913307785987854
+          },
+          {
+            "name": "expiry",
+            "iso_ref": "",
+            "bbox": [
+              1428.497787946814,
+              933.9413351889087,
+              98.27432756445478,
+              101.14998648589233
+            ],
+            "conf": 0.9308431148529053
+          }
+        ],
+        "ocr_blocks": [
+          {
+            "text": "TEST DATA | DRAFT",
+            "bbox": [
+              458.8548583984375,
+              478.1810607910156,
+              391.471435546875,
+              66.22561645507812
+            ],
+            "conf": 0.6407861749999999
+          },
+          {
+            "text": "TEST SENSOR 12001",
+            "bbox": [
+              465.1769104003906,
+              569.6591186523438,
+              483.0868835449219,
+              72.1317138671875
+            ],
+            "conf": 0.9664757833333333
+          },
+          {
+            "text": "Example Manufacturer",
+            "bbox": [
+              471.304443359375,
+              668.7310791015625,
+              402.8465576171875,
+              72.33404541015625
+            ],
+            "conf": 0.9672872110526316
+          },
+          {
+            "text": "123 Example Road",
+            "bbox": [
+              477.05859375,
+              750.5799560546875,
+              284.2899169921875,
+              57.7071533203125
+            ],
+            "conf": 0.9633979435714286
+          },
+          {
+            "text": "'",
+            "bbox": [
+              1436.8680419921875,
+              733.8013305664062,
+              9.842041015625,
+              15.97723388671875
+            ],
+            "conf": 0.70155289
+          },
+          {
+            "text": "REF: TEST-M001",
+            "bbox": [
+              478.3665771484375,
+              833.02490234375,
+              298.822021484375,
+              63.27642822265625
+            ],
+            "conf": 0.9794337312380473
+          },
+          {
+            "text": "LOT: R12001X70",
+            "bbox": [
+              484.82598876953125,
+              918.3372192382812,
+              306.09564208984375,
+              63.1693115234375
+            ],
+            "conf": 0.9252993930769232
+          },
+          {
+            "text": "EXP: 2028-02-18",
+            "bbox": [
+              489.18792724609375,
+              1006.4862060546875,
+              298.12603759765625,
+              64.7623291015625
+            ],
+            "conf": 0.9621929814285715
+          },
+          {
+            "text": "m",
+            "bbox": [
+              1306.8350830078125,
+              977.396484375,
+              49.6068115234375,
+              39.314453125
+            ],
+            "conf": 0.5639806985855103
+          }
+        ],
+        "details": {
+          "corners": [
+            [
+              395.0,
+              464.0
+            ],
+            [
+              1523.0,
+              402.0
+            ],
+            [
+              1602.0,
+              1060.0
+            ],
+            [
+              428.0,
+              1214.0
+            ]
+          ],
+          "corner_method": "contour",
+          "barcode_method": "original_image",
+          "raw_fields": {
+            "model": "REF: TEST-M001",
+            "lot": "LOT: R12001X70",
+            "expiry": "EXP: 2028-02-18",
+            "manufacturer_address": "123 Example Road",
+            "manufacturer": "Example Manufacturer",
+            "product_name": "TEST SENSOR 12001"
+          },
+          "record_prefill": {
+            "lot": {
+              "value": "OTHERLOT",
+              "ai": "10",
+              "source": "decoded_gs1",
+              "raw": "01000000000000001731123110OTHERLOT\u001d21TESTSER001",
+              "bbox_input_px": [
+                1263.0,
+                704.0,
+                240.0,
+                130.0
+              ]
+            },
+            "expiry": {
+              "value": "2031-12-31",
+              "ai": "17",
+              "source": "decoded_gs1",
+              "raw": "01000000000000001731123110OTHERLOT\u001d21TESTSER001",
+              "bbox_input_px": [
+                1263.0,
+                704.0,
+                240.0,
+                130.0
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

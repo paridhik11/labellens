@@ -2,6 +2,42 @@
 
 A sequential log of progress, implementation decisions, worked examples, and verification steps.
 
+## Medicine aliases and sourced labelers, 2026-11-21
+
+1. What I did: Expanded the pinned medicine set to 30 products and 618 chunks.
+   Extracted alias strings and labelers from verified SPL metadata. Scored 60
+   names once after committing names, threshold and candidate.
+2. Files: src/gen/medicine*.py, src/gen/eval_medicine_aliases.py, src/api/medicine.py,
+   medicine data/source catalog, focused tests and reports/medicine_aliases*.md.
+3. How it works: The matcher indexes observed metadata names rather than a
+   handwritten brand dictionary. The manufacturer evidence explicitly labels
+   its value as SPL labeler, which is not necessarily a physical manufacturer.
+4. Verification: Full fast suite with HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
+   OMP_NUM_THREADS=1: `949 passed, 1 skipped, 5 deselected in 66.51s (0:01:06)`.
+   Ruff src/tests: `All checks passed!`. Real E5b score: 15/15 decoys rejected;
+   31/45 positive matches correct, 10 review, 4 rejected, zero wrong matches.
+5. Check yourself: metadata URLs/hashes, labeler role, and every decoy row in
+   results/medicine_aliases_fresh60.jsonl. Threshold remains 0.65.
+6. Limits: authored names, only 15 decoys, no real OCR claims. Model setup moved
+   to CPU after an unscored MPS crash; no final query tuning or retrieval edits.
+
+## Print template verification, 2026-11-21
+
+1. What I did: Bound print verification to approved template slots, masked the
+   DRAFT band and read bare values without field-name guesses. Kept CV2 default.
+2. Files: src/cv/template_print.py, src/api/printverify.py, src/gen/eval_template_print.py,
+   tests/test_template_print.py and reports/print_template_mode*.md.
+3. How it works: Each slot acts as an addressed envelope: its pixels determine
+   observed text; the approved record supplies only the comparison value.
+4. Verification: Conda pytest -q -p no:cacheprovider -m "not slow":
+   `950 passed, 5 deselected, 1 warning in 62.53s (0:01:02)`.
+   Ruff src tests: `All checks passed!`. Frozen final: zero false matches,
+   correct matches clean/moderate/hard 16/16,16/16,14/16; two hard rescans.
+5. Check yourself: approved template-version binding; text-only wrong-label
+   negatives with the correct barcode; confidence gate remains 0.8.
+6. Limits: simulated prints of one template, no new real-camera evidence;
+   multiline slots request review; quality gate remains separate.
+
 ## CV step 46: confirmed photo symbol presence evaluation
 
 1. What I did: Converted the ten updated entries into six-category annotations.
@@ -1019,3 +1055,12 @@ _Appended from a stray root LEARNING_LOG.md (Parth CV track). Its CV step 16 to 
 
 ## rag-select: sentence selection answer mode
 The local 3b model picks sentence numbers from the retrieved chunks and the answer is those exact sentences, so verification passes by construction. Frozen rule committed first, 40 fresh queries, scored once. Result: faithful (45/47 supported) but it missed too many (direct hit 0.47 vs 0.70 for the extractive default, answered 0.53, median 36 s), so it is not the AI mode. Files: `src/rag/selection.py`, `src/rag/select_eval.py`, `reports/rag_select.md`.
+
+## CV step 3: frozen real-photo barcode prefill
+
+1. **What I did:** Acquired 30 new device-package photos and froze 20 development / 10 test photos by family. Kept separately sourced GS1 barcode prefill after development lots improved 8/17 to 10/17. Rejected keyed crops at 9/17; existing perspective correction and installed PP-OCRv4 stayed. The one final evaluation passed the no-field-regression gate.
+2. **Files created or changed:** `src/cv/{cv3,extract}.py` adds opt-in suggestions while preserving printed fields; `src/gen/cv3_*` pins sources/references and re-fetches images; CV3 experiment scripts/tests/reports record the trial and gate. Images remain local. Raw observations and all Wilson intervals are in `results/cv3/`.
+3. **How it works:** GS1 is a structured barcode format; application identifiers 10 and 17 mean lot and expiry. A decoded suggestion can fill a record while the observed printed value remains available for mismatch checks. Example: printed `C928GWW`, suggested `C928GWV`, with raw barcode and coordinates.
+4. **How I verified it:** Exact command: `HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 OMP_NUM_THREADS=1 /opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -m 'not slow'`. Real output: `963 passed, 5 deselected in 66.26s (0:01:06)`. Exact command: `/opt/anaconda3/envs/labellens-cv/bin/python -m ruff check src tests scripts/cv_experiments/cv3_eval.py scripts/cv_experiments/cv3_crops.py`. Real output: `All checks passed!`. Complete logs/commands: `reports/cv3_validation.json`. Held-out effective name 0/10 to 0/10, lot 4/7 to 5/7, expiry 7/8 to 7/8. Synthetic normal fields and printed-only counts unchanged; 12/12 mismatch flags preserved; no errors/timeouts.
+5. **What you should check yourself:** Inspect separate printed/prefill fields, unchanged checker inputs, and the frozen family split. `reports/cv3.md` gives before/after counts with Wilson 95% intervals.
+6. **What I am unsure about or assumed:** New references are LLM-labelled, not human validated. Unreadable fields are unscored; names remain poor. One publisher and small samples limit generalization. No symbol or clinical phone-photo evaluation here. Prior ten photos excluded; CV2 default, schemas and checker thresholds unchanged. Final set now exposed; do not tune on it.

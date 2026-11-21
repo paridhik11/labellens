@@ -10,6 +10,25 @@ from src.common.schemas import Chunk
 DEFAULT_CORPUS = Path(__file__).resolve().parents[2] / 'data/medicine/corpus.jsonl'
 
 
+def load_medicine_metadata(directory: Path) -> dict[str, dict]:
+    """Load sourced SPL aliases/labelers bound to the matching pinned product fingerprint."""
+    path = directory/'metadata.json'
+    if not path.exists():
+        return {}
+    products = {r['setid']: r for r in json.loads((directory/'products.json').read_text())}
+    result = {}
+    for row in json.loads(path.read_text()):
+        source = products[row['setid']]
+        if row['version'] != source['version'] or row['setid'] in result:
+            raise ValueError('Metadata identity/version mismatch')
+        for value in row['aliases']+row['labelers']+row['titles']:
+            if (value['xml_sha256'] != source['xml_sha256'] or value['url'] != source['url']
+                    or value['effective_date'] != source['effective_date'] or not value['value']):
+                raise ValueError('Metadata source mismatch')
+        result[row['setid']] = row
+    return result
+
+
 def load_medicine_corpus(path: str | Path = DEFAULT_CORPUS) -> list[Chunk]:
     """Validate all medicine Chunk rows before returning indexable passages.
 

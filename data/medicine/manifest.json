@@ -1,7 +1,7 @@
 {
-  "products": 10,
-  "chunks": 147,
+  "products": 30,
+  "chunks": 618,
   "module": "medicine",
-  "corpus_sha256": "2b9dd48d230ee52938c564700d61d6db19ebe68eee4beb285c2c74b601aa018f",
+  "corpus_sha256": "9612c982a494588635194ac1cd16ac5a090551ee2080b0a0cc860354139599ef",
   "retrieval_evaluation": "NOT_RUN"
 }

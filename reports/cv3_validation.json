@@ -1,0 +1,38 @@
+{
+  "commands": [
+    {
+      "command": "HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 OMP_NUM_THREADS=1 /opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -m 'not slow'",
+      "exit_code": 0,
+      "output": "........................................................................ [  7%]\n........................................................................ [ 14%]\n........................................................................ [ 22%]\n........................................................................ [ 29%]\n........................................................................ [ 37%]\n........................................................................ [ 44%]\n........................................................................ [ 52%]\n........................................................................ [ 59%]\n........................................................................ [ 67%]\n........................................................................ [ 74%]\n........................................................................ [ 82%]\n........................................................................ [ 89%]\n........................................................................ [ 97%]\n...........................                                              [100%]\n963 passed, 5 deselected in 66.26s (0:01:06)\n"
+    },
+    {
+      "command": "/opt/anaconda3/envs/labellens-cv/bin/python -m ruff check src tests scripts/cv_experiments/cv3_eval.py scripts/cv_experiments/cv3_crops.py",
+      "exit_code": 0,
+      "output": "All checks passed!\n"
+    },
+    {
+      "command": "OMP_NUM_THREADS=1 /opt/anaconda3/envs/labellens-cv/bin/python -m scripts.cv_experiments.cv3_eval --split test --stage 0 --root /private/tmp/labellens-cv3-baseline",
+      "exit_code": 0,
+      "output_file": "results/cv3/test_stage0_summary.json",
+      "predictions_file": "results/cv3/test_stage0.jsonl"
+    },
+    {
+      "command": "OMP_NUM_THREADS=1 /opt/anaconda3/envs/labellens-cv/bin/python -m scripts.cv_experiments.cv3_eval --split test --stage 1",
+      "exit_code": 0,
+      "output_file": "results/cv3/test_stage1_summary.json",
+      "predictions_file": "results/cv3/test_stage1.jsonl"
+    },
+    {
+      "command": "OMP_NUM_THREADS=1 /opt/anaconda3/envs/labellens-cv/bin/python -m scripts.cv_experiments.cv3_eval --split synthetic --stage 0 --root /private/tmp/labellens-cv3-baseline",
+      "exit_code": 0,
+      "output_file": "results/cv3/synthetic_stage0_summary.json",
+      "predictions_file": "results/cv3/synthetic_stage0.jsonl"
+    },
+    {
+      "command": "OMP_NUM_THREADS=1 /opt/anaconda3/envs/labellens-cv/bin/python -m scripts.cv_experiments.cv3_eval --split synthetic --stage 1",
+      "exit_code": 0,
+      "output_file": "results/cv3/synthetic_stage1_summary.json",
+      "predictions_file": "results/cv3/synthetic_stage1.jsonl"
+    }
+  ]
+}

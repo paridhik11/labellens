@@ -78,7 +78,7 @@ def test_missing_sections_and_device_rejected() -> None:
 def test_catalog_and_offline_errors(tmp_path: Path) -> None:
     """Validate the committed catalog and fail clearly when cache is absent."""
     catalog = medicine.load_catalog(Path("data/medicine/SOURCES.md"))
-    assert len(catalog) == 10
+    assert len(catalog) == 30
     xml, entry = sample()
     with pytest.raises(FileNotFoundError):
         medicine.build_corpus([entry], tmp_path, offline=True)

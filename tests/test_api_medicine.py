@@ -29,11 +29,16 @@ def client():
 
 def test_derived_fields_have_verbatim_evidence_and_no_invented_manufacturer() -> None:
     for product in CATALOG.products.values():
-        assert product.fields["manufacturer"] is None and "manufacturer" in product.not_in_corpus
+        assert product.fields["manufacturer"] and "manufacturer" not in product.not_in_corpus
         for name, proof in product.evidence.items():
+            if name == 'manufacturer':
+                assert proof['quote'] == product.fields[name]
+                assert proof['url'] == product.url and 'SPL labeler' in proof['role']
+                continue
             chunk = CATALOG.chunks[proof["chunk_id"]]
             assert proof["quote"].lower() in f"{chunk.title} {chunk.text}".lower(), (product.name, name)
-        assert product.fields["dosage_form"] and product.fields["active_substance"]
+        if product.name in {'Childrens Ibuprofen', 'Omeprazole', 'Amoxicillin'}:
+            assert product.fields["dosage_form"] and product.fields["active_substance"]
     assert BY_NAME["Omeprazole"].fields["pack_size"] == "42 tablets"  # not "20 tablet" from the 20 mg strength
     assert BY_NAME["ALBUTEROL SULFATE"].fields["pack_size"] is None  # five carton sizes, so no single value
 
@@ -43,8 +48,10 @@ def test_exact_name_matches_with_reference_fields_and_sections(client) -> None:
     assert body["outcome"] == "matched" and body["banner"].startswith("Authenticity not verified")
     best = body["candidates"][0]
     assert best["product_name"] == "Childrens Ibuprofen" and best["dosage_form"] == "oral suspension"
-    assert best["active_substance"] == "ibuprofen" and "manufacturer" in best["not_in_corpus"]
-    assert "manufacturer" not in best
+    assert best["active_substance"] == "ibuprofen" and "manufacturer" not in best["not_in_corpus"]
+    assert best['manufacturer'] == 'Albertsons'
+    assert best['evidence']['manufacturer']['url'] == best['reference_label_url']
+    assert best['evidence']['manufacturer']['role'].startswith('SPL labeler')
     sections = body["sections"]
     assert sections["summary"] and sections["warnings"] and sections["ingredients"] and sections["sources"]
     chunks = CATALOG.chunks

@@ -2,8 +2,8 @@
 
 The API owns the approval gate. `src.cv.verify_print` has its own gate too, but that gate binds an approval to the
 sha256 of a legacy manifest file, while this API binds approval to the sha256 of the PDF (CR-22), so the two hashes can
-never agree and nothing here fakes a record to satisfy it. The job instead runs the same three steps `verify_print`
-runs after its gate (blind extraction with post-correction, `compare_fields`, `compare_extraction`) on the photo.
+never agree and nothing here fakes a record to satisfy it. After the API gate, the job verifies cropped text slots
+from the approved version's pinned template and its decoded GS1 payload with `src.cv.template_print`.
 
 Expected content comes from the approved version only: the product record pinned to it and the barcode payload the
 renderer encoded (stored with the generated artwork). Symbols are not compared: the detector is not trusted
@@ -24,7 +24,7 @@ from src.api import checks, scans, uploads
 from src.api.db import utcnow
 from src.api.errors import ApiError
 from src.api.extractor import ExtractorUnavailable
-from src.api.models import GeneratedArtwork, LabelVersion, PrintVerification, ProductVersion, Review
+from src.api.models import GeneratedArtwork, LabelTemplate, LabelVersion, PrintVerification, ProductVersion, Review
 from src.api.status import is_closed, label_version_status, latest_review, latest_version_of_change
 from src.api.store import new_id, record_audit
 
@@ -42,31 +42,19 @@ class PrintEngine(Protocol):
 
 
 class RealPrintEngine:
-    """The unchanged CV pieces behind `src.cv.print_verify.verify_print`, minus its legacy-manifest gate."""
+    """Slot verification bound to the API-approved artwork's pinned template."""
 
     def verify(self, photo: Path, expected: dict[str, Any]) -> dict[str, Any]:
-        """Blind extraction with post-correction, per-field comparison and the barcode check."""
-        try:
-            from dataclasses import asdict
+        """Verify pixels by template slots; missing binding must request a rescan."""
+        if expected.get('template'):
+            try:
+                from src.cv.template_print import verify_template
 
-            from src.cv.extract import extract_label
-            from src.cv.print_verify import compare_fields
-            from src.cv.verify import compare_extraction
-        except ImportError as error:
-            raise ExtractorUnavailable(f"CV libraries are not installed: {error}") from error
-        extraction = extract_label(photo, mode="blind", postcorrect=True)
-        fields = compare_fields(extraction, expected["fields"])
-        # Symbols are not compared (the detector is not trusted): naming the detected ones as the reference makes the
-        # symbol checks of compare_extraction a no-op instead of raising UNEXPECTED_SYMBOL for every pictogram.
-        detected = sorted({symbol.name for symbol in extraction.symbols})
-        other = compare_extraction(
-            extraction, {"fields": {}, "barcode_ais": expected["barcode_ais"], "symbols": detected})
-        states = {f.status for f in fields} | {other.status}
-        status = ("MISMATCH" if "MISMATCH" in states else
-                  "NEEDS_HUMAN_REVIEW" if "NEEDS_HUMAN_REVIEW" in states else "MATCH")
-        barcode = extraction.barcodes[0].model_dump(mode="json") if len(extraction.barcodes) == 1 else None
-        return {"status": status, "fields": [asdict(f) for f in fields], "issues": other.issues,
-                "warnings": other.warnings, "barcode": barcode}
+                return verify_template(photo, expected)
+            except ImportError as error:
+                raise ExtractorUnavailable(f"CV libraries are not installed: {error}") from error
+        return {'status': 'NEEDS_HUMAN_REVIEW', 'fields': [], 'issues': [], 'barcode': None,
+                'warnings': ['TEMPLATE_BINDING_MISSING']}
 
 
 # ---------------------------------------------------------------- the gate and the expected content
@@ -106,8 +94,13 @@ def expected_content(session: Session, version: LabelVersion, art: GeneratedArtw
     fields = {"product_name": pv.name, "manufacturer": pv.manufacturer, "manufacturer_address": pv.manufacturer_address,
               "model": pv.model, "lot": extra.get("lot", ""), "expiry": extra.get("expiry", "")}
     payload = art.barcode_decision["new_payload"]
+    template = session.scalars(select(LabelTemplate).where(
+        LabelTemplate.template_id == version.template_id,
+        LabelTemplate.version == version.template_version)).first()
     return {"fields": {k: v for k, v in fields.items() if v}, "payload": payload,
-            "barcode_ais": {ai: value for ai, value in AI.findall(payload)}}
+            "barcode_ais": {ai: value for ai, value in AI.findall(payload)},
+            "template": {"size_mm": {"w": template.size_w, "h": template.size_h},
+                         "slots": template.slots} if template else None}
 
 
 # ---------------------------------------------------------------- mapping an engine result to the contract

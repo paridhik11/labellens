@@ -1,0 +1,31 @@
+candidate	family	product_name	lot	expiry	note
+02	boston_uromax	UroMax Ultra™ Kit	36004703	2026-07-06	Main heading; standalone LOT/use-by rows. Vendor sticker date differs; reference is original label.
+03	angiodynamics_bioflo	BioFlo Midline	5840705	2026-12-31	Main label heading and standalone LOT/use-by rows.
+04	boston_uromax	UroMax Ultra™ Kit	35967003	2026-03-08	Related size variant; keep same family split as 02.
+05	microtech_rapide	Rapide™ Multistage Dilatation Balloon Catheter	M240423210	2026-04-22	Main heading and standalone lower-left LOT/use-by.
+06	ethicon_contour	Contour®	122A76	2026-01-31	Prominent brand; standalone vertical LOT/hourglass at left.
+07	boston_cre	CRE™ Fixed Wire	32755681	2025-10-30	Main heading and standalone LOT/use-by rows.
+08	penumbra_lantern	LANTERN™ Delivery Microcatheter	F00006633	2026-05-10	Main heading and standalone bottom LOT/use-by rows.
+09	biosense_pentaray	PENTARAY® NAV eco		2026-08-01	Main black panel heading. Standalone lot too small to transcribe confidently; unscored.
+11	smith_nephew_novocut	NOVOCUT SUTURE MANAGER	M240078	2026-05-10	Main product name box and standalone LOT/hourglass row.
+12	spectranetics_turboelite	Turbo-Elite™	FAY24B16A	2026-02-27	Main heading and standalone LOT/use-by date; no encoded text used as reference.
+13	ethicon_proximate	PROXIMATE® Reloadable Vascular Linear Stapler			Front name only; lot and expiry absent from photographed face, unscored.
+14	ethicon_pds	PDS™ Plus Antibacterial			Main heading; standalone lot uncertain and expiry obscured by packaging seam, unscored.
+16	ethicon_prolene	PROLENE™	10BQH7	2030-09-30	Main heading; standalone Japanese LOT/use-by rows lower-right.
+19	boston_flexima	Flexima™ REGULAR Nephrostomy Catheter System	34193804	2027-06-07	Main heading, standalone use-by row and bottom LOT box.
+20	terumo_runthrough	Runthrough® NS	260305Y	2029-02-28	Main heading, standalone LOT/EXP row; no encoded text used.
+22	livanova_holder	Cardiopulmonary bypass cannula holder set	2607600059	2029-03-16	English first line of description; standalone LOT/hourglass rows.
+23	cook_cvc	Cook CVC	16002972	2027-06-06	Main heading; standalone LOT/hourglass rows, manufacturer date excluded.
+24	covidien_shiley	Shiley™ Inner Cannula	22F0337JZX	2027-06-06	Main heading; standalone LOT/Use by rows, no HRI inferred.
+25	sharpoint_nylon	NYLON	C928GWV	2027-08-27	Main material heading; standalone LOT/hourglass rows.
+26	arrow_radial	Radial Artery Catheterization	33F25C0536	2028-04-30	Main heading; standalone lower-left LOT/hourglass rows.
+27	cook_kolenda	Kolenda Salivary Access Introducer Set		2027-12-05	Main heading; standalone expiry visible; lot too small to distinguish confidently, unscored.
+28	merit_prelude	Prelude SNAP™	13028773	2028-08-26	Main heading; standalone LOT/Use By rows left of drawing.
+29	arrow_arterial	Arterial Catheterization	33F25C0742	2027-08-31	Main heading; standalone lower-left LOT/hourglass rows.
+33	icu_torqueline	TORQUE-LINE™ THERMODILUTION CATHETER	14907455	2027-09-01	Main heading; standalone LOT/hourglass rows beneath description.
+34	penumbra_cat7d	CAT7D KIT	F106142	2024-05-11	Main heading; standalone LOT/Use By rows above perforation.
+35	edwards_esheath	eSheath+ Introducer Set			Front heading only; lot/expiry absent from photographed face, unscored.
+36	stryker_excelsior	Excelsior® XT-17™		2024-09-24	Main heading and standalone Use By lower-right; lot outside photographed area, unscored.
+37	scientia_aristotle	Aristotle® 24 Guidewire	023428	2024-08-31	Main heading; standalone top LOT/hourglass rows; leading zero preserved.
+40	imperative_zoom	ZOOM™ 35 Reperfusion Catheter	F2324102	2024-09-06	Main heading; standalone LOT/hourglass rows below illustration.
+41	ethicon_vicryl	VICRYL* Plus Antibacterial	SPMCDP	2027-11-30	Main heading; standalone LOT/EXP lower-right, asterisk preserved.

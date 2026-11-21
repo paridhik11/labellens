@@ -279,6 +279,8 @@ def extract_label_modes(
     field_confidence: float = 0.5,
     symbol_detector: str = "v1",
     photo_profile: str = DEFAULT_PHOTO_PROFILE,
+    cv3_stage: int = 0,
+    cv3_prefill: bool = True,
 ) -> dict[str, tuple[LabelExtraction, dict[str, Any]]]:
     """Run the extraction once and return one result per requested mode.
 
@@ -293,7 +295,13 @@ def extract_label_modes(
     barcodes are located in the pixels, fields are named from their text and
     arrangement, symbols are searched over the whole label, and when no label
     boundary is found the whole photo is read instead.
+
+    ``cv3_stage`` zero preserves CV2; one opts into separately sourced record
+    suggestions. Rejected keyed crops are outside the extractor. Existing
+    perspective correction and the installed OCR models remain unchanged.
     """
+    if cv3_stage not in (0, 1):
+        raise ValueError("cv3_stage must be 0 or 1; other experimental stages were not retained")
     if not np.isfinite(min_confidence) or not 0 <= min_confidence <= 1:
         raise ValueError("min_confidence must be finite and between zero and one")
     if not np.isfinite(blur_threshold) or blur_threshold < 0:
@@ -436,10 +444,22 @@ def extract_label_modes(
             mapper = map_photo_fields if photo_profile == "baseline" else map_cv2_fields
             fields, field_warnings = mapper(evidence, min_confidence=field_confidence)
         details["raw_fields"] = dict(fields)
+        printed = dict(fields)
         if postcorrect:
             fields, notes = _postcorrect(fields, barcodes)
             field_warnings = [*field_warnings, *notes]
         output.fields = fields
+        if cv3_stage:
+            from src.cv.cv3 import barcode_prefill
+
+            prefill = barcode_prefill(barcodes) if cv3_prefill else {}
+            details["record_prefill"] = prefill
+            for field in ("lot", "expiry"):
+                if field in printed:
+                    output.fields[f"printed_{field}"] = printed[field]
+                if field in prefill:
+                    output.fields[f"prefill_{field}"] = prefill[field]["value"]
+                    field_warnings.append(f"BARCODE_PREFILL_AVAILABLE: {field}; source=GS1 AI {prefill[field]['ai']}")
         output.warnings.extend(field_warnings)
         output.warnings = list(dict.fromkeys(output.warnings))
         outputs[mode] = (output, details)
@@ -455,6 +475,8 @@ def extract_label(
     postcorrect: bool = False,
     symbol_detector: str = "v1",
     photo_profile: str = DEFAULT_PHOTO_PROFILE,
+    cv3_stage: int = 0,
+    cv3_prefill: bool = True,
 ) -> LabelExtraction:
     """Extract one label photo into the unchanged shared schema.
 
@@ -472,10 +494,15 @@ def extract_label(
 
     ``symbol_detector`` is "v1" (the default, behaviour unchanged: slot windows in template mode, whole-label
     template matching in blind mode) or "v2" (``src.cv.symbols_v2``, whole-label search in either mode).
+    ``cv3_stage`` opts into the isolated CV3 experiment; see ``extract_label_modes``.
+    Barcode suggestions use ``prefill_lot``/``prefill_expiry`` and observed OCR uses
+    ``printed_lot``/``printed_expiry``. Existing ``lot``/``expiry`` remain checker inputs.
+    Call ``extract_label_modes`` for the full suggestion provenance dictionary.
     """
     return extract_label_modes(
         image_path, modes=(mode,), min_confidence=min_confidence, blur_threshold=blur_threshold,
         postcorrect=postcorrect, symbol_detector=symbol_detector, photo_profile=photo_profile,
+        cv3_stage=cv3_stage, cv3_prefill=cv3_prefill,
     )[mode][0]
 
 
