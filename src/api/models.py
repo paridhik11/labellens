@@ -220,6 +220,30 @@ class ExtractionConfirmation(Base):
     confirmed_at: Mapped[str] = mapped_column(String)
 
 
+class PublicScan(Base):
+    """One state of a public photo scan (CR-27). Append-only: a state change is a new row, the newest is current.
+
+    No user and no product: the public page is open to anyone. `result` is the PublicMatchResult of a done scan,
+    `error` the contract Error of a failed one (for example `retake_photo`). The photo is `stored_path`, by sha256.
+    """
+
+    __tablename__ = "public_scans"
+    __table_args__ = (CheckConstraint("state IN ('queued','processing','done','failed')", name="ck_public_scan_state"),)
+
+    seq: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    scan_id: Mapped[str] = mapped_column(String, index=True)
+    job_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    mime: Mapped[str] = mapped_column(String)
+    sha256: Mapped[str] = mapped_column(String)
+    stored_path: Mapped[str] = mapped_column(String)
+    state: Mapped[str] = mapped_column(String)
+    result: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+    error: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+    seconds: Mapped[float | None] = mapped_column(Float, nullable=True)
+    created_at: Mapped[str] = mapped_column(String)
+    updated_at: Mapped[str] = mapped_column(String)
+
+
 class Job(Base):
     """One state change of a background job (Step 21). The job's current state is its newest row."""
 
@@ -421,6 +445,7 @@ IMMUTABLE_TABLES: tuple[str, ...] = (
     "check_results",
     "extractions",
     "scans",
+    "public_scans",
     "extraction_confirmations",
     "jobs",
     "ask_results",

@@ -53,6 +53,6 @@ def test_budget_options_are_off_by_default_everywhere() -> None:
         for name in ('max_side', 'budget_s', 'search_side'):
             assert parameters[name].default is None, (function.__name__, name)
     callers = [p for p in pathlib.Path('src').rglob('*.py')
-               if p.parts[:2] != ('src', 'cv') and p.name != 'public_scan.py'
+               if p.parts[:2] != ('src', 'cv') and p.name not in ('public_scan.py', 'public_scan_worker.py')
                and any(k in p.read_text(encoding='utf-8') for k in ('budget_s=', 'max_side=', 'search_side='))]
     assert callers == []

@@ -85,6 +85,8 @@ def test_real_operations_never_carry_x_mock(client) -> None:
         ("POST", "/public/ask"),
         ("POST", "/ask"),
         ("POST", "/public/match"),
+        ("POST", "/public/scans"),
+        ("GET", "/public/scans/pscn_00000000"),
         ("GET", "/label-versions/lbv_exampledevice_carton_l3/print-verifications"),
         ("GET", "/print-verifications/pv_00000000"),
         ("POST", "/label-versions/lbv_exampledevice_carton_l3/print-verifications"),
@@ -127,6 +129,6 @@ def test_mock_state_picks_another_mock_of_the_same_operation(client) -> None:
     assert fallback.json() == default.json()
 
 
-def test_mock_routes_ignore_request_bodies(client) -> None:
-    response = client.post("/public/scans", files={"file": ("label.png", b"not an image")}, data={"source": "upload"})
-    assert response.status_code == 202 and response.headers["X-Mock"] == "true"
+def test_no_operation_is_mocked_any_more() -> None:
+    """With publicScan real (CR-27) every operation has a real route. The mock files still back unknown-id fallbacks."""
+    assert MOCKED == []

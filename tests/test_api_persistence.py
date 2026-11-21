@@ -98,6 +98,10 @@ def test_every_immutable_table_rejects_update_and_delete(session):
         stored_path="uploads/x.png", product_id="prd_exampledevice", state="queued", created_by="usr_demo_editor",
         created_at="2026-11-12T16:00:00Z", updated_at="2026-11-12T16:00:00Z",
     ))
+    session.add(models.PublicScan(
+        scan_id="pscn_00000001", mime="image/png", sha256="a" * 64, stored_path="uploads/x.png", state="queued",
+        created_at="2026-11-12T16:00:00Z", updated_at="2026-11-12T16:00:00Z",
+    ))
     session.add(models.ExtractionConfirmation(
         confirmation_id="cnf_00000001", extraction_id="ext_1", previous_extraction_id="ext_0", version_id=L3,
         fields={}, confirmed_by="usr_demo_editor", confirmed_at="2026-11-12T16:00:00Z",
