@@ -286,3 +286,10 @@ Model: claude-sonnet-5-5 as `/model` showed at grading time. Rubrics are frozen 
 
 - Relevance: 4 batches (25, 30, 35, 28 units) for extractive and select units, 1 batch (36 units) after the generative run; 154 distinct units in all.
 - Faithfulness: select 47 units (pass 1), 9 units (pass 2); generative 37 units (pass 1), 7 units (pass 2).
+
+## rag-rerank grading (relevance only, not qrels)
+
+Model: claude-sonnet-5-5 as `/model` showed at grading time. Rubric frozen in `reports/rag_rerank_plan.md` section 5 (relevance 0/1/2 of a shown unit to its question, graded blind with systems pooled). Grades: `results/rag_rerank_grades_llm.csv`, LLM grades, not human. Faithfulness was not graded (sentences are copied).
+
+- Dev: 1 batch, 39 units (top 3 reranked sentences of the answerable dev queries), used only to choose T.
+- Held-out: 1 batch, 74 units (extractive quotes and reranked sentences, pooled).
