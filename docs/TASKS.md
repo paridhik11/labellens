@@ -11,7 +11,7 @@ State of `main` at the v1.0 release check (Step 26). Step numbers match `CLAUDE.
 - [x] Step 20: SQLite store, append-only tables, derived status, review rules, role checks
 - [x] Step 21: checker (16 rules, cited evidence, `docs/CHECKER_SPEC.md`)
 - [x] Step 22: change assessment (parser rules, impact, barcode decision, confirmation)
-- [x] Step 23: RAG (scope rule, score gate, extractive default, optional AI answer); selection mode merged but off (`reports/rag_select.md`)
+- [x] Step 23: RAG (scope rule, score gate, extractive default, optional AI answer); selection mode merged but off (`reports/rag_select.md`), MiniLM sentence reranker is the default extractive display (`reports/rag_rerank.md`)
 - [x] Step 24: upload and photo-quality gate, generate artwork with Parth's renderer, DRAFT mark, approval bound to the PDF hash and a passed check, optional AI answer job
 - [x] Step 25: demo PC (`scripts/run_demo.py`, `scripts/demo_e2e.py`), publish, public medicine mode (30 DailyMed products), print verification (API and template mode)
 - [x] Static UI wired to the real API in api mode (`ui/`, `ui/tools/`)
@@ -22,7 +22,8 @@ State of `main` at the v1.0 release check (Step 26). Step numbers match `CLAUDE.
 - [ ] Print verification on real print photos (only simulated photos measured)
 - [ ] Symbols measured on real photos (detector not trusted, symbol checks need a human)
 - [ ] Stronger abstention for the public medicine mode (no score meets the pre-declared targets on the test split)
-- [ ] Faster AI answer (about 38 s median on CPU); extractive passages stay the default
+- [ ] Faster AI answer (about 38 s median on CPU); reranked extractive sentences stay the default (hit 9/15 vs 8/15 held-out, a one-query gap)
+- [ ] D7 screen draws no citation box for review findings (the API result has them)
 - [ ] Larger medicine corpus (30 products now) and non-US sources
 - [ ] Approved (non-DRAFT) export variant; templates with a background image (D-5)
 - [ ] Template registration beyond shape and layout checks
