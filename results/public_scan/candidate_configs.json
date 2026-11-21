@@ -1,0 +1,15 @@
+{
+ "A": {
+  "name": "A",
+  "max_candidates": 12
+ },
+ "B": {
+  "name": "B",
+  "max_candidates": 12,
+  "order": "outcome"
+ },
+ "C": {
+  "name": "C",
+  "max_candidates": 20
+ }
+}

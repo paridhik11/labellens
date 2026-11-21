@@ -18,6 +18,7 @@ results/*
 !results/step17_*
 !results/step18_*
 !results/step25_*
+!results/public_scan/
 !results/step25b_*
 !results/step25c_*
 data/processed/ce_cache_*
