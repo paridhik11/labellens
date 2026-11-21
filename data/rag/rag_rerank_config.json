@@ -1,0 +1,151 @@
+{
+ "frozen_before_heldout_run": true,
+ "plan": "reports/rag_rerank_plan.md",
+ "model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+ "max_length": 512,
+ "top": 3,
+ "threshold_T": 1,
+ "dev_table": [
+  {
+   "T": -10,
+   "hit": 11,
+   "n_ans": 15,
+   "wrong": 2,
+   "n_non": 5
+  },
+  {
+   "T": -9,
+   "hit": 11,
+   "n_ans": 15,
+   "wrong": 2,
+   "n_non": 5
+  },
+  {
+   "T": -8,
+   "hit": 11,
+   "n_ans": 15,
+   "wrong": 2,
+   "n_non": 5
+  },
+  {
+   "T": -7,
+   "hit": 11,
+   "n_ans": 15,
+   "wrong": 2,
+   "n_non": 5
+  },
+  {
+   "T": -6,
+   "hit": 11,
+   "n_ans": 15,
+   "wrong": 2,
+   "n_non": 5
+  },
+  {
+   "T": -5,
+   "hit": 11,
+   "n_ans": 15,
+   "wrong": 2,
+   "n_non": 5
+  },
+  {
+   "T": -4,
+   "hit": 11,
+   "n_ans": 15,
+   "wrong": 2,
+   "n_non": 5
+  },
+  {
+   "T": -3,
+   "hit": 11,
+   "n_ans": 15,
+   "wrong": 1,
+   "n_non": 5
+  },
+  {
+   "T": -2,
+   "hit": 11,
+   "n_ans": 15,
+   "wrong": 1,
+   "n_non": 5
+  },
+  {
+   "T": -1,
+   "hit": 11,
+   "n_ans": 15,
+   "wrong": 1,
+   "n_non": 5
+  },
+  {
+   "T": 0,
+   "hit": 11,
+   "n_ans": 15,
+   "wrong": 1,
+   "n_non": 5
+  },
+  {
+   "T": 1,
+   "hit": 11,
+   "n_ans": 15,
+   "wrong": 0,
+   "n_non": 5
+  },
+  {
+   "T": 2,
+   "hit": 10,
+   "n_ans": 15,
+   "wrong": 0,
+   "n_non": 5
+  },
+  {
+   "T": 3,
+   "hit": 10,
+   "n_ans": 15,
+   "wrong": 0,
+   "n_non": 5
+  },
+  {
+   "T": 4,
+   "hit": 10,
+   "n_ans": 15,
+   "wrong": 0,
+   "n_non": 5
+  },
+  {
+   "T": 5,
+   "hit": 6,
+   "n_ans": 15,
+   "wrong": 0,
+   "n_non": 5
+  },
+  {
+   "T": 6,
+   "hit": 6,
+   "n_ans": 15,
+   "wrong": 0,
+   "n_non": 5
+  },
+  {
+   "T": 7,
+   "hit": 2,
+   "n_ans": 15,
+   "wrong": 0,
+   "n_non": 5
+  },
+  {
+   "T": 8,
+   "hit": 2,
+   "n_ans": 15,
+   "wrong": 0,
+   "n_non": 5
+  }
+ ],
+ "queries_sha256": "c60370bedc9377acda3816875596f39a8c71ca881f75f077e928586d05a45c69",
+ "split_sha256": "125472778411edfdd32137c5e7eaafbbb692dbfe87bed1783ae1e3052c9acb83",
+ "gate_threshold": 0.0315136476426799,
+ "rag_config_sha256": "2ccb259ab916e5151b520f88e9c4853d80777508987cdebbdf222c60ced7f9a5",
+ "gate": {
+  "median_s_lt": 3.0,
+  "wrong_le": 0.2
+ }
+}

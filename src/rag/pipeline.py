@@ -11,7 +11,7 @@ from typing import Any
 from src.checker.citations import best_quote
 from src.common.schemas import Chunk
 from src.ir.base import Retriever
-from src.rag import selection
+from src.rag import rerank, selection
 from src.rag.prompt import ANSWER_SCHEMA, PROMPTS, build_user
 from src.rag.provider import Provider, ProviderError, ProviderTimeout, ProviderUnavailable
 from src.rag.scope import out_of_scope
@@ -24,6 +24,7 @@ MESSAGES = {
     "scope": "I can only explain what the regulation text says. I cannot give medical advice. Please ask a pharmacist or doctor.",  # noqa: E501
     "score_gate": "The closest passages are not a strong enough match to answer. A person should check this.",
     "no_hits": "No passages were found. A person should check this.",
+    "rerank_gate": "No sentence in the closest passages is a strong enough match to answer. A person should check this.",  # noqa: E501
     "no_answer": "The model found that the passages do not answer the question. A person should check this.",
     "verification": "A generated answer did not pass the citation checks, so only the closest passages are shown. A person should check this.",  # noqa: E501
     "provider_off": "No language model is running, so only the closest passages are shown. No answer was generated or verified.",  # noqa: E501
@@ -120,6 +121,8 @@ def answer_question(
         result.mode = "extractive"
         return done("needs_human_check", cause)
 
+    if cfg.output == "rerank":
+        return _reranked(result, question, context, cfg, done)
     candidates: list[selection.Candidate] = []
     try:
         if cfg.output == "select":
@@ -199,4 +202,31 @@ def _selected(
         result.sentences.append({"text": c.text, "chunk_ids": [c.chunk_id]})
     result.answer = " ".join(parts)
     result.mode = "selected"
+    return done("answered", "ok")
+
+
+def _reranked(result: RagResult, question: str, context: list[Chunk], cfg: RagSettings, done: Any) -> RagResult:
+    """Rerank mode: no provider. The answer is the top cross-encoder sentences at or above the threshold."""
+    ranked = rerank.rank_sentences(question, context)
+    top = ranked[: rerank.TOP]
+    result.checks = {"n_candidates": len(ranked), "scored": [
+        {"text": s.candidate.text, "chunk_id": s.candidate.chunk_id, "score": round(s.score, 4)} for s in top]}
+    floor = float("-inf") if cfg.rerank_threshold is None else cfg.rerank_threshold
+    shown = rerank.top_sentences(ranked, floor)
+    if not shown:
+        return done("needs_human_check", "rerank_gate")
+    chunk_by_id = {ch.chunk_id: ch for ch in context}
+    order: list[str] = []
+    for s in shown:
+        if s.candidate.chunk_id not in order:
+            order.append(s.candidate.chunk_id)
+    result.sources = [_citation(chunk_by_id[cid], " ".join(s.candidate.text for s in shown
+                                                           if s.candidate.chunk_id == cid)) for cid in order]
+    parts = []
+    for s in shown:
+        parts.append(f"{s.candidate.text.rstrip()} [{order.index(s.candidate.chunk_id) + 1}]")
+        result.sentences.append({"text": s.candidate.text, "chunk_ids": [s.candidate.chunk_id],
+                                 "score": round(s.score, 4)})
+    result.answer = " ".join(parts)
+    result.mode = "reranked"
     return done("answered", "ok")
