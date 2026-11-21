@@ -54,7 +54,10 @@ def run_path(name: str) -> Path:
 
 def make_service(system: str, threshold: float | None) -> RagService:
     """Service for one system. Both use the frozen E5b retrieval and gate, no language model."""
-    settings = RagSettings() if system == "extractive" else RagSettings(output="rerank", rerank_threshold=threshold)
+    if system == "extractive":
+        settings = RagSettings(rerank_display=False)  # the old display, as in the frozen comparison
+    else:
+        settings = RagSettings(output="rerank", rerank_threshold=threshold)
     return RagService(provider=NullProvider(), settings=settings, threshold=frozen_threshold())
 
 

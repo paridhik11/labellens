@@ -117,7 +117,8 @@ def answer_question(
         return done("needs_human_check", "score_gate")
 
     def fall_back(cause: str) -> RagResult:
-        result.sources = extractive_sources(question, context, cfg.fallback_quotes)
+        shown_sentences = reranked_display_sources(question, context) if cfg.rerank_display else []
+        result.sources = shown_sentences or extractive_sources(question, context, cfg.fallback_quotes)
         result.mode = "extractive"
         return done("needs_human_check", cause)
 
@@ -205,6 +206,32 @@ def _selected(
     return done("answered", "ok")
 
 
+def _sentence_sources(shown: list[rerank.Scored], context: list[Chunk]) -> tuple[list[dict[str, str]], list[str]]:
+    """Citations (one per chunk, quote = its shown sentences) and the answer parts with chunk markers."""
+    chunk_by_id = {ch.chunk_id: ch for ch in context}
+    order: list[str] = []
+    for s in shown:
+        if s.candidate.chunk_id not in order:
+            order.append(s.candidate.chunk_id)
+    sources = [_citation(chunk_by_id[cid], " ".join(s.candidate.text for s in shown if s.candidate.chunk_id == cid))
+               for cid in order]
+    parts = [f"{s.candidate.text.rstrip()} [{order.index(s.candidate.chunk_id) + 1}]" for s in shown]
+    return sources, parts
+
+
+def reranked_display_sources(question: str, context: list[Chunk]) -> list[dict[str, str]]:
+    """Sources of the default extractive display: top cross-encoder sentences at the frozen T, or [] when the
+    cross-encoder is unavailable, no config exists or no sentence reaches T (the caller then shows chunk quotes)."""
+    floor = rerank.frozen_threshold()
+    if floor is None:
+        return []
+    try:
+        ranked = rerank.rank_sentences(question, context)
+    except Exception:  # model not cached, torch missing: the old display is the fallback
+        return []
+    return _sentence_sources(rerank.top_sentences(ranked, floor), context)[0]
+
+
 def _reranked(result: RagResult, question: str, context: list[Chunk], cfg: RagSettings, done: Any) -> RagResult:
     """Rerank mode: no provider. The answer is the top cross-encoder sentences at or above the threshold."""
     ranked = rerank.rank_sentences(question, context)
@@ -215,16 +242,8 @@ def _reranked(result: RagResult, question: str, context: list[Chunk], cfg: RagSe
     shown = rerank.top_sentences(ranked, floor)
     if not shown:
         return done("needs_human_check", "rerank_gate")
-    chunk_by_id = {ch.chunk_id: ch for ch in context}
-    order: list[str] = []
+    result.sources, parts = _sentence_sources(shown, context)
     for s in shown:
-        if s.candidate.chunk_id not in order:
-            order.append(s.candidate.chunk_id)
-    result.sources = [_citation(chunk_by_id[cid], " ".join(s.candidate.text for s in shown
-                                                           if s.candidate.chunk_id == cid)) for cid in order]
-    parts = []
-    for s in shown:
-        parts.append(f"{s.candidate.text.rstrip()} [{order.index(s.candidate.chunk_id) + 1}]")
         result.sentences.append({"text": s.candidate.text, "chunk_ids": [s.candidate.chunk_id],
                                  "score": round(s.score, 4)})
     result.answer = " ".join(parts)

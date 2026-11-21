@@ -6,12 +6,16 @@ Every shown sentence is copied from a retrieved chunk.
 """
 from __future__ import annotations
 
+import json
 import os
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Protocol
 
 from src.common.schemas import Chunk
 from src.rag import selection
+
+CONFIG_PATH = Path(__file__).resolve().parents[2] / "data" / "rag" / "rag_rerank_config.json"
 
 MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 MAX_LENGTH = 512
@@ -86,3 +90,10 @@ def rank_sentences(question: str, chunks: list[Chunk], scorer: Scorer | None = N
 def top_sentences(ranked: list[Scored], threshold: float, top: int = TOP) -> list[Scored]:
     """The best `top` sentences whose score is at least the threshold, in score order."""
     return [s for s in ranked[:top] if s.score >= threshold]
+
+
+def frozen_threshold(path: Path = CONFIG_PATH) -> float | None:
+    """The threshold T written at freeze time (tuned on the dev half), or None when no config exists."""
+    if not path.exists():
+        return None
+    return float(json.loads(path.read_text(encoding="utf-8"))["threshold_T"])

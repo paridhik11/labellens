@@ -18,6 +18,7 @@ class RagSettings:
     timeout_s: float = 120.0
     ollama_url: str = "http://localhost:11434"
     rerank_threshold: float | None = None  # output="rerank" only: minimum cross-encoder score, None shows the top 3
+    rerank_display: bool = True  # fallback sources are reranked sentences (rag-rerank); False shows chunk quotes
 
     def echo(self) -> dict[str, object]:
         """The settings as a dict, for reports."""
