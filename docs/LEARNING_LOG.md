@@ -1072,3 +1072,11 @@ The local 3b model picks sentence numbers from the retrieved chunks and the answ
 4. **How I verified it:** e2e 20/20 PASS, UI golden 9/9, live flows 13 with 0 FAIL, fast suite 973 passed, 7 skipped, `ruff check src tests` clean.
 5. **What you should check yourself:** the limits list in README against the reports it cites; the click path in `docs/DEMO_SCRIPT.md` on your own run; the D7 citation gap.
 6. **What I am unsure about or assumed:** the index store and HF cache were reused from this PC, so a truly new PC still needs the long index build; the UI check ran headless Chromium, not a human click-through.
+
+## Public photo scan (branch public-scan)
+1. **What I did:** Made the public photo scan real: OCR every line of the photo, build candidate strings, ask the unchanged name matcher, and show the answer only after the person confirms it. Candidates A, B, C failed on dev, D failed on the fresh set (a combination pack shown as its single ingredient), E (D plus an other-ingredient check) passed on 15 products never used before.
+2. **Files:** `src/api/public_scan*.py` (method, worker, job), `ui/js/public-scan.js` (camera, confirm, loading), `results/public_scan/` (protocols v1 to v4, results), `reports/public_scan.md`.
+3. **How it works:** A decoy is a product that is not in the 30-product corpus. The check "does the text name this product, and no other ingredient?" is a second opinion after the matcher, so a high cosine alone never decides.
+4. **How I verified it:** E on 45 unused decoy photos: 0 wrong, 13 timed out, median 47.0 s, max 54.5 s; fast suite 959 passed; demo_e2e 20/20; 61 states mock and api; live flows 0 FAIL; camera and confirm checks pass.
+5. **Check yourself:** the confirm step in `ui/js/public-scan.js`; the gate numbers in `results/public_scan/final_unused_decoy_summary.json`; the limits in the report.
+6. **Unsure:** real phone photos are unmeasured; E's correct-identification rate on fresh photos was not measured; the exposed re-run was stopped after 6 photos.

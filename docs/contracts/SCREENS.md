@@ -27,7 +27,7 @@ Camera or upload of medication packaging.
 | State | Endpoint | Mock |
 |---|---|---|
 | empty | none (idle screen, no request yet) | none |
-| loading | `publicScan` 202, then `getJob` | `public/scan/loading.json` |
+| loading | `publicScan` 202, then `getJob`. Visible spinner, "reading can take up to a minute", elapsed seconds | `public/scan/loading.json` |
 | failed | `getJob` (state failed) | `public/scan/failed.json` |
 
 ### P2. Product information (mockup panel 2)

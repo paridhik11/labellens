@@ -106,7 +106,7 @@ function unusedJpegDims(buf) {
     });
     log('sent file is a JPEG with long side at most 1600 px', !!sent && sent.type === 'image/jpeg' && Math.max(sent.w, sent.h) <= 1600,
       sent ? `(${sent.type}, ${sent.w}x${sent.h}, ${sent.size} bytes)` : '(nothing captured)');
-    await page.waitForSelector('[data-testid="scan-failed"], [data-testid="scan-extra"], [data-testid="not-identified"], [data-testid="scan-evidence"]', { timeout: 120000 });
+    await page.waitForSelector('[data-testid="scan-failed"], [data-testid="scan-confirm-panel"], [data-testid="scan-extra"], [data-testid="not-identified"], [data-testid="scan-evidence"]', { timeout: 120000 });
     const gone = !(await page.$('[data-testid="scan-progress"]'));
     const shown = await page.$eval('#publicDynamicContent', (e) => e.innerText.replace(/\s+/g, ' ').slice(0, 200));
     log('the job ends in a visible outcome (retake, not identified, review or match), no hang', gone, `(${shown})`);
@@ -149,6 +149,29 @@ function unusedJpegDims(buf) {
     log('phone: the chosen photo is sent', request.method() === 'POST');
     await ctx.close();
   } catch (e) { log('phone path', false, e.message.split('\n')[0]); }
+
+  // 5. loading state: a visible spinner, "up to a minute", and a counter while the scan is read (job answer delayed)
+  try {
+    const { ctx, page } = await openP1(browser);
+    await page.route('**/jobs/**', async (route) => { await new Promise((r) => setTimeout(r, 3500)); await route.continue(); });
+    const png = path.join(os.tmpdir(), 'cam_check_load.png');
+    writePng(png, 300, 200);
+    const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.click('[data-testid="upload-photo"]')]);
+    await chooser.setFiles(png);
+    await page.waitForSelector('[data-testid="scan-progress"]', { timeout: 5000 });
+    const look = await page.$eval('[data-testid="scan-spinner"]', (e) => {
+      const st = getComputedStyle(e);
+      const box = e.getBoundingClientRect();
+      return { animated: st.animationName !== 'none', w: box.width, h: box.height, border: st.borderTopColor };
+    });
+    log('loading state shows a visible spinner', look.w >= 30 && look.h >= 30 && look.animated, `(${look.w}x${look.h}, animated ${look.animated})`);
+    const words = await page.$eval('[data-testid="scan-progress"]', (e) => e.innerText);
+    log('loading state says reading can take up to a minute', /up to a minute/i.test(words), `(${words.replace(/\s+/g, ' ').slice(0, 90)})`);
+    await page.waitForTimeout(2300);
+    const secs = await page.$eval('[data-testid="scan-elapsed"]', (e) => e.textContent);
+    log('the elapsed counter runs', /^[1-9]\d* s$/.test(secs), `(${secs})`);
+    await ctx.close();
+  } catch (e) { log('loading state', false, e.message.split('\n')[0]); }
 
   await browser.close();
   console.log(failed ? `${failed} FAILED` : 'ALL PASSED');

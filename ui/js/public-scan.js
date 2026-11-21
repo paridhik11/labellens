@@ -150,18 +150,27 @@
 
     async function send(blob, source) {
       stage.innerHTML = `
-        <div class="card" data-testid="scan-progress" style="text-align:center;padding:24px;">
-          <div class="spinner" aria-hidden="true"></div>
-          <h3 style="margin-top:8px;">Reading the pack</h3>
+        <div class="card" data-testid="scan-progress" role="status" aria-live="polite" style="text-align:center;padding:24px;">
+          <div class="spinner" data-testid="scan-spinner" aria-hidden="true"></div>
+          <h3 style="margin-top:12px;">Reading the pack</h3>
+          <p class="text-sm" style="margin-top:6px;font-weight:600;">Reading can take up to a minute. Please keep this page open.</p>
           <p class="text-muted text-sm" id="p1Progress" style="margin-top:6px;">Uploading the photo.</p>
-          <p class="text-xs text-muted" style="margin-top:6px;">This can take up to a minute. The text on the pack is read line by line.</p>
+          <p class="text-xs text-muted" style="margin-top:6px;" data-testid="scan-elapsed">0 s</p>
         </div>`;
       const progress = stage.querySelector('#p1Progress');
+      const elapsed = stage.querySelector('[data-testid="scan-elapsed"]');
+      const began = Date.now();
+      const tick = setInterval(() => {
+        if (!elapsed.isConnected) { clearInterval(tick); return; }
+        elapsed.textContent = `${Math.round((Date.now() - began) / 1000)} s`;
+      }, 1000);
       say('');
       try {
         const res = await window.LabelLensActions.publicScan(blob, (j) => { progress.textContent = `Status: ${j.state}${j.message ? ' (' + j.message + ')' : ''}`; }, source);
+        clearInterval(tick);
         showOutcome(res);
       } catch (e) {
+        clearInterval(tick);
         failedPanel('The scan could not be started', e.message);
       }
     }
@@ -305,17 +314,64 @@
     });
   }
 
+  /**
+   * A photo never confirms itself: a matched scan result first asks "Is this <product>?" with the lines that were read
+   * as evidence. Only Confirm shows the label information. "Not this one" shows nothing about the product.
+   */
+  function renderConfirm(container, body) {
+    const name = (body.candidates && body.candidates[0] && body.candidates[0].product_name) || 'this product';
+    container.innerHTML = `
+      <div style="max-width:640px;margin:0 auto;" data-testid="scan-confirm-panel">
+        <div class="notice-banner" style="margin-top:16px;"><div class="notice-icon">?</div><div>
+          <div class="notice-title">Is this ${esc(name)}?</div>
+          <div class="notice-text">We read <strong>${esc(body.matched_text || '')}</strong> on the pack and it matches the reference label for ${esc(name)}. Check it against your pack before anything is shown.</div>
+        </div></div>
+        ${evidenceHtml({ ...body, outcome: 'needs_review' })}
+        <div class="flex-row" style="justify-content:center;gap:8px;margin-top:16px;flex-wrap:wrap;">
+          <button class="btn btn-primary" type="button" data-testid="scan-confirm">Confirm</button>
+          <button class="btn btn-secondary" type="button" data-testid="scan-reject">Not this one</button>
+          <button class="btn btn-secondary" type="button" data-testid="scan-typename">Type the name</button>
+        </div>
+        <div data-testid="scan-confirm-more"></div>
+      </div>`;
+    const more = container.querySelector('[data-testid="scan-confirm-more"]');
+    const openTyping = (message) => {
+      more.innerHTML = `${message ? `<p class="text-sm text-muted" style="text-align:center;margin-top:12px;">${esc(message)}</p>` : ''}${typeNameHtml()}`;
+      bindTypeName(more);
+    };
+    container.querySelector('[data-testid="scan-confirm"]').addEventListener('click', () => {
+      body.__confirmed = true;
+      showMatch(body);
+    });
+    container.querySelector('[data-testid="scan-reject"]').addEventListener('click', () => {
+      openTyping('Nothing is shown for this product. Type the name, or scan another photo.');
+      more.insertAdjacentHTML('beforeend', '<div class="flex-row" style="justify-content:center;margin-top:12px;"><button class="btn btn-primary" type="button" data-testid="scan-again">Scan another photo</button></div>');
+      more.querySelector('[data-testid="scan-again"]').addEventListener('click', () => {
+        document.querySelectorAll('.public-nav-btn[data-screen]').forEach((btn) => {
+          btn.classList.toggle('active', btn.dataset.screen === 'P1 Scan and Understand');
+        });
+        if (window.LabelLensStateSwitcher) window.LabelLensStateSwitcher.setScreen('P1 Scan and Understand', 'empty (idle)');
+      });
+    });
+    container.querySelector('[data-testid="scan-typename"]').addEventListener('click', () => openTyping(''));
+  }
+
   function wrapP2() {
     const renderers = window.LabelLensRenderers || {};
     ['P2 Product information', 'P2'].forEach((key) => {
       const base = renderers[key];
       if (typeof base !== 'function' || base.__scanWrapped) return;
-      const wrapped = (container, state, meta, data) => { base(container, state, meta, data); decorateP2(container, state, data); };
+      const wrapped = (container, state, meta, data) => {
+        const scan = data && Array.isArray(data.read_lines) && data.outcome === 'matched' && state === 'success';
+        if (scan && !data.__confirmed) { renderConfirm(container, data); return; }
+        base(container, state, meta, data);
+        decorateP2(container, state, data);
+      };
       wrapped.__scanWrapped = true;
       renderers[key] = wrapped;
     });
   }
   wrapP2();
 
-  window.LabelLensPublicScan = { mount, showMatch, evidenceHtml, fileToJpeg, toJpeg, MAX_SIDE };
+  window.LabelLensPublicScan = { mount, showMatch, renderConfirm, evidenceHtml, fileToJpeg, toJpeg, MAX_SIDE };
 })();

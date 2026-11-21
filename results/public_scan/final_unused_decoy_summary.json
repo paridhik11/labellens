@@ -1,0 +1,78 @@
+{
+ "set": "unused_decoy",
+ "config": {
+  "name": "E",
+  "max_candidates": 8,
+  "min_letters": 4,
+  "min_conf": 0.0,
+  "pairs": true,
+  "full_text": true,
+  "order": "score",
+  "max_chars": 300,
+  "name_evidence": true,
+  "max_words": 5,
+  "other_ingredient_check": true
+ },
+ "config_commit": "66cf3d5c386fe34322360b1a413f28947960be92",
+ "photos": 45,
+ "ignoring_gate": {
+  "timeout": 13,
+  "review": 15,
+  "not_identified": 17
+ },
+ "pipeline_view": {
+  "timeout": 13,
+  "review": 14,
+  "not_identified": 17,
+  "retake": 1
+ },
+ "wrong_total": 0,
+ "wrong_interval": [
+  0.0,
+  0.079
+ ],
+ "not_in_corpus_photos": 45,
+ "wrong_on_not_in_corpus": 0,
+ "review_on_not_in_corpus": 15,
+ "by_condition": {
+  "decoy/artwork": {
+   "n": 15,
+   "timeout": 9,
+   "not_identified": 1,
+   "review": 5,
+   "wrong_interval": [
+    -0.0,
+    0.204
+   ],
+   "retake": 0
+  },
+  "decoy/hard": {
+   "n": 15,
+   "not_identified": 9,
+   "review": 5,
+   "timeout": 1,
+   "wrong_interval": [
+    -0.0,
+    0.204
+   ],
+   "retake": 1
+  },
+  "decoy/moderate": {
+   "n": 15,
+   "review": 5,
+   "not_identified": 7,
+   "timeout": 3,
+   "wrong_interval": [
+    -0.0,
+    0.204
+   ],
+   "retake": 0
+  }
+ },
+ "seconds": {
+  "median": 47.0,
+  "p90": 50.3,
+  "max": 54.5,
+  "over_60": 0
+ }
+}

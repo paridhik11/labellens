@@ -33,7 +33,8 @@ It prints the product id and the label PDF path. Open `http://127.0.0.1:8000/ui/
 
 ## Stages that use mocks, fallbacks or are not shown
 
-- **Mock:** `publicScan` and `getPublicScan` (the public photo entry). Everything else answers from the real API; a mock response carries the header `X-Mock: true` and the UI badge says `mock`.
+- **Mock:** none. A mock response would carry the header `X-Mock: true` and the UI badge would say `mock`.
+- **Photo scan:** real but slow. The page says reading can take up to a minute (median 47 s in the evaluation, 13 of 45 photos timed out). A match asks "Is this X?" and shows the label only after Confirm. Show it with one prepared photo, or skip it in a 5 minute demo.
 - **Reranker:** the sentences come from `cross-encoder/ms-marco-MiniLM-L-6-v2`, cached by `scripts/run_demo.py` with the other models. If it is missing the page shows chunk quotes instead (the answer text is unchanged). Checked on this build: the model loads offline and the `/public/ask` sources are single sentences. Held-out result: 9/15 vs 8/15 hits, median 1.04 s vs 0.37 s (`reports/rag_rerank.md`), a small test.
 - **Optional, slow:** the AI answer (`/public/ask?mode=ai`, qwen2.5 3b through Ollama) takes about 30 to 40 s and falls back to the extractive passages. In the checked run it fell back with `verification_failed`. Skip it in a 5 minute demo.
 - **Not shown:** print verification (D10) is real but measured on simulated photos only; multi-side scan does not exist.

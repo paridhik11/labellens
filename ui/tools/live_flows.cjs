@@ -136,7 +136,7 @@ const BASE = process.env.BASE || 'http://127.0.0.1:8000';
       const [fc] = await Promise.all([page.waitForEvent('filechooser'), page.$eval('#btnP1UploadImage', (e) => e.click())]);
       await fc.setFiles(process.env.BLUR_IMAGE);
       // publicScan is real (CR-27): a blurry photo must come back as a retake panel with reasons, a readable one as a result.
-      await page.waitForFunction(() => !!document.querySelector('[data-testid="scan-failed"], [data-testid="scan-extra"], [data-testid="scan-evidence"]'), null, { timeout: 125000 });
+      await page.waitForFunction(() => !!document.querySelector('[data-testid="scan-failed"], [data-testid="scan-confirm-panel"], [data-testid="scan-extra"], [data-testid="scan-evidence"]'), null, { timeout: 125000 });
       const kind = await page.$eval('#dataSourceBadge', (b) => b.dataset.kind);
       const retake = !!(await page.$('[data-testid="retake-reasons"]'));
       log('P1 upload (public scan)', kind === 'api' ? 'PASS' : 'FAIL', `badge ${kind}; ${retake ? 'retake panel with reasons' : 'result page'}`);
