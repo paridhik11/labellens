@@ -1,12 +1,14 @@
 """Opt-in CV2 evidence: upscale intact views before recognition and optionally vote."""
 from __future__ import annotations
 
+import subprocess
 from typing import Any
 
 from src.common.schemas import OcrBlock
 
 
-def read_cv2(image: Any, *, view: str, to_original: Any, second_engine: bool = True) -> Any:
+def read_cv2(image: Any, *, view: str, to_original: Any, second_engine: bool = True, deadline: Any = None,
+             search_side: int | None = None) -> Any:
     """Return upright, enlarged observations with the exact inverse coordinate mapping.
 
     The photo orientation is chosen by the existing pixel-only reader. A new
@@ -16,24 +18,33 @@ def read_cv2(image: Any, *, view: str, to_original: Any, second_engine: bool = T
     import cv2
     import numpy as np
 
+    from src.cv.budget import expired, remaining
     from src.cv.ocr import read_text_robust
     from src.cv.ocr_vote import tesseract_lines, vote_lines
-    from src.cv.photo_ocr import PhotoReading, read_photo
+    from src.cv.photo_ocr import PhotoReading, choose_turn
 
-    seed_reading = read_photo(image, view=view, to_original=to_original)
-    turn = seed_reading.quarter_turns
+    # Only the chosen quarter turn is used from the orientation pass (the final blocks come from the enlarged
+    # read below), so the four crop passes of read_photo would be discarded. The turn is chosen with the same
+    # rule as read_photo, optionally on a smaller copy of the view (search_side).
+    turn, transform, complete = choose_turn(image, to_original=to_original, deadline=deadline,
+                                            search_side=search_side)
+    if expired(deadline):  # the enlarged second pass and Tesseract are skipped once the budget is gone
+        return PhotoReading([], transform, 0.0, turn, view, False)
     upright = np.ascontiguousarray(np.rot90(image, turn))
     scale = min(4.0, max(1.0, 1800/max(upright.shape[:2])))
     enlarged = cv2.resize(upright, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
     rapid = read_text_robust(enlarged, pad_ratios=(0.3,), dither_pad_ratios=())
     if second_engine:
-        secondary = tesseract_lines(enlarged)
-        observations = vote_lines(rapid, secondary)
+        try:
+            secondary = tesseract_lines(enlarged, timeout=None if deadline is None else max(1.0, remaining(deadline)))
+            observations = vote_lines(rapid, secondary)
+        except subprocess.TimeoutExpired:  # Tesseract ran past the budget: the vote is missing, say so
+            observations, complete = rapid, False
     else:
         observations = rapid
     blocks = [b.model_copy(update={'bbox': tuple(float(v)/scale for v in b.bbox)}) for b in observations]
     score = sum(b.conf**2*sum(c.isalnum() for c in b.text) for b in blocks if b.conf >= 0.6)
-    return PhotoReading(blocks, seed_reading.to_original, float(score), turn, view)
+    return PhotoReading(blocks, transform, float(score), turn, view, complete)
 
 
 def map_cv2_fields(blocks: list[OcrBlock], *, min_confidence: float = 0.5) -> tuple[dict[str, str], list[str]]:
