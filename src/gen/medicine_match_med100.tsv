@@ -1,0 +1,101 @@
+kind	query	expected
+brand	Lopressor metoprolol tartrate tablets	Metoprolol Tartrate
+brand	Wellbutrin bupropion hydrochloride tablets	Bupropion Hydrochloride
+brand	Desyrel trazodone HCL tablets	Trazodone HCL
+brand	Flomax capsules tamsulosin	Tamsulosin Hydrochloride
+brand	Eliquis apixaban 5 mg tablets	ELIQUIS
+brand	Zocor simvastatin tablet	Simvastatin
+brand	Mobic meloxicam 15 mg	meloxicam
+brand	Cymbalta duloxetine delayed release capsules	Duloxetine
+brand	Coreg carvedilol tablets	Carvedilol
+brand	BuSpar buspirone hydrochloride	Buspirone Hydrochloride
+brand	Effexor venlafaxine	Venlafaxine
+brand	Ultram tramadol hydrochloride tablet	Tramadol Hydrochloride
+brand	Zofran ondansetron tablets	Ondansetron Hydrochloride
+brand	Flexeril cyclobenzaprine	Cyclobenzaprine Hydrochloride
+brand	Aldactone spironolactone	SPIRONOLACTONE
+brand	Glucotrol glipizide	Glipizide
+brand	Ambien zolpidem tartrate	Zolpidem Tartrate
+brand	Celexa citalopram tablets	Citalopram
+brand	Lyrica pregabalin capsules	Pregabalin
+brand	Zithromax azithromycin	Azithromycin
+brand	Zetia ezetimibe 10 mg	Zetia
+brand	RemedyRepack hydroxyzine hydrochloride tablets	HYDROXYZINE HYDROCHLORIDE
+brand	PD-Rx Pharmaceuticals baclofen tablets	Baclofen
+brand	Preferred Pharmaceuticals esomeprazole magnesium capsules	Esomeprazole Magnesium
+brand	Chartwell hydralazine hydrochloride tablets	Hydralazine Hydrochloride
+generic	atenolol tablets beta blocker	Atenolol
+generic	finasteride 5 mg prostate tablets	Finasteride
+generic	quetiapine fumarate antipsychotic tablets	Quetiapine Fumarate
+generic	clonidine hydrochloride blood pressure tablets	Clonidine Hydrochloride
+generic	aripiprazole oral tablets	Aripiprazole
+generic	alendronate sodium osteoporosis tablets	Alendronate Sodium
+generic	topiramate seizure migraine tablets	Topiramate
+generic	tizanidine muscle relaxant tablets	Tizanidine
+generic	amitriptyline hydrochloride tricyclic antidepressant	Amitriptyline Hydrochloride
+generic	rivaroxaban anticoagulant tablets	Rivaroxaban
+generic	fenofibrate cholesterol triglycerides tablets	FENOFIBRATE
+generic	paroxetine antidepressant tablets	Paroxetine
+generic	warfarin sodium blood thinner tablets	Warfarin Sodium
+generic	valacyclovir hydrochloride herpes tablets	Valacyclovir Hydrochloride
+generic	methocarbamol muscle relaxant 500 mg	Methocarbamol
+generic	diltiazem hydrochloride calcium channel blocker tablets	Diltiazem Hydrochloride
+generic	sumatriptan succinate migraine tablets	Sumatriptan Succinate
+generic	mirtazapine antidepressant tablets	Mirtazapine
+generic	levetiracetam anticonvulsant tablets	Levetiracetam
+generic	tadalafil erectile dysfunction tablets	Tadalafil
+generic	nifedipine extended release tablets	Nifedipine
+generic	glimepiride sulfonylurea diabetes tablets	Glimepiride
+generic	hydroxychloroquine sulfate malaria lupus tablets	HYDROXYCHLOROQUINE SULFATE
+generic	metronidazole antibiotic tablets	Metronidazole
+generic	fluconazole antifungal tablets	Fluconazole
+misspelled	Metoprolol Tartarate	Metoprolol Tartrate
+misspelled	Bupropian hydrochloride	Bupropion Hydrochloride
+misspelled	Trazadone HCL	Trazodone HCL
+misspelled	Tamsulosin Hydrochlorid	Tamsulosin Hydrochloride
+misspelled	Simvastain	Simvastatin
+misspelled	Meloxicamm	meloxicam
+misspelled	Duloxetene	Duloxetine
+misspelled	Carvedelol	Carvedilol
+misspelled	Busprione hydrochloride	Buspirone Hydrochloride
+misspelled	Venlafexine	Venlafaxine
+misspelled	Tramadoll hydrochloride	Tramadol Hydrochloride
+misspelled	Ondansatron hydrochloride	Ondansetron Hydrochloride
+misspelled	Cyclobenzaprin hydrochloride	Cyclobenzaprine Hydrochloride
+misspelled	Spironolacton	SPIRONOLACTONE
+misspelled	Glipizid	Glipizide
+misspelled	Zolpidim tartrate	Zolpidem Tartrate
+misspelled	Citalapram	Citalopram
+misspelled	Pregabalan	Pregabalin
+misspelled	Azithromicin	Azithromycin
+misspelled	Pravastatine sodium	Pravastatin sodium
+misspelled	Diclofenac sodum	Diclofenac Sodium
+misspelled	Propanolol hydrochloride	Propranolol Hydrochloride
+misspelled	Ciproflaxacin	Ciprofloxacin
+misspelled	Olanzepine	Olanzapine
+misspelled	Benazapril hydrochloride	Benazepril Hydrochloride
+decoy	digoxin 0.25 mg tablets	
+decoy	carbamazepine tablets	
+decoy	phenytoin sodium capsules	
+decoy	methotrexate 2.5 mg tablets	
+decoy	Tamiflu oseltamivir capsules	
+decoy	ramipril capsules	
+decoy	levofloxacin tablets	
+decoy	risperidone tablets	
+decoy	lorazepam tablets	
+decoy	sucralfate tablets	
+decoy	bisoprolol fumarate tablets	
+decoy	mycophenolate mofetil tablets	
+decoy	clonazepam tablets	
+decoy	zolmitriptan tablets	
+decoy	lamivudine tablets	
+decoy	prasugrel tablets	
+decoy	metolazone tablets	
+decoy	desvenlafaxine extended release tablets	
+decoy	adhesive bandage strips	
+decoy	digital blood pressure monitor cuff	
+decoy	surgical face mask	
+decoy	disposable nitrile gloves	
+decoy	insulin pen needles 31 gauge	
+decoy	Vantrelix imaginary medicine	
+decoy	unlabelled white round tablet	
