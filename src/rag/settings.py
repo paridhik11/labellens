@@ -10,13 +10,15 @@ class RagSettings:
 
     k: int = 5
     prompt: str = "v1"  # v1 is the frozen run. v2 is an unused experiment (failed a 6-query dev check, spec section 14)
-    output: str = "text"  # "text" (Step 23), "json" (Step 23e) or "select" (sentence numbers, rag-select)
+    output: str = "text"  # "text" (Step 23), "json" (Step 23e), "select" (sentence numbers) or "rerank" (no model)
     max_sentences: int = 4
     min_overlap: float = 0.40  # a guess made before any run, frozen in the spec
     fallback_quotes: int = 3
     max_tokens: int = 220
     timeout_s: float = 120.0
     ollama_url: str = "http://localhost:11434"
+    rerank_threshold: float | None = None  # output="rerank" only: minimum cross-encoder score, None shows the top 3
+    rerank_display: bool = True  # fallback sources are reranked sentences (rag-rerank); False shows chunk quotes
 
     def echo(self) -> dict[str, object]:
         """The settings as a dict, for reports."""

@@ -1,0 +1,41 @@
+qid	text	module	answerable
+r01	Who must a manufacturer report to when a device may have caused a death?	device	1
+r02	What information goes into a 510(k) summary?	device	1
+r03	What statement must an investigational device label carry?	device	1
+r04	What does a unique device identifier consist of?	device	1
+r05	When must a manufacturer submit a report of a correction or removal?	device	1
+r06	What warning must devices containing natural rubber carry?	device	1
+r07	Which in vitro diagnostic products must be labeled with performance characteristics?	device	1
+r08	What labeling is required for stand-alone software devices?	device	1
+r09	Which devices are exempt from carrying a UDI on the label?	device	1
+r10	What must a prescription hearing aid label include?	device	1
+r11	Who has to register their establishment with FDA?	device	1
+r12	What does a user facility need to report to FDA?	device	1
+r13	How long must a manufacturer keep medical device report files?	device	1
+r14	What must be declared on the label of a latex condom?	device	1
+r15	What labeling applies to a device that is repacked or relabeled?	device	1
+r16	What warning is required for prescription drugs containing sulfites?	medicine	1
+r17	Where must the expiration date appear on a drug label?	medicine	1
+r18	What is the bar code requirement for human drug labels?	medicine	1
+r19	What information does a Medication Guide have to include?	medicine	1
+r20	Which drugs must declare the presence of FD&C Yellow No. 5?	medicine	1
+r21	What must the label of a drug containing phenylalanine say?	medicine	1
+r22	What are the tamper-evident packaging requirements for over-the-counter drugs?	medicine	1
+r23	What warning must sunscreen drug products carry?	medicine	1
+r24	What must the labeling of ipecac syrup say?	medicine	1
+r25	How is the net quantity of contents declared on a drug label?	medicine	1
+r26	What does the term infant mean in drug labeling?	medicine	1
+r27	What records are required for the issuance of drug labeling?	medicine	1
+r28	What must a prescription drug label show about the manufacturer?	medicine	1
+r29	What sodium information must appear in over-the-counter drug labeling?	medicine	1
+r30	How is expiration dating handled for reconstituted drug products?	medicine	1
+r31	What are the EU MDR requirements for CE marking on a device label?	device	0
+r32	What is the maximum price a hospital may charge for a medical device?	device	0
+r33	How do I register a medical device with Health Canada?	device	0
+r34	At what temperature should a medical device be stored during shipping?	device	0
+r35	What is the civil penalty in dollars for each device labeling violation?	device	0
+r36	What are the labeling requirements for dietary supplements?	medicine	0
+r37	How does the European Medicines Agency require package leaflets to be written?	medicine	0
+r38	What are the labeling rules for cosmetics?	medicine	0
+r39	How long does insulin last once it has been opened?	medicine	0
+r40	Which pharmacies are authorized to dispense controlled substances?	medicine	0
