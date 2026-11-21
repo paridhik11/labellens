@@ -1,0 +1,1365 @@
+{
+  "cv2": {
+    "n": 20,
+    "found": 13,
+    "found_ci95": [
+      0.43285427668523624,
+      0.818808175898918
+    ],
+    "blind_exact": 3,
+    "blind_ci95": [
+      0.052368745896216595,
+      0.36041886474075696
+    ],
+    "dev_false_found": 0,
+    "errors": 1,
+    "fallbacks": 0,
+    "rows": [
+      {
+        "filename": "new_02.jpg",
+        "split": "dev",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_04.jpg",
+        "split": "dev",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": "EvaluationTimeout: 300s; counted as miss"
+      },
+      {
+        "filename": "new_10.jpg",
+        "split": "dev",
+        "known": {
+          "status": "found",
+          "matched_line": "ZOOM 55 Repertusion Catheter 137cm",
+          "confidence": 0.8482285299721886,
+          "similarity": 0.96,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "ZOOM 55 Repertusion Catheter 137cm",
+              "bbox": [
+                1809.457763671875,
+                2120.459228515625,
+                288.409912109375,
+                22.75146484375
+              ],
+              "conf": 0.8482285299721886
+            }
+          ]
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_11.jpg",
+        "split": "dev",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_12.jpg",
+        "split": "dev",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_16.jpg",
+        "split": "dev",
+        "known": {
+          "status": "found",
+          "matched_line": "Indigo Aspiration Catheter",
+          "confidence": 0.9601246393643893,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "Indigo Aspiration Catheter",
+              "bbox": [
+                375.65582275390625,
+                338.1509094238281,
+                1767.4774780273438,
+                166.98529052734375
+              ],
+              "conf": 0.9601246393643893
+            }
+          ]
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": true,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_17.jpg",
+        "split": "dev",
+        "known": {
+          "status": "found",
+          "matched_line": "ZOOM 45\u00bb\nReperfusion Catheter",
+          "confidence": 0.8992160828571427,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "ZOOM 45\u00bb",
+              "bbox": [
+                1579.820068359375,
+                1504.4722900390625,
+                503.828125,
+                77.905029296875
+              ],
+              "conf": 0.8992160828571427
+            },
+            {
+              "text": "Reperfusion Catheter",
+              "bbox": [
+                1589.263671875,
+                1591.8511962890625,
+                447.1456298828125,
+                60.117919921875
+              ],
+              "conf": 0.9671337068421052
+            }
+          ]
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_23.jpg",
+        "split": "dev",
+        "known": {
+          "status": "found",
+          "matched_line": "RX Viatrac 14 Plus\nPeripheral Dilatation Catheter",
+          "confidence": 0.9377607706666666,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "RX Viatrac 14 Plus",
+              "bbox": [
+                1080.0,
+                797.0,
+                1064.0,
+                105.0
+              ],
+              "conf": 0.9377607706666666
+            },
+            {
+              "text": "Peripheral Dilatation Catheter",
+              "bbox": [
+                1077.0,
+                938.0,
+                881.0,
+                64.0
+              ],
+              "conf": 0.9467941164970398
+            }
+          ]
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_24.jpg",
+        "split": "dev",
+        "known": {
+          "status": "found",
+          "matched_line": "RX Viatrac 14 Plus\nPeripheral Dilatation Catheter",
+          "confidence": 0.9217637856801351,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "RX Viatrac 14 Plus",
+              "bbox": [
+                1053.0,
+                815.0,
+                1027.0,
+                106.0
+              ],
+              "conf": 0.9217637856801351
+            },
+            {
+              "text": "Peripheral Dilatation Catheter",
+              "bbox": [
+                1055.0,
+                955.0,
+                845.0,
+                67.0
+              ],
+              "conf": 0.9512409742857143
+            }
+          ]
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": true,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_25.jpg",
+        "split": "dev",
+        "known": {
+          "status": "found",
+          "matched_line": "RX Viatrac 14 Plus\nPeripheral Dilatation Catheter",
+          "confidence": 0.9297087589899699,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "RX Viatrac 14 Plus",
+              "bbox": [
+                1062.0,
+                875.0,
+                1028.0,
+                102.0
+              ],
+              "conf": 0.9297087589899699
+            },
+            {
+              "text": "Peripheral Dilatation Catheter",
+              "bbox": [
+                1059.0,
+                1010.0,
+                851.0,
+                62.0
+              ],
+              "conf": 0.9649573007142859
+            }
+          ]
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_26.jpg",
+        "split": "dev",
+        "known": {
+          "status": "found",
+          "matched_line": "RX Viatrac 14 Plus\nPeripheral Dilatation Catheter",
+          "confidence": 0.9242600406666667,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "RX Viatrac 14 Plus",
+              "bbox": [
+                1082.0,
+                804.0,
+                1026.0,
+                106.0
+              ],
+              "conf": 0.9242600406666667
+            },
+            {
+              "text": "Peripheral Dilatation Catheter",
+              "bbox": [
+                1080.0,
+                940.0,
+                849.0,
+                69.0
+              ],
+              "conf": 0.9592929042857143
+            }
+          ]
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": true,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_62.jpg",
+        "split": "dev",
+        "known": {
+          "status": "found",
+          "matched_line": "Surgipro\"\nMonoflament Polypropylene",
+          "confidence": 0.9303714513778687,
+          "similarity": 0.9841897233201582,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "Surgipro\"",
+              "bbox": [
+                342.06756591796875,
+                754.5584716796875,
+                180.0355224609375,
+                55.73431396484375
+              ],
+              "conf": 0.938250892692142
+            },
+            {
+              "text": "Monoflament Polypropylene",
+              "bbox": [
+                347.7387390136719,
+                806.4140625,
+                299.4541320800781,
+                47.426513671875
+              ],
+              "conf": 0.9303714513778687
+            }
+          ]
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_65.jpg",
+        "split": "dev",
+        "known": {
+          "status": "found",
+          "matched_line": "CRE'Wreguided",
+          "confidence": 0.8096261712220999,
+          "similarity": 0.9595141700404858,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "CRE'Wreguided",
+              "bbox": [
+                1171.7305908203125,
+                1140.0147705078125,
+                93.566650390625,
+                24.30078125
+              ],
+              "conf": 0.8096261712220999
+            }
+          ]
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_66.jpg",
+        "split": "dev",
+        "known": {
+          "status": "found",
+          "matched_line": "CREM PRO Wireguided",
+          "confidence": 0.9431511038228085,
+          "similarity": 0.9732142857142857,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "CREM PRO Wireguided",
+              "bbox": [
+                535.1284790039062,
+                483.5758972167969,
+                336.79327392578125,
+                55.716156005859375
+              ],
+              "conf": 0.9431511038228085
+            }
+          ]
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_67.jpg",
+        "split": "dev",
+        "known": {
+          "status": "found",
+          "matched_line": "RF Ablation Catheter",
+          "confidence": 0.9740168273448944,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "RF Ablation Catheter",
+              "bbox": [
+                379.0,
+                329.0,
+                400.0,
+                36.0
+              ],
+              "conf": 0.9740168273448944
+            }
+          ]
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_79.jpg",
+        "split": "dev",
+        "known": {
+          "status": "found",
+          "matched_line": "PREVENATM PEEL & PLACETM\nDRESSING-13CM",
+          "confidence": 0.8745525702834129,
+          "similarity": 0.9389880952380952,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "PREVENATM PEEL & PLACETM",
+              "bbox": [
+                1088.0,
+                1096.0,
+                693.0,
+                58.0
+              ],
+              "conf": 0.8745525702834129
+            },
+            {
+              "text": "DRESSING-13CM",
+              "bbox": [
+                1092.0,
+                1167.0,
+                441.0,
+                46.0
+              ],
+              "conf": 0.969955366391402
+            }
+          ]
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_85.jpg",
+        "split": "dev",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_84.jpg",
+        "split": "dev",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_87.jpg",
+        "split": "dev",
+        "known": {
+          "status": "found",
+          "matched_line": "Excelsior\u00ae XT-17\u2122 FLEX",
+          "confidence": 0.844877437,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "Excelsior\u00ae XT-17\u2122 FLEX",
+              "bbox": [
+                755.9854736328125,
+                1791.5933837890625,
+                818.986083984375,
+                73.4716796875
+              ],
+              "conf": 0.844877437
+            }
+          ]
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_89.jpg",
+        "split": "dev",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      }
+    ]
+  },
+  "ppocrv6": {
+    "n": 20,
+    "found": 12,
+    "found_ci95": [
+      0.3865815007622531,
+      0.781193467627183
+    ],
+    "blind_exact": 3,
+    "blind_ci95": [
+      0.052368745896216595,
+      0.36041886474075696
+    ],
+    "dev_false_found": 0,
+    "errors": 0,
+    "fallbacks": 0,
+    "rows": [
+      {
+        "filename": "new_02.jpg",
+        "split": "dev",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_04.jpg",
+        "split": "dev",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_10.jpg",
+        "split": "dev",
+        "known": {
+          "status": "found",
+          "matched_line": "ZOOM 55 Reperfusion Catheter 137 cm",
+          "confidence": 0.98549,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "ZOOM 55 Reperfusion Catheter 137 cm",
+              "bbox": [
+                1800.9072265625,
+                1944.556396484375,
+                297.883056640625,
+                27.2177734375
+              ],
+              "conf": 0.98549
+            }
+          ]
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_11.jpg",
+        "split": "dev",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_12.jpg",
+        "split": "dev",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_16.jpg",
+        "split": "dev",
+        "known": {
+          "status": "found",
+          "matched_line": "Indigo Aspiration Catheter",
+          "confidence": 0.99142,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "Indigo Aspiration Catheter",
+              "bbox": [
+                342.28125,
+                299.3427429199219,
+                1827.95361328125,
+                240.45565795898438
+              ],
+              "conf": 0.99142
+            }
+          ]
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": true,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_17.jpg",
+        "split": "dev",
+        "known": {
+          "status": "found",
+          "matched_line": "ZOOM 45 Reperfusion Catheter 144 cm",
+          "confidence": 0.99458,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "ZOOM 45 Reperfusion Catheter 144 cm",
+              "bbox": [
+                1802.4193115234375,
+                2484.375,
+                288.8104248046875,
+                28.729736328125
+              ],
+              "conf": 0.99458
+            }
+          ]
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_23.jpg",
+        "split": "dev",
+        "known": {
+          "status": "found",
+          "matched_line": "RX Viatrac 14 Plus\nPeripheral Dilatation Catheter",
+          "confidence": 0.99831,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "RX Viatrac 14 Plus",
+              "bbox": [
+                1050.9072265625,
+                772.6814575195312,
+                1115.927490234375,
+                154.23388671875
+              ],
+              "conf": 0.99831
+            },
+            {
+              "text": "Peripheral Dilatation Catheter",
+              "bbox": [
+                1058.4677734375,
+                919.3548583984375,
+                916.33056640625,
+                96.774169921875
+              ],
+              "conf": 0.99991
+            }
+          ]
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_24.jpg",
+        "split": "dev",
+        "known": {
+          "status": "found",
+          "matched_line": "RX Viatrac 14 Plus\nPeripheral Dilatation Catheter",
+          "confidence": 0.97136,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "RX Viatrac 14 Plus",
+              "bbox": [
+                1023.6895141601562,
+                789.3145141601562,
+                1082.6613159179688,
+                157.258056640625
+              ],
+              "conf": 0.97136
+            },
+            {
+              "text": "Peripheral Dilatation Catheter",
+              "bbox": [
+                1037.29833984375,
+                939.0120849609375,
+                877.01611328125,
+                90.725830078125
+              ],
+              "conf": 0.99763
+            }
+          ]
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": true,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_25.jpg",
+        "split": "dev",
+        "known": {
+          "status": "found",
+          "matched_line": "RX Viatrac 14 Plus\nPeripheral Dilatation Catheter",
+          "confidence": 0.98159,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "RX Viatrac 14 Plus",
+              "bbox": [
+                1032.7620849609375,
+                849.7984008789062,
+                1078.1248779296875,
+                151.20965576171875
+              ],
+              "conf": 0.98159
+            },
+            {
+              "text": "Peripheral Dilatation Catheter",
+              "bbox": [
+                1041.834716796875,
+                993.4475708007812,
+                883.064453125,
+                90.72576904296875
+              ],
+              "conf": 0.98789
+            }
+          ]
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_26.jpg",
+        "split": "dev",
+        "known": {
+          "status": "found",
+          "matched_line": "RX Viatrac 14 Plus\nPeripheral Dilatation Catheter",
+          "confidence": 0.99455,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "RX Viatrac 14 Plus",
+              "bbox": [
+                1052.4193115234375,
+                781.7540283203125,
+                1076.6129150390625,
+                151.20965576171875
+              ],
+              "conf": 0.99474
+            },
+            {
+              "text": "Peripheral Dilatation Catheter",
+              "bbox": [
+                1061.491943359375,
+                922.3790283203125,
+                883.064453125,
+                95.2620849609375
+              ],
+              "conf": 0.99455
+            }
+          ]
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": true,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_62.jpg",
+        "split": "dev",
+        "known": {
+          "status": "found",
+          "matched_line": "Surgipro\nMonofilament Polypropylene",
+          "confidence": 0.96117,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "Surgipro",
+              "bbox": [
+                339.0,
+                751.0,
+                187.0,
+                59.0
+              ],
+              "conf": 0.99968
+            },
+            {
+              "text": "Monofilament Polypropylene",
+              "bbox": [
+                344.0,
+                807.0,
+                307.0,
+                46.0
+              ],
+              "conf": 0.96117
+            }
+          ]
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_65.jpg",
+        "split": "dev",
+        "known": {
+          "status": "found",
+          "matched_line": "CRE Wireguided",
+          "confidence": 0.97,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "CRE Wireguided",
+              "bbox": [
+                728.3468017578125,
+                626.008056640625,
+                185.08062744140625,
+                29.39520263671875
+              ],
+              "conf": 0.97
+            }
+          ]
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_66.jpg",
+        "split": "dev",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_67.jpg",
+        "split": "dev",
+        "known": {
+          "status": "found",
+          "matched_line": "Venclose\u00ae RF Ablation Catheter",
+          "confidence": 0.98113,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "Venclose\u00ae RF Ablation Catheter",
+              "bbox": [
+                817.0,
+                1057.0,
+                295.0,
+                32.0
+              ],
+              "conf": 0.98113
+            }
+          ]
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_79.jpg",
+        "split": "dev",
+        "known": {
+          "status": "found",
+          "matched_line": "PREVENA PEEL & PLACE\nDRESSING - 13CM",
+          "confidence": 0.97378,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "PREVENA PEEL & PLACE",
+              "bbox": [
+                1078.125,
+                1091.73388671875,
+                674.3951416015625,
+                65.0201416015625
+              ],
+              "conf": 0.98416
+            },
+            {
+              "text": "DRESSING - 13CM",
+              "bbox": [
+                1082.6612548828125,
+                1158.26611328125,
+                458.1654052734375,
+                58.9718017578125
+              ],
+              "conf": 0.97378
+            }
+          ]
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_85.jpg",
+        "split": "dev",
+        "known": {
+          "status": "found",
+          "matched_line": "GII QUICKANCHOR\u2122 Plus",
+          "confidence": 0.93847,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "GII QUICKANCHOR\u2122 Plus",
+              "bbox": [
+                1141.633056640625,
+                1477.3184814453125,
+                317.540283203125,
+                31.7540283203125
+              ],
+              "conf": 0.93847
+            }
+          ]
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_84.jpg",
+        "split": "dev",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_87.jpg",
+        "split": "dev",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_89.jpg",
+        "split": "dev",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      }
+    ]
+  },
+  "selected": "cv2",
+  "reason": "PP-OCRv6 12/20 versus CV2-known 13/20; both zero dev false found. Existing OCR retained."
+}

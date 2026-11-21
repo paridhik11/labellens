@@ -1,0 +1,547 @@
+{
+  "test": {
+    "n": 10,
+    "found": 8,
+    "found_ci95": [
+      0.49016247153664183,
+      0.9433178485456247
+    ],
+    "blind_exact": 0,
+    "blind_ci95": [
+      0.0,
+      0.2775327998628892
+    ],
+    "dev_false_found": 0,
+    "errors": 0,
+    "fallbacks": 0,
+    "rows": [
+      {
+        "filename": "new_08.jpg",
+        "split": "test",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": null,
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_19.jpg",
+        "split": "test",
+        "known": {
+          "status": "found",
+          "matched_line": "ASAHI Gaia Third 190cm",
+          "confidence": 0.9218811284412037,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "ASAHI Gaia Third 190cm",
+              "bbox": [
+                427.4277038574219,
+                770.985595703125,
+                152.25485229492188,
+                19.53582763671875
+              ],
+              "conf": 0.9218811284412037
+            }
+          ]
+        },
+        "dev_wrong": null,
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_20.jpg",
+        "split": "test",
+        "known": {
+          "status": "found",
+          "matched_line": "ASAHI Gaia Second 190cm",
+          "confidence": 0.961862237557121,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "ASAHI Gaia Second 190cm",
+              "bbox": [
+                456.5380554199219,
+                791.5358276367188,
+                136.90786743164062,
+                18.24493408203125
+              ],
+              "conf": 0.961862237557121
+            }
+          ]
+        },
+        "dev_wrong": null,
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_54.jpg",
+        "split": "test",
+        "known": {
+          "status": "found",
+          "matched_line": "Progreat",
+          "confidence": 0.9547716230154037,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "Progreat",
+              "bbox": [
+                325.3566589355469,
+                252.62635803222656,
+                443.1643981933594,
+                156.0635223388672
+              ],
+              "conf": 0.9547716230154037
+            }
+          ]
+        },
+        "dev_wrong": null,
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_59.jpg",
+        "split": "test",
+        "known": {
+          "status": "found",
+          "matched_line": "Progreat",
+          "confidence": 0.9843785241246223,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "Progreat",
+              "bbox": [
+                315.2987976074219,
+                224.74203491210938,
+                500.4623718261719,
+                195.14596557617188
+              ],
+              "conf": 0.9843785241246223
+            }
+          ]
+        },
+        "dev_wrong": null,
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_63.jpg",
+        "split": "test",
+        "known": {
+          "status": "found",
+          "matched_line": "PureFlex\"Arerial Cannulae",
+          "confidence": 0.9269573307037353,
+          "similarity": 0.9777777777777779,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "PureFlex\"Arerial Cannulae",
+              "bbox": [
+                1047.0,
+                1358.0,
+                325.0,
+                32.0
+              ],
+              "conf": 0.9269573307037353
+            }
+          ]
+        },
+        "dev_wrong": null,
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_64.jpg",
+        "split": "test",
+        "known": {
+          "status": "found",
+          "matched_line": "PureFlex\"Arterial Cannulae",
+          "confidence": 0.9452383243120633,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "PureFlex\"Arterial Cannulae",
+              "bbox": [
+                1567.7216796875,
+                1363.5916748046875,
+                306.4903564453125,
+                25.74609375
+              ],
+              "conf": 0.9452383243120633
+            }
+          ]
+        },
+        "dev_wrong": null,
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_68.jpg",
+        "split": "test",
+        "known": {
+          "status": "found",
+          "matched_line": "Hyratome RX44",
+          "confidence": 0.9279747330225431,
+          "similarity": 0.9592760180995475,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "Hyratome RX44",
+              "bbox": [
+                706.2926635742188,
+                564.0076293945312,
+                172.91387939453125,
+                37.06134033203125
+              ],
+              "conf": 0.9279747330225431
+            }
+          ]
+        },
+        "dev_wrong": null,
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_71.jpg",
+        "split": "test",
+        "known": {
+          "status": "found",
+          "matched_line": "ZIPwire TM Standard\nHydrophilic Guidewire",
+          "confidence": 0.9125411761434454,
+          "similarity": 1.0,
+          "threshold": 0.9,
+          "evidence": [
+            {
+              "text": "ZIPwire TM Standard",
+              "bbox": [
+                701.6861572265625,
+                1181.0498046875,
+                168.20245361328125,
+                30.955322265625
+              ],
+              "conf": 0.9125411761434454
+            },
+            {
+              "text": "Hydrophilic Guidewire",
+              "bbox": [
+                705.22021484375,
+                1209.4017333984375,
+                177.663818359375,
+                25.2117919921875
+              ],
+              "conf": 0.9305919579999999
+            }
+          ]
+        },
+        "dev_wrong": null,
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_88.jpg",
+        "split": "test",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": null,
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      }
+    ]
+  },
+  "negative": {
+    "n": 15,
+    "found": 0,
+    "found_ci95": [
+      0.0,
+      0.20388330103584862
+    ],
+    "blind_exact": 3,
+    "blind_ci95": [
+      0.07047549346981563,
+      0.45185448715169363
+    ],
+    "dev_false_found": 0,
+    "errors": 2,
+    "fallbacks": 0,
+    "rows": [
+      {
+        "filename": "new_03.jpg",
+        "split": "negative",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": null,
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_05.jpg",
+        "split": "negative",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": null,
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_06.jpg",
+        "split": "negative",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": null,
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_07.jpg",
+        "split": "negative",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": null,
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_09.jpg",
+        "split": "negative",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": null,
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_13.jpg",
+        "split": "negative",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": null,
+        "blind_exact": true,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_18.jpg",
+        "split": "negative",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": null,
+        "blind_exact": false,
+        "fallback": false,
+        "error": "EvaluationTimeout: 300s; counted as miss"
+      },
+      {
+        "filename": "new_21.jpg",
+        "split": "negative",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": null,
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_22.jpg",
+        "split": "negative",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": null,
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_30.jpg",
+        "split": "negative",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": null,
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_32.jpg",
+        "split": "negative",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": null,
+        "blind_exact": true,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_34.jpg",
+        "split": "negative",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": null,
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_43.jpg",
+        "split": "negative",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": null,
+        "blind_exact": true,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_80.jpg",
+        "split": "negative",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": null,
+        "blind_exact": false,
+        "fallback": false,
+        "error": null
+      },
+      {
+        "filename": "new_90.jpg",
+        "split": "negative",
+        "known": {
+          "status": "not_found",
+          "matched_line": null,
+          "confidence": 0.0,
+          "similarity": 0.0,
+          "threshold": 0.9,
+          "evidence": []
+        },
+        "dev_wrong": null,
+        "blind_exact": false,
+        "fallback": false,
+        "error": "EvaluationTimeout: 300s; counted as miss"
+      }
+    ]
+  },
+  "gate_passed": false,
+  "reasons": [
+    "Held-out OCR failure leaves incomplete evidence"
+  ],
+  "source_and_models_unchanged": true,
+  "negative_valid_ci95": [
+    0.0,
+    0.22809537235419838
+  ],
+  "negative_full_set_rate_valid": false,
+  "negative_rate_note": "Two failed extractions are unknown outcomes, not successful rejections; conditional 0/13 interval only. Gate failed."
+}

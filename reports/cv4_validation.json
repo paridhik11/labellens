@@ -1,0 +1,28 @@
+{
+  "commands": [
+    {
+      "command": "HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 OMP_NUM_THREADS=1 /opt/anaconda3/envs/labellens-cv/bin/python -m pytest -q -m 'not slow'",
+      "output": "........................................................................ [  7%]\n........................................................................ [ 14%]\n........................................................................ [ 21%]\n........................................................................ [ 29%]\n........................................................................ [ 36%]\n........................................................................ [ 43%]\n........................................................................ [ 50%]\n........................................................................ [ 58%]\n........................................................................ [ 65%]\n........................................................................ [ 72%]\n........................................................................ [ 79%]\n........................................................................ [ 87%]\n........................................................................ [ 94%]\n.........................................................                [100%]\n993 passed, 5 deselected in 70.00s (0:01:10)\n",
+      "exit_code": 0
+    },
+    {
+      "command": "/opt/anaconda3/envs/labellens-cv/bin/python -m ruff check src tests scripts/cv_experiments/cv4_eval.py",
+      "output": "All checks passed!\n",
+      "exit_code": 0
+    },
+    {
+      "command": "OMP_NUM_THREADS=1 /opt/anaconda3/envs/labellens-cv/bin/python -m scripts.cv_experiments.cv4_eval --split test --profile cv2 --root /private/tmp/labellens-cv4-baseline",
+      "observations": "results/cv4/test_cv2.jsonl",
+      "exit_code": 0,
+      "note": "Per-image failures remain in journal and invalidate negative gate"
+    },
+    {
+      "command": "OMP_NUM_THREADS=1 /opt/anaconda3/envs/labellens-cv/bin/python -m scripts.cv_experiments.cv4_eval --split negative --profile cv2 --root /private/tmp/labellens-cv4-baseline",
+      "observations": "results/cv4/negative_cv2.jsonl",
+      "exit_code": 0,
+      "note": "Per-image failures remain in journal and invalidate negative gate"
+    }
+  ],
+  "gate_passed": false,
+  "no_main_merge": true
+}
