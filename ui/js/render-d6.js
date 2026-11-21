@@ -57,7 +57,7 @@
             <span class="badge badge-purple">Job: ${escapeHtml(safeData.job_id || 'job_gen_0001')}</span>
             <span class="badge badge-teal">Status: ${escapeHtml(safeData.state || 'processing')}</span>
           </div>
-          <div style="font-size: 2.5rem; margin-bottom: 12px;">⚙️</div>
+          <div style="font-size: 2.5rem; margin-bottom: 12px;"><svg class="icon icon-xl" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg></div>
           <h3>Generating Deterministic Artwork Draft</h3>
           <p class="text-muted text-sm" style="margin-top: 8px;">${escapeHtml(safeData.message || 'Rendering draft and running self-check')}</p>
           

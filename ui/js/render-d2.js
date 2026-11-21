@@ -97,7 +97,7 @@
             <div style="background: #ffffff; border: 2px solid #ef4444; border-radius: var(--radius-md); position: relative; height: 260px; overflow: hidden; box-shadow: inset 0 0 10px rgba(239, 68, 68, 0.1);">
               <!-- Reserved Draft Band (Top 9mm) -->
               <div style="position: absolute; top: 0; left: 0; right: 0; height: 36px; background: rgba(239, 68, 68, 0.15); border-bottom: 2px dashed #ef4444; display: flex; align-items: center; justify-content: center;">
-                <span style="font-size: 0.7rem; font-weight: 800; color: #dc2626; letter-spacing: 1px;">
+                <span style="font-size: 0.7rem; font-weight: 800; color: #b91c1c; letter-spacing: 1px;">
                   RESERVED DRAFT WATERMARK BAND (TOP 9 MM)
                 </span>
               </div>

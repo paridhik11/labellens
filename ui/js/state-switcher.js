@@ -17,11 +17,20 @@
 
   let currentScreen = isPublicMode ? 'P2 Product information' : 'D4 Inspect';
   let currentState = isPublicMode ? 'success' : 'failed_check';
-  let isCollapsed = false;
+  // The panel always runs (it loads the mock state that the screens render), but it is only
+  // visible with ?dev=1, and starts collapsed. ?dev=1&devopen=1 starts it open (check scripts).
+  const urlParams = new URLSearchParams(window.location.search);
+  const devVisible = urlParams.get('dev') === '1';
+  let isCollapsed = urlParams.get('devopen') !== '1';
 
   const panelContainer = document.createElement('div');
   panelContainer.className = 'dev-state-panel';
   panelContainer.id = 'devStateSwitcher';
+  if (!devVisible) panelContainer.hidden = true;
+
+  function collapseLabel() {
+    return isCollapsed ? 'Expand' : 'Collapse';
+  }
 
   function getScreenOptionsHtml() {
     if (isPublicMode) {
@@ -80,7 +89,7 @@
           <span>Dev State Switcher</span>
           <span class="badge badge-teal text-xs" id="devCurrentScreenBadge">${escapeHtml(currentScreen)}</span>
         </div>
-        <div style="font-size: 0.8rem; opacity: 0.8;" id="devCollapseIcon">${isCollapsed ? '▲ Expand' : '▼ Collapse'}</div>
+        <div style="font-size: 0.8rem;" id="devCollapseIcon">${collapseLabel()}</div>
       </div>
       <div class="dev-panel-body ${isCollapsed ? 'collapsed' : ''}" id="devPanelBody">
         <div class="flex-between" style="margin-bottom: 6px;">
@@ -117,7 +126,7 @@
     toggleBtn.addEventListener('click', () => {
       isCollapsed = !isCollapsed;
       body.classList.toggle('collapsed', isCollapsed);
-      collapseIcon.textContent = isCollapsed ? '▲ Expand' : '▼ Collapse';
+      collapseIcon.textContent = collapseLabel();
     });
 
     const screenSelect = panelContainer.querySelector('#devScreenSelect');
@@ -231,7 +240,7 @@
 
     } catch (err) {
       if (metaBox) {
-        metaBox.innerHTML = `<span style="color: #ef4444;">Error: ${escapeHtml(err.message)}</span>`;
+        metaBox.innerHTML = `<span style="color: #fca5a5;">Error: ${escapeHtml(err.message)}</span>`;
       }
     }
   }

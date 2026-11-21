@@ -52,7 +52,7 @@
         </div>
 
         <div class="card" style="text-align: center; padding: 48px; max-width: 650px; margin: 20px auto;">
-          <div style="font-size: 2.5rem; margin-bottom: 12px;">📋</div>
+          <div style="font-size: 2.5rem; margin-bottom: 12px;"><svg class="icon icon-xl" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="1"/><path d="M9 4h6v3H9zM8 12h8M8 16h6"/></svg></div>
           <h3>No Audit Events Recorded</h3>
           <p class="text-muted text-sm" style="margin-top: 8px;">
             No lifecycle events or regulatory audits exist for product <code>${escapeHtml(safeData.product_id || 'prd_samplecatheter')}</code> yet.

@@ -14,7 +14,7 @@ blockquote{margin:.4rem 0;padding-left:.8rem;border-left:3px solid #c9d1d9;color
 dt{font-weight:600;margin-top:.5rem}dd{margin:0}.muted{color:#666}h2{font-size:1.1rem;margin-top:1.5rem}</style>
 <body><h1>Medicine information</h1>
 <div class=banner>Authenticity not verified. Based on a reference label match. This is not medical advice.</div>
-<p>Type the product name as printed on the pack. Only ten reference labels are loaded.</p>
+<p>Type the product name as printed on the pack. Only a limited set of reference labels is loaded.</p>
 <form id=f><input id=name placeholder="for example: Childrens Ibuprofen" required> <button>Find reference label</button></form>
 <div id=out></div>
 <script>
