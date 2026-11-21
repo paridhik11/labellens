@@ -74,7 +74,8 @@ def cmd_read(names: list[str]) -> None:
 
     for name in names:
         target = OUT / f"lines_{name}.jsonl"
-        done = {json.loads(row)["id"] for row in target.read_text(encoding="utf-8").splitlines()} if target.exists() else set()
+        lines = target.read_text(encoding="utf-8").splitlines() if target.exists() else []
+        done = {json.loads(row)["id"] for row in lines}
         with target.open("a", encoding="utf-8") as handle:
             for item in load_set(name):
                 if item["id"] in done:
@@ -145,7 +146,7 @@ def by_condition(rows: list[dict[str, Any]]) -> dict[str, Any]:
     return summary
 
 
-def cmd_tune() -> None:
+def cmd_tune(only: list[str]) -> None:
     """Score the candidate configurations on the cached dev OCR lines. Dev sets only."""
     from src.api import medicine, public_scan
 
@@ -153,30 +154,36 @@ def cmd_tune() -> None:
     service = medicine.MedicineService()
     public_scan.memoise_queries(service.matcher)
     catalog = service.catalog
-    vocab = public_scan.vocabulary([p.name for p in catalog.products.values()]
-                                   + [a for p in catalog.products.values() for a in p.aliases])
     cached = [json.loads(row) for name in DEV_SETS
               for row in (OUT / f"lines_{name}.jsonl").read_text(encoding="utf-8").splitlines()]
-    report: dict[str, Any] = {}
+    for row in cached:  # the dev device cache was written before conditions existed
+        if row["kind"] == "dev_device":
+            row["kind"], row["condition"] = "device", "photo"
+    target = OUT / "dev_configs.json"
+    report: dict[str, Any] = json.loads(target.read_text(encoding="utf-8")) if only and target.exists() else {}
     for key, values in candidates.items():
+        if only and key not in only:
+            continue
         config = public_scan.ScanConfig(**values)
+        vocab, distinct = public_scan.scan_inputs(catalog, config)
         rows = []
         for row in cached:
             started = time.monotonic()
             result = public_scan.identify(row["lines"], service.matcher.match, vocab, config, start=time.monotonic(),
-                                          cut_short=not row["complete"])
+                                          cut_short=not row["complete"], distinct=distinct)
             cat = category(result, row["expected"], catalog)
             names = ([catalog.products[pid].name for pid, _ in result["best"]["found"]["candidates"]]
                      if result["best"] else [])
             rows.append({"id": row["id"], "kind": row["kind"], "expected": row["expected"], "category": cat,
                          "gate": row["gate"], "seconds": row["ocr_seconds"] + time.monotonic() - started,
-                         "expected_in_review": (row["expected"] in names) if cat == "review" else None, "condition": row["condition"],
+                         "expected_in_review": (row["expected"] in names) if cat == "review" else None,
+                         "condition": row["condition"],
                          "matched_text": result["best"]["text"] if result["best"] else "", "names": names})
         report[key] = {"config": values, "positives": summarize([r for r in rows if r["kind"] == "positive"]),
                        "decoys": summarize([r for r in rows if r["kind"] == "decoy"]),
                        "device": summarize([r for r in rows if r["kind"] == "device"]), "rows": rows}
         print(key, json.dumps({k: v for k, v in report[key].items() if k != "rows"}), flush=True)
-    (OUT / "dev_configs.json").write_text(json.dumps(report, indent=1), encoding="utf-8")
+    target.write_text(json.dumps(report, indent=1), encoding="utf-8")
 
 
 def cmd_final(name: str) -> None:
@@ -225,7 +232,7 @@ if __name__ == "__main__":
     if command == "read":
         cmd_read(sys.argv[2:])
     elif command == "tune":
-        cmd_tune()
+        cmd_tune(sys.argv[2:])
     elif command == "final":
         cmd_final(sys.argv[2])
     else:

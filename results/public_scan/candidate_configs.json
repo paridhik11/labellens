@@ -11,5 +11,11 @@
  "C": {
   "name": "C",
   "max_candidates": 20
+ },
+ "D": {
+  "name": "D",
+  "max_candidates": 8,
+  "name_evidence": true,
+  "max_words": 5
  }
 }

@@ -265,3 +265,51 @@ def test_memoised_encoding_does_not_change_scores() -> None:
     model = matcher._dense._model
     assert [model.encode("abc"), model.encode("abc")] == [[3], [3]] and model.calls == 1
     assert model.encode(["a", "b"]) == [2] and model.calls == 2  # batches (passages) are never cached
+
+
+# candidate D (protocol v3): name evidence
+
+
+def derived() -> tuple[list[str], dict[str, tuple[str, ...]]]:
+    """Generic and distinctive words derived from the real 30-product catalog."""
+    from src.api import medicine
+
+    return public_scan.derive_distinctive(CATALOG, public_scan.heading_words(medicine.MEDICINE_DIR))
+
+
+def test_every_product_keeps_a_distinctive_word_and_generic_words_are_dropped() -> None:
+    generic, distinct = derived()
+    assert all(distinct[pid] for pid in CATALOG.products)
+    assert {"tablets", "hydrochloride", "sodium"} <= set(generic)
+    assert not set(generic) & {w for words in distinct.values() for w in words}
+
+
+def test_visible_words_tolerate_ocr_slips_but_not_other_words() -> None:
+    assert public_scan.visible_words(("lisinopril",), ["lisinopri1"]) == ["lisinopril"]
+    assert public_scan.visible_words(("lisinopril",), ["losartan"]) == []
+
+
+def test_evidence_turns_a_product_without_its_name_into_not_identified() -> None:
+    _, distinct = derived()
+    pid = next(p for p, q in CATALOG.products.items() if q.name == "Lisinopril")
+    found = {"outcome": "matched", "score": 0.9, "score_name": "x", "threshold": 0.65, "candidates": [(pid, 0.9)]}
+    assert public_scan.apply_evidence(found, distinct, ["tablets", "usp"])["outcome"] == "no_reference_match"
+    kept = public_scan.apply_evidence(found, distinct, ["lisinopril", "tablets"])
+    assert kept["outcome"] == "matched" and kept["candidates"][0][0] == pid
+
+
+def test_partly_visible_name_is_review_never_matched() -> None:
+    _, distinct = derived()
+    pid = next(p for p, q in CATALOG.products.items() if q.name == "valsartan and hydrochlorothiazide")
+    found = {"outcome": "matched", "score": 0.9, "score_name": "x", "threshold": 0.65, "candidates": [(pid, 0.9)]}
+    assert public_scan.apply_evidence(found, distinct, ["valsartan"])["outcome"] == "needs_review"
+    assert public_scan.apply_evidence(found, distinct, ["valsartan", "hydrochlorothiazide"])["outcome"] == "matched"
+
+
+def test_d_candidates_are_short_strings_around_a_distinctive_word() -> None:
+    lines = [{"text": "Rx only NDC 123 Lisinopril Tablets USP 10 mg 100 count", "confidence": 0.9},
+             {"text": "Keep out of reach of children", "confidence": 0.9}]
+    config = public_scan.ScanConfig(name="D", name_evidence=True, max_candidates=8)
+    found = public_scan.build_candidates(lines, {"lisinopril"}, config)
+    assert found and all(1 <= len(c.text.split()) <= 5 for c in found)
+    assert all("lisinopril" in c.text.lower() for c in found)

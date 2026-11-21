@@ -45,6 +45,8 @@ class ScanConfig:
     full_text: bool = True  # the whole text as one candidate
     order: str = "score"  # "score": best cosine wins; "outcome": matched beats needs_review beats none
     max_chars: int = 300  # a candidate string is cut to this length
+    name_evidence: bool = False  # candidate D: a distinctive name word must be visible in the OCR text (protocol v3)
+    max_words: int = 5  # D: candidate strings have 1 to this many words
 
 
 def load_config(path: Path = CONFIG_PATH) -> ScanConfig:
@@ -73,6 +75,80 @@ def vocabulary(names: list[str]) -> set[str]:
     return {t for name in names for t in tokens(name) if len(t) >= 3}
 
 
+SIMILAR = 0.85  # normalized edit similarity (difflib ratio) for a word to count as visible
+GENERIC_CHUNK_SHARE = 0.10  # a word in this share of the corpus chunks is generic
+GENERIC_HEADING_PRODUCTS = 3  # a word in section headings of this many products is generic
+
+
+def similar(a: str, b: str) -> bool:
+    """True when two words are the same up to OCR slips (difflib ratio at least 0.85)."""
+    return a == b or difflib.SequenceMatcher(None, a, b).ratio() >= SIMILAR
+
+
+def derive_distinctive(catalog: Any, headings: dict[str, set[str]]) -> tuple[list[str], dict[str, tuple[str, ...]]]:
+    """Generic words and the distinctive words of each product, both derived from the corpus (protocol v3).
+
+    Source words are letters-only words of 4+ letters of the name, aliases and active substance. A word is generic
+    when it is in 2+ products, in a dosage form, in 10% of the chunks or in the headings of 3+ products.
+    ``headings`` maps product id to the words of its section titles.
+    """
+    def words(text: str) -> set[str]:
+        return {w for w in re.findall(r"[a-z]+", text.lower()) if len(w) >= 4}
+
+    source = {pid: words(" ".join([p.name, *p.aliases, p.fields.get("active_substance") or ""]))
+              for pid, p in catalog.products.items()}
+    product_df: dict[str, int] = {}
+    for ws in source.values():
+        for w in ws:
+            product_df[w] = product_df.get(w, 0) + 1
+    forms = set().union(*(words(p.fields.get("dosage_form") or "") for p in catalog.products.values()))
+    chunk_df: dict[str, int] = {}
+    for chunk in catalog.chunks.values():
+        for w in words(chunk.text):
+            chunk_df[w] = chunk_df.get(w, 0) + 1
+    heading_df: dict[str, int] = {}
+    for ws in headings.values():
+        for w in ws:
+            heading_df[w] = heading_df.get(w, 0) + 1
+    total = len(catalog.chunks)
+    generic = {w for ws in source.values() for w in ws
+               if product_df[w] >= 2 or w in forms or chunk_df.get(w, 0) / total >= GENERIC_CHUNK_SHARE
+               or heading_df.get(w, 0) >= GENERIC_HEADING_PRODUCTS}
+    return sorted(generic), {pid: tuple(sorted(ws - generic)) for pid, ws in source.items()}
+
+
+def heading_words(directory: Path) -> dict[str, set[str]]:
+    """Words of the section titles of each product (``products.json``), keyed by product id."""
+    rows = json.loads((directory / "products.json").read_text(encoding="utf-8"))
+    return {f"med_{r['setid'][:8]}": {w for s in r["sections"] for w in re.findall(r"[a-z]+", s["title"].lower())
+                                      if len(w) >= 4} for r in rows}
+
+
+def visible_words(words: tuple[str, ...], ocr_tokens: list[str]) -> list[str]:
+    """The distinctive words that appear in the OCR text (whole words, similarity at least 0.85)."""
+    return [w for w in words if any(similar(w, t) for t in ocr_tokens if abs(len(t) - len(w)) <= 3)]
+
+
+def apply_evidence(
+    found: dict[str, Any], distinct: dict[str, tuple[str, ...]], ocr_tokens: list[str],
+) -> dict[str, Any]:
+    """Name-evidence check on the matcher's answer (the matcher itself is untouched). See protocol_v3.md."""
+    shown = []
+    for pid, score in found["candidates"]:
+        seen = visible_words(distinct[pid], ocr_tokens)
+        if seen:
+            shown.append((pid, score, len(seen) == len(distinct[pid])))
+    if found["outcome"] == "no_reference_match" or not shown:
+        return {**found, "outcome": "no_reference_match", "candidates": []}
+    shown.sort(key=lambda row: (not row[2], -row[1]))  # all words visible first, then by score
+    keep = [(pid, score) for pid, score, _ in shown]
+    complete = [row for row in shown if row[2]]
+    outcome = found["outcome"]
+    if outcome == "matched" and not (shown[0][0] == found["candidates"][0][0] and shown[0][2] and len(complete) == 1):
+        outcome = "needs_review"
+    return {**found, "outcome": outcome, "candidates": keep}
+
+
 def lexical_priority(text: str, vocab: set[str]) -> float:
     """How much of a string looks like a product name word (OCR slips tolerated). Orders candidates only."""
     words = [t for t in tokens(text) if len(t) >= 3]
@@ -91,6 +167,8 @@ def build_candidates(lines: list[dict[str, Any]], vocab: set[str], config: ScanC
     """Single lines, adjacent pairs and the full text, deduplicated, best lexical priority first, cut to the limit."""
     usable = [i for i, ln in enumerate(lines)
               if ln.get("confidence", 1.0) >= config.min_conf and sum(c.isalpha() for c in ln["text"]) >= 1]
+    if config.name_evidence:
+        return evidence_candidates(lines, usable, vocab, config)
     found: dict[str, Candidate] = {}
 
     def add(indexes: tuple[int, ...]) -> None:
@@ -115,9 +193,29 @@ def build_candidates(lines: list[dict[str, Any]], vocab: set[str], config: ScanC
     return chosen
 
 
+def evidence_candidates(lines: list[dict[str, Any]], usable: list[int], vocab: set[str], config: ScanConfig,
+                        ) -> list[Candidate]:
+    """D: strings of 1 to ``max_words`` words that contain a distinctive word (``vocab`` holds those words)."""
+    found: dict[str, Candidate] = {}
+    for i in usable:
+        words = lines[i]["text"].split()
+        for at, word in enumerate(words):
+            token = "".join(tokens(word))
+            if len(token) < 4 or not any(similar(token, v) for v in vocab if abs(len(v) - len(token)) <= 3):
+                continue
+            for lo, hi in ((at, at + 1), (at, at + config.max_words), (max(0, at - config.max_words + 1), at + 1)):
+                text = " ".join(words[lo:hi])[: config.max_chars].strip()
+                key = " ".join(tokens(text))
+                if key and key not in found:
+                    found[key] = Candidate(text, (i,), 1.0 / (len(key.split()) ** 0.5))
+    ranked = sorted(found.values(), key=lambda c: (-c.priority, c.text))
+    return ranked[: config.max_candidates]
+
+
 def identify(
     lines: list[dict[str, Any]], match: Callable[[str], dict[str, Any]], vocab: set[str], config: ScanConfig,
     *, start: float, hard_limit_s: float = HARD_LIMIT_S, cut_short: bool = False,
+    distinct: dict[str, tuple[str, ...]] | None = None,
 ) -> dict[str, Any]:
     """Match the candidate strings and return ``{outcome, reason, best, tried, timed_out}`` (no HTTP, no database).
 
@@ -125,6 +223,7 @@ def identify(
     outcome ``no_reference_match`` with reason ``timeout``: a partly read photo is never identified.
     """
     candidates = build_candidates(lines, vocab, config)
+    ocr_tokens = [t for ln in lines for t in tokens(ln["text"]) if len(t) >= 3]
     if not candidates:
         return {"outcome": "no_reference_match", "reason": "timeout" if cut_short else "no_text", "best": None,
                 "tried": 0, "timed_out": cut_short}
@@ -136,7 +235,9 @@ def identify(
                     "timed_out": True}
         found = match(cand.text)
         tried += 1
-        key = ((OUTCOME_RANK[found["outcome"]], found["score"]) if config.order == "outcome"
+        if config.name_evidence:
+            found = apply_evidence(found, distinct or {}, ocr_tokens)
+        key = ((OUTCOME_RANK[found["outcome"]], found["score"]) if config.order == "outcome" or config.name_evidence
                else (found["score"],))
         if best is None or key > best["key"]:
             best = {"key": key, "found": found, "text": cand.text, "lines": cand.lines}
@@ -147,6 +248,17 @@ def identify(
     outcome = best["found"]["outcome"]
     return {"outcome": outcome, "reason": None if outcome != "no_reference_match" else "no_match",
             "best": {k: best[k] for k in ("found", "text", "lines")}, "tried": tried, "timed_out": False}
+
+
+def scan_inputs(catalog: Any, config: ScanConfig) -> tuple[set[str], dict[str, tuple[str, ...]] | None]:
+    """The candidate vocabulary and, for D, the distinctive words per product (None when D is off)."""
+    if config.name_evidence:
+        from src.api import medicine
+
+        _, distinct = derive_distinctive(catalog, heading_words(medicine.MEDICINE_DIR))
+        return {w for ws in distinct.values() for w in ws}, distinct
+    names = [p.name for p in catalog.products.values()] + [a for p in catalog.products.values() for a in p.aliases]
+    return vocabulary(names), None
 
 
 def read_lines(path: Path, *, timeout_s: float = CHILD_TIMEOUT_S) -> dict[str, Any]:
@@ -203,13 +315,27 @@ def scan_photo(path: Path, service: Any, config: ScanConfig | None = None, *, re
     reading = (read or read_lines)(path)
     lines = reading["lines"]
     catalog = service.catalog
-    vocab = vocabulary([p.name for p in catalog.products.values()] + [a for p in catalog.products.values()
-                                                                       for a in p.aliases])
+    vocab, distinct = scan_inputs(catalog, config)
     result = identify(lines, service.matcher.match, vocab, config, start=start,
-                      cut_short=not reading.get("complete", True))
+                      cut_short=not reading.get("complete", True), distinct=distinct)
     body = result_body(catalog, service.matcher, lines, result, medicine)
     extra = {"tried": result["tried"], "killed": reading.get("killed", False)}
     return ScanOutcome(body, time.monotonic() - start, extra)
+
+
+def match_body(catalog: Any, found: dict[str, Any], text: str, medicine: Any) -> dict[str, Any]:
+    """``medicine.match_result`` built from an answer already in hand (same fields, no second match)."""
+    out: dict[str, Any] = {
+        "banner": medicine.BANNER, "outcome": found["outcome"], "score_name": found["score_name"],
+        "score": found["score"], "threshold": found["threshold"],
+        "candidates": [medicine.candidate_json(catalog, pid, score, text) for pid, score in found["candidates"]]}
+    best = found["candidates"][0][0]
+    sections = medicine.reference_sections(catalog, best)
+    out["sections"] = {k: sections[k] for k in ("summary", "ingredients", "warnings", "sources", "ingredients_note")}
+    product = catalog.products[best]
+    out["summary"] = f"{product.name}: reference label from DailyMed set {product.setid}."
+    out["sources"] = sections["summary"][:1] or sections["ingredients"][:1]
+    return out
 
 
 def result_body(
@@ -229,9 +355,21 @@ def result_body(
         used: tuple[int, ...] = ()
         matched_text = ""
     else:
-        body = medicine.match_result(catalog, matcher, best["text"])
+        body = match_body(catalog, best["found"], best["text"], medicine)
         used, matched_text = best["lines"], best["text"]
     body["matched_text"] = matched_text
     body["read_lines"] = [{"text": ln["text"], "confidence": ln["confidence"], "used": i in used}
                           for i, ln in enumerate(lines[:80])]
     return body
+
+
+if __name__ == "__main__":
+    if "--words" in sys.argv:
+        from src.api import medicine
+
+        catalog = medicine.MedicineCatalog()
+        generic, distinct = derive_distinctive(catalog, heading_words(medicine.MEDICINE_DIR))
+        listing = {"generic": generic, "distinctive": {catalog.products[p].name: list(w) for p, w in distinct.items()}}
+        print(json.dumps(listing, indent=1))
+        target = REPO_ROOT / "results/public_scan/derived_words.json"
+        target.write_text(json.dumps(listing, indent=1), encoding="utf-8")

@@ -1,0 +1,128 @@
+{
+ "generic": [
+  "calcium",
+  "children",
+  "drug",
+  "hydrochloride",
+  "inhalation",
+  "relief",
+  "sodium",
+  "solution",
+  "tablets"
+ ],
+ "distinctive": {
+  "Pain Relief Extra Strength": [
+   "acetaminophen",
+   "extra",
+   "pain",
+   "strength"
+  ],
+  "Childrens Ibuprofen": [
+   "childrens",
+   "ibuprofen"
+  ],
+  "Loratadine": [
+   "loratadine"
+  ],
+  "Omeprazole": [
+   "omeprazole"
+  ],
+  "FAMOTIDINE": [
+   "famotidine"
+  ],
+  "Amoxicillin": [
+   "amoxicillin"
+  ],
+  "METFORMIN HYDROCHLORIDE": [
+   "metformin"
+  ],
+  "Atorvastatin Calcium": [
+   "atorvastatin"
+  ],
+  "Levothyroxine Sodium": [
+   "levothyroxine"
+  ],
+  "ALBUTEROL SULFATE": [
+   "albuterol",
+   "sulfate"
+  ],
+  "Aspirin": [
+   "aspirin",
+   "good",
+   "neighbor",
+   "pharmacy"
+  ],
+  "Berkley and Jensen Allergy Relief": [
+   "allergy",
+   "berkley",
+   "bjwc",
+   "cetirizine",
+   "facts",
+   "jensen"
+  ],
+  "Losartan Potassium": [
+   "losartan",
+   "potassium"
+  ],
+  "Lisinopril": [
+   "lisinopril"
+  ],
+  "Sertraline Hydrochloride": [
+   "sertraline"
+  ],
+  "PredniSONE": [
+   "prednisone"
+  ],
+  "Gabapentin": [
+   "gabapentin"
+  ],
+  "Escitalopram": [
+   "escitalopram"
+  ],
+  "Amlodipine Besylate": [
+   "amlodipine",
+   "besylate"
+  ],
+  "Doxycycline Hyclate": [
+   "caps",
+   "doxycycline",
+   "hyclate",
+   "tabs"
+  ],
+  "FUROSEMIDE": [
+   "furosemide",
+   "injection",
+   "only"
+  ],
+  "Naproxen": [
+   "naproxen"
+  ],
+  "Fluoxetine": [
+   "fluoxetine"
+  ],
+  "Cephalexin": [
+   "cephalexin"
+  ],
+  "Clopidogrel": [
+   "bisulfate",
+   "clopidogrel"
+  ],
+  "Protonix I.V.": [
+   "pantoprazole",
+   "protonix"
+  ],
+  "valsartan and hydrochlorothiazide": [
+   "hydrochlorothiazide",
+   "valsartan"
+  ],
+  "Allopurinol": [
+   "allopurinol"
+  ],
+  "Montelukast Sodium": [
+   "montelukast"
+  ],
+  "Rosuvastatin Calcium": [
+   "rosuvastatin"
+  ]
+ }
+}

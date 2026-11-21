@@ -53,7 +53,8 @@ def plan() -> dict:
              "dev_decoy": dec[:DEV_DECOYS], "fresh_decoy": dec[DEV_DECOYS:DEV_DECOYS + FRESH_DECOYS],
              "decoys_unused": dec[DEV_DECOYS + FRESH_DECOYS:]}
     photos = []
-    for group, role, set_name in (("dev_positive", "positive", "dev_real"), ("fresh_positive", "positive", "fresh_real"),
+    for group, role, set_name in (("dev_positive", "positive", "dev_real"),
+                                  ("fresh_positive", "positive", "fresh_real"),
                                   ("dev_decoy", "decoy", "dev_real"), ("fresh_decoy", "decoy", "fresh_real")):
         for setid in split[group]:
             images = usable[role][setid][: 2 if role == "positive" else 1]
