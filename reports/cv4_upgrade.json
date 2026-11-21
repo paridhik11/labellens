@@ -1,0 +1,21 @@
+{
+  "environment": "Disposable /private/tmp/labellens-cv4-ocr; original labellens-cv unchanged",
+  "packages": {
+    "rapidocr": "3.10.0",
+    "onnxruntime": "1.32.0",
+    "paddleocr": "3.7.0",
+    "paddlepaddle": "3.3.1"
+  },
+  "pip_check": "No broken requirements found.",
+  "paddle_import": "OK; CPU",
+  "neutral_readiness": "MODEL READINESS ONLY recognized; no reference photos used",
+  "modern_models": {
+    "PP-OCRv6_det_small.onnx": "090f04abcd9d9a7498bc4ebf677e4cb9bdce1fe4197ddb7e529f1ef44e1ff94f",
+    "ch_ppocr_mobile_v2.0_cls_mobile.onnx": "e47acedf663230f8863ff1ab0e64dd2d82b838fceb5957146dab185a89d6215c",
+    "PP-OCRv6_rec_small.onnx": "6f327246b50388f3c176ae304bd95767ea6dc0c9ae92153ef8cbe210b3c14884"
+  },
+  "model_docs": "https://rapidai.github.io/RapidOCRDocs/main/en/model_list/",
+  "api_docs": "https://github.com/RapidAI/RapidOCR/blob/main/python/rapidocr/config.yaml",
+  "paddle_backend_trial": "Not run; RapidOCR PP-OCRv6 ONNX is the single modern candidate, chosen for available local CPU assets and existing adapter compatibility",
+  "original_rapidocr_onnxruntime_version": "1.4.4"
+}

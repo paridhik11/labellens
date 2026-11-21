@@ -122,11 +122,17 @@ def run_scan_job(app: Any, job_id: str, scan_id: str, user_id: str) -> None:
                     return
             checks.advance_job(session, job_id, "processing", 0.4, "reading the label")
             extraction, mode = app.state.extractor(raster)
+            product = current_product_version(session, scan.product_id)
+            from src.api.known_name import check_registered_name
+
+            extraction, name_check = check_registered_name(extraction, product.name, image=raster)
+            name_check.update(product_id=product.product_id, product_version=product.version)
             version = add_label_version(
                 session, user_id, scan.product_id, scan.stored_path, kind="uploaded",
-                product_version=current_product_version(session, scan.product_id).version,
+                product_version=product.version,
             )
-            checks.store_extraction(session, version, extraction, mode, scan_id=scan_id)
+            checks.store_extraction(session, version, extraction, mode, scan_id=scan_id,
+                                    known_name_check=name_check)
             advance_scan(session, scan_id, "done", label_id=version.label_id, version_id=version.version_id)
             checks.advance_job(session, job_id, "done", 1.0, result_url=f"/scans/{scan_id}")
         except ApiError as error:
@@ -162,10 +168,15 @@ def extraction_json(session: Session, row: Extraction, settings: CheckerSettings
     """Serialize an extraction row (contract `Extraction`): the LabelExtraction plus ids and confirmation state."""
     payload = LabelExtraction.model_validate(row.payload)
     out: dict[str, Any] = payload.model_dump(mode="json")
+    if 'known_product_name_check' in row.payload:
+        out['known_product_name_check'] = row.payload['known_product_name_check']
     out.update(extraction_id=row.extraction_id, scan_id=row.scan_id, version_id=row.version_id)
     confirmation = latest_confirmation(session, row.extraction_id)
     if confirmation is None:
         out["unclear_fields"] = unclear_fields(payload, settings)
+        if (row.payload.get('known_product_name_check', {}).get('status') == 'not_found'
+                and 'product_name' not in out['unclear_fields']):
+            out['unclear_fields'].append('product_name')
         out["confirmed"] = False
     else:  # the confirmed values are the evidence now, so nothing is left unclear
         out["unclear_fields"] = []
@@ -201,7 +212,9 @@ def confirm_extraction(
     now = utcnow()
     new_row = Extraction(
         extraction_id=new_id("ext"), version_id=row.version_id, label_id=row.label_id, mode=row.mode,
-        payload=corrected.model_dump(mode="json"), created_at=now, scan_id=row.scan_id,
+        payload={**corrected.model_dump(mode="json"), **(
+            {'known_product_name_check': {**row.payload['known_product_name_check'], 'applies_to': 'original_ocr'}}
+            if 'known_product_name_check' in row.payload else {})}, created_at=now, scan_id=row.scan_id,
     )
     session.add(new_row)
     session.add(ExtractionConfirmation(

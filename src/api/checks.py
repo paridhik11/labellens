@@ -123,13 +123,17 @@ def image_path(version: LabelVersion) -> Path:
 
 
 def store_extraction(
-    session: Session, version: LabelVersion, extraction: LabelExtraction, mode: str, scan_id: str | None = None
+    session: Session, version: LabelVersion, extraction: LabelExtraction, mode: str, scan_id: str | None = None,
+    known_name_check: dict[str, Any] | None = None,
 ) -> Extraction:
     """Append an extraction row, labelled with the version's label family and artwork version (and its scan, if any)."""
     fixed = extraction.model_copy(update={"label_id": version.label_id, "version": version.artwork_version})
+    payload = fixed.model_dump(mode="json")
+    if known_name_check is not None:
+        payload['known_product_name_check'] = known_name_check
     row = Extraction(
         extraction_id=new_id("ext"), version_id=version.version_id, label_id=version.label_id, mode=mode,
-        payload=fixed.model_dump(mode="json"), created_at=utcnow(), scan_id=scan_id,
+        payload=payload, created_at=utcnow(), scan_id=scan_id,
     )
     session.add(row)
     session.commit()

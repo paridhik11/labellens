@@ -38,3 +38,5 @@ httpx
 # CV imports remain lazy; baseline/CI do not require this executable.
 python-multipart
 pypdfium2
+# Optional CV4 modern OCR is isolated and pinned in scripts/cv_experiments/requirements-cv4.lock.txt.
+# It supplies PP-OCRv6 name evidence; missing packages/assets retain existing CV2/CV3 behavior.

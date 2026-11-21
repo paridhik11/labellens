@@ -1,0 +1,8 @@
+{
+  "engine": "cv2",
+  "name_coverage_threshold": 0.90,
+  "minimum_ocr_confidence": 0.80,
+  "minimum_token_similarity": 0.80,
+  "reason": "PP-OCRv6 available and tested: 12/20 dev found versus 13/20 using CV2 observations, with zero dev false found for both. Keep earlier reader.",
+  "fallback": "Existing CV2/CV3 behavior; public blind extraction unchanged"
+}
