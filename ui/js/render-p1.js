@@ -52,7 +52,7 @@
 
       container.innerHTML = `
         <div class="card" style="text-align: center; padding: 48px 24px; max-width: 640px; margin: 0 auto;">
-          <div style="font-size: 2.2rem; margin-bottom: 12px; animation: pulse 1.5s infinite;">🔍</div>
+          <div style="font-size: 2.2rem; margin-bottom: 12px; animation: pulse 1.5s infinite;"><svg class="icon icon-xl" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>
           <div class="text-xs font-semibold text-muted" style="margin-bottom: 6px;">
             Job ID: <code>${escapeHtml(safeData.job_id || '')}</code> ${testBadge}
           </div>
@@ -162,7 +162,7 @@
         <div class="viewfinder-reticle reticle-bl"></div>
         <div class="viewfinder-reticle reticle-br"></div>
         <div style="color: #94a3b8; text-align: center;">
-          <div style="font-size: 2rem; margin-bottom: 8px;">📷</div>
+          <div style="font-size: 2rem; margin-bottom: 8px;"><svg class="icon icon-xl" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4V8z"/><circle cx="12" cy="13" r="3.5"/></svg></div>
           <div class="font-semibold text-sm">Align medication packaging within the frame</div>
           <div class="text-xs text-muted" style="margin-top: 4px;">Capture all sides if needed (front, back, and both sides).</div>
         </div>

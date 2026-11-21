@@ -88,7 +88,7 @@ const demoOrder = [
     });
     page.on('pageerror', (e) => errs.push('pageerror: ' + e.message));
     page.on('requestfailed', (r) => errs.push('requestfailed: ' + r.url()));
-    await page.goto(`${BASE}/ui/${kind === 'public' ? 'public' : 'professional'}/index.html${MODE === 'api' ? '?mode=api' : ''}`);
+    await page.goto(`${BASE}/ui/${kind === 'public' ? 'public' : 'professional'}/index.html?dev=1&devopen=1${MODE === 'api' ? '&mode=api' : ''}`);
     await page.waitForSelector('#devStateButtons .btn-state', { timeout: 8000 });
     return { page, errs };
   }

@@ -200,7 +200,7 @@
           </div>
         </div>
         <div class="card" style="text-align: center; padding: 48px 24px; max-width: 640px; margin: 0 auto;">
-          <div style="font-size: 2.2rem; margin-bottom: 12px; color: var(--color-text-muted);">📦</div>
+          <div style="font-size: 2.2rem; margin-bottom: 12px; color: var(--color-text-muted);"><svg class="icon icon-xl" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg></div>
           <h3>No products registered yet</h3>
           <p class="text-muted text-sm" style="margin-top: 8px;">
             Register your first medical device product family to manage label versions, deterministic templates, and regulatory compliance checks.

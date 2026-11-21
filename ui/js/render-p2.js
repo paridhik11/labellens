@@ -61,7 +61,7 @@
       container.innerHTML = `
         ${authenticityBannerHtml}
         <div class="card" style="text-align: center; padding: 48px 24px; max-width: 640px; margin: 0 auto;">
-          <div style="font-size: 2.2rem; margin-bottom: 12px; color: var(--color-text-muted);">📑</div>
+          <div style="font-size: 2.2rem; margin-bottom: 12px; color: var(--color-text-muted);"><svg class="icon icon-xl" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l5 5v13H6V3z"/><path d="M14 3v5h5"/></svg></div>
           <h3>No reference label found</h3>
           <p class="text-muted text-sm" style="margin-top: 8px;">
             We could not match this package against official FDA drug labels in 21 CFR 201, 208, or 211.
@@ -211,7 +211,7 @@
           <!-- Column 1: Read from your photo -->
           <div class="card">
             <div class="card-header-clean flex-row">
-              <span style="color: var(--color-primary-teal); font-weight: 700;">📷</span>
+              <span style="color: var(--color-primary-teal); font-weight: 700;"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4V8z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
               <span class="font-semibold text-sm">Read from your photo</span>
             </div>
             <div class="kv-table">
@@ -227,7 +227,7 @@
           <!-- Column 2: From the reference label -->
           <div class="card">
             <div class="card-header-clean flex-row">
-              <span style="color: var(--color-primary-teal); font-weight: 700;">📄</span>
+              <span style="color: var(--color-primary-teal); font-weight: 700;"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l5 5v13H6V3z"/><path d="M14 3v5h5"/></svg></span>
               <span class="font-semibold text-sm">From the reference label</span>
             </div>
             <div class="kv-table">
@@ -245,7 +245,7 @@
         <div class="card" style="margin-bottom: 20px;">
           <div class="card-header-clean flex-between">
             <div class="flex-row">
-              <span style="color: var(--color-primary-teal); font-weight: 700;">💬</span>
+              <span style="color: var(--color-primary-teal); font-weight: 700;"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4V5z"/></svg></span>
               <span class="font-semibold text-sm">Summary &amp; Regulatory Context</span>
             </div>
             <button class="btn btn-sm btn-primary" type="button" id="btnP2AskTeaser">

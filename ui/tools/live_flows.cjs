@@ -21,7 +21,7 @@ const BASE = process.env.BASE || 'http://127.0.0.1:8000';
     const page = await ctx.newPage();
     const errs = [];
     page.on('pageerror', (e) => errs.push(e.message));
-    await page.goto(`${BASE}/ui/${kind}/index.html?mode=api${qs}`);
+    await page.goto(`${BASE}/ui/${kind}/index.html?dev=1&devopen=1&mode=api${qs}`);
     await page.waitForSelector('#devStateButtons .btn-state');
     return { page, errs };
   };
