@@ -295,6 +295,11 @@ async function loadScreen(screen, state, options = {}) {
   return Object.assign({}, mock, { source: 'x-mock', fallbackReason: live.reason });
 }
 
+/** Remember ids of the live package (product, label, version, change, artwork) so later screens use them. */
+function setIds(obj) {
+  CONFIG.ids = Object.assign({}, CONFIG.ids, obj);
+}
+
 /** Badge fixed to the corner: MOCK (mode mock), API (live) or X-Mock (api mode fell back to a mock). */
 function setDataSource(kind, detail) {
   if (typeof document === 'undefined') return;
@@ -422,5 +427,6 @@ window.LabelLensData = {
   getStatesForScreen,
   loadScreen,
   setDataSource,
+  setIds,
   normalizeScreenName
 };

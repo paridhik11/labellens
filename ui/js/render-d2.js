@@ -32,7 +32,7 @@
     return '';
   }
 
-  function renderScreenD2(container, state, meta, data) {
+  function renderStateD2(container, state, meta, data) {
     if (!container) return;
     const safeData = data || {};
 
@@ -267,6 +267,46 @@
         }
       });
     }
+  }
+
+  /** In api mode a card on top registers the template shown (or pasted JSON) through the real endpoint. */
+  function renderScreenD2(container, state, meta, data) {
+    if (!container) return;
+    if (window.LabelLensData.CONFIG.mode !== 'api') { renderStateD2(container, state, meta, data); return; }
+    const d = data || {};
+    const draft = d.slots ? { size_mm: d.size_mm, background: d.background, ...(d.min_font_pt ? { min_font_pt: d.min_font_pt } : {}), slots: d.slots } : null;
+    const pid = (window.LabelLensData.CONFIG.ids || {}).product_id || d.product_id || '';
+    const esc = escapeHtml;
+    container.innerHTML = `
+      <div class="card" style="margin-bottom: 16px;" data-testid="register-card">
+        <div class="card-header-clean font-semibold text-sm">Register this template (live)</div>
+        <label class="text-xs text-muted" for="d2Product">Product id</label><br>
+        <input type="text" id="d2Product" value="${esc(pid)}" style="padding: 6px 8px; border: 1px solid var(--color-border); border-radius: var(--radius-md); width: 260px;">
+        <textarea id="d2Json" rows="6" data-testid="d2-json" style="width: 100%; margin-top: 8px; font-family: monospace; font-size: 0.75rem;" placeholder='{"size_mm": {...}, "background": null, "slots": [...]}'>${draft ? esc(JSON.stringify(draft, null, 2)) : ''}</textarea>
+        <div class="flex-row" style="gap: 8px; margin-top: 8px;"><button class="btn btn-primary btn-sm" type="button" id="btnRegisterTemplate">Register template</button></div>
+        <div class="text-xs" id="d2Result" data-testid="d2-result" style="margin-top: 8px;"></div>
+      </div>
+      <div id="d2State"></div>`;
+    renderStateD2(container.querySelector('#d2State'), state, meta, data);
+    const out = container.querySelector('#d2Result');
+    container.querySelector('#btnRegisterTemplate').addEventListener('click', async () => {
+      let body;
+      try { body = JSON.parse(container.querySelector('#d2Json').value); } catch (e) { out.textContent = 'The JSON is not valid: ' + e.message; return; }
+      const product = container.querySelector('#d2Product').value.trim();
+      if (!product) { out.textContent = 'A product id is required.'; return; }
+      out.textContent = 'Registering...';
+      try {
+        const r = await window.LabelLensActions.registerTemplate(product, body);
+        if (r.status === 201) {
+          window.LabelLensData.setIds({ product_id: product });
+          out.innerHTML = `Registered template <code>${esc(r.body.template_id)}</code> version ${esc(r.body.version)} (${esc(r.mock ? 'mock answer from the server' : 'stored')}).`;
+        } else if (r.status === 422 && r.body && r.body.findings) {
+          out.innerHTML = `Refused: ${r.body.findings.length} layout finding(s): ` + r.body.findings.map(f => esc(f.kind) + ' - ' + esc(f.message)).join('; ');
+        } else {
+          out.textContent = `Refused (HTTP ${r.status}): ${(r.body && (r.body.message || r.body.error)) || ''}`;
+        }
+      } catch (e) { out.textContent = 'Request failed: ' + e.message; }
+    });
   }
 
   // Register renderer

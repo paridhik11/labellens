@@ -70,4 +70,7 @@
 | D7 return needs a comment | pass |  |
 | D7 approve is disabled when the re-check failed | pass |  |
 | D8 download click | pass |  |
+| D4 confirm button reaches a confirmed extraction (mock) | pass |  |
+| D4 run inspection reaches the check result | pass |  |
+| D4 unclear field is editable, confirmed field is not | pass |  |
 | D5 ask click | pass |  |

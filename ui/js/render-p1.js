@@ -169,16 +169,51 @@
       </div>
     `;
 
-    const startScan = () => {
+    const startMockScan = () => {
       if (window.LabelLensStateSwitcher) {
         window.LabelLensStateSwitcher.setScreen('P1 Scan and Understand', 'loading');
       }
     };
 
+    // api mode: a real file picker or camera capture, sent to publicScan, 202 job polled.
+    const isApi = window.LabelLensData.CONFIG.mode === 'api';
+    const note = document.createElement('div');
+    note.className = 'text-xs text-muted';
+    note.setAttribute('data-testid', 'p1-note');
+    note.style.cssText = 'text-align:center;margin-top:10px;';
+    container.appendChild(note);
+    const picker = (capture) => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      if (capture) input.setAttribute('capture', 'environment');
+      input.setAttribute('data-testid', capture ? 'p1-camera-input' : 'p1-file-input');
+      input.style.display = 'none';
+      container.appendChild(input);
+      input.addEventListener('change', async () => {
+        const file = input.files[0];
+        if (!file) return;
+        note.textContent = 'Uploading...';
+        try {
+          const res = await window.LabelLensActions.publicScan(file, (j) => { note.textContent = `Scanning: ${j.state}${j.message ? ' (' + j.message + ')' : ''}`; });
+          if (res.mock) {
+            note.textContent = 'The public scan is answered with a mock by this server (X-Mock). Showing the mock product page.';
+            window.LabelLensStateSwitcher.setScreen('P2 Product information', 'success');
+          } else if (res.job.state === 'failed') {
+            window.LabelLensStateSwitcher.setScreen('P1 Scan and Understand', 'failed');
+          } else {
+            window.LabelLensStateSwitcher.setScreen('P2 Product information', 'success');
+          }
+        } catch (e) {
+          note.textContent = 'Scan failed: ' + e.message;
+        }
+      });
+      input.click();
+    };
     const cameraBtn = container.querySelector('#btnP1UseCamera');
     const uploadBtn = container.querySelector('#btnP1UploadImage');
-    if (cameraBtn) cameraBtn.addEventListener('click', startScan);
-    if (uploadBtn) uploadBtn.addEventListener('click', startScan);
+    if (cameraBtn) cameraBtn.addEventListener('click', () => (isApi ? picker(true) : startMockScan()));
+    if (uploadBtn) uploadBtn.addEventListener('click', () => (isApi ? picker(false) : startMockScan()));
   }
 
   // Register renderer
