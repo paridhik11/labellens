@@ -23,7 +23,7 @@ State of `main` at the v1.0 release check (Step 26). Step numbers match `CLAUDE.
 - [ ] Symbols measured on real photos (detector not trusted, symbol checks need a human)
 - [ ] Stronger abstention for the public medicine mode (no score meets the pre-declared targets on the test split)
 - [ ] Faster AI answer (about 38 s median on CPU); reranked extractive sentences stay the default (hit 9/15 vs 8/15 held-out, a one-query gap)
-- [ ] D7 screen draws no citation box for review findings (the API result has them)
+- [x] D7 screen draws the citation box for review findings (checked in ui/tools/check_screens.cjs and e2e_golden.cjs)
 - [ ] Larger medicine corpus (30 products now) and non-US sources
 - [ ] Approved (non-DRAFT) export variant; templates with a background image (D-5)
 - [ ] Template registration beyond shape and layout checks

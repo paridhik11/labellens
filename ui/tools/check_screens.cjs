@@ -188,6 +188,21 @@ const demoOrder = [
       const { page } = await openState('D7 Review', 'professional/review/recheck_failed_check.json');
       return (await page.$eval('#btnApprove', (b) => b.disabled)) ? '' : 'approve button is enabled on a failed check';
     }],
+    ['D7 draws each finding citation (section, title, quote)', async () => {
+      // Synthetic re-check result built here for the test, not a mock file: one finding with a citation, one without.
+      const { page } = await openState('D7 Review', 'professional/review/recheck_success.json');
+      const html = await page.evaluate(() => {
+        const box = document.createElement('div');
+        const cite = { source_type: 'cfr', chunk_id: 'c1', source: 'test', section: '801.40', title: 'Form of a unique device identifier', url: 'https://example.invalid/x', quote: 'The test quote text for the unique device identifier.' };
+        window.LabelLensRenderers['D7 Review'](box, 'success', null, { check_id: 'chk_t', version_id: 'v_t', passed: true, findings: [
+          { flag_id: 'f1', kind: 'barcode_mismatch', severity: 'review', message: 'm', evidence_chunk_ids: [], confidence: 0.5, needs_human: true, rule_id: 'B-LOT', field: 'lot', citations: [cite] },
+          { flag_id: 'f2', kind: 'text_overflow', severity: 'critical', message: 'm', evidence_chunk_ids: [], confidence: 1, needs_human: false, citations: [] }], coverage: [] });
+        return box.innerHTML;
+      });
+      const n = (html.match(/data-testid="citation"/g) || []).length;
+      if (n !== 1) return `expected 1 citation, drew ${n}`;
+      return /21 CFR 801\.40: Form of a unique device identifier/.test(html) && /The test quote text/.test(html) ? '' : 'citation section, title or quote missing';
+    }],
     ['D8 download click', async () => {
       const { page } = await openState('D8 Export', 'professional/export/draft.json');
       await page.click('.dl-btn');

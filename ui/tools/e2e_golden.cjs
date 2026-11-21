@@ -83,7 +83,12 @@ module.exports = async function runE2E({ open, go, log, goldenJson }) {
       const note = await text('#d7LiveNote');
       if (/failed:/.test(note)) throw new Error(note);
       if (/did not pass/.test(note)) throw new Error('re-check ran but did not pass: ' + note);
-      return note;
+      // The golden package re-check raises B-LOT (21 CFR 801.40); D7 must draw its citation: section, title, verbatim quote.
+      const lot = await page.$('[data-testid="finding"][data-rule="B-LOT"] [data-testid="citation"]');
+      if (!lot) throw new Error('D7 shows no citation under the B-LOT finding');
+      const ct = await lot.innerText();
+      if (!/801\.40/.test(ct) || !/"[^"]{20,}"/.test(ct)) throw new Error('B-LOT citation lacks section 801.40 or a quote: ' + ct.replace(/\s+/g, ' ').slice(0, 120));
+      return note + '; B-LOT citation drawn (801.40 with quote)';
     }) &&
     await stage('approve', async () => {
       await page.selectOption('[data-testid="user-select"]', 'usr_demo_reviewer');
