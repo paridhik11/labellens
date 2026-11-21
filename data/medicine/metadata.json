@@ -1348,5 +1348,3344 @@
         "effective_date": "2026-11-17"
       }
     ]
+  },
+  {
+    "setid": "2ad0606c-7a90-44bd-a75d-d256de30fbcf",
+    "version": 7,
+    "aliases": [
+      {
+        "value": "Metoprolol Tartrate",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=2ad0606c-7a90-44bd-a75d-d256de30fbcf&version=7",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "2789e37e4ba975518eb4f2e44b5b7fba618565bb0908e74ce12c2bf5b4ea77b8",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "Metoprolol Tartrate",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=2ad0606c-7a90-44bd-a75d-d256de30fbcf&version=7",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "2789e37e4ba975518eb4f2e44b5b7fba618565bb0908e74ce12c2bf5b4ea77b8",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "QPharma Inc",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=2ad0606c-7a90-44bd-a75d-d256de30fbcf&version=7",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "2789e37e4ba975518eb4f2e44b5b7fba618565bb0908e74ce12c2bf5b4ea77b8",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use METOPROLOL TARTRATE TABLETS safely and effectively. See full prescribing information for METOPROLOL TARTRATE TABLETS. METOPROLOL TARTRATE tablets, for oral use Initial U.S. Approval: 1992",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=2ad0606c-7a90-44bd-a75d-d256de30fbcf&version=7",
+        "xpath": "s:title",
+        "xml_sha256": "2789e37e4ba975518eb4f2e44b5b7fba618565bb0908e74ce12c2bf5b4ea77b8",
+        "effective_date": "2026-11-10"
+      }
+    ]
+  },
+  {
+    "setid": "fbb587fa-75c0-4f4d-8eaf-f0e7ba8b5c75",
+    "version": 2,
+    "aliases": [
+      {
+        "value": "Bupropion Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=fbb587fa-75c0-4f4d-8eaf-f0e7ba8b5c75&version=2",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "1c731785abcc0a664bf971312dca4078641785da4e973dce4201648ef3864209",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Bupropion Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=fbb587fa-75c0-4f4d-8eaf-f0e7ba8b5c75&version=2",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "1c731785abcc0a664bf971312dca4078641785da4e973dce4201648ef3864209",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Bupropion Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=fbb587fa-75c0-4f4d-8eaf-f0e7ba8b5c75&version=2",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "1c731785abcc0a664bf971312dca4078641785da4e973dce4201648ef3864209",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Bupropion Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=fbb587fa-75c0-4f4d-8eaf-f0e7ba8b5c75&version=2",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "1c731785abcc0a664bf971312dca4078641785da4e973dce4201648ef3864209",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Amici Pharma, Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=fbb587fa-75c0-4f4d-8eaf-f0e7ba8b5c75&version=2",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "1c731785abcc0a664bf971312dca4078641785da4e973dce4201648ef3864209",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use BUPROPION HYDROCHLORIDE TABLETS safely and effectively. See full prescribing information for BUPROPION HYDROCHLORIDE TABLETS. BUPROPION HYDROCHLORIDE tablets, for oral use Initial U.S. Approval: 1985",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=fbb587fa-75c0-4f4d-8eaf-f0e7ba8b5c75&version=2",
+        "xpath": "s:title",
+        "xml_sha256": "1c731785abcc0a664bf971312dca4078641785da4e973dce4201648ef3864209",
+        "effective_date": "2026-11-16"
+      }
+    ]
+  },
+  {
+    "setid": "5bacc909-6b02-4815-85ef-55fd25b1b1f7",
+    "version": 9,
+    "aliases": [
+      {
+        "value": "Hydrochlorothiazide",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5bacc909-6b02-4815-85ef-55fd25b1b1f7&version=9",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "0a06c74032ffd98124a51275087480b2f5c03c834ef6056f455c3991b00b55a1",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "Hydrochlorothiazide",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5bacc909-6b02-4815-85ef-55fd25b1b1f7&version=9",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "0a06c74032ffd98124a51275087480b2f5c03c834ef6056f455c3991b00b55a1",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "Hydrochlorothiazide Capsules, USP",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5bacc909-6b02-4815-85ef-55fd25b1b1f7&version=9",
+        "xpath": "s:title",
+        "xml_sha256": "0a06c74032ffd98124a51275087480b2f5c03c834ef6056f455c3991b00b55a1",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "QPharma, Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5bacc909-6b02-4815-85ef-55fd25b1b1f7&version=9",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "0a06c74032ffd98124a51275087480b2f5c03c834ef6056f455c3991b00b55a1",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "titles": [
+      {
+        "value": "Hydrochlorothiazide Capsules, USP",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5bacc909-6b02-4815-85ef-55fd25b1b1f7&version=9",
+        "xpath": "s:title",
+        "xml_sha256": "0a06c74032ffd98124a51275087480b2f5c03c834ef6056f455c3991b00b55a1",
+        "effective_date": "2026-11-10"
+      }
+    ]
+  },
+  {
+    "setid": "602d3866-7ff4-71aa-e063-6294a90a9521",
+    "version": 1,
+    "aliases": [
+      {
+        "value": "Trazodone HCL",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=602d3866-7ff4-71aa-e063-6294a90a9521&version=1",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "704237cbfce91b6baa1a1e533d5a444340dd18738164dbe6b8c98d7d32bf75ae",
+        "effective_date": "2026-11-13"
+      },
+      {
+        "value": "Trazodone HCL",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=602d3866-7ff4-71aa-e063-6294a90a9521&version=1",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "704237cbfce91b6baa1a1e533d5a444340dd18738164dbe6b8c98d7d32bf75ae",
+        "effective_date": "2026-11-13"
+      },
+      {
+        "value": "Trazodone HCL",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=602d3866-7ff4-71aa-e063-6294a90a9521&version=1",
+        "xpath": "s:title",
+        "xml_sha256": "704237cbfce91b6baa1a1e533d5a444340dd18738164dbe6b8c98d7d32bf75ae",
+        "effective_date": "2026-11-13"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Direct_Rx",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=602d3866-7ff4-71aa-e063-6294a90a9521&version=1",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "704237cbfce91b6baa1a1e533d5a444340dd18738164dbe6b8c98d7d32bf75ae",
+        "effective_date": "2026-11-13"
+      }
+    ],
+    "titles": [
+      {
+        "value": "Trazodone HCL",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=602d3866-7ff4-71aa-e063-6294a90a9521&version=1",
+        "xpath": "s:title",
+        "xml_sha256": "704237cbfce91b6baa1a1e533d5a444340dd18738164dbe6b8c98d7d32bf75ae",
+        "effective_date": "2026-11-13"
+      }
+    ]
+  },
+  {
+    "setid": "f6b6aeab-bedd-4254-8811-4f65cf8a351f",
+    "version": 23,
+    "aliases": [
+      {
+        "value": "Tamsulosin Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=f6b6aeab-bedd-4254-8811-4f65cf8a351f&version=23",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "923012e910d87e2c6deaba01ad00ef3f5211eb70b16ad6ebafc69f39a79cb65e",
+        "effective_date": "2026-11-12"
+      },
+      {
+        "value": "Tamsulosin Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=f6b6aeab-bedd-4254-8811-4f65cf8a351f&version=23",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "923012e910d87e2c6deaba01ad00ef3f5211eb70b16ad6ebafc69f39a79cb65e",
+        "effective_date": "2026-11-12"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "PD-Rx Pharmaceuticals, Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=f6b6aeab-bedd-4254-8811-4f65cf8a351f&version=23",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "923012e910d87e2c6deaba01ad00ef3f5211eb70b16ad6ebafc69f39a79cb65e",
+        "effective_date": "2026-11-12"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use TAMSULOSIN HYDROCHLORIDE CAPSULES safely and effectively. See full prescribing information for TAMSULOSIN HYDROCHLORIDE CAPSULES. TAMSULOSIN HYDROCHLORIDE capsules, for oral use Initial U.S. Approval: 1997",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=f6b6aeab-bedd-4254-8811-4f65cf8a351f&version=23",
+        "xpath": "s:title",
+        "xml_sha256": "923012e910d87e2c6deaba01ad00ef3f5211eb70b16ad6ebafc69f39a79cb65e",
+        "effective_date": "2026-11-12"
+      }
+    ]
+  },
+  {
+    "setid": "41a133ef-e461-48ad-8221-b735bdd0ec25",
+    "version": 5,
+    "aliases": [
+      {
+        "value": "ELIQUIS",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=41a133ef-e461-48ad-8221-b735bdd0ec25&version=5",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "59c50ea5d9f96b0ae42e634154d03bdce8f9885b8de8b182f4039e66b8b12c40",
+        "effective_date": "2026-09-24"
+      },
+      {
+        "value": "apixaban",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=41a133ef-e461-48ad-8221-b735bdd0ec25&version=5",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "59c50ea5d9f96b0ae42e634154d03bdce8f9885b8de8b182f4039e66b8b12c40",
+        "effective_date": "2026-09-24"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Aphena Pharma Solutions - Tennessee, LLC",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=41a133ef-e461-48ad-8221-b735bdd0ec25&version=5",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "59c50ea5d9f96b0ae42e634154d03bdce8f9885b8de8b182f4039e66b8b12c40",
+        "effective_date": "2026-09-24"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use ELIQUIS safely and effectively. See full prescribing information for ELIQUIS. ELIQUIS \u00ae (apixaban) tablets, for oral use Initial U.S. Approval: 2012",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=41a133ef-e461-48ad-8221-b735bdd0ec25&version=5",
+        "xpath": "s:title",
+        "xml_sha256": "59c50ea5d9f96b0ae42e634154d03bdce8f9885b8de8b182f4039e66b8b12c40",
+        "effective_date": "2026-09-24"
+      }
+    ]
+  },
+  {
+    "setid": "c85d6d02-6cf6-4995-a590-cfca302ea0c9",
+    "version": 1,
+    "aliases": [
+      {
+        "value": "Simvastatin",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c85d6d02-6cf6-4995-a590-cfca302ea0c9&version=1",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "4ef2b017788b34c093e4a4af6cd2bf29cf1bb09979f34f773f9203b8d0b43308",
+        "effective_date": "2026-11-03"
+      },
+      {
+        "value": "Simvastatin",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c85d6d02-6cf6-4995-a590-cfca302ea0c9&version=1",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "4ef2b017788b34c093e4a4af6cd2bf29cf1bb09979f34f773f9203b8d0b43308",
+        "effective_date": "2026-11-03"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Bryant Ranch Prepack",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c85d6d02-6cf6-4995-a590-cfca302ea0c9&version=1",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "4ef2b017788b34c093e4a4af6cd2bf29cf1bb09979f34f773f9203b8d0b43308",
+        "effective_date": "2026-11-03"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use SIMVASTATIN TABLETS safely and effectively. See full prescribing information for SIMVASTATIN TABLETS. SIMVASTATIN tablets, for oral use Initial U.S. Approval: 1991",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c85d6d02-6cf6-4995-a590-cfca302ea0c9&version=1",
+        "xpath": "s:title",
+        "xml_sha256": "4ef2b017788b34c093e4a4af6cd2bf29cf1bb09979f34f773f9203b8d0b43308",
+        "effective_date": "2026-11-03"
+      }
+    ]
+  },
+  {
+    "setid": "20ec4646-9d1c-41c9-93f6-754b3a4f234f",
+    "version": 8,
+    "aliases": [
+      {
+        "value": "meloxicam",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=20ec4646-9d1c-41c9-93f6-754b3a4f234f&version=8",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "53b233bff78e4196f05cead21d6c684ddfc7fe53def4fb61cc09b2e6909e4cd2",
+        "effective_date": "2026-11-09"
+      },
+      {
+        "value": "meloxicam",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=20ec4646-9d1c-41c9-93f6-754b3a4f234f&version=8",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "53b233bff78e4196f05cead21d6c684ddfc7fe53def4fb61cc09b2e6909e4cd2",
+        "effective_date": "2026-11-09"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "QPharma, Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=20ec4646-9d1c-41c9-93f6-754b3a4f234f&version=8",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "53b233bff78e4196f05cead21d6c684ddfc7fe53def4fb61cc09b2e6909e4cd2",
+        "effective_date": "2026-11-09"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use MELOXICAM TABLETS. safely and effectively. See full prescribing information for MELOXICAM TABLETS. MELOXICAM tablets, for oral use Initial U.S. Approval: 2000",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=20ec4646-9d1c-41c9-93f6-754b3a4f234f&version=8",
+        "xpath": "s:title",
+        "xml_sha256": "53b233bff78e4196f05cead21d6c684ddfc7fe53def4fb61cc09b2e6909e4cd2",
+        "effective_date": "2026-11-09"
+      }
+    ]
+  },
+  {
+    "setid": "ac903bda-76af-4aba-9c8a-ebf7066e05ee",
+    "version": 18,
+    "aliases": [
+      {
+        "value": "Duloxetine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ac903bda-76af-4aba-9c8a-ebf7066e05ee&version=18",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "3495bce63fd57d84c83cae7c9dd57c83ed9b174cfc8fe9a0e61fdc9016d3de96",
+        "effective_date": "2026-11-13"
+      },
+      {
+        "value": "Duloxetine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ac903bda-76af-4aba-9c8a-ebf7066e05ee&version=18",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "3495bce63fd57d84c83cae7c9dd57c83ed9b174cfc8fe9a0e61fdc9016d3de96",
+        "effective_date": "2026-11-13"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "REMEDYREPACK INC.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ac903bda-76af-4aba-9c8a-ebf7066e05ee&version=18",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "3495bce63fd57d84c83cae7c9dd57c83ed9b174cfc8fe9a0e61fdc9016d3de96",
+        "effective_date": "2026-11-13"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use DULOXETINE DELAYED-RELEASE CAPSULES safely and effectively. See full prescribing information for DULOXETINE DELAYED-RELEASE CAPSULES. DULOXETINE delayed-release capsules, for oral use. Initial U.S. Approval: 2004",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ac903bda-76af-4aba-9c8a-ebf7066e05ee&version=18",
+        "xpath": "s:title",
+        "xml_sha256": "3495bce63fd57d84c83cae7c9dd57c83ed9b174cfc8fe9a0e61fdc9016d3de96",
+        "effective_date": "2026-11-13"
+      }
+    ]
+  },
+  {
+    "setid": "0930965b-80e3-4a0c-bffc-14ac32a47894",
+    "version": 35,
+    "aliases": [
+      {
+        "value": "Carvedilol",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0930965b-80e3-4a0c-bffc-14ac32a47894&version=35",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "b824f731c65c18cbd6aaccaea46b397e9ff3f04f906ecbdaf25bb62365d7f543",
+        "effective_date": "2026-11-12"
+      },
+      {
+        "value": "Carvedilol",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0930965b-80e3-4a0c-bffc-14ac32a47894&version=35",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "b824f731c65c18cbd6aaccaea46b397e9ff3f04f906ecbdaf25bb62365d7f543",
+        "effective_date": "2026-11-12"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "PD-Rx Pharmaceuticals, Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0930965b-80e3-4a0c-bffc-14ac32a47894&version=35",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "b824f731c65c18cbd6aaccaea46b397e9ff3f04f906ecbdaf25bb62365d7f543",
+        "effective_date": "2026-11-12"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use CARVEDILOL TABLETS safely and effectively. See full prescribing information for CARVEDILOL TABLETS. CARVEDILOL tablets, for oral use Initial U.S. Approval: 1995",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0930965b-80e3-4a0c-bffc-14ac32a47894&version=35",
+        "xpath": "s:title",
+        "xml_sha256": "b824f731c65c18cbd6aaccaea46b397e9ff3f04f906ecbdaf25bb62365d7f543",
+        "effective_date": "2026-11-12"
+      }
+    ]
+  },
+  {
+    "setid": "a9fc7091-b3ce-45fd-8d89-aeebdd81c327",
+    "version": 20,
+    "aliases": [
+      {
+        "value": "Buspirone Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=a9fc7091-b3ce-45fd-8d89-aeebdd81c327&version=20",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "3b6b29099666ea3e811fa8423e75411aea7ee5571925713969372e51ee78f7ad",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Buspirone Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=a9fc7091-b3ce-45fd-8d89-aeebdd81c327&version=20",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "3b6b29099666ea3e811fa8423e75411aea7ee5571925713969372e51ee78f7ad",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Buspirone Hydrochloride Tablets, USP Rx only",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=a9fc7091-b3ce-45fd-8d89-aeebdd81c327&version=20",
+        "xpath": "s:title",
+        "xml_sha256": "3b6b29099666ea3e811fa8423e75411aea7ee5571925713969372e51ee78f7ad",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "REMEDYREPACK INC.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=a9fc7091-b3ce-45fd-8d89-aeebdd81c327&version=20",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "3b6b29099666ea3e811fa8423e75411aea7ee5571925713969372e51ee78f7ad",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "titles": [
+      {
+        "value": "Buspirone Hydrochloride Tablets, USP Rx only",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=a9fc7091-b3ce-45fd-8d89-aeebdd81c327&version=20",
+        "xpath": "s:title",
+        "xml_sha256": "3b6b29099666ea3e811fa8423e75411aea7ee5571925713969372e51ee78f7ad",
+        "effective_date": "2026-11-16"
+      }
+    ]
+  },
+  {
+    "setid": "5fecf4b2-67fe-a7e9-e063-6394a90a793e",
+    "version": 1,
+    "aliases": [
+      {
+        "value": "Venlafaxine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5fecf4b2-67fe-a7e9-e063-6394a90a793e&version=1",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "64cc740d5e6f455296d16c25513cce16c183074e38e64253fdc3ee1509aae1d4",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "Venlafaxine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5fecf4b2-67fe-a7e9-e063-6394a90a793e&version=1",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "64cc740d5e6f455296d16c25513cce16c183074e38e64253fdc3ee1509aae1d4",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "Venlafaxine Tablets, USP",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5fecf4b2-67fe-a7e9-e063-6394a90a793e&version=1",
+        "xpath": "s:title",
+        "xml_sha256": "64cc740d5e6f455296d16c25513cce16c183074e38e64253fdc3ee1509aae1d4",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Coupler LLC",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5fecf4b2-67fe-a7e9-e063-6394a90a793e&version=1",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "64cc740d5e6f455296d16c25513cce16c183074e38e64253fdc3ee1509aae1d4",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "titles": [
+      {
+        "value": "Venlafaxine Tablets, USP",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5fecf4b2-67fe-a7e9-e063-6394a90a793e&version=1",
+        "xpath": "s:title",
+        "xml_sha256": "64cc740d5e6f455296d16c25513cce16c183074e38e64253fdc3ee1509aae1d4",
+        "effective_date": "2026-11-10"
+      }
+    ]
+  },
+  {
+    "setid": "9f0e33bd-65f8-446a-886f-e7e16a142ce5",
+    "version": 4,
+    "aliases": [
+      {
+        "value": "Tramadol Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=9f0e33bd-65f8-446a-886f-e7e16a142ce5&version=4",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "a179e2d1a7d2e48b1fb02f30fccffa944f242adc99a628862f7c4aef5f225ea0",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Tramadol Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=9f0e33bd-65f8-446a-886f-e7e16a142ce5&version=4",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "a179e2d1a7d2e48b1fb02f30fccffa944f242adc99a628862f7c4aef5f225ea0",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "REMEDYREPACK INC.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=9f0e33bd-65f8-446a-886f-e7e16a142ce5&version=4",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "a179e2d1a7d2e48b1fb02f30fccffa944f242adc99a628862f7c4aef5f225ea0",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use TRAMADOL HYDROCHLORIDE TABLETS, safely and effectively. See full prescribing information for TRAMADOL HYDROCHLORIDE TABLETS. TRAMADOL HYDROCHLORIDE tablets, for oral use, C-IV Initial U.S. Approval \u2013 1995",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=9f0e33bd-65f8-446a-886f-e7e16a142ce5&version=4",
+        "xpath": "s:title",
+        "xml_sha256": "a179e2d1a7d2e48b1fb02f30fccffa944f242adc99a628862f7c4aef5f225ea0",
+        "effective_date": "2026-11-16"
+      }
+    ]
+  },
+  {
+    "setid": "8f41912e-12ce-4174-a0fb-cfb4888d8d58",
+    "version": 9,
+    "aliases": [
+      {
+        "value": "HYDROXYZINE HYDROCHLORIDE",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=8f41912e-12ce-4174-a0fb-cfb4888d8d58&version=9",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "05a55901d07281a2e0c591fcd98edb5b57b26138e03ad6ffb18c955039732fc9",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "hydroxyzine hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=8f41912e-12ce-4174-a0fb-cfb4888d8d58&version=9",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "05a55901d07281a2e0c591fcd98edb5b57b26138e03ad6ffb18c955039732fc9",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Hydroxyzine Hydrochloride Tablets, USP Rx only",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=8f41912e-12ce-4174-a0fb-cfb4888d8d58&version=9",
+        "xpath": "s:title",
+        "xml_sha256": "05a55901d07281a2e0c591fcd98edb5b57b26138e03ad6ffb18c955039732fc9",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "REMEDYREPACK INC.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=8f41912e-12ce-4174-a0fb-cfb4888d8d58&version=9",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "05a55901d07281a2e0c591fcd98edb5b57b26138e03ad6ffb18c955039732fc9",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "titles": [
+      {
+        "value": "Hydroxyzine Hydrochloride Tablets, USP Rx only",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=8f41912e-12ce-4174-a0fb-cfb4888d8d58&version=9",
+        "xpath": "s:title",
+        "xml_sha256": "05a55901d07281a2e0c591fcd98edb5b57b26138e03ad6ffb18c955039732fc9",
+        "effective_date": "2026-11-16"
+      }
+    ]
+  },
+  {
+    "setid": "2fa30bdb-f60e-40a7-98b4-c346bc85d539",
+    "version": 7,
+    "aliases": [
+      {
+        "value": "Ondansetron Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=2fa30bdb-f60e-40a7-98b4-c346bc85d539&version=7",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "9327bb99a9e9e198d1d98aa1b589313a6742819ae29e1e34178768a04ac54044",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "Ondansetron Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=2fa30bdb-f60e-40a7-98b4-c346bc85d539&version=7",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "9327bb99a9e9e198d1d98aa1b589313a6742819ae29e1e34178768a04ac54044",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "QPharma, Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=2fa30bdb-f60e-40a7-98b4-c346bc85d539&version=7",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "9327bb99a9e9e198d1d98aa1b589313a6742819ae29e1e34178768a04ac54044",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use ONDANSETRON TABLETS safely and effectively. See full prescribing information for ONDANSETRON TABLETS. ONDANSETRON tablets, for oral use Initial U.S. Approval: 1991",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=2fa30bdb-f60e-40a7-98b4-c346bc85d539&version=7",
+        "xpath": "s:title",
+        "xml_sha256": "9327bb99a9e9e198d1d98aa1b589313a6742819ae29e1e34178768a04ac54044",
+        "effective_date": "2026-11-10"
+      }
+    ]
+  },
+  {
+    "setid": "34e57aff-dc4b-4631-9d57-31020244835d",
+    "version": 4,
+    "aliases": [
+      {
+        "value": "Cyclobenzaprine Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=34e57aff-dc4b-4631-9d57-31020244835d&version=4",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "8e0a0bb32be31b0e6e14c424aeb72de4812d1e8a6aa80d758c6349beb9770f80",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "Cyclobenzaprine Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=34e57aff-dc4b-4631-9d57-31020244835d&version=4",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "8e0a0bb32be31b0e6e14c424aeb72de4812d1e8a6aa80d758c6349beb9770f80",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "CYCLOBENZAPRINE HYDROCHLORIDE- cyclobenzaprine hydrochloride tablet, film coated Rising Pharma Holdings, Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=34e57aff-dc4b-4631-9d57-31020244835d&version=4",
+        "xpath": "s:title",
+        "xml_sha256": "8e0a0bb32be31b0e6e14c424aeb72de4812d1e8a6aa80d758c6349beb9770f80",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "REMEDYREPACK INC.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=34e57aff-dc4b-4631-9d57-31020244835d&version=4",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "8e0a0bb32be31b0e6e14c424aeb72de4812d1e8a6aa80d758c6349beb9770f80",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "titles": [
+      {
+        "value": "CYCLOBENZAPRINE HYDROCHLORIDE- cyclobenzaprine hydrochloride tablet, film coated Rising Pharma Holdings, Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=34e57aff-dc4b-4631-9d57-31020244835d&version=4",
+        "xpath": "s:title",
+        "xml_sha256": "8e0a0bb32be31b0e6e14c424aeb72de4812d1e8a6aa80d758c6349beb9770f80",
+        "effective_date": "2026-11-10"
+      }
+    ]
+  },
+  {
+    "setid": "ae0dcb4e-63df-459c-8e60-0caa817b8135",
+    "version": 5,
+    "aliases": [
+      {
+        "value": "SPIRONOLACTONE",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ae0dcb4e-63df-459c-8e60-0caa817b8135&version=5",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "5415e784ca8792551c0881e004c683c49ccc839bc6b4374e37a4d357429cc015",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "SPIRONOLACTONE",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ae0dcb4e-63df-459c-8e60-0caa817b8135&version=5",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "5415e784ca8792551c0881e004c683c49ccc839bc6b4374e37a4d357429cc015",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "SPIRONOLACTONE",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ae0dcb4e-63df-459c-8e60-0caa817b8135&version=5",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "5415e784ca8792551c0881e004c683c49ccc839bc6b4374e37a4d357429cc015",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "SPIRONOLACTONE",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ae0dcb4e-63df-459c-8e60-0caa817b8135&version=5",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "5415e784ca8792551c0881e004c683c49ccc839bc6b4374e37a4d357429cc015",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "SPIRONOLACTONE",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ae0dcb4e-63df-459c-8e60-0caa817b8135&version=5",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "5415e784ca8792551c0881e004c683c49ccc839bc6b4374e37a4d357429cc015",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "SPIRONOLACTONE",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ae0dcb4e-63df-459c-8e60-0caa817b8135&version=5",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "5415e784ca8792551c0881e004c683c49ccc839bc6b4374e37a4d357429cc015",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "NorthStar Rx LLC",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ae0dcb4e-63df-459c-8e60-0caa817b8135&version=5",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "5415e784ca8792551c0881e004c683c49ccc839bc6b4374e37a4d357429cc015",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use SPIRONOLACTONE TABLETS safely and effectively. See full prescribing information for SPIRONOLACTONE TABLETS. SPIRONOLACTONE tablets, for oral use Initial U.S. Approval: 1960",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ae0dcb4e-63df-459c-8e60-0caa817b8135&version=5",
+        "xpath": "s:title",
+        "xml_sha256": "5415e784ca8792551c0881e004c683c49ccc839bc6b4374e37a4d357429cc015",
+        "effective_date": "2026-11-16"
+      }
+    ]
+  },
+  {
+    "setid": "c4da6de7-9ab1-4fcf-88f3-fe785019e6e7",
+    "version": 13,
+    "aliases": [
+      {
+        "value": "Estradiol",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c4da6de7-9ab1-4fcf-88f3-fe785019e6e7&version=13",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "ba2abc1522a92f8dfd4c73c6f2b1a3f35672b74e5d6b601ba815aff922c6e4d9",
+        "effective_date": "2026-10-30"
+      },
+      {
+        "value": "Estradiol",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c4da6de7-9ab1-4fcf-88f3-fe785019e6e7&version=13",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "ba2abc1522a92f8dfd4c73c6f2b1a3f35672b74e5d6b601ba815aff922c6e4d9",
+        "effective_date": "2026-10-30"
+      },
+      {
+        "value": "Estradiol",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c4da6de7-9ab1-4fcf-88f3-fe785019e6e7&version=13",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "ba2abc1522a92f8dfd4c73c6f2b1a3f35672b74e5d6b601ba815aff922c6e4d9",
+        "effective_date": "2026-10-30"
+      },
+      {
+        "value": "Estradiol",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c4da6de7-9ab1-4fcf-88f3-fe785019e6e7&version=13",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "ba2abc1522a92f8dfd4c73c6f2b1a3f35672b74e5d6b601ba815aff922c6e4d9",
+        "effective_date": "2026-10-30"
+      },
+      {
+        "value": "Estradiol",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c4da6de7-9ab1-4fcf-88f3-fe785019e6e7&version=13",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "ba2abc1522a92f8dfd4c73c6f2b1a3f35672b74e5d6b601ba815aff922c6e4d9",
+        "effective_date": "2026-10-30"
+      },
+      {
+        "value": "estradiol",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c4da6de7-9ab1-4fcf-88f3-fe785019e6e7&version=13",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "ba2abc1522a92f8dfd4c73c6f2b1a3f35672b74e5d6b601ba815aff922c6e4d9",
+        "effective_date": "2026-10-30"
+      },
+      {
+        "value": "estradiol",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c4da6de7-9ab1-4fcf-88f3-fe785019e6e7&version=13",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "ba2abc1522a92f8dfd4c73c6f2b1a3f35672b74e5d6b601ba815aff922c6e4d9",
+        "effective_date": "2026-10-30"
+      },
+      {
+        "value": "estradiol",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c4da6de7-9ab1-4fcf-88f3-fe785019e6e7&version=13",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "ba2abc1522a92f8dfd4c73c6f2b1a3f35672b74e5d6b601ba815aff922c6e4d9",
+        "effective_date": "2026-10-30"
+      },
+      {
+        "value": "estradiol",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c4da6de7-9ab1-4fcf-88f3-fe785019e6e7&version=13",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "ba2abc1522a92f8dfd4c73c6f2b1a3f35672b74e5d6b601ba815aff922c6e4d9",
+        "effective_date": "2026-10-30"
+      },
+      {
+        "value": "estradiol",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c4da6de7-9ab1-4fcf-88f3-fe785019e6e7&version=13",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "ba2abc1522a92f8dfd4c73c6f2b1a3f35672b74e5d6b601ba815aff922c6e4d9",
+        "effective_date": "2026-10-30"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Sandoz Inc",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c4da6de7-9ab1-4fcf-88f3-fe785019e6e7&version=13",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "ba2abc1522a92f8dfd4c73c6f2b1a3f35672b74e5d6b601ba815aff922c6e4d9",
+        "effective_date": "2026-10-30"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use ESTRADIOL TRANSDERMAL SYSTEM safely and effectively. See full prescribing information for ESTRADIOL TRANSDERMAL SYSTEM. ESTRADIOL TRANSDERMAL SYSTEM Initial U.S. Approval: 1996",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c4da6de7-9ab1-4fcf-88f3-fe785019e6e7&version=13",
+        "xpath": "s:title",
+        "xml_sha256": "ba2abc1522a92f8dfd4c73c6f2b1a3f35672b74e5d6b601ba815aff922c6e4d9",
+        "effective_date": "2026-10-30"
+      }
+    ]
+  },
+  {
+    "setid": "c829b7bf-1a12-44b2-b5ce-fd44a1f0d333",
+    "version": 24,
+    "aliases": [
+      {
+        "value": "Glipizide",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c829b7bf-1a12-44b2-b5ce-fd44a1f0d333&version=24",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "bebf7a28be9bb21e50c9233e8399c59011d823760bc4e1b78140e4d23cd4a0b0",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Glipizide",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c829b7bf-1a12-44b2-b5ce-fd44a1f0d333&version=24",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "bebf7a28be9bb21e50c9233e8399c59011d823760bc4e1b78140e4d23cd4a0b0",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "glipiZIDE Tablets, USP for oral use Rx only",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c829b7bf-1a12-44b2-b5ce-fd44a1f0d333&version=24",
+        "xpath": "s:title",
+        "xml_sha256": "bebf7a28be9bb21e50c9233e8399c59011d823760bc4e1b78140e4d23cd4a0b0",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "PD-Rx Pharmaceuticals, Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c829b7bf-1a12-44b2-b5ce-fd44a1f0d333&version=24",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "bebf7a28be9bb21e50c9233e8399c59011d823760bc4e1b78140e4d23cd4a0b0",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "titles": [
+      {
+        "value": "glipiZIDE Tablets, USP for oral use Rx only",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c829b7bf-1a12-44b2-b5ce-fd44a1f0d333&version=24",
+        "xpath": "s:title",
+        "xml_sha256": "bebf7a28be9bb21e50c9233e8399c59011d823760bc4e1b78140e4d23cd4a0b0",
+        "effective_date": "2026-11-16"
+      }
+    ]
+  },
+  {
+    "setid": "625fad5b-8817-4773-a2fc-20b662140e6e",
+    "version": 4,
+    "aliases": [
+      {
+        "value": "Zolpidem Tartrate",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=625fad5b-8817-4773-a2fc-20b662140e6e&version=4",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "5fc62636600036bdd14c209810edaa4b57b46857264a317ad0a700634f3fa8e2",
+        "effective_date": "2026-11-11"
+      },
+      {
+        "value": "Zolpidem Tartrate",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=625fad5b-8817-4773-a2fc-20b662140e6e&version=4",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "5fc62636600036bdd14c209810edaa4b57b46857264a317ad0a700634f3fa8e2",
+        "effective_date": "2026-11-11"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Preferred Pharmaceuticals Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=625fad5b-8817-4773-a2fc-20b662140e6e&version=4",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "5fc62636600036bdd14c209810edaa4b57b46857264a317ad0a700634f3fa8e2",
+        "effective_date": "2026-11-11"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use ZOLPIDEM TARTRATE EXTENDED-RELEASE TABLETS safely and effectively. See full prescribing information for ZOLPIDEM TARTRATE EXTENDED-RELEASE TABLETS. ZOLPIDEM TARTRATE extended-release tablets, for oral use, C-IV Initial U.S. Approval: 1992",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=625fad5b-8817-4773-a2fc-20b662140e6e&version=4",
+        "xpath": "s:title",
+        "xml_sha256": "5fc62636600036bdd14c209810edaa4b57b46857264a317ad0a700634f3fa8e2",
+        "effective_date": "2026-11-11"
+      }
+    ]
+  },
+  {
+    "setid": "70cd448a-2921-4c69-bdf2-5a6ce883bd07",
+    "version": 18,
+    "aliases": [
+      {
+        "value": "Lamotrigine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=70cd448a-2921-4c69-bdf2-5a6ce883bd07&version=18",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "1a32e1cf87c055762ef5a8fc9f1e11dba948b9568ebe59b19728c55c39354889",
+        "effective_date": "2026-10-28"
+      },
+      {
+        "value": "Lamotrigine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=70cd448a-2921-4c69-bdf2-5a6ce883bd07&version=18",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "1a32e1cf87c055762ef5a8fc9f1e11dba948b9568ebe59b19728c55c39354889",
+        "effective_date": "2026-10-28"
+      },
+      {
+        "value": "Lamotrigine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=70cd448a-2921-4c69-bdf2-5a6ce883bd07&version=18",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "1a32e1cf87c055762ef5a8fc9f1e11dba948b9568ebe59b19728c55c39354889",
+        "effective_date": "2026-10-28"
+      },
+      {
+        "value": "Lamotrigine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=70cd448a-2921-4c69-bdf2-5a6ce883bd07&version=18",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "1a32e1cf87c055762ef5a8fc9f1e11dba948b9568ebe59b19728c55c39354889",
+        "effective_date": "2026-10-28"
+      },
+      {
+        "value": "Lamotrigine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=70cd448a-2921-4c69-bdf2-5a6ce883bd07&version=18",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "1a32e1cf87c055762ef5a8fc9f1e11dba948b9568ebe59b19728c55c39354889",
+        "effective_date": "2026-10-28"
+      },
+      {
+        "value": "Lamotrigine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=70cd448a-2921-4c69-bdf2-5a6ce883bd07&version=18",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "1a32e1cf87c055762ef5a8fc9f1e11dba948b9568ebe59b19728c55c39354889",
+        "effective_date": "2026-10-28"
+      },
+      {
+        "value": "Lamotrigine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=70cd448a-2921-4c69-bdf2-5a6ce883bd07&version=18",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "1a32e1cf87c055762ef5a8fc9f1e11dba948b9568ebe59b19728c55c39354889",
+        "effective_date": "2026-10-28"
+      },
+      {
+        "value": "Lamotrigine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=70cd448a-2921-4c69-bdf2-5a6ce883bd07&version=18",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "1a32e1cf87c055762ef5a8fc9f1e11dba948b9568ebe59b19728c55c39354889",
+        "effective_date": "2026-10-28"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Ascend Laboratories, LLC",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=70cd448a-2921-4c69-bdf2-5a6ce883bd07&version=18",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "1a32e1cf87c055762ef5a8fc9f1e11dba948b9568ebe59b19728c55c39354889",
+        "effective_date": "2026-10-28"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use LAMOTRIGINE TABLETS safely and effectively. See full prescribing information for LAMOTRIGINE TABLETS. LAMOTRIGINE tablets, for oral use Initial U.S. Approval: 1994",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=70cd448a-2921-4c69-bdf2-5a6ce883bd07&version=18",
+        "xpath": "s:title",
+        "xml_sha256": "1a32e1cf87c055762ef5a8fc9f1e11dba948b9568ebe59b19728c55c39354889",
+        "effective_date": "2026-10-28"
+      }
+    ]
+  },
+  {
+    "setid": "0a967468-3869-4c8c-849f-9fc3a8dcc489",
+    "version": 9,
+    "aliases": [
+      {
+        "value": "Citalopram",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0a967468-3869-4c8c-849f-9fc3a8dcc489&version=9",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "38011542f1f184a36a9c11fe9b7fa2cc0eb479fadac7c5f26908602a4b4a3e01",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "Citalopram Hydrobromide",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0a967468-3869-4c8c-849f-9fc3a8dcc489&version=9",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "38011542f1f184a36a9c11fe9b7fa2cc0eb479fadac7c5f26908602a4b4a3e01",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "QPharma, Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0a967468-3869-4c8c-849f-9fc3a8dcc489&version=9",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "38011542f1f184a36a9c11fe9b7fa2cc0eb479fadac7c5f26908602a4b4a3e01",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use CITALOPRAM TABLETS safely and effectively. See full prescribing information for CITALOPRAM TABLETS. CITALOPRAM tablets, for oral use Initial U.S. Approval: 1998",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0a967468-3869-4c8c-849f-9fc3a8dcc489&version=9",
+        "xpath": "s:title",
+        "xml_sha256": "38011542f1f184a36a9c11fe9b7fa2cc0eb479fadac7c5f26908602a4b4a3e01",
+        "effective_date": "2026-11-10"
+      }
+    ]
+  },
+  {
+    "setid": "1760ccdc-46f7-4182-a563-96b13212cb7e",
+    "version": 8,
+    "aliases": [
+      {
+        "value": "Pregabalin",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=1760ccdc-46f7-4182-a563-96b13212cb7e&version=8",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "96bdc127386189844260b29983e31a44ab44d136e65110eba85117b118981223",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "PREGABALIN",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=1760ccdc-46f7-4182-a563-96b13212cb7e&version=8",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "96bdc127386189844260b29983e31a44ab44d136e65110eba85117b118981223",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Preferred Pharmaceuticals, Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=1760ccdc-46f7-4182-a563-96b13212cb7e&version=8",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "96bdc127386189844260b29983e31a44ab44d136e65110eba85117b118981223",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use PREGABALIN CAPSULES safely and effectively. See full prescribing information for PREGABALIN CAPSULES. PREGABALIN capsules for oral use, CV Initial U.S. Approval: 2004",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=1760ccdc-46f7-4182-a563-96b13212cb7e&version=8",
+        "xpath": "s:title",
+        "xml_sha256": "96bdc127386189844260b29983e31a44ab44d136e65110eba85117b118981223",
+        "effective_date": "2026-11-16"
+      }
+    ]
+  },
+  {
+    "setid": "6cb41b00-0589-42d0-9e3e-230385768875",
+    "version": 1,
+    "aliases": [
+      {
+        "value": "Azithromycin",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=6cb41b00-0589-42d0-9e3e-230385768875&version=1",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "3a0a8662d633c8607ccb5ecd75c8d2c9cc24b88ac9296dfeee88c8a0f2793dfb",
+        "effective_date": "2026-11-17"
+      },
+      {
+        "value": "Azithromycin",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=6cb41b00-0589-42d0-9e3e-230385768875&version=1",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "3a0a8662d633c8607ccb5ecd75c8d2c9cc24b88ac9296dfeee88c8a0f2793dfb",
+        "effective_date": "2026-11-17"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Preferred Pharmaceuticals Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=6cb41b00-0589-42d0-9e3e-230385768875&version=1",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "3a0a8662d633c8607ccb5ecd75c8d2c9cc24b88ac9296dfeee88c8a0f2793dfb",
+        "effective_date": "2026-11-17"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use AZITHROMYCIN FOR ORAL SUSPENSION safely and effectively. See full prescribing information for AZITHROMYCIN FOR ORAL SUSPENSION. AZITHROMYCIN for oral suspension Initial U.S. Approval: 1991",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=6cb41b00-0589-42d0-9e3e-230385768875&version=1",
+        "xpath": "s:title",
+        "xml_sha256": "3a0a8662d633c8607ccb5ecd75c8d2c9cc24b88ac9296dfeee88c8a0f2793dfb",
+        "effective_date": "2026-11-17"
+      }
+    ]
+  },
+  {
+    "setid": "fa152ce7-6c07-4aaf-9374-932ce81d0cf9",
+    "version": 5,
+    "aliases": [
+      {
+        "value": "Pravastatin sodium",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=fa152ce7-6c07-4aaf-9374-932ce81d0cf9&version=5",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "f14efdc02f9c46ae71a3467b2783a51bf3cea5d9ed8d2aada49674b50f50edcd",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Pravastatin sodium",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=fa152ce7-6c07-4aaf-9374-932ce81d0cf9&version=5",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "f14efdc02f9c46ae71a3467b2783a51bf3cea5d9ed8d2aada49674b50f50edcd",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "REMEDYREPACK INC.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=fa152ce7-6c07-4aaf-9374-932ce81d0cf9&version=5",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "f14efdc02f9c46ae71a3467b2783a51bf3cea5d9ed8d2aada49674b50f50edcd",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use PRAVASTATIN SODIUM TABLETS safely and effectively. See full prescribing information for PRAVASTATIN SODIUM TABLETS. PRAVASTATIN sodium tablets, for oral use Initial U.S. Approval: 1991",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=fa152ce7-6c07-4aaf-9374-932ce81d0cf9&version=5",
+        "xpath": "s:title",
+        "xml_sha256": "f14efdc02f9c46ae71a3467b2783a51bf3cea5d9ed8d2aada49674b50f50edcd",
+        "effective_date": "2026-11-16"
+      }
+    ]
+  },
+  {
+    "setid": "7ea2fdf1-4fda-47a7-8110-62fb6468c989",
+    "version": 4,
+    "aliases": [
+      {
+        "value": "Valsartan",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=7ea2fdf1-4fda-47a7-8110-62fb6468c989&version=4",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "d993a98400a40b34009c83df5f3ebd8452d8bc0b41d018908d6e2208ada60333",
+        "effective_date": "2026-11-12"
+      },
+      {
+        "value": "Valsartan",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=7ea2fdf1-4fda-47a7-8110-62fb6468c989&version=4",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "d993a98400a40b34009c83df5f3ebd8452d8bc0b41d018908d6e2208ada60333",
+        "effective_date": "2026-11-12"
+      },
+      {
+        "value": "Valsartan",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=7ea2fdf1-4fda-47a7-8110-62fb6468c989&version=4",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "d993a98400a40b34009c83df5f3ebd8452d8bc0b41d018908d6e2208ada60333",
+        "effective_date": "2026-11-12"
+      },
+      {
+        "value": "Valsartan",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=7ea2fdf1-4fda-47a7-8110-62fb6468c989&version=4",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "d993a98400a40b34009c83df5f3ebd8452d8bc0b41d018908d6e2208ada60333",
+        "effective_date": "2026-11-12"
+      },
+      {
+        "value": "Valsartan",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=7ea2fdf1-4fda-47a7-8110-62fb6468c989&version=4",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "d993a98400a40b34009c83df5f3ebd8452d8bc0b41d018908d6e2208ada60333",
+        "effective_date": "2026-11-12"
+      },
+      {
+        "value": "Valsartan",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=7ea2fdf1-4fda-47a7-8110-62fb6468c989&version=4",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "d993a98400a40b34009c83df5f3ebd8452d8bc0b41d018908d6e2208ada60333",
+        "effective_date": "2026-11-12"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "American Health Packaging",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=7ea2fdf1-4fda-47a7-8110-62fb6468c989&version=4",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "d993a98400a40b34009c83df5f3ebd8452d8bc0b41d018908d6e2208ada60333",
+        "effective_date": "2026-11-12"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use VALSARTAN TABLETS safely and effectively. See full prescribing information for VALSARTAN TABLETS. VALSARTAN tablets, for oral use Initial U.S. Approval: 1996",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=7ea2fdf1-4fda-47a7-8110-62fb6468c989&version=4",
+        "xpath": "s:title",
+        "xml_sha256": "d993a98400a40b34009c83df5f3ebd8452d8bc0b41d018908d6e2208ada60333",
+        "effective_date": "2026-11-12"
+      }
+    ]
+  },
+  {
+    "setid": "174e45e0-45bb-48b7-9e60-8f6cfc1d22bb",
+    "version": 9,
+    "aliases": [
+      {
+        "value": "Zetia",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=174e45e0-45bb-48b7-9e60-8f6cfc1d22bb&version=9",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "c4268abb225aa77f6ab15ab5a6314e5a6ac6882c24e7c6bd0bce6eb89e390598",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Ezetimibe",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=174e45e0-45bb-48b7-9e60-8f6cfc1d22bb&version=9",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "c4268abb225aa77f6ab15ab5a6314e5a6ac6882c24e7c6bd0bce6eb89e390598",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Organon LLC",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=174e45e0-45bb-48b7-9e60-8f6cfc1d22bb&version=9",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "c4268abb225aa77f6ab15ab5a6314e5a6ac6882c24e7c6bd0bce6eb89e390598",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use ZETIA safely and effectively. See full prescribing information for ZETIA. ZETIA \u00ae (ezetimibe) tablets, for oral use Initial U.S. Approval: 2002",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=174e45e0-45bb-48b7-9e60-8f6cfc1d22bb&version=9",
+        "xpath": "s:title",
+        "xml_sha256": "c4268abb225aa77f6ab15ab5a6314e5a6ac6882c24e7c6bd0bce6eb89e390598",
+        "effective_date": "2026-11-16"
+      }
+    ]
+  },
+  {
+    "setid": "5dbffab4-d287-f0e3-e063-6394a90a311d",
+    "version": 6,
+    "aliases": [
+      {
+        "value": "Diclofenac Sodium",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5dbffab4-d287-f0e3-e063-6394a90a311d&version=6",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "192c2cb347eb04dcf5844f6820f8631d34043718d81baa93ea8562e3b470feb3",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Diclofenac Sodium",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5dbffab4-d287-f0e3-e063-6394a90a311d&version=6",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "192c2cb347eb04dcf5844f6820f8631d34043718d81baa93ea8562e3b470feb3",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Diclofenac 100g Auro \u05d5",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5dbffab4-d287-f0e3-e063-6394a90a311d&version=6",
+        "xpath": "s:title",
+        "xml_sha256": "192c2cb347eb04dcf5844f6820f8631d34043718d81baa93ea8562e3b470feb3",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "YYBA CORP",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5dbffab4-d287-f0e3-e063-6394a90a311d&version=6",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "192c2cb347eb04dcf5844f6820f8631d34043718d81baa93ea8562e3b470feb3",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "titles": [
+      {
+        "value": "Diclofenac 100g Auro \u05d5",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5dbffab4-d287-f0e3-e063-6394a90a311d&version=6",
+        "xpath": "s:title",
+        "xml_sha256": "192c2cb347eb04dcf5844f6820f8631d34043718d81baa93ea8562e3b470feb3",
+        "effective_date": "2026-11-16"
+      }
+    ]
+  },
+  {
+    "setid": "601b8b7e-763f-2466-e063-6294a90aa688",
+    "version": 1,
+    "aliases": [
+      {
+        "value": "Propranolol Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=601b8b7e-763f-2466-e063-6294a90aa688&version=1",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "5f492bd5ff561af2f442b8e78821cc3f05048a50e85ed2218e8fa8766503c51f",
+        "effective_date": "2026-11-12"
+      },
+      {
+        "value": "Propranolol Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=601b8b7e-763f-2466-e063-6294a90aa688&version=1",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "5f492bd5ff561af2f442b8e78821cc3f05048a50e85ed2218e8fa8766503c51f",
+        "effective_date": "2026-11-12"
+      },
+      {
+        "value": "Propranolol Hydrochloride Tablets, USP",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=601b8b7e-763f-2466-e063-6294a90aa688&version=1",
+        "xpath": "s:title",
+        "xml_sha256": "5f492bd5ff561af2f442b8e78821cc3f05048a50e85ed2218e8fa8766503c51f",
+        "effective_date": "2026-11-12"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "St. Mary's Medical Park Pharmacy",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=601b8b7e-763f-2466-e063-6294a90aa688&version=1",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "5f492bd5ff561af2f442b8e78821cc3f05048a50e85ed2218e8fa8766503c51f",
+        "effective_date": "2026-11-12"
+      }
+    ],
+    "titles": [
+      {
+        "value": "Propranolol Hydrochloride Tablets, USP",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=601b8b7e-763f-2466-e063-6294a90aa688&version=1",
+        "xpath": "s:title",
+        "xml_sha256": "5f492bd5ff561af2f442b8e78821cc3f05048a50e85ed2218e8fa8766503c51f",
+        "effective_date": "2026-11-12"
+      }
+    ]
+  },
+  {
+    "setid": "70d7a585-7a46-4eac-b2b5-2ac5b98d9882",
+    "version": 7,
+    "aliases": [
+      {
+        "value": "Atenolol",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=70d7a585-7a46-4eac-b2b5-2ac5b98d9882&version=7",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "6d6c4aa52ead3594ab29573e90ad3d6d63eb5e8be08b9911826577264b4f0390",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "Atenolol",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=70d7a585-7a46-4eac-b2b5-2ac5b98d9882&version=7",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "6d6c4aa52ead3594ab29573e90ad3d6d63eb5e8be08b9911826577264b4f0390",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "ATENOLOL TABLETS USP Rx only",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=70d7a585-7a46-4eac-b2b5-2ac5b98d9882&version=7",
+        "xpath": "s:title",
+        "xml_sha256": "6d6c4aa52ead3594ab29573e90ad3d6d63eb5e8be08b9911826577264b4f0390",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "QPharma, Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=70d7a585-7a46-4eac-b2b5-2ac5b98d9882&version=7",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "6d6c4aa52ead3594ab29573e90ad3d6d63eb5e8be08b9911826577264b4f0390",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "titles": [
+      {
+        "value": "ATENOLOL TABLETS USP Rx only",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=70d7a585-7a46-4eac-b2b5-2ac5b98d9882&version=7",
+        "xpath": "s:title",
+        "xml_sha256": "6d6c4aa52ead3594ab29573e90ad3d6d63eb5e8be08b9911826577264b4f0390",
+        "effective_date": "2026-11-10"
+      }
+    ]
+  },
+  {
+    "setid": "b99f7199-e407-442d-849f-6a1c4837e12f",
+    "version": 7,
+    "aliases": [
+      {
+        "value": "celecoxib",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=b99f7199-e407-442d-849f-6a1c4837e12f&version=7",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "c1b6fbbd75b170bf9d72eeb023fdf810f591df017c4a250719418f7fb89b4a84",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "celecoxib",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=b99f7199-e407-442d-849f-6a1c4837e12f&version=7",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "c1b6fbbd75b170bf9d72eeb023fdf810f591df017c4a250719418f7fb89b4a84",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "REMEDYREPACK INC.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=b99f7199-e407-442d-849f-6a1c4837e12f&version=7",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "c1b6fbbd75b170bf9d72eeb023fdf810f591df017c4a250719418f7fb89b4a84",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use CELECOXIB CAPSULES safely and effectively. See full prescribing information for CELECOXIB CAPSULES. CELECOXIB capsules, for oral use Initial U.S. Approval: 1998",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=b99f7199-e407-442d-849f-6a1c4837e12f&version=7",
+        "xpath": "s:title",
+        "xml_sha256": "c1b6fbbd75b170bf9d72eeb023fdf810f591df017c4a250719418f7fb89b4a84",
+        "effective_date": "2026-11-16"
+      }
+    ]
+  },
+  {
+    "setid": "e482a50d-db15-4407-85c9-160c88e8a657",
+    "version": 14,
+    "aliases": [
+      {
+        "value": "Finasteride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=e482a50d-db15-4407-85c9-160c88e8a657&version=14",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "99c21f751868d9c8c9afd9464c0ff1fc6871b8e0d6c522f4ec9136e79b4386b4",
+        "effective_date": "2026-10-14"
+      },
+      {
+        "value": "Finasteride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=e482a50d-db15-4407-85c9-160c88e8a657&version=14",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "99c21f751868d9c8c9afd9464c0ff1fc6871b8e0d6c522f4ec9136e79b4386b4",
+        "effective_date": "2026-10-14"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "REMEDYREPACK INC.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=e482a50d-db15-4407-85c9-160c88e8a657&version=14",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "99c21f751868d9c8c9afd9464c0ff1fc6871b8e0d6c522f4ec9136e79b4386b4",
+        "effective_date": "2026-10-14"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use FINASTERIDE TABLETS safely and effectively. See full prescribing information for FINASTERIDE TABLETS. FINASTERIDE tablets, for oral use Initial U.S. Approval: 1992",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=e482a50d-db15-4407-85c9-160c88e8a657&version=14",
+        "xpath": "s:title",
+        "xml_sha256": "99c21f751868d9c8c9afd9464c0ff1fc6871b8e0d6c522f4ec9136e79b4386b4",
+        "effective_date": "2026-10-14"
+      }
+    ]
+  },
+  {
+    "setid": "6562eb60-0d70-4909-bd07-88d5c9241516",
+    "version": 16,
+    "aliases": [
+      {
+        "value": "Quetiapine Fumarate",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=6562eb60-0d70-4909-bd07-88d5c9241516&version=16",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "85e01a119d7f47fc6c7c3d423daf391f5350a03de6d53e54599d4d2747aa98b6",
+        "effective_date": "2026-10-15"
+      },
+      {
+        "value": "Quetiapine Fumarate",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=6562eb60-0d70-4909-bd07-88d5c9241516&version=16",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "85e01a119d7f47fc6c7c3d423daf391f5350a03de6d53e54599d4d2747aa98b6",
+        "effective_date": "2026-10-15"
+      },
+      {
+        "value": "Quetiapine Fumarate",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=6562eb60-0d70-4909-bd07-88d5c9241516&version=16",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "85e01a119d7f47fc6c7c3d423daf391f5350a03de6d53e54599d4d2747aa98b6",
+        "effective_date": "2026-10-15"
+      },
+      {
+        "value": "Quetiapine Fumarate",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=6562eb60-0d70-4909-bd07-88d5c9241516&version=16",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "85e01a119d7f47fc6c7c3d423daf391f5350a03de6d53e54599d4d2747aa98b6",
+        "effective_date": "2026-10-15"
+      },
+      {
+        "value": "Quetiapine Fumarate",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=6562eb60-0d70-4909-bd07-88d5c9241516&version=16",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "85e01a119d7f47fc6c7c3d423daf391f5350a03de6d53e54599d4d2747aa98b6",
+        "effective_date": "2026-10-15"
+      },
+      {
+        "value": "Quetiapine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=6562eb60-0d70-4909-bd07-88d5c9241516&version=16",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "85e01a119d7f47fc6c7c3d423daf391f5350a03de6d53e54599d4d2747aa98b6",
+        "effective_date": "2026-10-15"
+      },
+      {
+        "value": "Quetiapine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=6562eb60-0d70-4909-bd07-88d5c9241516&version=16",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "85e01a119d7f47fc6c7c3d423daf391f5350a03de6d53e54599d4d2747aa98b6",
+        "effective_date": "2026-10-15"
+      },
+      {
+        "value": "Quetiapine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=6562eb60-0d70-4909-bd07-88d5c9241516&version=16",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "85e01a119d7f47fc6c7c3d423daf391f5350a03de6d53e54599d4d2747aa98b6",
+        "effective_date": "2026-10-15"
+      },
+      {
+        "value": "Quetiapine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=6562eb60-0d70-4909-bd07-88d5c9241516&version=16",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "85e01a119d7f47fc6c7c3d423daf391f5350a03de6d53e54599d4d2747aa98b6",
+        "effective_date": "2026-10-15"
+      },
+      {
+        "value": "Quetiapine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=6562eb60-0d70-4909-bd07-88d5c9241516&version=16",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "85e01a119d7f47fc6c7c3d423daf391f5350a03de6d53e54599d4d2747aa98b6",
+        "effective_date": "2026-10-15"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Aurobindo Pharma Limited",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=6562eb60-0d70-4909-bd07-88d5c9241516&version=16",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "85e01a119d7f47fc6c7c3d423daf391f5350a03de6d53e54599d4d2747aa98b6",
+        "effective_date": "2026-10-15"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use QUETIAPINE EXTENDED-RELEASE TABLETS safely and effectively. See full prescribing information for QUETIAPINE EXTENDED-RELEASE TABLETS. QUETIAPINE extended-release tablets, for oral use Initial U.S. Approval: 1997",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=6562eb60-0d70-4909-bd07-88d5c9241516&version=16",
+        "xpath": "s:title",
+        "xml_sha256": "85e01a119d7f47fc6c7c3d423daf391f5350a03de6d53e54599d4d2747aa98b6",
+        "effective_date": "2026-10-15"
+      }
+    ]
+  },
+  {
+    "setid": "84ef7b29-dd48-43d3-bda8-d6337bc22891",
+    "version": 21,
+    "aliases": [
+      {
+        "value": "Clonidine Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=84ef7b29-dd48-43d3-bda8-d6337bc22891&version=21",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "c54225517639ca4b8995af7d79274676a9aad0379c163f32b70e5702cfa1a075",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Clonidine Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=84ef7b29-dd48-43d3-bda8-d6337bc22891&version=21",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "c54225517639ca4b8995af7d79274676a9aad0379c163f32b70e5702cfa1a075",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Clonidine Hydrochloride Tablets, USP Rx only",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=84ef7b29-dd48-43d3-bda8-d6337bc22891&version=21",
+        "xpath": "s:title",
+        "xml_sha256": "c54225517639ca4b8995af7d79274676a9aad0379c163f32b70e5702cfa1a075",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "REMEDYREPACK INC.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=84ef7b29-dd48-43d3-bda8-d6337bc22891&version=21",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "c54225517639ca4b8995af7d79274676a9aad0379c163f32b70e5702cfa1a075",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "titles": [
+      {
+        "value": "Clonidine Hydrochloride Tablets, USP Rx only",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=84ef7b29-dd48-43d3-bda8-d6337bc22891&version=21",
+        "xpath": "s:title",
+        "xml_sha256": "c54225517639ca4b8995af7d79274676a9aad0379c163f32b70e5702cfa1a075",
+        "effective_date": "2026-11-16"
+      }
+    ]
+  },
+  {
+    "setid": "b6752b08-4c93-4e5f-895d-40f189bd356d",
+    "version": 5,
+    "aliases": [
+      {
+        "value": "Aripiprazole",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=b6752b08-4c93-4e5f-895d-40f189bd356d&version=5",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "9102666244e738f5b85f21865e8ed850af47fdfc308c646a25f85c599f1f2809",
+        "effective_date": "2026-11-17"
+      },
+      {
+        "value": "Aripiprazole",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=b6752b08-4c93-4e5f-895d-40f189bd356d&version=5",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "9102666244e738f5b85f21865e8ed850af47fdfc308c646a25f85c599f1f2809",
+        "effective_date": "2026-11-17"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "REMEDYREPACK INC.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=b6752b08-4c93-4e5f-895d-40f189bd356d&version=5",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "9102666244e738f5b85f21865e8ed850af47fdfc308c646a25f85c599f1f2809",
+        "effective_date": "2026-11-17"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use ARIPIPRAZOLE TABLETS safely and effectively. See full prescribing information for ARIPIPRAZOLE TABLETS. ARIPIPRAZOLE tablets, for oral use Initial U.S. Approval: 2002",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=b6752b08-4c93-4e5f-895d-40f189bd356d&version=5",
+        "xpath": "s:title",
+        "xml_sha256": "9102666244e738f5b85f21865e8ed850af47fdfc308c646a25f85c599f1f2809",
+        "effective_date": "2026-11-17"
+      }
+    ]
+  },
+  {
+    "setid": "69f9c6f8-a8df-4ddf-8fb1-2768eb099ada",
+    "version": 1,
+    "aliases": [
+      {
+        "value": "Alendronate Sodium",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=69f9c6f8-a8df-4ddf-8fb1-2768eb099ada&version=1",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "72414ddd8e5783995d785a85387fbb26ac8f896a50279fd0cc2eac2d0e04aaac",
+        "effective_date": "2026-10-30"
+      },
+      {
+        "value": "Alendronate Sodium",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=69f9c6f8-a8df-4ddf-8fb1-2768eb099ada&version=1",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "72414ddd8e5783995d785a85387fbb26ac8f896a50279fd0cc2eac2d0e04aaac",
+        "effective_date": "2026-10-30"
+      },
+      {
+        "value": "Alendronate Sodium",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=69f9c6f8-a8df-4ddf-8fb1-2768eb099ada&version=1",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "72414ddd8e5783995d785a85387fbb26ac8f896a50279fd0cc2eac2d0e04aaac",
+        "effective_date": "2026-10-30"
+      },
+      {
+        "value": "Alendronate Sodium",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=69f9c6f8-a8df-4ddf-8fb1-2768eb099ada&version=1",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "72414ddd8e5783995d785a85387fbb26ac8f896a50279fd0cc2eac2d0e04aaac",
+        "effective_date": "2026-10-30"
+      },
+      {
+        "value": "Alendronate Sodium",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=69f9c6f8-a8df-4ddf-8fb1-2768eb099ada&version=1",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "72414ddd8e5783995d785a85387fbb26ac8f896a50279fd0cc2eac2d0e04aaac",
+        "effective_date": "2026-10-30"
+      },
+      {
+        "value": "Alendronate Sodium",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=69f9c6f8-a8df-4ddf-8fb1-2768eb099ada&version=1",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "72414ddd8e5783995d785a85387fbb26ac8f896a50279fd0cc2eac2d0e04aaac",
+        "effective_date": "2026-10-30"
+      },
+      {
+        "value": "Alendronate Sodium",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=69f9c6f8-a8df-4ddf-8fb1-2768eb099ada&version=1",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "72414ddd8e5783995d785a85387fbb26ac8f896a50279fd0cc2eac2d0e04aaac",
+        "effective_date": "2026-10-30"
+      },
+      {
+        "value": "Alendronate Sodium",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=69f9c6f8-a8df-4ddf-8fb1-2768eb099ada&version=1",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "72414ddd8e5783995d785a85387fbb26ac8f896a50279fd0cc2eac2d0e04aaac",
+        "effective_date": "2026-10-30"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Bostal LLC",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=69f9c6f8-a8df-4ddf-8fb1-2768eb099ada&version=1",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "72414ddd8e5783995d785a85387fbb26ac8f896a50279fd0cc2eac2d0e04aaac",
+        "effective_date": "2026-10-30"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use Alendronate Sodium Tablets safely and effectively. See full prescribing information for alendronate sodium tablets, USP. Alendronate Sodium Tablets USP, for oral use Initial U.S. Approval: 1995",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=69f9c6f8-a8df-4ddf-8fb1-2768eb099ada&version=1",
+        "xpath": "s:title",
+        "xml_sha256": "72414ddd8e5783995d785a85387fbb26ac8f896a50279fd0cc2eac2d0e04aaac",
+        "effective_date": "2026-10-30"
+      }
+    ]
+  },
+  {
+    "setid": "3f99b26b-79b9-4efb-aa2c-2868e1e126c8",
+    "version": 5,
+    "aliases": [
+      {
+        "value": "Topiramate",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=3f99b26b-79b9-4efb-aa2c-2868e1e126c8&version=5",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "995ae4a4a6f39429921b1256acdaf3453719fc8f3334c3c396e0837d105ad7fe",
+        "effective_date": "2026-11-17"
+      },
+      {
+        "value": "Topiramate",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=3f99b26b-79b9-4efb-aa2c-2868e1e126c8&version=5",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "995ae4a4a6f39429921b1256acdaf3453719fc8f3334c3c396e0837d105ad7fe",
+        "effective_date": "2026-11-17"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "REMEDYREPACK INC.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=3f99b26b-79b9-4efb-aa2c-2868e1e126c8&version=5",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "995ae4a4a6f39429921b1256acdaf3453719fc8f3334c3c396e0837d105ad7fe",
+        "effective_date": "2026-11-17"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use TOPIRAMATE TABLETS safely and effectively. See full prescribing information for TOPIRAMATE TABLETS. TOPIRAMATE tablets, for oral use Initial U.S. Approval: 1996",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=3f99b26b-79b9-4efb-aa2c-2868e1e126c8&version=5",
+        "xpath": "s:title",
+        "xml_sha256": "995ae4a4a6f39429921b1256acdaf3453719fc8f3334c3c396e0837d105ad7fe",
+        "effective_date": "2026-11-17"
+      }
+    ]
+  },
+  {
+    "setid": "25db7cc0-604c-3d6b-e063-6394a90a337f",
+    "version": 6,
+    "aliases": [
+      {
+        "value": "Tizanidine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=25db7cc0-604c-3d6b-e063-6394a90a337f&version=6",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "14940da8b7aa68eff301f3f929b681e091a19bac90a3acb9f4f167da5cb1b26e",
+        "effective_date": "2026-11-13"
+      },
+      {
+        "value": "Tizanidine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=25db7cc0-604c-3d6b-e063-6394a90a337f&version=6",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "14940da8b7aa68eff301f3f929b681e091a19bac90a3acb9f4f167da5cb1b26e",
+        "effective_date": "2026-11-13"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Aphena Pharma Solutions - Tennessee, LLC",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=25db7cc0-604c-3d6b-e063-6394a90a337f&version=6",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "14940da8b7aa68eff301f3f929b681e091a19bac90a3acb9f4f167da5cb1b26e",
+        "effective_date": "2026-11-13"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use Tizanidine Tablets, USP safely and effectively. See full prescribing information for Tizanidine Tablets, USP. Tizanidine Tablets, USP (tizanidine hydrochloride) tablets, for oral use Initial U.S. Approval: 1996",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=25db7cc0-604c-3d6b-e063-6394a90a337f&version=6",
+        "xpath": "s:title",
+        "xml_sha256": "14940da8b7aa68eff301f3f929b681e091a19bac90a3acb9f4f167da5cb1b26e",
+        "effective_date": "2026-11-13"
+      }
+    ]
+  },
+  {
+    "setid": "204592ba-a68f-452a-9987-1b33b7b6c4d5",
+    "version": 106,
+    "aliases": [
+      {
+        "value": "olmesartan medoxomil / amlodipine besylate / hydrochlorothiazide",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=204592ba-a68f-452a-9987-1b33b7b6c4d5&version=106",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "4443f1baed1387c9b613a91eff5c721df83f1fc9c8217072c204afab363b198f",
+        "effective_date": "2026-11-11"
+      },
+      {
+        "value": "olmesartan medoxomil / amlodipine besylate / hydrochlorothiazide",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=204592ba-a68f-452a-9987-1b33b7b6c4d5&version=106",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "4443f1baed1387c9b613a91eff5c721df83f1fc9c8217072c204afab363b198f",
+        "effective_date": "2026-11-11"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Bryant Ranch Prepack",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=204592ba-a68f-452a-9987-1b33b7b6c4d5&version=106",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "4443f1baed1387c9b613a91eff5c721df83f1fc9c8217072c204afab363b198f",
+        "effective_date": "2026-11-11"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use OLMESARTAN MEDOXOMIL, AMLODIPINE and HYDROCHLOROTHIAZIDE TABLETS safely and effectively. See full prescribing information for OLMESARTAN MEDOXOMIL, AMLODIPINE and HYDROCHLOROTHIAZIDE TABLETS. OLMESARTAN MEDOXOMIL, AMLODIPINE and HYDROCHLOROTHIAZIDE tablets, for oral use Initial U.S. Approval: 2010",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=204592ba-a68f-452a-9987-1b33b7b6c4d5&version=106",
+        "xpath": "s:title",
+        "xml_sha256": "4443f1baed1387c9b613a91eff5c721df83f1fc9c8217072c204afab363b198f",
+        "effective_date": "2026-11-11"
+      }
+    ]
+  },
+  {
+    "setid": "29ec1221-04d8-4b21-822e-2779fcaae62c",
+    "version": 3,
+    "aliases": [
+      {
+        "value": "Amitriptyline Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=29ec1221-04d8-4b21-822e-2779fcaae62c&version=3",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "7829c001c49710123fa4f40f84ee69017c01abf5acc1cd701a794c88e70e8cdc",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "Amitriptyline Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=29ec1221-04d8-4b21-822e-2779fcaae62c&version=3",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "7829c001c49710123fa4f40f84ee69017c01abf5acc1cd701a794c88e70e8cdc",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "Amitriptyline Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=29ec1221-04d8-4b21-822e-2779fcaae62c&version=3",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "7829c001c49710123fa4f40f84ee69017c01abf5acc1cd701a794c88e70e8cdc",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "Amitriptyline Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=29ec1221-04d8-4b21-822e-2779fcaae62c&version=3",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "7829c001c49710123fa4f40f84ee69017c01abf5acc1cd701a794c88e70e8cdc",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "Amitriptyline Hydrochloride Tablets, USP Rx only",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=29ec1221-04d8-4b21-822e-2779fcaae62c&version=3",
+        "xpath": "s:title",
+        "xml_sha256": "7829c001c49710123fa4f40f84ee69017c01abf5acc1cd701a794c88e70e8cdc",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Major Pharmaceuticals",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=29ec1221-04d8-4b21-822e-2779fcaae62c&version=3",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "7829c001c49710123fa4f40f84ee69017c01abf5acc1cd701a794c88e70e8cdc",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "titles": [
+      {
+        "value": "Amitriptyline Hydrochloride Tablets, USP Rx only",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=29ec1221-04d8-4b21-822e-2779fcaae62c&version=3",
+        "xpath": "s:title",
+        "xml_sha256": "7829c001c49710123fa4f40f84ee69017c01abf5acc1cd701a794c88e70e8cdc",
+        "effective_date": "2026-11-10"
+      }
+    ]
+  },
+  {
+    "setid": "e98f6d83-5172-97a1-ee41-5d7d1d8ba2fd",
+    "version": 4,
+    "aliases": [
+      {
+        "value": "Rivaroxaban",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=e98f6d83-5172-97a1-ee41-5d7d1d8ba2fd&version=4",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "f1704f526f3325256d72831653740e7f1108068e5ddc5be606bf45a03a9d759e",
+        "effective_date": "2026-10-21"
+      },
+      {
+        "value": "Rivaroxaban",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=e98f6d83-5172-97a1-ee41-5d7d1d8ba2fd&version=4",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "f1704f526f3325256d72831653740e7f1108068e5ddc5be606bf45a03a9d759e",
+        "effective_date": "2026-10-21"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Apotex Corp.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=e98f6d83-5172-97a1-ee41-5d7d1d8ba2fd&version=4",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "f1704f526f3325256d72831653740e7f1108068e5ddc5be606bf45a03a9d759e",
+        "effective_date": "2026-10-21"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use RIVAROXABAN TABLETS safely and effectively. See full prescribing information for RIVAROXABAN TABLETS. RIVAROXABAN tablets, for oral use Initial U.S. Approval: 2011",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=e98f6d83-5172-97a1-ee41-5d7d1d8ba2fd&version=4",
+        "xpath": "s:title",
+        "xml_sha256": "f1704f526f3325256d72831653740e7f1108068e5ddc5be606bf45a03a9d759e",
+        "effective_date": "2026-10-21"
+      }
+    ]
+  },
+  {
+    "setid": "3f4e5db8-5bfb-4b24-8465-9757cbaad2be",
+    "version": 3,
+    "aliases": [
+      {
+        "value": "FENOFIBRATE",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=3f4e5db8-5bfb-4b24-8465-9757cbaad2be&version=3",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "3bd483a9bdba5bb1286af1deceff50ab1651b1022040c1e7e085edb8fc2ee9b5",
+        "effective_date": "2026-11-12"
+      },
+      {
+        "value": "FENOFIBRATE",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=3f4e5db8-5bfb-4b24-8465-9757cbaad2be&version=3",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "3bd483a9bdba5bb1286af1deceff50ab1651b1022040c1e7e085edb8fc2ee9b5",
+        "effective_date": "2026-11-12"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Major Pharmaceuticals",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=3f4e5db8-5bfb-4b24-8465-9757cbaad2be&version=3",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "3bd483a9bdba5bb1286af1deceff50ab1651b1022040c1e7e085edb8fc2ee9b5",
+        "effective_date": "2026-11-12"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use FENOFIBRATE TABLETS safely and effectively. See full prescribing information for FENOFIBRATE TABLETS FENOFIBRATE tablets, for oral use Initial U.S. Approval: 1993",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=3f4e5db8-5bfb-4b24-8465-9757cbaad2be&version=3",
+        "xpath": "s:title",
+        "xml_sha256": "3bd483a9bdba5bb1286af1deceff50ab1651b1022040c1e7e085edb8fc2ee9b5",
+        "effective_date": "2026-11-12"
+      }
+    ]
+  },
+  {
+    "setid": "ab6c4a4b-97b3-3631-e053-2a95a90a614a",
+    "version": 3,
+    "aliases": [
+      {
+        "value": "Paroxetine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ab6c4a4b-97b3-3631-e053-2a95a90a614a&version=3",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "f164146ac37f29c4f8aa48fe98fa619ea205034b8e3dbb0f2477ae4011c8916e",
+        "effective_date": "2026-01-01"
+      },
+      {
+        "value": "Paroxetine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ab6c4a4b-97b3-3631-e053-2a95a90a614a&version=3",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "f164146ac37f29c4f8aa48fe98fa619ea205034b8e3dbb0f2477ae4011c8916e",
+        "effective_date": "2026-01-01"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Northwind Health Company, LLC",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ab6c4a4b-97b3-3631-e053-2a95a90a614a&version=3",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "f164146ac37f29c4f8aa48fe98fa619ea205034b8e3dbb0f2477ae4011c8916e",
+        "effective_date": "2026-01-01"
+      }
+    ],
+    "titles": [
+      {
+        "value": "HIGHLIGHTS OF PRESCRIBING INFORMATION These highlights do not include all the information needed to use PAROXETINE TABLETS safely and effectively. See full prescribing information for PAROXETINE TABLETS. PAROXETINE tablets, for oral use Initial U.S. Approval: 1992",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ab6c4a4b-97b3-3631-e053-2a95a90a614a&version=3",
+        "xpath": "s:title",
+        "xml_sha256": "f164146ac37f29c4f8aa48fe98fa619ea205034b8e3dbb0f2477ae4011c8916e",
+        "effective_date": "2026-01-01"
+      }
+    ]
+  },
+  {
+    "setid": "73b8e5ab-86f8-44f8-b290-346acb81c9ae",
+    "version": 3,
+    "aliases": [
+      {
+        "value": "Warfarin Sodium",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=73b8e5ab-86f8-44f8-b290-346acb81c9ae&version=3",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "cc193e19c8e8fcec957f096c8d6c4e99265393005b2d1abb0b6348cdd18c83e3",
+        "effective_date": "2026-11-09"
+      },
+      {
+        "value": "Warfarin Sodium",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=73b8e5ab-86f8-44f8-b290-346acb81c9ae&version=3",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "cc193e19c8e8fcec957f096c8d6c4e99265393005b2d1abb0b6348cdd18c83e3",
+        "effective_date": "2026-11-09"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "REMEDYREPACK INC.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=73b8e5ab-86f8-44f8-b290-346acb81c9ae&version=3",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "cc193e19c8e8fcec957f096c8d6c4e99265393005b2d1abb0b6348cdd18c83e3",
+        "effective_date": "2026-11-09"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use WARFARIN SODIUM TABLETS safely and effectively. See full prescribing information for WARFARIN SODIUM TABLETS. WARFARIN SODIUM tablets, for oral use Initial U.S. Approval: 1954",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=73b8e5ab-86f8-44f8-b290-346acb81c9ae&version=3",
+        "xpath": "s:title",
+        "xml_sha256": "cc193e19c8e8fcec957f096c8d6c4e99265393005b2d1abb0b6348cdd18c83e3",
+        "effective_date": "2026-11-09"
+      }
+    ]
+  },
+  {
+    "setid": "495f22cc-18d4-4264-9313-7ab20e7b5bc9",
+    "version": 6,
+    "aliases": [
+      {
+        "value": "Valacyclovir Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=495f22cc-18d4-4264-9313-7ab20e7b5bc9&version=6",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "4841aa3051581f576f885847a5514688406cb13dbad8e5abba3446c7c29c502e",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "Valacyclovir Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=495f22cc-18d4-4264-9313-7ab20e7b5bc9&version=6",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "4841aa3051581f576f885847a5514688406cb13dbad8e5abba3446c7c29c502e",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "REMEDYREPACK INC.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=495f22cc-18d4-4264-9313-7ab20e7b5bc9&version=6",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "4841aa3051581f576f885847a5514688406cb13dbad8e5abba3446c7c29c502e",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use VALACYCLOVIR TABLETS safely and effectively. See full prescribing information for VALACYCLOVIR TABLETS. VALACYCLOVIR tablets, for oral use Initial U.S. Approval: 1995",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=495f22cc-18d4-4264-9313-7ab20e7b5bc9&version=6",
+        "xpath": "s:title",
+        "xml_sha256": "4841aa3051581f576f885847a5514688406cb13dbad8e5abba3446c7c29c502e",
+        "effective_date": "2026-11-10"
+      }
+    ]
+  },
+  {
+    "setid": "5e55526f-bb34-4b67-85ea-b2765e8066bb",
+    "version": 2,
+    "aliases": [
+      {
+        "value": "Methocarbamol",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5e55526f-bb34-4b67-85ea-b2765e8066bb&version=2",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "aaf7ec945c3140dcec6df156e2564725985c3bd67a9b383cd62ff7dfec96a8db",
+        "effective_date": "2026-11-05"
+      },
+      {
+        "value": "methocarbamol",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5e55526f-bb34-4b67-85ea-b2765e8066bb&version=2",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "aaf7ec945c3140dcec6df156e2564725985c3bd67a9b383cd62ff7dfec96a8db",
+        "effective_date": "2026-11-05"
+      },
+      {
+        "value": "Methocarbamol Tablets 500mg",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5e55526f-bb34-4b67-85ea-b2765e8066bb&version=2",
+        "xpath": "s:title",
+        "xml_sha256": "aaf7ec945c3140dcec6df156e2564725985c3bd67a9b383cd62ff7dfec96a8db",
+        "effective_date": "2026-11-05"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Doc Rx",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5e55526f-bb34-4b67-85ea-b2765e8066bb&version=2",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "aaf7ec945c3140dcec6df156e2564725985c3bd67a9b383cd62ff7dfec96a8db",
+        "effective_date": "2026-11-05"
+      }
+    ],
+    "titles": [
+      {
+        "value": "Methocarbamol Tablets 500mg",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5e55526f-bb34-4b67-85ea-b2765e8066bb&version=2",
+        "xpath": "s:title",
+        "xml_sha256": "aaf7ec945c3140dcec6df156e2564725985c3bd67a9b383cd62ff7dfec96a8db",
+        "effective_date": "2026-11-05"
+      }
+    ]
+  },
+  {
+    "setid": "850566b1-0c8e-42bc-85fa-c8ee710f34ba",
+    "version": 2,
+    "aliases": [
+      {
+        "value": "Diltiazem Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=850566b1-0c8e-42bc-85fa-c8ee710f34ba&version=2",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "58c228efa2c1425c32cf8246443a49e61c9dcad2e7de5288697b8e00edaf9ca4",
+        "effective_date": "2026-11-04"
+      },
+      {
+        "value": "Diltiazem Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=850566b1-0c8e-42bc-85fa-c8ee710f34ba&version=2",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "58c228efa2c1425c32cf8246443a49e61c9dcad2e7de5288697b8e00edaf9ca4",
+        "effective_date": "2026-11-04"
+      },
+      {
+        "value": "Diltiazem Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=850566b1-0c8e-42bc-85fa-c8ee710f34ba&version=2",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "58c228efa2c1425c32cf8246443a49e61c9dcad2e7de5288697b8e00edaf9ca4",
+        "effective_date": "2026-11-04"
+      },
+      {
+        "value": "Diltiazem Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=850566b1-0c8e-42bc-85fa-c8ee710f34ba&version=2",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "58c228efa2c1425c32cf8246443a49e61c9dcad2e7de5288697b8e00edaf9ca4",
+        "effective_date": "2026-11-04"
+      },
+      {
+        "value": "Diltiazem Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=850566b1-0c8e-42bc-85fa-c8ee710f34ba&version=2",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "58c228efa2c1425c32cf8246443a49e61c9dcad2e7de5288697b8e00edaf9ca4",
+        "effective_date": "2026-11-04"
+      },
+      {
+        "value": "Diltiazem Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=850566b1-0c8e-42bc-85fa-c8ee710f34ba&version=2",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "58c228efa2c1425c32cf8246443a49e61c9dcad2e7de5288697b8e00edaf9ca4",
+        "effective_date": "2026-11-04"
+      },
+      {
+        "value": "Diltiazem Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=850566b1-0c8e-42bc-85fa-c8ee710f34ba&version=2",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "58c228efa2c1425c32cf8246443a49e61c9dcad2e7de5288697b8e00edaf9ca4",
+        "effective_date": "2026-11-04"
+      },
+      {
+        "value": "Diltiazem Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=850566b1-0c8e-42bc-85fa-c8ee710f34ba&version=2",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "58c228efa2c1425c32cf8246443a49e61c9dcad2e7de5288697b8e00edaf9ca4",
+        "effective_date": "2026-11-04"
+      },
+      {
+        "value": "Diltiazem Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=850566b1-0c8e-42bc-85fa-c8ee710f34ba&version=2",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "58c228efa2c1425c32cf8246443a49e61c9dcad2e7de5288697b8e00edaf9ca4",
+        "effective_date": "2026-11-04"
+      },
+      {
+        "value": "Diltiazem Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=850566b1-0c8e-42bc-85fa-c8ee710f34ba&version=2",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "58c228efa2c1425c32cf8246443a49e61c9dcad2e7de5288697b8e00edaf9ca4",
+        "effective_date": "2026-11-04"
+      },
+      {
+        "value": "Diltiazem Hydrochloride Extended Release Capsules, USP Rx Only",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=850566b1-0c8e-42bc-85fa-c8ee710f34ba&version=2",
+        "xpath": "s:title",
+        "xml_sha256": "58c228efa2c1425c32cf8246443a49e61c9dcad2e7de5288697b8e00edaf9ca4",
+        "effective_date": "2026-11-04"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Macleods Pharmaceuticals Limited",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=850566b1-0c8e-42bc-85fa-c8ee710f34ba&version=2",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "58c228efa2c1425c32cf8246443a49e61c9dcad2e7de5288697b8e00edaf9ca4",
+        "effective_date": "2026-11-04"
+      }
+    ],
+    "titles": [
+      {
+        "value": "Diltiazem Hydrochloride Extended Release Capsules, USP Rx Only",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=850566b1-0c8e-42bc-85fa-c8ee710f34ba&version=2",
+        "xpath": "s:title",
+        "xml_sha256": "58c228efa2c1425c32cf8246443a49e61c9dcad2e7de5288697b8e00edaf9ca4",
+        "effective_date": "2026-11-04"
+      }
+    ]
+  },
+  {
+    "setid": "95755a7b-4a9f-45ea-a381-d3f661150efe",
+    "version": 28,
+    "aliases": [
+      {
+        "value": "Baclofen",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=95755a7b-4a9f-45ea-a381-d3f661150efe&version=28",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "6c29082cb6b89d324a83493b9ee7717ac916727c345d60354acb48b81c19a203",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Baclofen",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=95755a7b-4a9f-45ea-a381-d3f661150efe&version=28",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "6c29082cb6b89d324a83493b9ee7717ac916727c345d60354acb48b81c19a203",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Baclofen Tablets USP Rx only",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=95755a7b-4a9f-45ea-a381-d3f661150efe&version=28",
+        "xpath": "s:title",
+        "xml_sha256": "6c29082cb6b89d324a83493b9ee7717ac916727c345d60354acb48b81c19a203",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "PD-Rx Pharmaceuticals, Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=95755a7b-4a9f-45ea-a381-d3f661150efe&version=28",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "6c29082cb6b89d324a83493b9ee7717ac916727c345d60354acb48b81c19a203",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "titles": [
+      {
+        "value": "Baclofen Tablets USP Rx only",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=95755a7b-4a9f-45ea-a381-d3f661150efe&version=28",
+        "xpath": "s:title",
+        "xml_sha256": "6c29082cb6b89d324a83493b9ee7717ac916727c345d60354acb48b81c19a203",
+        "effective_date": "2026-11-16"
+      }
+    ]
+  },
+  {
+    "setid": "1bf70380-8272-4c0d-8841-d39ef2772351",
+    "version": 13,
+    "aliases": [
+      {
+        "value": "Sumatriptan Succinate",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=1bf70380-8272-4c0d-8841-d39ef2772351&version=13",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "7969ee602d5ac6681bd987ad92c32f63bf736a6f012b64a10e063f09f815cc0c",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "Sumatriptan Succinate",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=1bf70380-8272-4c0d-8841-d39ef2772351&version=13",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "7969ee602d5ac6681bd987ad92c32f63bf736a6f012b64a10e063f09f815cc0c",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "Sumatriptan Succinate",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=1bf70380-8272-4c0d-8841-d39ef2772351&version=13",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "7969ee602d5ac6681bd987ad92c32f63bf736a6f012b64a10e063f09f815cc0c",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "sumatriptan succinate",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=1bf70380-8272-4c0d-8841-d39ef2772351&version=13",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "7969ee602d5ac6681bd987ad92c32f63bf736a6f012b64a10e063f09f815cc0c",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "sumatriptan succinate",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=1bf70380-8272-4c0d-8841-d39ef2772351&version=13",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "7969ee602d5ac6681bd987ad92c32f63bf736a6f012b64a10e063f09f815cc0c",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "sumatriptan succinate",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=1bf70380-8272-4c0d-8841-d39ef2772351&version=13",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "7969ee602d5ac6681bd987ad92c32f63bf736a6f012b64a10e063f09f815cc0c",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Golden State Medical Supply, Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=1bf70380-8272-4c0d-8841-d39ef2772351&version=13",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "7969ee602d5ac6681bd987ad92c32f63bf736a6f012b64a10e063f09f815cc0c",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "titles": [
+      {
+        "value": "SUMATRIPTAN TABLETS. These highlights do not include all the information needed to use SUMATRIPTAN TABLETS safely and effectively. See full prescribing information for SUMATRIPTAN TABLETS. SUMATRIPTAN tablets for oral use Initial U.S. Approval: 1992",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=1bf70380-8272-4c0d-8841-d39ef2772351&version=13",
+        "xpath": "s:title",
+        "xml_sha256": "7969ee602d5ac6681bd987ad92c32f63bf736a6f012b64a10e063f09f815cc0c",
+        "effective_date": "2026-11-10"
+      }
+    ]
+  },
+  {
+    "setid": "b1a6714a-cdeb-4502-b44b-a4f08cc1cde1",
+    "version": 1,
+    "aliases": [
+      {
+        "value": "Esomeprazole Magnesium",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=b1a6714a-cdeb-4502-b44b-a4f08cc1cde1&version=1",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "fbe026a9796e7988d8f262f54817b9e565dc1d2681a8574869d0af26199179ab",
+        "effective_date": "2026-11-17"
+      },
+      {
+        "value": "Esomeprazole Magnesium",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=b1a6714a-cdeb-4502-b44b-a4f08cc1cde1&version=1",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "fbe026a9796e7988d8f262f54817b9e565dc1d2681a8574869d0af26199179ab",
+        "effective_date": "2026-11-17"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Preferred Pharmaceuticals Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=b1a6714a-cdeb-4502-b44b-a4f08cc1cde1&version=1",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "fbe026a9796e7988d8f262f54817b9e565dc1d2681a8574869d0af26199179ab",
+        "effective_date": "2026-11-17"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use ESOMEPRAZOLE MAGNESIUM DELAYED-RELEASE CAPSULES safely and effectively. See full prescribing information for ESOMEPRAZOLE MAGNESIUM DELAYED-RELEASE CAPSULES. ESOMEPRAZOLE MAGNESIUM delayed-release capsules, for oral use Initial U.S. Approval: 1989 (omeprazole)",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=b1a6714a-cdeb-4502-b44b-a4f08cc1cde1&version=1",
+        "xpath": "s:title",
+        "xml_sha256": "fbe026a9796e7988d8f262f54817b9e565dc1d2681a8574869d0af26199179ab",
+        "effective_date": "2026-11-17"
+      }
+    ]
+  },
+  {
+    "setid": "58e9b4c6-531f-49c4-a640-6953e70892fe",
+    "version": 16,
+    "aliases": [
+      {
+        "value": "Mirtazapine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=58e9b4c6-531f-49c4-a640-6953e70892fe&version=16",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "bd93460a64c9f16daf494ae9959d2df180ad07304c08dad9b70098a033617c3e",
+        "effective_date": "2026-10-21"
+      },
+      {
+        "value": "Mirtazapine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=58e9b4c6-531f-49c4-a640-6953e70892fe&version=16",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "bd93460a64c9f16daf494ae9959d2df180ad07304c08dad9b70098a033617c3e",
+        "effective_date": "2026-10-21"
+      },
+      {
+        "value": "Mirtazapine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=58e9b4c6-531f-49c4-a640-6953e70892fe&version=16",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "bd93460a64c9f16daf494ae9959d2df180ad07304c08dad9b70098a033617c3e",
+        "effective_date": "2026-10-21"
+      },
+      {
+        "value": "Mirtazapine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=58e9b4c6-531f-49c4-a640-6953e70892fe&version=16",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "bd93460a64c9f16daf494ae9959d2df180ad07304c08dad9b70098a033617c3e",
+        "effective_date": "2026-10-21"
+      },
+      {
+        "value": "Mirtazapine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=58e9b4c6-531f-49c4-a640-6953e70892fe&version=16",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "bd93460a64c9f16daf494ae9959d2df180ad07304c08dad9b70098a033617c3e",
+        "effective_date": "2026-10-21"
+      },
+      {
+        "value": "Mirtazapine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=58e9b4c6-531f-49c4-a640-6953e70892fe&version=16",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "bd93460a64c9f16daf494ae9959d2df180ad07304c08dad9b70098a033617c3e",
+        "effective_date": "2026-10-21"
+      },
+      {
+        "value": "Mirtazapine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=58e9b4c6-531f-49c4-a640-6953e70892fe&version=16",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "bd93460a64c9f16daf494ae9959d2df180ad07304c08dad9b70098a033617c3e",
+        "effective_date": "2026-10-21"
+      },
+      {
+        "value": "Mirtazapine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=58e9b4c6-531f-49c4-a640-6953e70892fe&version=16",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "bd93460a64c9f16daf494ae9959d2df180ad07304c08dad9b70098a033617c3e",
+        "effective_date": "2026-10-21"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Rising Pharma Holdings, Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=58e9b4c6-531f-49c4-a640-6953e70892fe&version=16",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "bd93460a64c9f16daf494ae9959d2df180ad07304c08dad9b70098a033617c3e",
+        "effective_date": "2026-10-21"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use MIRTAZAPINE TABLETS safely and effectively. See full prescribing information for MIRTAZAPINE TABLETS. MIRTAZAPINE tablets, for oral use Initial U.S. Approval: 1996",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=58e9b4c6-531f-49c4-a640-6953e70892fe&version=16",
+        "xpath": "s:title",
+        "xml_sha256": "bd93460a64c9f16daf494ae9959d2df180ad07304c08dad9b70098a033617c3e",
+        "effective_date": "2026-10-21"
+      }
+    ]
+  },
+  {
+    "setid": "5feca839-8554-739b-e063-6394a90a4e65",
+    "version": 1,
+    "aliases": [
+      {
+        "value": "Levetiracetam",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5feca839-8554-739b-e063-6394a90a4e65&version=1",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "ccad3cc22833dd4a9decddface1a01b43f4b50bee8c3d9fa2478d8df480d4fab",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "Levetiracetam",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5feca839-8554-739b-e063-6394a90a4e65&version=1",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "ccad3cc22833dd4a9decddface1a01b43f4b50bee8c3d9fa2478d8df480d4fab",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Coupler LLC",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5feca839-8554-739b-e063-6394a90a4e65&version=1",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "ccad3cc22833dd4a9decddface1a01b43f4b50bee8c3d9fa2478d8df480d4fab",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use LEVETIRACETAM TABLETS safely and effectively. See full prescribing information for LEVETIRACETAM TABLETS. LEVETIRACETAM tablets, for oral use Initial U.S. Approval: 1999",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5feca839-8554-739b-e063-6394a90a4e65&version=1",
+        "xpath": "s:title",
+        "xml_sha256": "ccad3cc22833dd4a9decddface1a01b43f4b50bee8c3d9fa2478d8df480d4fab",
+        "effective_date": "2026-11-10"
+      }
+    ]
+  },
+  {
+    "setid": "415bd983-86f3-4f38-917a-9805024f31cb",
+    "version": 13,
+    "aliases": [
+      {
+        "value": "Tadalafil",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=415bd983-86f3-4f38-917a-9805024f31cb&version=13",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "b22e5c435aba5387bda0cff92bcda10fc275bfa28756c78336a391412c40dcdf",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Tadalafil",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=415bd983-86f3-4f38-917a-9805024f31cb&version=13",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "b22e5c435aba5387bda0cff92bcda10fc275bfa28756c78336a391412c40dcdf",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "REMEDYREPACK INC.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=415bd983-86f3-4f38-917a-9805024f31cb&version=13",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "b22e5c435aba5387bda0cff92bcda10fc275bfa28756c78336a391412c40dcdf",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use TADALAFIL TABLETS safely and effectively. See full prescribing information for TADALAFIL TABLETS. TADALAFIL tablets, for oral use Initial U.S. Approval: 2003",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=415bd983-86f3-4f38-917a-9805024f31cb&version=13",
+        "xpath": "s:title",
+        "xml_sha256": "b22e5c435aba5387bda0cff92bcda10fc275bfa28756c78336a391412c40dcdf",
+        "effective_date": "2026-11-16"
+      }
+    ]
+  },
+  {
+    "setid": "86c1bdae-c749-4ec3-90f6-7ebe8e76c461",
+    "version": 32,
+    "aliases": [
+      {
+        "value": "Nifedipine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=86c1bdae-c749-4ec3-90f6-7ebe8e76c461&version=32",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "5a384e44600d0e0fd80831220bdc4c03a9648dd6ec919d3a69d70d38255fa1d1",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Nifedipine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=86c1bdae-c749-4ec3-90f6-7ebe8e76c461&version=32",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "5a384e44600d0e0fd80831220bdc4c03a9648dd6ec919d3a69d70d38255fa1d1",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Nifedipine Extended-release Tablets, USP",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=86c1bdae-c749-4ec3-90f6-7ebe8e76c461&version=32",
+        "xpath": "s:title",
+        "xml_sha256": "5a384e44600d0e0fd80831220bdc4c03a9648dd6ec919d3a69d70d38255fa1d1",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "PD-Rx Pharmaceuticals, Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=86c1bdae-c749-4ec3-90f6-7ebe8e76c461&version=32",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "5a384e44600d0e0fd80831220bdc4c03a9648dd6ec919d3a69d70d38255fa1d1",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "titles": [
+      {
+        "value": "Nifedipine Extended-release Tablets, USP",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=86c1bdae-c749-4ec3-90f6-7ebe8e76c461&version=32",
+        "xpath": "s:title",
+        "xml_sha256": "5a384e44600d0e0fd80831220bdc4c03a9648dd6ec919d3a69d70d38255fa1d1",
+        "effective_date": "2026-11-16"
+      }
+    ]
+  },
+  {
+    "setid": "0c7f9bd0-6c0a-4521-b77a-3582faa96874",
+    "version": 3,
+    "aliases": [
+      {
+        "value": "Hydralazine Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0c7f9bd0-6c0a-4521-b77a-3582faa96874&version=3",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "da5745c7982256c269c421b43afa02679191741a49d97766d24e278c58026d61",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Hydralazine Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0c7f9bd0-6c0a-4521-b77a-3582faa96874&version=3",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "da5745c7982256c269c421b43afa02679191741a49d97766d24e278c58026d61",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Hydralazine Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0c7f9bd0-6c0a-4521-b77a-3582faa96874&version=3",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "da5745c7982256c269c421b43afa02679191741a49d97766d24e278c58026d61",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Hydralazine Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0c7f9bd0-6c0a-4521-b77a-3582faa96874&version=3",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "da5745c7982256c269c421b43afa02679191741a49d97766d24e278c58026d61",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Hydralazine Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0c7f9bd0-6c0a-4521-b77a-3582faa96874&version=3",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "da5745c7982256c269c421b43afa02679191741a49d97766d24e278c58026d61",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Hydralazine Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0c7f9bd0-6c0a-4521-b77a-3582faa96874&version=3",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "da5745c7982256c269c421b43afa02679191741a49d97766d24e278c58026d61",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Hydralazine Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0c7f9bd0-6c0a-4521-b77a-3582faa96874&version=3",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "da5745c7982256c269c421b43afa02679191741a49d97766d24e278c58026d61",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Hydralazine Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0c7f9bd0-6c0a-4521-b77a-3582faa96874&version=3",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "da5745c7982256c269c421b43afa02679191741a49d97766d24e278c58026d61",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "HydrALAZINE hydrochloride Tablets, USP Rx only",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0c7f9bd0-6c0a-4521-b77a-3582faa96874&version=3",
+        "xpath": "s:title",
+        "xml_sha256": "da5745c7982256c269c421b43afa02679191741a49d97766d24e278c58026d61",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Chartwell RX, LLC",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0c7f9bd0-6c0a-4521-b77a-3582faa96874&version=3",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "da5745c7982256c269c421b43afa02679191741a49d97766d24e278c58026d61",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "titles": [
+      {
+        "value": "HydrALAZINE hydrochloride Tablets, USP Rx only",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0c7f9bd0-6c0a-4521-b77a-3582faa96874&version=3",
+        "xpath": "s:title",
+        "xml_sha256": "da5745c7982256c269c421b43afa02679191741a49d97766d24e278c58026d61",
+        "effective_date": "2026-11-16"
+      }
+    ]
+  },
+  {
+    "setid": "2794f86b-d521-414b-8154-5dd1e2519653",
+    "version": 17,
+    "aliases": [
+      {
+        "value": "Glimepiride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=2794f86b-d521-414b-8154-5dd1e2519653&version=17",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "67b1c28f6da87d9912fff5376b7532f8d642cd787cdf75f21b803ba7d029661d",
+        "effective_date": "2026-11-13"
+      },
+      {
+        "value": "Glimepiride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=2794f86b-d521-414b-8154-5dd1e2519653&version=17",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "67b1c28f6da87d9912fff5376b7532f8d642cd787cdf75f21b803ba7d029661d",
+        "effective_date": "2026-11-13"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "PD-Rx Pharmaceuticals, Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=2794f86b-d521-414b-8154-5dd1e2519653&version=17",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "67b1c28f6da87d9912fff5376b7532f8d642cd787cdf75f21b803ba7d029661d",
+        "effective_date": "2026-11-13"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use Glimepiride safely and effectively. See full prescribing information for Glimepiride Tablets, USP. Glimepiride Tablets, USP Initial U.S. Approval: 1995",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=2794f86b-d521-414b-8154-5dd1e2519653&version=17",
+        "xpath": "s:title",
+        "xml_sha256": "67b1c28f6da87d9912fff5376b7532f8d642cd787cdf75f21b803ba7d029661d",
+        "effective_date": "2026-11-13"
+      }
+    ]
+  },
+  {
+    "setid": "8d252dab-e868-42d3-95ea-69423d909e84",
+    "version": 12,
+    "aliases": [
+      {
+        "value": "Pioglitazone Hydrochloride and Metformin Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=8d252dab-e868-42d3-95ea-69423d909e84&version=12",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "0734e20fa1475f020a6c0c1019643f4c42cf92eea15ac9666518689a3d781363",
+        "effective_date": "2026-10-14"
+      },
+      {
+        "value": "Pioglitazone Hydrochloride and Metformin Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=8d252dab-e868-42d3-95ea-69423d909e84&version=12",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "0734e20fa1475f020a6c0c1019643f4c42cf92eea15ac9666518689a3d781363",
+        "effective_date": "2026-10-14"
+      },
+      {
+        "value": "Pioglitazone Hydrochloride and Metformin Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=8d252dab-e868-42d3-95ea-69423d909e84&version=12",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "0734e20fa1475f020a6c0c1019643f4c42cf92eea15ac9666518689a3d781363",
+        "effective_date": "2026-10-14"
+      },
+      {
+        "value": "Pioglitazone Hydrochloride and Metformin Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=8d252dab-e868-42d3-95ea-69423d909e84&version=12",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "0734e20fa1475f020a6c0c1019643f4c42cf92eea15ac9666518689a3d781363",
+        "effective_date": "2026-10-14"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Rising Pharma Holdings, Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=8d252dab-e868-42d3-95ea-69423d909e84&version=12",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "0734e20fa1475f020a6c0c1019643f4c42cf92eea15ac9666518689a3d781363",
+        "effective_date": "2026-10-14"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use PIOGLITAZONE AND METFORMIN HYDROCHLORIDE TABLETS safely and effectively. See full prescribing information for PIOGLITAZONE AND METFORMIN HYDROCHLORIDE TABLETS. PIOGLITAZONE and METFORMIN HYDROCHLORIDE tablets, for oral use Initial U.S. Approval: 2005",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=8d252dab-e868-42d3-95ea-69423d909e84&version=12",
+        "xpath": "s:title",
+        "xml_sha256": "0734e20fa1475f020a6c0c1019643f4c42cf92eea15ac9666518689a3d781363",
+        "effective_date": "2026-10-14"
+      }
+    ]
+  },
+  {
+    "setid": "5ca218af-b3f4-512a-e063-6394a90a3ec6",
+    "version": 1,
+    "aliases": [
+      {
+        "value": "HYDROXYCHLOROQUINE SULFATE",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5ca218af-b3f4-512a-e063-6394a90a3ec6&version=1",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "e2a1ba88322ecb4e44fd86d38f69f27d3314c3314073e9b389eb270852876563",
+        "effective_date": "2026-09-29"
+      },
+      {
+        "value": "hydroxychloroquine sulfate",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5ca218af-b3f4-512a-e063-6394a90a3ec6&version=1",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "e2a1ba88322ecb4e44fd86d38f69f27d3314c3314073e9b389eb270852876563",
+        "effective_date": "2026-09-29"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Aphena Pharma Solutions - Tennessee, LLC",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5ca218af-b3f4-512a-e063-6394a90a3ec6&version=1",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "e2a1ba88322ecb4e44fd86d38f69f27d3314c3314073e9b389eb270852876563",
+        "effective_date": "2026-09-29"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use HYDROXYCHLOROQUINE SULFATE TABLETS safely and effectively. See full prescribing information for HYDROXYCHLOROQUINE SULFATE TABLETS. HYDROXYCHLOROQUINE SULFATE tablets, for oral use Initial U.S. Approval: 1955",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5ca218af-b3f4-512a-e063-6394a90a3ec6&version=1",
+        "xpath": "s:title",
+        "xml_sha256": "e2a1ba88322ecb4e44fd86d38f69f27d3314c3314073e9b389eb270852876563",
+        "effective_date": "2026-09-29"
+      }
+    ]
+  },
+  {
+    "setid": "ce4afef1-22c1-4a1c-a102-a32fb6a2e045",
+    "version": 3,
+    "aliases": [
+      {
+        "value": "Nitrofurantoin Macrocrystals",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ce4afef1-22c1-4a1c-a102-a32fb6a2e045&version=3",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "2fa02a4d9fc392a7c991d8be396c521f612a3bd9766eec0dd477039c394b1d50",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "Nitrofurantoin Macrocrystals",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ce4afef1-22c1-4a1c-a102-a32fb6a2e045&version=3",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "2fa02a4d9fc392a7c991d8be396c521f612a3bd9766eec0dd477039c394b1d50",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "Nitrofurantoin Macrocrystals",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ce4afef1-22c1-4a1c-a102-a32fb6a2e045&version=3",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "2fa02a4d9fc392a7c991d8be396c521f612a3bd9766eec0dd477039c394b1d50",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "Nitrofurantoin Macrocrystals",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ce4afef1-22c1-4a1c-a102-a32fb6a2e045&version=3",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "2fa02a4d9fc392a7c991d8be396c521f612a3bd9766eec0dd477039c394b1d50",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "Nitrofurantoin Capsules, USP (Macrocrystals) Rx Only",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ce4afef1-22c1-4a1c-a102-a32fb6a2e045&version=3",
+        "xpath": "s:title",
+        "xml_sha256": "2fa02a4d9fc392a7c991d8be396c521f612a3bd9766eec0dd477039c394b1d50",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "American Health Packaging",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ce4afef1-22c1-4a1c-a102-a32fb6a2e045&version=3",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "2fa02a4d9fc392a7c991d8be396c521f612a3bd9766eec0dd477039c394b1d50",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "titles": [
+      {
+        "value": "Nitrofurantoin Capsules, USP (Macrocrystals) Rx Only",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ce4afef1-22c1-4a1c-a102-a32fb6a2e045&version=3",
+        "xpath": "s:title",
+        "xml_sha256": "2fa02a4d9fc392a7c991d8be396c521f612a3bd9766eec0dd477039c394b1d50",
+        "effective_date": "2026-11-10"
+      }
+    ]
+  },
+  {
+    "setid": "b52bdaf7-3b54-4165-9ab0-9dfa08170e47",
+    "version": 23,
+    "aliases": [
+      {
+        "value": "clindamycin phosphate",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=b52bdaf7-3b54-4165-9ab0-9dfa08170e47&version=23",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "b371679d311afea46a1a9b97495c043e70bd0f3f640d89cf923379d5853d9806",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "clindamycin phosphate",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=b52bdaf7-3b54-4165-9ab0-9dfa08170e47&version=23",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "b371679d311afea46a1a9b97495c043e70bd0f3f640d89cf923379d5853d9806",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Clindamycin Phosphate Vaginal Cream, USP",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=b52bdaf7-3b54-4165-9ab0-9dfa08170e47&version=23",
+        "xpath": "s:title",
+        "xml_sha256": "b371679d311afea46a1a9b97495c043e70bd0f3f640d89cf923379d5853d9806",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Mylan Pharmaceuticals Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=b52bdaf7-3b54-4165-9ab0-9dfa08170e47&version=23",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "b371679d311afea46a1a9b97495c043e70bd0f3f640d89cf923379d5853d9806",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "titles": [
+      {
+        "value": "Clindamycin Phosphate Vaginal Cream, USP",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=b52bdaf7-3b54-4165-9ab0-9dfa08170e47&version=23",
+        "xpath": "s:title",
+        "xml_sha256": "b371679d311afea46a1a9b97495c043e70bd0f3f640d89cf923379d5853d9806",
+        "effective_date": "2026-11-16"
+      }
+    ]
+  },
+  {
+    "setid": "5723eaf9-8659-4730-b792-4e4c33690ccb",
+    "version": 28,
+    "aliases": [
+      {
+        "value": "Ciprofloxacin",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5723eaf9-8659-4730-b792-4e4c33690ccb&version=28",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "2fc161647e4be43f8d52412d9a7c61b9551b1231a65dbca4c562683a5f0fbe73",
+        "effective_date": "2026-10-15"
+      },
+      {
+        "value": "Ciprofloxacin",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5723eaf9-8659-4730-b792-4e4c33690ccb&version=28",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "2fc161647e4be43f8d52412d9a7c61b9551b1231a65dbca4c562683a5f0fbe73",
+        "effective_date": "2026-10-15"
+      },
+      {
+        "value": "Ciprofloxacin",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5723eaf9-8659-4730-b792-4e4c33690ccb&version=28",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "2fc161647e4be43f8d52412d9a7c61b9551b1231a65dbca4c562683a5f0fbe73",
+        "effective_date": "2026-10-15"
+      },
+      {
+        "value": "Ciprofloxacin",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5723eaf9-8659-4730-b792-4e4c33690ccb&version=28",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "2fc161647e4be43f8d52412d9a7c61b9551b1231a65dbca4c562683a5f0fbe73",
+        "effective_date": "2026-10-15"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "PD-Rx Pharmaceuticals, Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5723eaf9-8659-4730-b792-4e4c33690ccb&version=28",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "2fc161647e4be43f8d52412d9a7c61b9551b1231a65dbca4c562683a5f0fbe73",
+        "effective_date": "2026-10-15"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use CIPROFLOXACIN TABLETS safely and effectively. See full prescribing information for CIPROFLOXACIN TABLETS. CIPROFLOXACIN tablets, for oral use. Initial U.S. Approval: 1987",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5723eaf9-8659-4730-b792-4e4c33690ccb&version=28",
+        "xpath": "s:title",
+        "xml_sha256": "2fc161647e4be43f8d52412d9a7c61b9551b1231a65dbca4c562683a5f0fbe73",
+        "effective_date": "2026-10-15"
+      }
+    ]
+  },
+  {
+    "setid": "2f7d84d4-1085-4243-be88-442eecb85205",
+    "version": 15,
+    "aliases": [
+      {
+        "value": "Metronidazole",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=2f7d84d4-1085-4243-be88-442eecb85205&version=15",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "9739a75b0b81d82f9da191b4236a6cfde0f027ece9e0bf0ec91718e8bf033fda",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Metronidazole",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=2f7d84d4-1085-4243-be88-442eecb85205&version=15",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "9739a75b0b81d82f9da191b4236a6cfde0f027ece9e0bf0ec91718e8bf033fda",
+        "effective_date": "2026-11-16"
+      },
+      {
+        "value": "Metronidazole Tablets USP",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=2f7d84d4-1085-4243-be88-442eecb85205&version=15",
+        "xpath": "s:title",
+        "xml_sha256": "9739a75b0b81d82f9da191b4236a6cfde0f027ece9e0bf0ec91718e8bf033fda",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "REMEDYREPACK INC.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=2f7d84d4-1085-4243-be88-442eecb85205&version=15",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "9739a75b0b81d82f9da191b4236a6cfde0f027ece9e0bf0ec91718e8bf033fda",
+        "effective_date": "2026-11-16"
+      }
+    ],
+    "titles": [
+      {
+        "value": "Metronidazole Tablets USP",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=2f7d84d4-1085-4243-be88-442eecb85205&version=15",
+        "xpath": "s:title",
+        "xml_sha256": "9739a75b0b81d82f9da191b4236a6cfde0f027ece9e0bf0ec91718e8bf033fda",
+        "effective_date": "2026-11-16"
+      }
+    ]
+  },
+  {
+    "setid": "126406ae-1fdc-df20-e063-6294a90a2718",
+    "version": 4,
+    "aliases": [
+      {
+        "value": "Fluconazole",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=126406ae-1fdc-df20-e063-6294a90a2718&version=4",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "6e4738a0f280cad0e6ea0d561f1c009be78f7caf22cc2f567bbe0c98e0691f6d",
+        "effective_date": "2026-11-12"
+      },
+      {
+        "value": "Fluconazole",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=126406ae-1fdc-df20-e063-6294a90a2718&version=4",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "6e4738a0f280cad0e6ea0d561f1c009be78f7caf22cc2f567bbe0c98e0691f6d",
+        "effective_date": "2026-11-12"
+      },
+      {
+        "value": "Fluconazole Tablets USP Rx only",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=126406ae-1fdc-df20-e063-6294a90a2718&version=4",
+        "xpath": "s:title",
+        "xml_sha256": "6e4738a0f280cad0e6ea0d561f1c009be78f7caf22cc2f567bbe0c98e0691f6d",
+        "effective_date": "2026-11-12"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "St. Mary's Medical Park Pharmacy",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=126406ae-1fdc-df20-e063-6294a90a2718&version=4",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "6e4738a0f280cad0e6ea0d561f1c009be78f7caf22cc2f567bbe0c98e0691f6d",
+        "effective_date": "2026-11-12"
+      }
+    ],
+    "titles": [
+      {
+        "value": "Fluconazole Tablets USP Rx only",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=126406ae-1fdc-df20-e063-6294a90a2718&version=4",
+        "xpath": "s:title",
+        "xml_sha256": "6e4738a0f280cad0e6ea0d561f1c009be78f7caf22cc2f567bbe0c98e0691f6d",
+        "effective_date": "2026-11-12"
+      }
+    ]
+  },
+  {
+    "setid": "5fa4920c-ec29-b879-e063-6294a90adcad",
+    "version": 1,
+    "aliases": [
+      {
+        "value": "Sildenafil",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5fa4920c-ec29-b879-e063-6294a90adcad&version=1",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "264e2f2ef8a69e77e7bea2b96d43309f89f6609d98641334fed4a3e801bfd011",
+        "effective_date": "2026-11-06"
+      },
+      {
+        "value": "Sildenafil",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5fa4920c-ec29-b879-e063-6294a90adcad&version=1",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "264e2f2ef8a69e77e7bea2b96d43309f89f6609d98641334fed4a3e801bfd011",
+        "effective_date": "2026-11-06"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "NuCare Pharmaceuticals, Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5fa4920c-ec29-b879-e063-6294a90adcad&version=1",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "264e2f2ef8a69e77e7bea2b96d43309f89f6609d98641334fed4a3e801bfd011",
+        "effective_date": "2026-11-06"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use SILDENAFIL TABLETS safely and effectively. See full prescribing information for SILDENAFIL TABLETS. SILDENAFIL tablets, for oral use Initial U.S. Approval: 1998",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5fa4920c-ec29-b879-e063-6294a90adcad&version=1",
+        "xpath": "s:title",
+        "xml_sha256": "264e2f2ef8a69e77e7bea2b96d43309f89f6609d98641334fed4a3e801bfd011",
+        "effective_date": "2026-11-06"
+      }
+    ]
+  },
+  {
+    "setid": "603c07bb-61bf-410f-8abf-01ef09d61c14",
+    "version": 1,
+    "aliases": [
+      {
+        "value": "donepezil hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=603c07bb-61bf-410f-8abf-01ef09d61c14&version=1",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "0baf5d2cca0c27de86f3ab0681900b95d563864898d30b49f70174abefb80300",
+        "effective_date": "2026-09-10"
+      },
+      {
+        "value": "donepezil hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=603c07bb-61bf-410f-8abf-01ef09d61c14&version=1",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "0baf5d2cca0c27de86f3ab0681900b95d563864898d30b49f70174abefb80300",
+        "effective_date": "2026-09-10"
+      },
+      {
+        "value": "donepezil hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=603c07bb-61bf-410f-8abf-01ef09d61c14&version=1",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "0baf5d2cca0c27de86f3ab0681900b95d563864898d30b49f70174abefb80300",
+        "effective_date": "2026-09-10"
+      },
+      {
+        "value": "donepezil hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=603c07bb-61bf-410f-8abf-01ef09d61c14&version=1",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "0baf5d2cca0c27de86f3ab0681900b95d563864898d30b49f70174abefb80300",
+        "effective_date": "2026-09-10"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "ASCLEMED USA INC.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=603c07bb-61bf-410f-8abf-01ef09d61c14&version=1",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "0baf5d2cca0c27de86f3ab0681900b95d563864898d30b49f70174abefb80300",
+        "effective_date": "2026-09-10"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use DONEPEZIL HYDROCHLORIDE TABLETS safely and effectively. See full prescribing information for DONEPEZIL HYDROCHLORIDE TABLETS. DONEPEZIL HYDROCHLORIDE tablets, for oral use Initial U.S. Approval: 1996",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=603c07bb-61bf-410f-8abf-01ef09d61c14&version=1",
+        "xpath": "s:title",
+        "xml_sha256": "0baf5d2cca0c27de86f3ab0681900b95d563864898d30b49f70174abefb80300",
+        "effective_date": "2026-09-10"
+      }
+    ]
+  },
+  {
+    "setid": "0f692652-4451-4eef-901d-1e6aadc43847",
+    "version": 1,
+    "aliases": [
+      {
+        "value": "Olanzapine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0f692652-4451-4eef-901d-1e6aadc43847&version=1",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "e0da33bd158e3d77794c201d0e4b21fa1519cefc77c30d45ae5ea641d744e6e2",
+        "effective_date": "2026-11-17"
+      },
+      {
+        "value": "Olanzapine",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0f692652-4451-4eef-901d-1e6aadc43847&version=1",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "e0da33bd158e3d77794c201d0e4b21fa1519cefc77c30d45ae5ea641d744e6e2",
+        "effective_date": "2026-11-17"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "REMEDYREPACK INC.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0f692652-4451-4eef-901d-1e6aadc43847&version=1",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "e0da33bd158e3d77794c201d0e4b21fa1519cefc77c30d45ae5ea641d744e6e2",
+        "effective_date": "2026-11-17"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use OLANZAPINE TABLETS safely and effectively. See full prescribing information for OLANZAPINE TABLETS. OLANZAPINE tablets, for oral use Initial U.S. Approval: 1996",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0f692652-4451-4eef-901d-1e6aadc43847&version=1",
+        "xpath": "s:title",
+        "xml_sha256": "e0da33bd158e3d77794c201d0e4b21fa1519cefc77c30d45ae5ea641d744e6e2",
+        "effective_date": "2026-11-17"
+      }
+    ]
+  },
+  {
+    "setid": "cf79ac74-017e-4fb4-85d3-4ea944080e89",
+    "version": 15,
+    "aliases": [
+      {
+        "value": "MECLIZINE",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=cf79ac74-017e-4fb4-85d3-4ea944080e89&version=15",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "aa098888de930f745137a7e51a0754c90e2fbb3e7558fe3651f725d0010d1c74",
+        "effective_date": "2026-11-12"
+      },
+      {
+        "value": "Meclizine HCl 25mg",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=cf79ac74-017e-4fb4-85d3-4ea944080e89&version=15",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "aa098888de930f745137a7e51a0754c90e2fbb3e7558fe3651f725d0010d1c74",
+        "effective_date": "2026-11-12"
+      },
+      {
+        "value": "Drug Facts",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=cf79ac74-017e-4fb4-85d3-4ea944080e89&version=15",
+        "xpath": "s:title",
+        "xml_sha256": "aa098888de930f745137a7e51a0754c90e2fbb3e7558fe3651f725d0010d1c74",
+        "effective_date": "2026-11-12"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "PD-Rx Pharmaceuticals, Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=cf79ac74-017e-4fb4-85d3-4ea944080e89&version=15",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "aa098888de930f745137a7e51a0754c90e2fbb3e7558fe3651f725d0010d1c74",
+        "effective_date": "2026-11-12"
+      }
+    ],
+    "titles": [
+      {
+        "value": "Drug Facts",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=cf79ac74-017e-4fb4-85d3-4ea944080e89&version=15",
+        "xpath": "s:title",
+        "xml_sha256": "aa098888de930f745137a7e51a0754c90e2fbb3e7558fe3651f725d0010d1c74",
+        "effective_date": "2026-11-12"
+      }
+    ]
+  },
+  {
+    "setid": "1a7b373a-9b74-4b9d-93fb-081614222e30",
+    "version": 19,
+    "aliases": [
+      {
+        "value": "Benazepril Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=1a7b373a-9b74-4b9d-93fb-081614222e30&version=19",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "a35cae28a6c6af3959c65c232a2074edcd7667a088b6bce6f4538c999c15d4ab",
+        "effective_date": "2026-11-11"
+      },
+      {
+        "value": "Benazepril Hydrochloride",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=1a7b373a-9b74-4b9d-93fb-081614222e30&version=19",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "a35cae28a6c6af3959c65c232a2074edcd7667a088b6bce6f4538c999c15d4ab",
+        "effective_date": "2026-11-11"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "PD-Rx Pharmaceuticals, Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=1a7b373a-9b74-4b9d-93fb-081614222e30&version=19",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "a35cae28a6c6af3959c65c232a2074edcd7667a088b6bce6f4538c999c15d4ab",
+        "effective_date": "2026-11-11"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use BENAZEPRIL HYDROCHLORIDE TABLETS safely and effectively. See full prescribing information for use BENAZEPRIL HYDROCHLORIDE TABLETS. BENAZEPRIL HYDROCHLORIDE tablets, for oral use Initial U.S. Approval: 1991",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=1a7b373a-9b74-4b9d-93fb-081614222e30&version=19",
+        "xpath": "s:title",
+        "xml_sha256": "a35cae28a6c6af3959c65c232a2074edcd7667a088b6bce6f4538c999c15d4ab",
+        "effective_date": "2026-11-11"
+      }
+    ]
+  },
+  {
+    "setid": "8cd22728-34b4-4e55-8339-580138fe46d8",
+    "version": 5,
+    "aliases": [
+      {
+        "value": "Acyclovir",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=8cd22728-34b4-4e55-8339-580138fe46d8&version=5",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "7542c6fa1cf5acb6fff60c9a3446c749b1b358f5572b7551b66636ddccbc6b1a",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "Acyclovir",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=8cd22728-34b4-4e55-8339-580138fe46d8&version=5",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "7542c6fa1cf5acb6fff60c9a3446c749b1b358f5572b7551b66636ddccbc6b1a",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "Acyclovir",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=8cd22728-34b4-4e55-8339-580138fe46d8&version=5",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "7542c6fa1cf5acb6fff60c9a3446c749b1b358f5572b7551b66636ddccbc6b1a",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "Acyclovir",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=8cd22728-34b4-4e55-8339-580138fe46d8&version=5",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "7542c6fa1cf5acb6fff60c9a3446c749b1b358f5572b7551b66636ddccbc6b1a",
+        "effective_date": "2026-11-10"
+      },
+      {
+        "value": "ACYCLOVIR CAPSULES, USP 200 mg ACYCLOVIR TABLETS, USP 800 mg",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=8cd22728-34b4-4e55-8339-580138fe46d8&version=5",
+        "xpath": "s:title",
+        "xml_sha256": "7542c6fa1cf5acb6fff60c9a3446c749b1b358f5572b7551b66636ddccbc6b1a",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Chartwell RX, LLC",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=8cd22728-34b4-4e55-8339-580138fe46d8&version=5",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "7542c6fa1cf5acb6fff60c9a3446c749b1b358f5572b7551b66636ddccbc6b1a",
+        "effective_date": "2026-11-10"
+      }
+    ],
+    "titles": [
+      {
+        "value": "ACYCLOVIR CAPSULES, USP 200 mg ACYCLOVIR TABLETS, USP 800 mg",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=8cd22728-34b4-4e55-8339-580138fe46d8&version=5",
+        "xpath": "s:title",
+        "xml_sha256": "7542c6fa1cf5acb6fff60c9a3446c749b1b358f5572b7551b66636ddccbc6b1a",
+        "effective_date": "2026-11-10"
+      }
+    ]
+  },
+  {
+    "setid": "9391b8d8-2217-4838-8976-1a5ad90ef4ca",
+    "version": 5,
+    "aliases": [
+      {
+        "value": "Enalapril maleate oral solution",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=9391b8d8-2217-4838-8976-1a5ad90ef4ca&version=5",
+        "xpath": ".//s:manufacturedProduct/s:manufacturedProduct/s:name",
+        "xml_sha256": "0329d42042cc58102a3de20597db03eac408e8b3e31139b0fc27135d56568377",
+        "effective_date": "2026-11-02"
+      },
+      {
+        "value": "Enalapril maleate",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=9391b8d8-2217-4838-8976-1a5ad90ef4ca&version=5",
+        "xpath": ".//s:genericMedicine/s:name",
+        "xml_sha256": "0329d42042cc58102a3de20597db03eac408e8b3e31139b0fc27135d56568377",
+        "effective_date": "2026-11-02"
+      }
+    ],
+    "labelers": [
+      {
+        "value": "Bionpharma Inc.",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=9391b8d8-2217-4838-8976-1a5ad90ef4ca&version=5",
+        "xpath": "s:author/s:assignedEntity/s:representedOrganization/s:name",
+        "xml_sha256": "0329d42042cc58102a3de20597db03eac408e8b3e31139b0fc27135d56568377",
+        "effective_date": "2026-11-02"
+      }
+    ],
+    "titles": [
+      {
+        "value": "These highlights do not include all the information needed to use ENALAPRIL MALEATE ORAL SOLUTION safely and effectively. See full prescribing information for ENALAPRIL MALEATE ORAL SOLUTION. ENALAPRIL MALEATE oral solution Initial U.S. Approval: 1985",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=9391b8d8-2217-4838-8976-1a5ad90ef4ca&version=5",
+        "xpath": "s:title",
+        "xml_sha256": "0329d42042cc58102a3de20597db03eac408e8b3e31139b0fc27135d56568377",
+        "effective_date": "2026-11-02"
+      }
+    ]
   }
 ]
