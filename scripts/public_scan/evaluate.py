@@ -32,6 +32,10 @@ def load_set(name: str) -> list[dict[str, Any]]:
         data = json.loads(Path("src/gen/cv4b_fresh.json").read_text(encoding="utf-8"))
         return [{"id": r["filename"], "path": f"data/cv4b_photos/candidates/{r['filename']}", "expected": None,
                  "kind": "device", "condition": "photo"} for r in data["records"]]
+    if name == "unused_decoy":
+        photos = json.loads(Path("results/public_scan/photos_v4.json").read_text(encoding="utf-8"))["photos"]
+        return [{"id": p["id"], "path": p["file"], "expected": None, "kind": p["role"], "condition": p["condition"],
+                 "product": p["product_name"]} for p in photos]
     if name in ("dev_real", "fresh_real"):
         photos = json.loads(PHOTOS.read_text(encoding="utf-8"))["photos"]
         return [{"id": p["id"], "path": p["file"], "expected": p["expected"], "kind": p["role"],
@@ -165,12 +169,13 @@ def cmd_tune(only: list[str]) -> None:
         if only and key not in only:
             continue
         config = public_scan.ScanConfig(**values)
-        vocab, distinct = public_scan.scan_inputs(catalog, config)
+        inputs = public_scan.scan_inputs(catalog, config)
         rows = []
         for row in cached:
             started = time.monotonic()
-            result = public_scan.identify(row["lines"], service.matcher.match, vocab, config, start=time.monotonic(),
-                                          cut_short=not row["complete"], distinct=distinct)
+            result = public_scan.identify(row["lines"], service.matcher.match, inputs.vocab, config,
+                                          start=time.monotonic(),
+                                          cut_short=not row["complete"], distinct=inputs.distinct, other=inputs.other)
             cat = category(result, row["expected"], catalog)
             names = ([catalog.products[pid].name for pid, _ in result["best"]["found"]["candidates"]]
                      if result["best"] else [])
@@ -186,7 +191,7 @@ def cmd_tune(only: list[str]) -> None:
     target.write_text(json.dumps(report, indent=1), encoding="utf-8")
 
 
-def cmd_final(name: str) -> None:
+def cmd_final(name: str, tag: str = "") -> None:
     """The frozen configuration, whole pipeline per photo, written once (an existing output is never replaced)."""
     from src.api import medicine, public_scan
 
@@ -196,7 +201,8 @@ def cmd_final(name: str) -> None:
                            text=True).stdout.strip()
     if not committed or dirty:
         raise SystemExit("the frozen config must be committed before a final run")
-    target, summary_path = OUT / f"final_{name}.jsonl", OUT / f"final_{name}_summary.json"
+    stem = f"final_{name}" + (f"_{tag}" if tag else "")
+    target, summary_path = OUT / f"{stem}.jsonl", OUT / f"{stem}_summary.json"
     if target.exists():
         raise SystemExit(f"{target} exists: a final run is scored once")
     config = public_scan.load_config()
@@ -234,6 +240,6 @@ if __name__ == "__main__":
     elif command == "tune":
         cmd_tune(sys.argv[2:])
     elif command == "final":
-        cmd_final(sys.argv[2])
+        cmd_final(sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else "")
     else:
         raise SystemExit(__doc__)

@@ -47,6 +47,7 @@ class ScanConfig:
     max_chars: int = 300  # a candidate string is cut to this length
     name_evidence: bool = False  # candidate D: a distinctive name word must be visible in the OCR text (protocol v3)
     max_words: int = 5  # D: candidate strings have 1 to this many words
+    other_ingredient_check: bool = False  # candidate E: another product's ingredient word in the text means review
 
 
 def load_config(path: Path = CONFIG_PATH) -> ScanConfig:
@@ -85,6 +86,25 @@ def similar(a: str, b: str) -> bool:
     return a == b or difflib.SequenceMatcher(None, a, b).ratio() >= SIMILAR
 
 
+def corpus_generic(catalog: Any, headings: dict[str, set[str]]) -> set[str]:
+    """Words generic by the corpus alone: in a dosage form, in 10% of the chunks, in headings of 3+ products."""
+    def words(text: str) -> set[str]:
+        return {w for w in re.findall(r"[a-z]+", text.lower()) if len(w) >= 4}
+
+    forms = set().union(*(words(p.fields.get("dosage_form") or "") for p in catalog.products.values()))
+    chunk_df: dict[str, int] = {}
+    for chunk in catalog.chunks.values():
+        for w in words(chunk.text):
+            chunk_df[w] = chunk_df.get(w, 0) + 1
+    heading_df: dict[str, int] = {}
+    for ws in headings.values():
+        for w in ws:
+            heading_df[w] = heading_df.get(w, 0) + 1
+    total = len(catalog.chunks)
+    common = {w for w, n in chunk_df.items() if n / total >= GENERIC_CHUNK_SHARE}
+    return forms | common | {w for w, n in heading_df.items() if n >= GENERIC_HEADING_PRODUCTS}
+
+
 def derive_distinctive(catalog: Any, headings: dict[str, set[str]]) -> tuple[list[str], dict[str, tuple[str, ...]]]:
     """Generic words and the distinctive words of each product, both derived from the corpus (protocol v3).
 
@@ -101,20 +121,55 @@ def derive_distinctive(catalog: Any, headings: dict[str, set[str]]) -> tuple[lis
     for ws in source.values():
         for w in ws:
             product_df[w] = product_df.get(w, 0) + 1
-    forms = set().union(*(words(p.fields.get("dosage_form") or "") for p in catalog.products.values()))
-    chunk_df: dict[str, int] = {}
-    for chunk in catalog.chunks.values():
-        for w in words(chunk.text):
-            chunk_df[w] = chunk_df.get(w, 0) + 1
-    heading_df: dict[str, int] = {}
-    for ws in headings.values():
-        for w in ws:
-            heading_df[w] = heading_df.get(w, 0) + 1
-    total = len(catalog.chunks)
-    generic = {w for ws in source.values() for w in ws
-               if product_df[w] >= 2 or w in forms or chunk_df.get(w, 0) / total >= GENERIC_CHUNK_SHARE
-               or heading_df.get(w, 0) >= GENERIC_HEADING_PRODUCTS}
+    by_corpus = corpus_generic(catalog, headings)
+    generic = {w for ws in source.values() for w in ws if product_df[w] >= 2 or w in by_corpus}
     return sorted(generic), {pid: tuple(sorted(ws - generic)) for pid, ws in source.items()}
+
+
+NAMES_PATH = Path(__file__).with_name("public_scan_names.json")  # 70 extra products of the med100 list
+EXTRA_SPREAD = 5  # a word in the label text of this many of the 30 products is generic for the E check
+EXTRA_NAME_SHARE = 3  # a word in the names of this many of the 100 products is generic for the E check
+
+
+def derive_ingredient_words(
+    catalog: Any, headings: dict[str, set[str]], extra_ingredients: list[str],
+) -> tuple[set[str], dict[str, set[str]]]:
+    """Ingredient words of ANY corpus or med100-list product, derived (protocol v4), plus each product's own words.
+
+    Ingredient names come from the sourced generic-medicine name of each of the 30 corpus products (the SPL
+    genericMedicine element, kept in the metadata with its xpath) and the ingredient field of each of the 70 extra
+    products. Words are letters-only, 4+ letters. Generic words (D's list and the corpus-generic ones), words in
+    the generic names of 3 or more of the 100 products, and words in the label text of 5 or more of the 30 products
+    are removed. ``own`` holds every name, alias and active substance word of a corpus product (never a foreign word).
+    """
+    from src.api import medicine
+
+    def words(text: str) -> set[str]:
+        return {w for w in re.findall(r"[a-z]+", text.lower()) if len(w) >= 4}
+
+    generic, _ = derive_distinctive(catalog, headings)
+    generic = sorted(set(generic) | corpus_generic(catalog, headings))
+    metadata = medicine.load_medicine_metadata(medicine.MEDICINE_DIR)
+    own = {pid: words(" ".join([p.name, *p.aliases, p.fields.get("active_substance") or ""]))
+           for pid, p in catalog.products.items()}
+    per_product = [words(" ".join(a["value"] for a in metadata.get(p.setid, {}).get("aliases", [])
+                                  if "genericMedicine" in a["xpath"])) for p in catalog.products.values()]
+    per_product += [words(n) for n in extra_ingredients]
+    df: dict[str, int] = {}
+    for ws in per_product:
+        for w in ws:
+            df[w] = df.get(w, 0) + 1
+    spread: dict[str, int] = {}  # in how many of the 30 products' label texts a word occurs
+    for p in catalog.products.values():
+        seen: set[str] = set()
+        for chunk_id in p.chunk_ids:
+            seen |= words(catalog.chunks[chunk_id].text)
+        for w in seen:
+            spread[w] = spread.get(w, 0) + 1
+    every = set().union(*per_product)
+    other = {w for w in every if w not in set(generic) and df.get(w, 0) < EXTRA_NAME_SHARE
+             and spread.get(w, 0) < EXTRA_SPREAD}
+    return other, own
 
 
 def heading_words(directory: Path) -> dict[str, set[str]]:
@@ -131,6 +186,7 @@ def visible_words(words: tuple[str, ...], ocr_tokens: list[str]) -> list[str]:
 
 def apply_evidence(
     found: dict[str, Any], distinct: dict[str, tuple[str, ...]], ocr_tokens: list[str],
+    other: tuple[set[str], dict[str, set[str]]] | None = None,
 ) -> dict[str, Any]:
     """Name-evidence check on the matcher's answer (the matcher itself is untouched). See protocol_v3.md."""
     shown = []
@@ -146,6 +202,12 @@ def apply_evidence(
     outcome = found["outcome"]
     if outcome == "matched" and not (shown[0][0] == found["candidates"][0][0] and shown[0][2] and len(complete) == 1):
         outcome = "needs_review"
+    if outcome == "matched" and other is not None:  # candidate E: an ingredient the product does not have is visible
+        words, own = other
+        mine = own[keep[0][0]]
+        foreign = [w for w in visible_words(tuple(sorted(words)), ocr_tokens) if not any(similar(w, m) for m in mine)]
+        if foreign:
+            outcome = "needs_review"
     return {**found, "outcome": outcome, "candidates": keep}
 
 
@@ -215,7 +277,7 @@ def evidence_candidates(lines: list[dict[str, Any]], usable: list[int], vocab: s
 def identify(
     lines: list[dict[str, Any]], match: Callable[[str], dict[str, Any]], vocab: set[str], config: ScanConfig,
     *, start: float, hard_limit_s: float = HARD_LIMIT_S, cut_short: bool = False,
-    distinct: dict[str, tuple[str, ...]] | None = None,
+    distinct: dict[str, tuple[str, ...]] | None = None, other: tuple[set[str], dict[str, set[str]]] | None = None,
 ) -> dict[str, Any]:
     """Match the candidate strings and return ``{outcome, reason, best, tried, timed_out}`` (no HTTP, no database).
 
@@ -236,7 +298,7 @@ def identify(
         found = match(cand.text)
         tried += 1
         if config.name_evidence:
-            found = apply_evidence(found, distinct or {}, ocr_tokens)
+            found = apply_evidence(found, distinct or {}, ocr_tokens, other)
         key = ((OUTCOME_RANK[found["outcome"]], found["score"]) if config.order == "outcome" or config.name_evidence
                else (found["score"],))
         if best is None or key > best["key"]:
@@ -250,15 +312,29 @@ def identify(
             "best": {k: best[k] for k in ("found", "text", "lines")}, "tried": tried, "timed_out": False}
 
 
-def scan_inputs(catalog: Any, config: ScanConfig) -> tuple[set[str], dict[str, tuple[str, ...]] | None]:
-    """The candidate vocabulary and, for D, the distinctive words per product (None when D is off)."""
+@dataclass
+class ScanInputs:
+    """What identify needs besides the lines: candidate vocabulary, D's distinctive words, E's ingredient words."""
+
+    vocab: set[str]
+    distinct: dict[str, tuple[str, ...]] | None = None
+    other: tuple[set[str], dict[str, set[str]]] | None = None
+
+
+def scan_inputs(catalog: Any, config: ScanConfig) -> ScanInputs:
+    """The inputs of one configuration (D and E derive their words from the corpus, protocol v3 and v4)."""
     if config.name_evidence:
         from src.api import medicine
 
-        _, distinct = derive_distinctive(catalog, heading_words(medicine.MEDICINE_DIR))
-        return {w for ws in distinct.values() for w in ws}, distinct
+        headings = heading_words(medicine.MEDICINE_DIR)
+        _, distinct = derive_distinctive(catalog, headings)
+        other = None
+        if config.other_ingredient_check:
+            extra = [r["ingredient"] for r in json.loads(NAMES_PATH.read_text(encoding="utf-8"))]
+            other = derive_ingredient_words(catalog, headings, extra)
+        return ScanInputs({w for ws in distinct.values() for w in ws}, distinct, other)
     names = [p.name for p in catalog.products.values()] + [a for p in catalog.products.values() for a in p.aliases]
-    return vocabulary(names), None
+    return ScanInputs(vocabulary(names))
 
 
 def read_lines(path: Path, *, timeout_s: float = CHILD_TIMEOUT_S) -> dict[str, Any]:
@@ -315,9 +391,9 @@ def scan_photo(path: Path, service: Any, config: ScanConfig | None = None, *, re
     reading = (read or read_lines)(path)
     lines = reading["lines"]
     catalog = service.catalog
-    vocab, distinct = scan_inputs(catalog, config)
-    result = identify(lines, service.matcher.match, vocab, config, start=start,
-                      cut_short=not reading.get("complete", True), distinct=distinct)
+    inputs = scan_inputs(catalog, config)
+    result = identify(lines, service.matcher.match, inputs.vocab, config, start=start,
+                      cut_short=not reading.get("complete", True), distinct=inputs.distinct, other=inputs.other)
     body = result_body(catalog, service.matcher, lines, result, medicine)
     extra = {"tried": result["tried"], "killed": reading.get("killed", False)}
     return ScanOutcome(body, time.monotonic() - start, extra)
@@ -369,7 +445,10 @@ if __name__ == "__main__":
 
         catalog = medicine.MedicineCatalog()
         generic, distinct = derive_distinctive(catalog, heading_words(medicine.MEDICINE_DIR))
-        listing = {"generic": generic, "distinctive": {catalog.products[p].name: list(w) for p, w in distinct.items()}}
+        extra = [r["ingredient"] for r in json.loads(NAMES_PATH.read_text(encoding="utf-8"))]
+        other, _ = derive_ingredient_words(catalog, heading_words(medicine.MEDICINE_DIR), extra)
+        listing = {"generic": generic, "ingredient_words_for_E": sorted(other),
+                   "distinctive": {catalog.products[p].name: list(w) for p, w in distinct.items()}}
         print(json.dumps(listing, indent=1))
         target = REPO_ROOT / "results/public_scan/derived_words.json"
         target.write_text(json.dumps(listing, indent=1), encoding="utf-8")

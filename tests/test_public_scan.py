@@ -313,3 +313,37 @@ def test_d_candidates_are_short_strings_around_a_distinctive_word() -> None:
     found = public_scan.build_candidates(lines, {"lisinopril"}, config)
     assert found and all(1 <= len(c.text.split()) <= 5 for c in found)
     assert all("lisinopril" in c.text.lower() for c in found)
+
+
+# candidate E (protocol v4): another product's ingredient word in the text means review
+
+
+def ingredient_inputs() -> tuple[set[str], dict[str, set[str]]]:
+    """Ingredient words of the 100 products and each corpus product's own words, derived."""
+    import json
+
+    from src.api import medicine
+
+    extra = [r["ingredient"] for r in json.loads(public_scan.NAMES_PATH.read_text(encoding="utf-8"))]
+    assert len(extra) == 70
+    return public_scan.derive_ingredient_words(CATALOG, public_scan.heading_words(medicine.MEDICINE_DIR), extra)
+
+
+def test_ingredient_words_cover_both_lists_and_drop_generic_words() -> None:
+    words, own = ingredient_inputs()
+    assert {"pioglitazone", "metformin", "valsartan", "quetiapine"} <= words
+    assert not words & {"tablets", "hydrochloride", "sodium", "only", "oral"}
+    assert len(own) == 30
+
+
+def test_other_ingredient_in_the_text_makes_a_match_review() -> None:
+    _, distinct = derived()
+    other = ingredient_inputs()
+    pid = next(p for p, q in CATALOG.products.items() if q.name == "METFORMIN HYDROCHLORIDE")
+    found = {"outcome": "matched", "score": 0.9, "score_name": "x", "threshold": 0.65, "candidates": [(pid, 0.9)]}
+    alone = public_scan.apply_evidence(found, distinct, ["metformin", "tablets"], other)
+    assert alone["outcome"] == "matched"
+    combo = public_scan.apply_evidence(found, distinct, ["pioglitazone", "metformin"], other)
+    assert combo["outcome"] == "needs_review" and combo["candidates"][0][0] == pid
+    slip = public_scan.apply_evidence(found, distinct, ["metformin", "metformln"], other)
+    assert slip["outcome"] == "matched"  # an OCR slip of the product's own word is not a foreign ingredient

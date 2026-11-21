@@ -17,5 +17,12 @@
   "max_candidates": 8,
   "name_evidence": true,
   "max_words": 5
+ },
+ "E": {
+  "name": "E",
+  "max_candidates": 8,
+  "name_evidence": true,
+  "max_words": 5,
+  "other_ingredient_check": true
  }
 }

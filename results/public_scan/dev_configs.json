@@ -9635,5 +9635,2292 @@
     "names": []
    }
   ]
+ },
+ "E": {
+  "config": {
+   "name": "E",
+   "max_candidates": 8,
+   "name_evidence": true,
+   "max_words": 5,
+   "other_ingredient_check": true
+  },
+  "positives": {
+   "photos": 63,
+   "ignoring_gate": {
+    "correct": 45,
+    "timeout": 10,
+    "review": 6,
+    "not_identified": 2
+   },
+   "pipeline_view": {
+    "correct": 43,
+    "timeout": 10,
+    "review": 6,
+    "not_identified": 2,
+    "retake": 2
+   },
+   "wrong_total": 0,
+   "wrong_interval": [
+    -0.0,
+    0.057
+   ],
+   "not_in_corpus_photos": 0,
+   "wrong_on_not_in_corpus": 0,
+   "review_on_not_in_corpus": 0,
+   "in_corpus_photos": 63,
+   "correct": 45,
+   "correct_interval": [
+    0.593,
+    0.811
+   ],
+   "correct_in_pipeline_view": 43,
+   "review_expected_in_top3": 6,
+   "by_condition": {
+    "positive/artwork": {
+     "n": 21,
+     "correct": 13,
+     "timeout": 7,
+     "review": 1,
+     "wrong_interval": [
+      0.0,
+      0.155
+     ],
+     "retake": 0,
+     "correct_interval": [
+      0.409,
+      0.792
+     ]
+    },
+    "positive/hard": {
+     "n": 21,
+     "correct": 16,
+     "review": 3,
+     "not_identified": 1,
+     "timeout": 1,
+     "wrong_interval": [
+      0.0,
+      0.155
+     ],
+     "retake": 1,
+     "correct_interval": [
+      0.549,
+      0.894
+     ]
+    },
+    "positive/moderate": {
+     "n": 21,
+     "correct": 16,
+     "timeout": 2,
+     "review": 2,
+     "not_identified": 1,
+     "wrong_interval": [
+      0.0,
+      0.155
+     ],
+     "retake": 1,
+     "correct_interval": [
+      0.549,
+      0.894
+     ]
+    }
+   },
+   "seconds": {
+    "median": 35.3,
+    "p90": 50.1,
+    "max": 55.2,
+    "over_60": 0
+   }
+  },
+  "decoys": {
+   "photos": 45,
+   "ignoring_gate": {
+    "timeout": 13,
+    "review": 23,
+    "not_identified": 9
+   },
+   "pipeline_view": {
+    "timeout": 13,
+    "review": 23,
+    "not_identified": 9
+   },
+   "wrong_total": 0,
+   "wrong_interval": [
+    0.0,
+    0.079
+   ],
+   "not_in_corpus_photos": 45,
+   "wrong_on_not_in_corpus": 0,
+   "review_on_not_in_corpus": 23,
+   "by_condition": {
+    "decoy/artwork": {
+     "n": 15,
+     "timeout": 10,
+     "review": 4,
+     "not_identified": 1,
+     "wrong_interval": [
+      -0.0,
+      0.204
+     ],
+     "retake": 0
+    },
+    "decoy/hard": {
+     "n": 15,
+     "timeout": 1,
+     "not_identified": 6,
+     "review": 8,
+     "wrong_interval": [
+      -0.0,
+      0.204
+     ],
+     "retake": 0
+    },
+    "decoy/moderate": {
+     "n": 15,
+     "timeout": 2,
+     "review": 11,
+     "not_identified": 2,
+     "wrong_interval": [
+      -0.0,
+      0.204
+     ],
+     "retake": 0
+    }
+   },
+   "seconds": {
+    "median": 43.9,
+    "p90": 50.1,
+    "max": 56.9,
+    "over_60": 0
+   }
+  },
+  "device": {
+   "photos": 20,
+   "ignoring_gate": {
+    "not_identified": 19,
+    "review": 1
+   },
+   "pipeline_view": {
+    "not_identified": 17,
+    "retake": 3
+   },
+   "wrong_total": 0,
+   "wrong_interval": [
+    -0.0,
+    0.161
+   ],
+   "not_in_corpus_photos": 20,
+   "wrong_on_not_in_corpus": 0,
+   "review_on_not_in_corpus": 1,
+   "by_condition": {
+    "device/photo": {
+     "n": 20,
+     "not_identified": 19,
+     "review": 1,
+     "wrong_interval": [
+      -0.0,
+      0.161
+     ],
+     "retake": 3
+    }
+   },
+   "seconds": {
+    "median": 34.0,
+    "p90": 39.9,
+    "max": 44.9,
+    "over_60": 0
+   }
+  },
+  "rows": [
+   {
+    "id": "a519e355__Remedy_Label__artwork",
+    "kind": "positive",
+    "expected": "Atorvastatin Calcium",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 51.906999999977415,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "Atorvastatin Calcium",
+    "names": [
+     "Atorvastatin Calcium"
+    ]
+   },
+   {
+    "id": "a519e355__Remedy_Label__moderate",
+    "kind": "positive",
+    "expected": "Atorvastatin Calcium",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 28.638000000006286,
+    "expected_in_review": null,
+    "condition": "moderate",
+    "matched_text": "Atorvastatin Calcium",
+    "names": [
+     "Atorvastatin Calcium"
+    ]
+   },
+   {
+    "id": "a519e355__Remedy_Label__hard",
+    "kind": "positive",
+    "expected": "Atorvastatin Calcium",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 30.528000000020256,
+    "expected_in_review": null,
+    "condition": "hard",
+    "matched_text": "Atorvastatin Calcium",
+    "names": [
+     "Atorvastatin Calcium"
+    ]
+   },
+   {
+    "id": "4cd07a3c__5860dc47_c4da_20b6_32da_6aa74c3fa1dc_00__artwork",
+    "kind": "positive",
+    "expected": "Clopidogrel",
+    "category": "timeout",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 47.079999999987194,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "4cd07a3c__5860dc47_c4da_20b6_32da_6aa74c3fa1dc_00__moderate",
+    "kind": "positive",
+    "expected": "Clopidogrel",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 32.62400000001071,
+    "expected_in_review": null,
+    "condition": "moderate",
+    "matched_text": "Clopidogrel",
+    "names": [
+     "Clopidogrel"
+    ]
+   },
+   {
+    "id": "4cd07a3c__5860dc47_c4da_20b6_32da_6aa74c3fa1dc_00__hard",
+    "kind": "positive",
+    "expected": "Clopidogrel",
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 16.252999999996973,
+    "expected_in_review": true,
+    "condition": "hard",
+    "matched_text": "Clopidogrel",
+    "names": [
+     "Clopidogrel"
+    ]
+   },
+   {
+    "id": "3881afaf__loratadine_01__artwork",
+    "kind": "positive",
+    "expected": "Loratadine",
+    "category": "timeout",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 49.420000000012806,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "3881afaf__loratadine_01__moderate",
+    "kind": "positive",
+    "expected": "Loratadine",
+    "category": "timeout",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 53.20100000000093,
+    "expected_in_review": null,
+    "condition": "moderate",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "3881afaf__loratadine_01__hard",
+    "kind": "positive",
+    "expected": "Loratadine",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 36.13699999998789,
+    "expected_in_review": null,
+    "condition": "hard",
+    "matched_text": "LORATADINE",
+    "names": [
+     "Loratadine",
+     "Berkley and Jensen Allergy Relief"
+    ]
+   },
+   {
+    "id": "caa22bcb__image_01__artwork",
+    "kind": "positive",
+    "expected": "Berkley and Jensen Allergy Relief",
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 46.68900000001304,
+    "expected_in_review": true,
+    "condition": "artwork",
+    "matched_text": "CETIRIZINE HYDROCHLORIDE",
+    "names": [
+     "Berkley and Jensen Allergy Relief"
+    ]
+   },
+   {
+    "id": "caa22bcb__image_01__moderate",
+    "kind": "positive",
+    "expected": "Berkley and Jensen Allergy Relief",
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 36.96799999999348,
+    "expected_in_review": true,
+    "condition": "moderate",
+    "matched_text": "CETIRIZINE HYDROCHLORIDE",
+    "names": [
+     "Berkley and Jensen Allergy Relief"
+    ]
+   },
+   {
+    "id": "caa22bcb__image_01__hard",
+    "kind": "positive",
+    "expected": "Berkley and Jensen Allergy Relief",
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 36.12400000001071,
+    "expected_in_review": true,
+    "condition": "hard",
+    "matched_text": "CETIRIZINE HYDROCHLORIDE",
+    "names": [
+     "Berkley and Jensen Allergy Relief"
+    ]
+   },
+   {
+    "id": "caa22bcb__image_02__artwork",
+    "kind": "positive",
+    "expected": "Berkley and Jensen Allergy Relief",
+    "category": "timeout",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 50.05999999999767,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "caa22bcb__image_02__moderate",
+    "kind": "positive",
+    "expected": "Berkley and Jensen Allergy Relief",
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 36.78699999998207,
+    "expected_in_review": null,
+    "condition": "moderate",
+    "matched_text": "Drug Facts",
+    "names": []
+   },
+   {
+    "id": "caa22bcb__image_02__hard",
+    "kind": "positive",
+    "expected": "Berkley and Jensen Allergy Relief",
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 20.90700000000652,
+    "expected_in_review": null,
+    "condition": "hard",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "b17cd16b__42708_031_30_Label__artwork",
+    "kind": "positive",
+    "expected": "Lisinopril",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 28.54999999998836,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "Lisinopril",
+    "names": [
+     "Lisinopril",
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "b17cd16b__42708_031_30_Label__moderate",
+    "kind": "positive",
+    "expected": "Lisinopril",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 19.777000000001863,
+    "expected_in_review": null,
+    "condition": "moderate",
+    "matched_text": "Lisinopril",
+    "names": [
+     "Lisinopril",
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "b17cd16b__42708_031_30_Label__hard",
+    "kind": "positive",
+    "expected": "Lisinopril",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 18.01500000001397,
+    "expected_in_review": null,
+    "condition": "hard",
+    "matched_text": "Lisinopril",
+    "names": [
+     "Lisinopril"
+    ]
+   },
+   {
+    "id": "b17cd16b__42708_032_30_Label__artwork",
+    "kind": "positive",
+    "expected": "Lisinopril",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 27.095000000001164,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "Lisinopril",
+    "names": [
+     "Lisinopril",
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "b17cd16b__42708_032_30_Label__moderate",
+    "kind": "positive",
+    "expected": "Lisinopril",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 20.543999999994412,
+    "expected_in_review": null,
+    "condition": "moderate",
+    "matched_text": "Lisinopril",
+    "names": [
+     "Lisinopril",
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "b17cd16b__42708_032_30_Label__hard",
+    "kind": "positive",
+    "expected": "Lisinopril",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 21.566000000020722,
+    "expected_in_review": null,
+    "condition": "hard",
+    "matched_text": "Lisinopril",
+    "names": [
+     "Lisinopril",
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "2c395111__image_01__artwork",
+    "kind": "positive",
+    "expected": "Amoxicillin",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 42.34799999996903,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "capsule contains: 500 mg amoxicillin",
+    "names": [
+     "Amoxicillin"
+    ]
+   },
+   {
+    "id": "2c395111__image_01__moderate",
+    "kind": "positive",
+    "expected": "Amoxicillin",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 30.29700000002049,
+    "expected_in_review": null,
+    "condition": "moderate",
+    "matched_text": "Amoxicillin 500mg",
+    "names": [
+     "Amoxicillin"
+    ]
+   },
+   {
+    "id": "2c395111__image_01__hard",
+    "kind": "positive",
+    "expected": "Amoxicillin",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 27.793999999994412,
+    "expected_in_review": null,
+    "condition": "hard",
+    "matched_text": "Each capsule contains:500 mg amoxicillin",
+    "names": [
+     "Amoxicillin"
+    ]
+   },
+   {
+    "id": "1a2124e6__image_01__artwork",
+    "kind": "positive",
+    "expected": "Levothyroxine Sodium",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 43.251000000018394,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "Levothyroxine Sodium75mcg (0.075mg)",
+    "names": [
+     "Levothyroxine Sodium"
+    ]
+   },
+   {
+    "id": "1a2124e6__image_01__moderate",
+    "kind": "positive",
+    "expected": "Levothyroxine Sodium",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 22.71799999999348,
+    "expected_in_review": null,
+    "condition": "moderate",
+    "matched_text": "Levothyroxine Sodium 75mcg (0.075mg)",
+    "names": [
+     "Levothyroxine Sodium"
+    ]
+   },
+   {
+    "id": "1a2124e6__image_01__hard",
+    "kind": "positive",
+    "expected": "Levothyroxine Sodium",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 20.301999999996042,
+    "expected_in_review": null,
+    "condition": "hard",
+    "matched_text": "Levothyroxine Sodium 75mcg (0.075mg)",
+    "names": [
+     "Levothyroxine Sodium"
+    ]
+   },
+   {
+    "id": "3f1535d9__Remedy_Label__artwork",
+    "kind": "positive",
+    "expected": "Gabapentin",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 26.065999999991618,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "Gabapentin Capsule",
+    "names": [
+     "Gabapentin"
+    ]
+   },
+   {
+    "id": "3f1535d9__Remedy_Label__moderate",
+    "kind": "positive",
+    "expected": "Gabapentin",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 18.629000000015367,
+    "expected_in_review": null,
+    "condition": "moderate",
+    "matched_text": "Gabapentin Capsule",
+    "names": [
+     "Gabapentin"
+    ]
+   },
+   {
+    "id": "3f1535d9__Remedy_Label__hard",
+    "kind": "positive",
+    "expected": "Gabapentin",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 19.205000000016298,
+    "expected_in_review": null,
+    "condition": "hard",
+    "matched_text": "Gabapentin Capsule",
+    "names": [
+     "Gabapentin"
+    ]
+   },
+   {
+    "id": "3cde88e6__a7e7d657_a748_4234_8dd6_c0e4d0f81a86_00__artwork",
+    "kind": "positive",
+    "expected": "Protonix I.V.",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 43.515999999974156,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "(pantoprazole sodium)",
+    "names": [
+     "Protonix I.V."
+    ]
+   },
+   {
+    "id": "3cde88e6__a7e7d657_a748_4234_8dd6_c0e4d0f81a86_00__moderate",
+    "kind": "positive",
+    "expected": "Protonix I.V.",
+    "category": "correct",
+    "gate": {
+     "ok": false,
+     "reasons": [
+      "glare"
+     ]
+    },
+    "seconds": 26.512000000016997,
+    "expected_in_review": null,
+    "condition": "moderate",
+    "matched_text": "(pantoprazole sodium)",
+    "names": [
+     "Protonix I.V."
+    ]
+   },
+   {
+    "id": "3cde88e6__a7e7d657_a748_4234_8dd6_c0e4d0f81a86_00__hard",
+    "kind": "positive",
+    "expected": "Protonix I.V.",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 25.292000000015832,
+    "expected_in_review": null,
+    "condition": "hard",
+    "matched_text": "(pantoprazole sodium)",
+    "names": [
+     "Protonix I.V."
+    ]
+   },
+   {
+    "id": "6286ea54__Losartan_Potassium_50mg_70518_2786_00__artwork",
+    "kind": "positive",
+    "expected": "Losartan Potassium",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 26.60899999999674,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "Losartan Potassium",
+    "names": [
+     "Losartan Potassium"
+    ]
+   },
+   {
+    "id": "6286ea54__Losartan_Potassium_50mg_70518_2786_00__moderate",
+    "kind": "positive",
+    "expected": "Losartan Potassium",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 19.981999999989057,
+    "expected_in_review": null,
+    "condition": "moderate",
+    "matched_text": "Losartan Potassium",
+    "names": [
+     "Losartan Potassium"
+    ]
+   },
+   {
+    "id": "6286ea54__Losartan_Potassium_50mg_70518_2786_00__hard",
+    "kind": "positive",
+    "expected": "Losartan Potassium",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 23.17300000000978,
+    "expected_in_review": null,
+    "condition": "hard",
+    "matched_text": "Losartan Potassium",
+    "names": [
+     "Losartan Potassium"
+    ]
+   },
+   {
+    "id": "6286ea54__Losartan_Potassium_50mg_70518_2786_01__artwork",
+    "kind": "positive",
+    "expected": "Losartan Potassium",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 26.67399999999907,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "Losartan Potassium",
+    "names": [
+     "Losartan Potassium"
+    ]
+   },
+   {
+    "id": "6286ea54__Losartan_Potassium_50mg_70518_2786_01__moderate",
+    "kind": "positive",
+    "expected": "Losartan Potassium",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 21.926999999996042,
+    "expected_in_review": null,
+    "condition": "moderate",
+    "matched_text": "Losartan Potassium",
+    "names": [
+     "Losartan Potassium"
+    ]
+   },
+   {
+    "id": "6286ea54__Losartan_Potassium_50mg_70518_2786_01__hard",
+    "kind": "positive",
+    "expected": "Losartan Potassium",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 17.747999999992317,
+    "expected_in_review": null,
+    "condition": "hard",
+    "matched_text": "Losartan Potassium",
+    "names": [
+     "Losartan Potassium"
+    ]
+   },
+   {
+    "id": "346141b5__omeprazole_01__artwork",
+    "kind": "positive",
+    "expected": "Omeprazole",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 33.04200000001583,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "OMEPRAZOLE",
+    "names": [
+     "Omeprazole"
+    ]
+   },
+   {
+    "id": "346141b5__omeprazole_01__moderate",
+    "kind": "positive",
+    "expected": "Omeprazole",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 10.105000000010477,
+    "expected_in_review": null,
+    "condition": "moderate",
+    "matched_text": "OMEPRAZOLE",
+    "names": [
+     "Omeprazole"
+    ]
+   },
+   {
+    "id": "346141b5__omeprazole_01__hard",
+    "kind": "positive",
+    "expected": "Omeprazole",
+    "category": "correct",
+    "gate": {
+     "ok": false,
+     "reasons": [
+      "glare"
+     ]
+    },
+    "seconds": 8.856999999989057,
+    "expected_in_review": null,
+    "condition": "hard",
+    "matched_text": "OMEPRAZOLE",
+    "names": [
+     "Omeprazole"
+    ]
+   },
+   {
+    "id": "c9ec1996__43063762__artwork",
+    "kind": "positive",
+    "expected": "Montelukast Sodium",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 38.3289999999688,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "10 MG MONTELUKAST",
+    "names": [
+     "Montelukast Sodium"
+    ]
+   },
+   {
+    "id": "c9ec1996__43063762__moderate",
+    "kind": "positive",
+    "expected": "Montelukast Sodium",
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 15.794000000023516,
+    "expected_in_review": true,
+    "condition": "moderate",
+    "matched_text": "MONTELUKAST",
+    "names": [
+     "Montelukast Sodium"
+    ]
+   },
+   {
+    "id": "c9ec1996__43063762__hard",
+    "kind": "positive",
+    "expected": "Montelukast Sodium",
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 35.28599999996368,
+    "expected_in_review": true,
+    "condition": "hard",
+    "matched_text": "MONTELUKAST",
+    "names": [
+     "Montelukast Sodium"
+    ]
+   },
+   {
+    "id": "de803217__image_01__artwork",
+    "kind": "positive",
+    "expected": "Escitalopram",
+    "category": "timeout",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 45.25,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "de803217__image_01__moderate",
+    "kind": "positive",
+    "expected": "Escitalopram",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 52.843000000022585,
+    "expected_in_review": null,
+    "condition": "moderate",
+    "matched_text": "Escitalopram oxalate, USP equivalent to",
+    "names": [
+     "Escitalopram",
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "de803217__image_01__hard",
+    "kind": "positive",
+    "expected": "Escitalopram",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 37.05900000000838,
+    "expected_in_review": null,
+    "condition": "hard",
+    "matched_text": "Escitalopram",
+    "names": [
+     "Escitalopram"
+    ]
+   },
+   {
+    "id": "de803217__image_02__artwork",
+    "kind": "positive",
+    "expected": "Escitalopram",
+    "category": "timeout",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 50.04999999998836,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "de803217__image_02__moderate",
+    "kind": "positive",
+    "expected": "Escitalopram",
+    "category": "timeout",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 48.76999999998952,
+    "expected_in_review": null,
+    "condition": "moderate",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "de803217__image_02__hard",
+    "kind": "positive",
+    "expected": "Escitalopram",
+    "category": "timeout",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 50.11999999999534,
+    "expected_in_review": null,
+    "condition": "hard",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "a6b5edf2__Cephalexin_250mg_70518_2273_00__artwork",
+    "kind": "positive",
+    "expected": "Cephalexin",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 55.17499999998836,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "Cephalexin Capsule",
+    "names": [
+     "Cephalexin"
+    ]
+   },
+   {
+    "id": "a6b5edf2__Cephalexin_250mg_70518_2273_00__moderate",
+    "kind": "positive",
+    "expected": "Cephalexin",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 41.59000000002561,
+    "expected_in_review": null,
+    "condition": "moderate",
+    "matched_text": "Cephalexin Capsule",
+    "names": [
+     "Cephalexin"
+    ]
+   },
+   {
+    "id": "a6b5edf2__Cephalexin_250mg_70518_2273_00__hard",
+    "kind": "positive",
+    "expected": "Cephalexin",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 44.56599999999162,
+    "expected_in_review": null,
+    "condition": "hard",
+    "matched_text": "Cephalexin Capsule",
+    "names": [
+     "Cephalexin"
+    ]
+   },
+   {
+    "id": "a6b5edf2__Cephalexin_250mg_70518_2273_01__artwork",
+    "kind": "positive",
+    "expected": "Cephalexin",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 53.653000000020256,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "Cephalexin Capsule",
+    "names": [
+     "Cephalexin"
+    ]
+   },
+   {
+    "id": "a6b5edf2__Cephalexin_250mg_70518_2273_01__moderate",
+    "kind": "positive",
+    "expected": "Cephalexin",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 44.280999999988126,
+    "expected_in_review": null,
+    "condition": "moderate",
+    "matched_text": "Cephalexin Capsule",
+    "names": [
+     "Cephalexin"
+    ]
+   },
+   {
+    "id": "a6b5edf2__Cephalexin_250mg_70518_2273_01__hard",
+    "kind": "positive",
+    "expected": "Cephalexin",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 43.28500000000349,
+    "expected_in_review": null,
+    "condition": "hard",
+    "matched_text": "Cephalexin Capsule",
+    "names": [
+     "Cephalexin"
+    ]
+   },
+   {
+    "id": "682dd8b8__allopurinol_100mg_label__artwork",
+    "kind": "positive",
+    "expected": "Allopurinol",
+    "category": "timeout",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 50.05999999999767,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "682dd8b8__allopurinol_100mg_label__moderate",
+    "kind": "positive",
+    "expected": "Allopurinol",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 44.85999999998603,
+    "expected_in_review": null,
+    "condition": "moderate",
+    "matched_text": "Allopurinol",
+    "names": [
+     "Allopurinol",
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "682dd8b8__allopurinol_100mg_label__hard",
+    "kind": "positive",
+    "expected": "Allopurinol",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 30.90099999998347,
+    "expected_in_review": null,
+    "condition": "hard",
+    "matched_text": "Allopurinol",
+    "names": [
+     "Allopurinol"
+    ]
+   },
+   {
+    "id": "682dd8b8__allopurinol_300mg_label__artwork",
+    "kind": "positive",
+    "expected": "Allopurinol",
+    "category": "timeout",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 50.16000000000349,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "682dd8b8__allopurinol_300mg_label__moderate",
+    "kind": "positive",
+    "expected": "Allopurinol",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 47.012000000017,
+    "expected_in_review": null,
+    "condition": "moderate",
+    "matched_text": "Allopurinol",
+    "names": [
+     "Allopurinol",
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "682dd8b8__allopurinol_300mg_label__hard",
+    "kind": "positive",
+    "expected": "Allopurinol",
+    "category": "correct",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 46.51199999998789,
+    "expected_in_review": null,
+    "condition": "hard",
+    "matched_text": "Allopurinol",
+    "names": [
+     "Allopurinol",
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "5e55526f__label__artwork",
+    "kind": "decoy",
+    "expected": null,
+    "category": "timeout",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 50.04999999998836,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "5e55526f__label__moderate",
+    "kind": "decoy",
+    "expected": null,
+    "category": "timeout",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 50.11999999999534,
+    "expected_in_review": null,
+    "condition": "moderate",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "5e55526f__label__hard",
+    "kind": "decoy",
+    "expected": null,
+    "category": "timeout",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 50.14000000001397,
+    "expected_in_review": null,
+    "condition": "hard",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "b99f7199__Celecoxib_100mg_70518_2922_00__artwork",
+    "kind": "decoy",
+    "expected": null,
+    "category": "timeout",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 50.05999999999767,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "b99f7199__Celecoxib_100mg_70518_2922_00__moderate",
+    "kind": "decoy",
+    "expected": null,
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 43.90500000002794,
+    "expected_in_review": false,
+    "condition": "moderate",
+    "matched_text": "RX ONLY",
+    "names": [
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "b99f7199__Celecoxib_100mg_70518_2922_00__hard",
+    "kind": "decoy",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 41.454999999987194,
+    "expected_in_review": null,
+    "condition": "hard",
+    "matched_text": "children",
+    "names": []
+   },
+   {
+    "id": "c85d6d02__lbl713353197__artwork",
+    "kind": "decoy",
+    "expected": null,
+    "category": "timeout",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 50.04999999998836,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "c85d6d02__lbl713353197__moderate",
+    "kind": "decoy",
+    "expected": null,
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 36.55099999997765,
+    "expected_in_review": false,
+    "condition": "moderate",
+    "matched_text": "Rx only",
+    "names": [
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "c85d6d02__lbl713353197__hard",
+    "kind": "decoy",
+    "expected": null,
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 36.593000000022585,
+    "expected_in_review": false,
+    "condition": "hard",
+    "matched_text": "Rx only",
+    "names": [
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "204592ba__lbl636292239__artwork",
+    "kind": "decoy",
+    "expected": null,
+    "category": "timeout",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 46.10999999998603,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "204592ba__lbl636292239__moderate",
+    "kind": "decoy",
+    "expected": null,
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 47.1140000000014,
+    "expected_in_review": false,
+    "condition": "moderate",
+    "matched_text": "Rx only",
+    "names": [
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "204592ba__lbl636292239__hard",
+    "kind": "decoy",
+    "expected": null,
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 28.909000000014203,
+    "expected_in_review": false,
+    "condition": "hard",
+    "matched_text": "Hydrochlorothiazide Tablets",
+    "names": [
+     "valsartan and hydrochlorothiazide"
+    ]
+   },
+   {
+    "id": "602d3866__72189_668_90__artwork",
+    "kind": "decoy",
+    "expected": null,
+    "category": "timeout",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 48.329999999987194,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "602d3866__72189_668_90__moderate",
+    "kind": "decoy",
+    "expected": null,
+    "category": "timeout",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 50.08999999999651,
+    "expected_in_review": null,
+    "condition": "moderate",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "602d3866__72189_668_90__hard",
+    "kind": "decoy",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 32.440999999962514,
+    "expected_in_review": null,
+    "condition": "hard",
+    "matched_text": "NOC72189-668-9090 Tabs",
+    "names": []
+   },
+   {
+    "id": "5ca218af__53401_0040_53__artwork",
+    "kind": "decoy",
+    "expected": null,
+    "category": "timeout",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 45.80999999999767,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "5ca218af__53401_0040_53__moderate",
+    "kind": "decoy",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 45.512000000017,
+    "expected_in_review": null,
+    "condition": "moderate",
+    "matched_text": "Sulfate, USP",
+    "names": []
+   },
+   {
+    "id": "5ca218af__53401_0040_53__hard",
+    "kind": "decoy",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 44.34700000000885,
+    "expected_in_review": null,
+    "condition": "hard",
+    "matched_text": "Sulfate, USP",
+    "names": []
+   },
+   {
+    "id": "0a967468__42708_019_30__artwork",
+    "kind": "decoy",
+    "expected": null,
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 56.31099999998696,
+    "expected_in_review": false,
+    "condition": "artwork",
+    "matched_text": "Rx Only",
+    "names": [
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "0a967468__42708_019_30__moderate",
+    "kind": "decoy",
+    "expected": null,
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 44.39499999998952,
+    "expected_in_review": false,
+    "condition": "moderate",
+    "matched_text": "Rx Only",
+    "names": [
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "0a967468__42708_019_30__hard",
+    "kind": "decoy",
+    "expected": null,
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 38.35999999998603,
+    "expected_in_review": false,
+    "condition": "hard",
+    "matched_text": "Rx Only",
+    "names": [
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "fa152ce7__Pravastatin_Sodium_40mg_70518_4339_00__artwork",
+    "kind": "decoy",
+    "expected": null,
+    "category": "timeout",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 49.95000000001164,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "fa152ce7__Pravastatin_Sodium_40mg_70518_4339_00__moderate",
+    "kind": "decoy",
+    "expected": null,
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 56.88900000002468,
+    "expected_in_review": false,
+    "condition": "moderate",
+    "matched_text": "RX ONLY",
+    "names": [
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "fa152ce7__Pravastatin_Sodium_40mg_70518_4339_00__hard",
+    "kind": "decoy",
+    "expected": null,
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 45.812999999994645,
+    "expected_in_review": false,
+    "condition": "hard",
+    "matched_text": "RX ONLY",
+    "names": [
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "2f7d84d4__Metronidazole_500mg_70518_2305_00__artwork",
+    "kind": "decoy",
+    "expected": null,
+    "category": "timeout",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 46.76999999998952,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "2f7d84d4__Metronidazole_500mg_70518_2305_00__moderate",
+    "kind": "decoy",
+    "expected": null,
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 48.42599999997765,
+    "expected_in_review": false,
+    "condition": "moderate",
+    "matched_text": "RX ONLY",
+    "names": [
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "2f7d84d4__Metronidazole_500mg_70518_2305_00__hard",
+    "kind": "decoy",
+    "expected": null,
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 45.846999999979744,
+    "expected_in_review": false,
+    "condition": "hard",
+    "matched_text": "RX ONLY",
+    "names": [
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "c4da6de7__image_17__artwork",
+    "kind": "decoy",
+    "expected": null,
+    "category": "timeout",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 50.079999999987194,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "c4da6de7__image_17__moderate",
+    "kind": "decoy",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 27.671999999991385,
+    "expected_in_review": null,
+    "condition": "moderate",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "c4da6de7__image_17__hard",
+    "kind": "decoy",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 20.206000000005588,
+    "expected_in_review": null,
+    "condition": "hard",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "ce4afef1__50_mg_Nitrofurantoin_Capsules_50_UD__artwork",
+    "kind": "decoy",
+    "expected": null,
+    "category": "timeout",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 50.05999999999767,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "ce4afef1__50_mg_Nitrofurantoin_Capsules_50_UD__moderate",
+    "kind": "decoy",
+    "expected": null,
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 32.686000000016065,
+    "expected_in_review": false,
+    "condition": "moderate",
+    "matched_text": "Rx Only",
+    "names": [
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "ce4afef1__50_mg_Nitrofurantoin_Capsules_50_UD__hard",
+    "kind": "decoy",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 11.175999999977648,
+    "expected_in_review": null,
+    "condition": "hard",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "20ec4646__42708_007_30__artwork",
+    "kind": "decoy",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 15.577000000019325,
+    "expected_in_review": null,
+    "condition": "artwork",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "20ec4646__42708_007_30__moderate",
+    "kind": "decoy",
+    "expected": null,
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 17.232999999978347,
+    "expected_in_review": false,
+    "condition": "moderate",
+    "matched_text": "Rx Only",
+    "names": [
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "20ec4646__42708_007_30__hard",
+    "kind": "decoy",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 14.349000000016531,
+    "expected_in_review": null,
+    "condition": "hard",
+    "matched_text": "children",
+    "names": []
+   },
+   {
+    "id": "a9fc7091__BusPIRone_HCl_10mg_70518_2031_00__artwork",
+    "kind": "decoy",
+    "expected": null,
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 22.312000000005355,
+    "expected_in_review": false,
+    "condition": "artwork",
+    "matched_text": "RX ONLY",
+    "names": [
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "a9fc7091__BusPIRone_HCl_10mg_70518_2031_00__moderate",
+    "kind": "decoy",
+    "expected": null,
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 20.796999999991385,
+    "expected_in_review": false,
+    "condition": "moderate",
+    "matched_text": "RX ONLY",
+    "names": [
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "a9fc7091__BusPIRone_HCl_10mg_70518_2031_00__hard",
+    "kind": "decoy",
+    "expected": null,
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 18.046000000002095,
+    "expected_in_review": false,
+    "condition": "hard",
+    "matched_text": "RX ONLY",
+    "names": [
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "5bacc909__42708_027_30__artwork",
+    "kind": "decoy",
+    "expected": null,
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 24.387000000016997,
+    "expected_in_review": false,
+    "condition": "artwork",
+    "matched_text": "Rx Only",
+    "names": [
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "5bacc909__42708_027_30__moderate",
+    "kind": "decoy",
+    "expected": null,
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 20.01699999999255,
+    "expected_in_review": false,
+    "condition": "moderate",
+    "matched_text": "Rx Only",
+    "names": [
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "5bacc909__42708_027_30__hard",
+    "kind": "decoy",
+    "expected": null,
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 19.138000000006286,
+    "expected_in_review": false,
+    "condition": "hard",
+    "matched_text": "Rx Only",
+    "names": [
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "9f0e33bd__Remedy_Label__artwork",
+    "kind": "decoy",
+    "expected": null,
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 27.877999999996973,
+    "expected_in_review": false,
+    "condition": "artwork",
+    "matched_text": "RX ONLY",
+    "names": [
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "9f0e33bd__Remedy_Label__moderate",
+    "kind": "decoy",
+    "expected": null,
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 26.312999999994645,
+    "expected_in_review": false,
+    "condition": "moderate",
+    "matched_text": "RX ONLY",
+    "names": [
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "9f0e33bd__Remedy_Label__hard",
+    "kind": "decoy",
+    "expected": null,
+    "category": "review",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 21.864000000001397,
+    "expected_in_review": false,
+    "condition": "hard",
+    "matched_text": "RX ONLY",
+    "names": [
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "new_02.jpg",
+    "kind": "device",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 29.080999999976484,
+    "expected_in_review": null,
+    "condition": "photo",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "new_04.jpg",
+    "kind": "device",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 30.09200000000419,
+    "expected_in_review": null,
+    "condition": "photo",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "new_10.jpg",
+    "kind": "device",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 35.2160000000149,
+    "expected_in_review": null,
+    "condition": "photo",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "new_11.jpg",
+    "kind": "device",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 39.85999999998603,
+    "expected_in_review": null,
+    "condition": "photo",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "new_12.jpg",
+    "kind": "device",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 30.046000000002095,
+    "expected_in_review": null,
+    "condition": "photo",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "new_16.jpg",
+    "kind": "device",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": false,
+     "reasons": [
+      "blur"
+     ]
+    },
+    "seconds": 10.76600000000326,
+    "expected_in_review": null,
+    "condition": "photo",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "new_17.jpg",
+    "kind": "device",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 34.08999999999651,
+    "expected_in_review": null,
+    "condition": "photo",
+    "matched_text": "xOnly",
+    "names": []
+   },
+   {
+    "id": "new_23.jpg",
+    "kind": "device",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 44.91099999999278,
+    "expected_in_review": null,
+    "condition": "photo",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "new_24.jpg",
+    "kind": "device",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 35.97400000001653,
+    "expected_in_review": null,
+    "condition": "photo",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "new_25.jpg",
+    "kind": "device",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 28.330999999976484,
+    "expected_in_review": null,
+    "condition": "photo",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "new_26.jpg",
+    "kind": "device",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 37.46700000000419,
+    "expected_in_review": null,
+    "condition": "photo",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "new_62.jpg",
+    "kind": "device",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 23.279999999998836,
+    "expected_in_review": null,
+    "condition": "photo",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "new_65.jpg",
+    "kind": "device",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 29.82500000001164,
+    "expected_in_review": null,
+    "condition": "photo",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "new_66.jpg",
+    "kind": "device",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 44.656999999977415,
+    "expected_in_review": null,
+    "condition": "photo",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "new_67.jpg",
+    "kind": "device",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 28.78299999999581,
+    "expected_in_review": null,
+    "condition": "photo",
+    "matched_text": "Ronly",
+    "names": []
+   },
+   {
+    "id": "new_79.jpg",
+    "kind": "device",
+    "expected": null,
+    "category": "review",
+    "gate": {
+     "ok": false,
+     "reasons": [
+      "glare"
+     ]
+    },
+    "seconds": 33.811000000016065,
+    "expected_in_review": false,
+    "condition": "photo",
+    "matched_text": "Rx Only",
+    "names": [
+     "FUROSEMIDE"
+    ]
+   },
+   {
+    "id": "new_85.jpg",
+    "kind": "device",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 35.94099999999162,
+    "expected_in_review": null,
+    "condition": "photo",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "new_84.jpg",
+    "kind": "device",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": false,
+     "reasons": [
+      "blur"
+     ]
+    },
+    "seconds": 17.589999999996508,
+    "expected_in_review": null,
+    "condition": "photo",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "new_87.jpg",
+    "kind": "device",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 34.936000000016065,
+    "expected_in_review": null,
+    "condition": "photo",
+    "matched_text": "",
+    "names": []
+   },
+   {
+    "id": "new_89.jpg",
+    "kind": "device",
+    "expected": null,
+    "category": "not_identified",
+    "gate": {
+     "ok": true,
+     "reasons": []
+    },
+    "seconds": 36.83100000000559,
+    "expected_in_review": null,
+    "condition": "photo",
+    "matched_text": "",
+    "names": []
+   }
+  ]
  }
 }

@@ -28,13 +28,14 @@ IMAGES = Path("src/gen/public_scan_images.json")
 SRC = Path("data/public_scan_real/images")
 OUT = Path("data/public_scan_real/photos")
 MANIFEST = Path("results/public_scan/photos_v2.json")
+MANIFEST_V4 = Path("results/public_scan/photos_v4.json")
 SEED = 42
 CONDITIONS = ("artwork", "moderate", "hard")
 DEV_POSITIVES, DEV_DECOYS, FRESH_DECOYS = 15, 15, 40
 MIN_LONG_SIDE = 1400
 
 
-def plan() -> dict:
+def plan(unused: bool = False) -> dict:
     """Split products, choose images (positives up to 2 per product, decoys the first image only), list photos."""
     records = json.loads(IMAGES.read_text(encoding="utf-8"))
     usable = {"positive": {}, "decoy": {}}
@@ -52,10 +53,12 @@ def plan() -> dict:
     split = {"dev_positive": pos[:DEV_POSITIVES], "fresh_positive": pos[DEV_POSITIVES:],
              "dev_decoy": dec[:DEV_DECOYS], "fresh_decoy": dec[DEV_DECOYS:DEV_DECOYS + FRESH_DECOYS],
              "decoys_unused": dec[DEV_DECOYS + FRESH_DECOYS:]}
+    groups = (("dev_positive", "positive", "dev_real"), ("fresh_positive", "positive", "fresh_real"),
+              ("dev_decoy", "decoy", "dev_real"), ("fresh_decoy", "decoy", "fresh_real"))
+    if unused:  # protocol v4: the 15 decoy products that no earlier run has touched
+        groups = (("decoys_unused", "decoy", "unused_decoy"),)
     photos = []
-    for group, role, set_name in (("dev_positive", "positive", "dev_real"),
-                                  ("fresh_positive", "positive", "fresh_real"),
-                                  ("dev_decoy", "decoy", "dev_real"), ("fresh_decoy", "decoy", "fresh_real")):
+    for group, role, set_name in groups:
         for setid in split[group]:
             images = usable[role][setid][: 2 if role == "positive" else 1]
             for image in images:
@@ -69,7 +72,7 @@ def plan() -> dict:
     return {"seed": SEED, "split": split, "skipped_products": skipped, "photos": photos}
 
 
-def render(manifest: dict) -> None:
+def render(manifest: dict, target_manifest: Path = MANIFEST) -> None:
     """Render every photo (same seed, same bytes) and add the rendered sha256."""
     from src.gen.augment import augment_label
 
@@ -88,7 +91,7 @@ def render(manifest: dict) -> None:
         image.save(target, quality=90)
         photo["file"] = str(target)
         photo["sha256"] = hashlib.sha256(target.read_bytes()).hexdigest()
-    MANIFEST.write_text(json.dumps(manifest, indent=1) + "\n", encoding="utf-8")
+    target_manifest.write_text(json.dumps(manifest, indent=1) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":
@@ -97,6 +100,13 @@ if __name__ == "__main__":
         MANIFEST.write_text(json.dumps(data, indent=1) + "\n", encoding="utf-8")
         print({k: len(v) for k, v in data["split"].items()}, len(data["photos"]), "photos,",
               len(data["skipped_products"]), "products skipped")
+    elif sys.argv[1] == "plan_unused":
+        data = plan(unused=True)
+        MANIFEST_V4.write_text(json.dumps(data, indent=1) + "\n", encoding="utf-8")
+        print(len(data["split"]["decoys_unused"]), "unused decoy products,", len(data["photos"]), "photos")
+    elif sys.argv[1] == "render_unused":
+        render(json.loads(MANIFEST_V4.read_text(encoding="utf-8")), MANIFEST_V4)
+        print("rendered")
     elif sys.argv[1] == "render":
         render(json.loads(MANIFEST.read_text(encoding="utf-8")))
         print("rendered")
