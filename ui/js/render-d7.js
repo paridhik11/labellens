@@ -76,6 +76,18 @@
     if (r) r.addEventListener('click', () => send('return'));
   }
 
+  /** Citations of one finding, drawn like the D4 and D5 panels: section, title, verbatim quote, link. Nothing is added here. */
+  function citationsHtml(cites) {
+    return (cites || []).map(c => `
+      <div style="margin-top: 8px; padding: 8px; background: #ffffff; border-radius: 4px; border: 1px solid var(--color-border); font-size: 0.75rem;" data-testid="citation">
+        <div class="flex-between">
+          <span class="font-semibold"><span class="badge badge-teal">${esc(c.source_type || 'cfr')}</span> ${c.section ? '21 CFR ' + esc(c.section) + ': ' : ''}${esc(c.title || '')}</span>
+          ${c.url ? `<a href="${esc(c.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-secondary" style="font-size: 0.7rem; padding: 1px 6px;">View regulation &rarr;</a>` : ''}
+        </div>
+        ${c.quote ? `<div style="font-style: italic; margin-top: 4px; border-left: 2px solid var(--color-primary-teal); padding-left: 8px;">"${esc(c.quote)}"</div>` : ''}
+      </div>`).join('');
+  }
+
   function coverageTable(coverage) {
     if (!coverage || !coverage.length) return '';
     const rows = coverage.map(c => {
@@ -136,13 +148,14 @@
         <div class="card-header-clean font-semibold text-sm">Findings (${findings.length})</div>
         <div class="flex-col" style="gap: 10px;">
           ${findings.length === 0 ? '<div class="text-sm text-muted">No problem findings in this check.</div>' : findings.map(f => `
-            <div class="card" style="border: 1px solid var(--color-border); padding: 12px;">
+            <div class="card" style="border: 1px solid var(--color-border); padding: 12px;" data-testid="finding"${f.rule_id ? ` data-rule="${esc(f.rule_id)}"` : ''}>
               <div class="flex-between">
-                <span class="font-semibold text-sm" style="color: var(--color-danger-text);">${esc(prettyKind(f.kind))}${f.field ? ' (' + esc(f.field) + ')' : ''}</span>
+                <span class="font-semibold text-sm" style="color: var(--color-danger-text);">${esc(prettyKind(f.kind))}${f.field ? ' (' + esc(f.field) + ')' : ''}${f.rule_id ? ' <code>' + esc(f.rule_id) + '</code>' : ''}</span>
                 <span class="badge badge-danger">${esc(f.severity)}</span>
               </div>
               <div class="text-sm text-muted" style="margin-top: 4px;">${esc(f.message)}</div>
               ${f.observed || f.expected ? `<div class="text-xs" style="margin-top: 4px;">Observed: <code>${esc(f.observed)}</code> | Expected: <code>${esc(f.expected)}</code></div>` : ''}
+              ${citationsHtml(f.citations)}
             </div>`).join('')}
         </div>
       </div>
