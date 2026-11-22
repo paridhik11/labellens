@@ -21,7 +21,9 @@ def main() -> None:
     g = s["gate"]
     lines = ["# NDC scan: frozen version scored once", "",
              f"Config commit `{s['config_commit'][:8]}`, config {s['config']}. Protocol: `protocol.md`. "
-             "OCR seconds were measured with 2 readers running on a CPU shared with another session.", "",
+             "Gate run 2 (protocol_amendment.md): one reader at a time on an idle machine. Two photos (1595 s, 1472 s) "
+             "were stalled by machine idle sleep between agent turns and read 0 lines (timeouts). Run 1 is invalid "
+             "(run1_invalid/).", "",
              "## Gate", "",
              "| check | result | pass |", "|---|---|---|",
              f"| 1 wrong products on unused decoys ({g['1_decoy_products']} products) | new "
