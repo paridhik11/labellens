@@ -1,0 +1,13 @@
+{
+  "job_id": "job_live_0002",
+  "kind": "live_fetch",
+  "state": "failed",
+  "progress": 1.0,
+  "error": {
+    "error": "live_fetch_failed",
+    "message": "DailyMed cannot be reached from this computer. The curated medicines still work.",
+    "details": {
+      "reason": "offline"
+    }
+  }
+}

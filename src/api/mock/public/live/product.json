@@ -1,0 +1,33 @@
+{
+  "banner": "Authenticity not verified. Based on a reference label match.",
+  "outcome": "live_selected",
+  "candidates": [
+    {
+      "product_id": "live_0000000000000000_v1",
+      "product_name": "Example Allergy Relief",
+      "dosage_form": "tablet",
+      "active_substance": "example antihistamine hydrochloride",
+      "manufacturer": "Example Labeler One",
+      "reference_label_url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=00000000-0000-0000-0000-000000000001&version=1",
+      "read_from_photo": {},
+      "from_reference_label": {
+        "Product name": "Example Allergy Relief",
+        "Dosage form": "tablet",
+        "Active substance": "example antihistamine hydrochloride",
+        "Manufacturer": "Example Labeler One"
+      },
+      "not_in_corpus": [
+        "pack_size"
+      ]
+    }
+  ],
+  "summary": "Example Allergy Relief: label fetched live from DailyMed set 00000000-0000-0000-0000-000000000001 (not in the curated set).",
+  "live": {
+    "label": "Fetched live from DailyMed, not in the curated set",
+    "setid": "00000000-0000-0000-0000-000000000001",
+    "version": 1,
+    "effective_date": "2026-01-01",
+    "fetched_on": "2026-01-02",
+    "source_url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=00000000-0000-0000-0000-000000000001&version=1"
+  }
+}

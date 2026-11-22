@@ -7,6 +7,7 @@ run must have seen every documented status of every real operation.
 
 from __future__ import annotations
 
+import time
 from collections import defaultdict
 from typing import Any
 
@@ -294,6 +295,38 @@ def test_every_real_response_conforms_to_openapi(run: Run, tmp_path, monkeypatch
     run.client.app.state.medicine = stub_medicine(broken=True)
     c("matchMedicine", 503, "POST", "/public/match", user=None, json={"product_name": "Childrens Ibuprofen"})
     run.client.app.state.medicine = stub_medicine()
+    # live DailyMed lookup (CR-28): recorded fixtures, stub retriever
+    from src.api import live_jobs
+    from tests.live_helpers import LABEL, live_service
+
+    run.client.app.state.live = live_service(tmp_path)
+    c("searchLiveMedicine", 200, "POST", "/public/live/search", user=None, json={"product_name": "cetirizine"})
+    c("searchLiveMedicine", 422, "POST", "/public/live/search", user=None, json={"product_name": "x"})
+    pick = {"setid": LABEL["setid"], "version": LABEL["version"]}
+    live_started = c("fetchLiveLabel", 202, "POST", "/public/live/fetch", user=None, json=pick)
+    live_job = run.client.get(f"/jobs/{live_started.json()['job_id']}").json()
+    for _ in range(100):
+        if live_job["state"] in ("done", "failed"):
+            break
+        time.sleep(0.05)
+        live_job = run.client.get(f"/jobs/{live_started.json()['job_id']}").json()
+    assert live_job["state"] == "done"
+    c("getLiveProduct", 200, "GET", live_job["result_url"], user=None)
+    c("getLiveProduct", 404, "GET", "/public/live/products/live_0000000000000000_v9", user=None)
+    c("fetchLiveLabel", 422, "POST", "/public/live/fetch", user=None, json={"setid": "x", "version": 1})
+    for _ in range(live_jobs.MAX_RUNNING):
+        live_jobs.try_acquire()
+    try:
+        c("fetchLiveLabel", 429, "POST", "/public/live/fetch", user=None, json=pick)
+    finally:
+        for _ in range(live_jobs.MAX_RUNNING):
+            live_jobs.release()
+    run.client.app.state.live.enabled = False
+    c("fetchLiveLabel", 503, "POST", "/public/live/fetch", user=None, json=pick)
+    run.client.app.state.live.enabled = True
+    pid = live_job["result_url"].rsplit("/", 1)[1]
+    ask = {"question": "What are the warnings?", "product_id": pid}
+    c("askPublic", 200, "POST", "/public/ask", user=None, json=ask)
     # public photo scan (CR-27): stub reader, real matcher thresholds over the stub ranker
     from src.api import public_scans
     from tests.test_public_scan import FIRST, reader

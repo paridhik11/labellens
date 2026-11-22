@@ -20,6 +20,7 @@ from src.api.db import init_db, make_engine, make_session_factory
 from src.api.engine import RealEngine
 from src.api.errors import ApiError
 from src.api.extractor import extract_with_cv
+from src.api.live_dailymed import LiveService
 from src.api.medicine import MedicineService
 from src.api.mock_server import register_mocks
 from src.api.printverify import RealPrintEngine
@@ -56,6 +57,7 @@ def create_app(db_url: str | None = None, seed: bool | None = None) -> FastAPI:
         app.state.print_engine = RealPrintEngine()  # CV pieces behind verify_print; tests replace it
         app.state.public_reader = None  # None: the OCR child process (src/api/public_scan.py); tests stub it
         app.state.medicine = MedicineService()  # Step 25a: ten reference products, E5b name matcher (lazy)
+        app.state.live = LiveService()  # CR-28: live DailyMed lookup (tests pass fixtures and a stub retriever)
         app.state.edit_provider = None  # optional LLM text parser, off by default (src/change/parser.py)
         if seed if seed is not None else os.environ.get("LABELLENS_SEED", "1") != "0":
             with app.state.session_factory() as session:

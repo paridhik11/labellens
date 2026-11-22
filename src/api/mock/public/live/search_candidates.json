@@ -1,0 +1,43 @@
+{
+  "outcome": "candidates",
+  "query": "Example Antihistamine",
+  "source": "DailyMed",
+  "searched_on": "2026-01-01",
+  "total_matches": 12,
+  "candidates": [
+    {
+      "setid": "00000000-0000-0000-0000-000000000001",
+      "version": 1,
+      "title": "EXAMPLE ALLERGY RELIEF (EXAMPLE ANTIHISTAMINE HYDROCHLORIDE) TABLET [EXAMPLE LABELER ONE]",
+      "product_name": "Example Allergy Relief",
+      "generic_name": "example antihistamine hydrochloride",
+      "dosage_form": "tablet",
+      "labeler": "Example Labeler One",
+      "published_date": "Jan 01, 2026",
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=00000000-0000-0000-0000-000000000001&version=1"
+    },
+    {
+      "setid": "00000000-0000-0000-0000-000000000002",
+      "version": 1,
+      "title": "EXAMPLE ALLERGY RELIEF CHILDREN (EXAMPLE ANTIHISTAMINE HYDROCHLORIDE) SOLUTION [EXAMPLE LABELER TWO]",
+      "product_name": "Example Allergy Relief Children",
+      "generic_name": "example antihistamine hydrochloride",
+      "dosage_form": "solution",
+      "labeler": "Example Labeler Two",
+      "published_date": "Jan 01, 2026",
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=00000000-0000-0000-0000-000000000002&version=1"
+    },
+    {
+      "setid": "00000000-0000-0000-0000-000000000003",
+      "version": 1,
+      "title": "SAMPLE ANTIHISTAMINE (EXAMPLE ANTIHISTAMINE HYDROCHLORIDE) CAPSULE [SAMPLE LABELER THREE]",
+      "product_name": "Sample Antihistamine",
+      "generic_name": "example antihistamine hydrochloride",
+      "dosage_form": "capsule",
+      "labeler": "Sample Labeler Three",
+      "published_date": "Jan 01, 2026",
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=00000000-0000-0000-0000-000000000003&version=1"
+    }
+  ],
+  "message": "12 labels match. The first 3 are listed. Type a more exact name (with strength or form) to narrow the list."
+}

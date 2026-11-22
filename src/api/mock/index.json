@@ -384,6 +384,54 @@
       "schema": "PublicMatchResult"
     },
     {
+      "file": "public/live/search_candidates.json",
+      "screen": "P2 Product information",
+      "state": "live_candidates",
+      "operationId": "searchLiveMedicine",
+      "status": 200,
+      "schema": "LiveSearchResult"
+    },
+    {
+      "file": "public/live/search_none.json",
+      "screen": "P2 Product information",
+      "state": "live_none",
+      "operationId": "searchLiveMedicine",
+      "status": 200,
+      "schema": "LiveSearchResult"
+    },
+    {
+      "file": "public/live/search_unavailable.json",
+      "screen": "P2 Product information",
+      "state": "live_offline",
+      "operationId": "searchLiveMedicine",
+      "status": 200,
+      "schema": "LiveSearchResult"
+    },
+    {
+      "file": "public/live/fetching.json",
+      "screen": "P2 Product information",
+      "state": "live_fetching",
+      "operationId": "fetchLiveLabel",
+      "status": 202,
+      "schema": "Job"
+    },
+    {
+      "file": "public/live/fetch_failed.json",
+      "screen": "P2 Product information",
+      "state": "live_fetch_failed",
+      "operationId": "getJob",
+      "status": 200,
+      "schema": "Job"
+    },
+    {
+      "file": "public/live/product.json",
+      "screen": "P2 Product information",
+      "state": "live_success",
+      "operationId": "getLiveProduct",
+      "status": 200,
+      "schema": "PublicMatchResult"
+    },
+    {
       "file": "public/ask/success.json",
       "screen": "P3 Ask about this label",
       "state": "success",

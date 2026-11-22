@@ -1,0 +1,7 @@
+{
+  "job_id": "job_live_0001",
+  "kind": "live_fetch",
+  "state": "processing",
+  "progress": 0.1,
+  "message": "downloading and indexing the label from DailyMed (this can take a little while)"
+}

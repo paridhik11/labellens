@@ -232,3 +232,20 @@ class MedicineMatchCreate(BaseModel):
         if not value.strip():
             raise ValueError("product_name must not be blank")
         return value.strip()
+
+
+class LiveSearchCreate(BaseModel):
+    """POST /public/live/search: the typed product name (CR-28)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    product_name: str = Field(min_length=2, max_length=200)
+
+
+class LiveFetchCreate(BaseModel):
+    """POST /public/live/fetch: the label the person picked from the candidate list (CR-28)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    setid: str = Field(min_length=36, max_length=36)
+    version: int = Field(ge=1, le=9999)

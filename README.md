@@ -134,7 +134,7 @@ Everything below is also one `demo_e2e.py` run.
 
 - **Real photos are the weakest part.** Computer vision is tuned and scored mostly on synthetic labels of one template family. On real package photos the printed product name is not read reliably and symbols are not detected reliably. The public "scan a photo" entry works but is conservative: it never auto-confirms, can take up to a minute, and often asks you to confirm or type the name. Every doubtful read goes to a person (needs_human). Numbers: reports/cv3.md, reports/cv4b.md, reports/public_scan.md.
 - **Evidence is small and LLM-graded.** Relevance and faithfulness grades come from one LLM (checked on a 308-row human sample), test sets are 13 to 40 queries, and abstention does not reach its target, so the product refuses instead of guessing. Intervals are in every report in results/.
-- **Scope is intentionally narrow.** US regulation corpus only, one label template family, every export is marked DRAFT (not for production), the medicine mode covers a fixed set of 30 DailyMed products, and publishing is local to the demo server.
+- **Scope is intentionally narrow.** US regulation corpus only, one label template family, every export is marked DRAFT (not for production), the medicine mode covers a fixed set of 30 DailyMed products (a typed name outside them can be fetched live from DailyMed, labelled as not curated, `reports/live_dailymed.md`), and publishing is local to the demo server.
 
 Full list: docs/KNOWN_LIMITS.md.
 

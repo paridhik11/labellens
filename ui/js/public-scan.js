@@ -256,6 +256,7 @@
       try {
         const r = await window.LabelLensApi.request('POST', '/public/match', { json: { product_name: name } });
         if (r.status !== 200) { noteEl.textContent = (r.body && r.body.message) || `The lookup failed (HTTP ${r.status}).`; return; }
+        if (window.LabelLensLive) window.LabelLensLive.setLastName(name);
         showMatch(r.body);
       } catch (e) { noteEl.textContent = e.message; }
     };

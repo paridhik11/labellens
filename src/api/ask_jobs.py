@@ -57,6 +57,9 @@ def stored_result(session: Session, job_id: str) -> dict[str, Any] | None:
 def _ask(app: Any, question: str, module: str, product_id: str | None, provider: Provider) -> RagResult:
     """The pipeline for one job: a reference medicine product answers from its own chunks (CR-23), else as before."""
     service = app.state.medicine
+    if module == "medicine" and app.state.live.knows(product_id):  # CR-28: a label fetched live
+        result, _label = app.state.live.ask(question, product_id, provider, AI_SETTINGS)
+        return result
     if module == "medicine" and service.knows(product_id):
         return service.ask(question, product_id, provider, AI_SETTINGS)
     return app.state.rag.ask(question, module, provider, AI_SETTINGS)
@@ -65,11 +68,19 @@ def _ask(app: Any, question: str, module: str, product_id: str | None, provider:
 def _based_on(app: Any, module: str, product_id: str | None) -> str | None:
     """`based_on` text for a reference product, None for any other id."""
     service = app.state.medicine
+    if module == "medicine" and app.state.live.knows(product_id):
+        return app.state.live.based_on(app.state.live.load(product_id))
     if module == "medicine" and service.knows(product_id):
         from src.api.medicine import based_on
 
         return based_on(service.catalog.products[product_id])
     return None
+
+
+def _attach_live(app: Any, payload: dict[str, Any], product_id: str | None) -> None:
+    """Put the live label info on the answer of a label fetched live (CR-28)."""
+    if product_id and app.state.live.knows(product_id):
+        payload["answer"]["live"] = app.state.live.load(product_id).live_info()
 
 
 def run_ask_job(app: Any, job_id: str, question: str, module: str, product_id: str | None) -> None:
@@ -88,6 +99,7 @@ def run_ask_job(app: Any, job_id: str, question: str, module: str, product_id: s
                 result = _ask(app, question, module, product_id, NullProvider())
                 payload = build_payload(
                     result, module, product_id, "model_unavailable", _based_on(app, module, product_id))
+            _attach_live(app, payload, product_id)
             session.add(AskResult(job_id=job_id, payload=payload, created_at=utcnow()))
             session.commit()
             advance_job(session, job_id, "done", 1.0, "done")

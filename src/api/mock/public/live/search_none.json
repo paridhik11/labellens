@@ -1,0 +1,9 @@
+{
+  "outcome": "no_candidates",
+  "query": "Demo Nonexistent Name",
+  "source": "DailyMed",
+  "searched_on": "2026-01-01",
+  "total_matches": 0,
+  "candidates": [],
+  "message": "DailyMed has no human drug label with the name 'Demo Nonexistent Name'. Check the spelling, or type the brand or the active ingredient."
+}
