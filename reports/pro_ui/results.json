@@ -1,0 +1,174 @@
+{
+ "base": "http://127.0.0.1:8020",
+ "at": "2026-11-22T18:28:45.423Z",
+ "results": [
+  {
+   "step": "sample files are byte-identical to their sources",
+   "status": "PASS",
+   "seconds": 1,
+   "note": "golden PDF 764a23f9ceb0 rendered now = sample copy; template copy identical",
+   "screenshot": ""
+  },
+  {
+   "step": "open Products, LIVE API indicator",
+   "status": "PASS",
+   "seconds": 0.3,
+   "note": "20 products listed; 20 of 20 product(s) shown. 1 internal intake record (label reads before saving) is hidden.; user Demo Editor (editor)",
+   "screenshot": "01_products.jpg"
+  },
+  {
+   "step": "search filtering",
+   "status": "PASS",
+   "seconds": 0.4,
+   "note": "golden -> 14 rows, nonsense -> no-match message, ExampleDevice -> 1 row(s)",
+   "screenshot": "02_filter.jpg"
+  },
+  {
+   "step": "add sample Golden Pump (read, correct, save)",
+   "status": "PASS",
+   "seconds": 29.3,
+   "note": "prd_5ffd705d; unclear highlighted: model, lot, expiry, sterilization, storage; prefilled lot LOT1, expiry 2030-06-30, udi 00000000000000, serial SN1, model \"\"",
+   "screenshot": "04_saved.jpg"
+  },
+  {
+   "step": "run check (inspect)",
+   "status": "PASS",
+   "seconds": 0.4,
+   "note": "No critical finding; 1 finding(s), 1 say a person must look; 3 human-review items; extraction_unreliable note true",
+   "screenshot": "05_check.jpg"
+  },
+  {
+   "step": "evidence search and question",
+   "status": "PASS",
+   "seconds": 1.4,
+   "note": "\"format of expiration date on a device label\": 10 passages, 10 citations; \"What must a label show for the expiration date?\": abstained with closest passages",
+   "screenshot": "06_evidence.jpg"
+  },
+  {
+   "step": "invalid value error and Retry",
+   "status": "PASS",
+   "seconds": 2.2,
+   "note": "ambiguous date: \"Not assessed (ambiguous_date): '03/04/2028' could be day first or month first. Write it as YYYY-MM-DD.\"; same lot: \"no_change: lot already has this value ('LOT1'); nothing to change. \"; both Retry buttons re-sent and showed the API answer again",
+   "screenshot": "07_invalid_value.jpg"
+  },
+  {
+   "step": "change lot to LOT2, confirm checklist",
+   "status": "PASS",
+   "seconds": 1.9,
+   "note": "affected items: linked_label, linked_label; uploaded label so barcode decision deferred to Generate: true; checklist confirmed",
+   "screenshot": "08_change_lot.jpg"
+  },
+  {
+   "step": "generate revised artwork: barcode REGENERATE",
+   "status": "PASS",
+   "seconds": 2.2,
+   "note": "lbv_c77e88bc; REGENERATE; DRAFT preview drawn",
+   "screenshot": "09_artwork_regenerate.jpg"
+  },
+  {
+   "step": "re-check the lot version",
+   "status": "PASS",
+   "seconds": 19.9,
+   "note": "No critical finding; findings B-LOT, X-HEALTH; B-LOT citation: 21 CFR 801.40: Form of a unique device identifier. Open the ",
+   "screenshot": "10_recheck_lot.jpg"
+  },
+  {
+   "step": "change name: barcode KEEP, confirm",
+   "status": "PASS",
+   "seconds": 1.6,
+   "note": "barcode KEEP: KEEP",
+   "screenshot": "11_change_name_keep.jpg"
+  },
+  {
+   "step": "generate the name version (KEEP)",
+   "status": "PASS",
+   "seconds": 2.2,
+   "note": "lbv_035181bc, barcode KEEP",
+   "screenshot": "12_artwork_keep.jpg"
+  },
+  {
+   "step": "blocked approval (no re-check yet) shows the API message",
+   "status": "PASS",
+   "seconds": 0.9,
+   "note": "check_required: An approval needs the check_id of a passed check.",
+   "screenshot": "13_blocked_approval.jpg"
+  },
+  {
+   "step": "reviewer: re-check, comment, approve",
+   "status": "PASS",
+   "seconds": 18.8,
+   "note": "Recorded: approve by usr_demo_reviewer (rev_67f68251). Status is now reviewed.; 1 decision row(s) listed",
+   "screenshot": "14_approved.jpg"
+  },
+  {
+   "step": "export: download PDF, hash and DRAFT",
+   "status": "PASS",
+   "seconds": 1,
+   "note": "lbv_035181bc.pdf, 2753 bytes, sha256 on disk e299292dcbf2; Downloaded 2753 bytes as lbv_035181bc.pdf. The sha256 computed in this browser matches the recorded hash. Mark on the file: DRAFT, not for production | TEST DATA | DRAFT.",
+   "screenshot": "15_export.jpg"
+  },
+  {
+   "step": "print verification on a rasterized copy of the approved PDF",
+   "status": "PASS",
+   "seconds": 2.3,
+   "note": "outcome match (a perfect digital render, not a photo of a real print)",
+   "screenshot": "16_print_verify.jpg"
+  },
+  {
+   "step": "history",
+   "status": "PASS",
+   "seconds": 0,
+   "note": "32 events: review.approved, check.recorded, export.downloaded, artwork.generated, label.version_created, template.version_created, product.version_created, change.assessment_confirmed, change.confirmed, change.assessed, change.created, extraction.confirmed",
+   "screenshot": "17_history.jpg"
+  },
+  {
+   "step": "second product: upload golden_label.pdf, type fields by hand",
+   "status": "PASS",
+   "seconds": 33.4,
+   "note": "prd_a003b45a; record shows the typed model HP-200 and sterilization Gamma",
+   "screenshot": "19_saved_by_hand.jpg"
+  },
+  {
+   "step": "second product: change expiry, confirm",
+   "status": "PASS",
+   "seconds": 1.7,
+   "note": "affected: linked_label, linked_label; confirmed",
+   "screenshot": "20_change_by_hand.jpg"
+  },
+  {
+   "step": "layout at 1024 px (no horizontal scroll)",
+   "status": "PASS",
+   "seconds": 0.4,
+   "note": "scrollWidth 1009",
+   "screenshot": "21_width_1024.jpg"
+  },
+  {
+   "step": "API unreachable: clear error, LIVE indicator, Retry recovers",
+   "status": "PASS",
+   "seconds": 4.5,
+   "note": "Cannot reach the LabelLens API at http://127.0.0.1:8020 (Failed to fetch). Check that scripts/run_demo.py is running, then press Retry.; after Retry the list loaded again",
+   "screenshot": "22_api_unreachable.jpg"
+  },
+  {
+   "step": "camera denied: clear message, upload still works",
+   "status": "PASS",
+   "seconds": 1.3,
+   "note": "Camera permission was denied. Allow the camera for this page in the browser settings, or upload a file instead. | file upload still enabled",
+   "screenshot": "23_camera_denied.jpg"
+  },
+  {
+   "step": "camera with a fake device: capture and read",
+   "status": "PASS",
+   "seconds": 5.8,
+   "note": "Chosen: camera.png (52 KB, image/png, source camera); API answered: retake_photo: The photo is too blurry to read. Hold the camera steady and focus on the label. The photo is too flat or too dark to read. Use even light and avoi",
+   "screenshot": "24_camera_fake_device.jpg"
+  },
+  {
+   "step": "server really stopped: offline indicator and clear error",
+   "status": "PASS",
+   "seconds": 0.2,
+   "note": "Cannot reach the LabelLens API at http://127.0.0.1:8020 (Failed to fetch). Check that scripts/run_demo.py is running, then press Retry.",
+   "screenshot": "25_server_stopped.jpg"
+  }
+ ]
+}

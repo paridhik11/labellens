@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LabelLens Professional</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="pro.css">
+</head>
+<body>
+  <header class="pro-top">
+    <div class="pro-wrap">
+      <div class="pro-top-row">
+        <div class="pro-brand">
+          <div class="pro-mark" aria-hidden="true">LL</div>
+          <div style="min-width:0">
+            <div class="pro-title" id="proTitle" data-testid="pro-title">LabelLens Professional</div>
+            <div class="pro-subtitle">Device labels, 21 CFR 801, 820, 830</div>
+          </div>
+        </div>
+        <span class="pro-live" id="proLive" data-testid="live-api" title="Server health (GET /health)"><span class="dot"></span><span id="proLiveText">Checking API...</span></span>
+        <div class="pro-roles" role="group" aria-label="Act as">
+          <button type="button" id="roleEditor" data-role="editor" data-testid="role-editor">Editor</button>
+          <button type="button" id="roleReviewer" data-role="reviewer" data-testid="role-reviewer">Reviewer</button>
+        </div>
+        <span class="pro-who" id="proWho" data-testid="who"></span>
+        <a class="pro-adv" href="/ui/professional/index.html?mode=api" data-testid="advanced-link">Advanced view</a>
+      </div>
+      <nav class="pro-steps" id="proSteps" aria-label="Workflow stages"></nav>
+    </div>
+  </header>
+
+  <main class="pro-main">
+    <div class="pro-wrap">
+      <div class="pro-banner">DEMO MODE: Sample data for course evaluation. Not for clinical use. People approve every label; this page does not decide whether a label meets any regulation.</div>
+      <div id="app" data-testid="app"></div>
+    </div>
+  </main>
+
+  <script src="pro-api.js"></script>
+  <script src="pro.js"></script>
+</body>
+</html>
