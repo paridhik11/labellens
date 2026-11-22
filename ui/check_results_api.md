@@ -36,8 +36,8 @@
 | D7 Review | returned | professional/review/returned.json | x-mock | pass |  |
 | D7 Review | failed | professional/review/self_approval_forbidden.json | x-mock | pass |  |
 | D8 Export | success | professional/export/draft.json | x-mock | pass |  |
-| D8 Export | approved | professional/export/approved.json | x-mock | pass |  |
-| D8 Export | success | professional/export/publish_success.json | x-mock | pass |  |
+| D8 Export | approved | professional/export/approved.json | x-mock | FAIL | missing qr-card |
+| D8 Export | success | professional/export/publish_success.json | x-mock | FAIL | missing publish-card |
 | D9 History | success | professional/history/success.json | api | pass |  |
 | D9 History | empty | professional/history/empty.json | x-mock | pass |  |
 | D9 History | success | professional/history/label_versions.json | api | pass |  |
@@ -52,6 +52,12 @@
 | P2 Product information | success | public/product/success.json | x-mock | pass |  |
 | P2 Product information | needs_review | public/product/needs_review.json | x-mock | pass |  |
 | P2 Product information | empty | public/product/empty.json | x-mock | pass |  |
+| P2 Product information | live_candidates | public/live/search_candidates.json | x-mock | pass |  |
+| P2 Product information | live_none | public/live/search_none.json | x-mock | pass |  |
+| P2 Product information | live_offline | public/live/search_unavailable.json | x-mock | pass |  |
+| P2 Product information | live_fetching | public/live/fetching.json | x-mock | pass |  |
+| P2 Product information | live_fetch_failed | public/live/fetch_failed.json | x-mock | pass |  |
+| P2 Product information | live_success | public/live/product.json | x-mock | pass |  |
 | P3 Ask about this label | success | public/ask/success.json | x-mock | pass |  |
 | P3 Ask about this label | abstained | public/ask/abstained_out_of_scope.json | x-mock | pass |  |
 | P3 Ask about this label | abstained | public/ask/abstained_low_confidence.json | x-mock | pass |  |
@@ -69,6 +75,7 @@
 | D9 audit and versions switch buttons | pass |  |
 | D7 return needs a comment | pass |  |
 | D7 approve is disabled when the re-check failed | pass |  |
+| D7 draws each finding citation (section, title, quote) | pass |  |
 | D8 download click | pass |  |
 | D4 confirm button reaches a confirmed extraction (mock) | pass |  |
 | D4 run inspection reaches the check result | pass |  |
