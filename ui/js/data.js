@@ -13,7 +13,7 @@ const _params = new URLSearchParams((typeof location !== 'undefined' && location
 const CONFIG = {
   // 'mock' (default) reads static JSON from src/api/mock. 'api' calls the API and falls back to the mock
   // (marked X-Mock) when a call fails or the server answers with its own mock. Switch with ?mode=api.
-  mode: _params.get('mode') === 'api' ? 'api' : 'mock',
+  mode: _params.get('mode') === 'mock' ? 'mock' : 'api',
   mockIndexUrl: '/src/api/mock/index.json',
   mockBaseUrl: '/src/api/mock/',
   apiBaseUrl: _params.get('api') || ((typeof location !== 'undefined' && location.protocol.startsWith('http')) ? location.origin : 'http://localhost:8000'),

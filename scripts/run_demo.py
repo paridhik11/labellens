@@ -38,6 +38,24 @@ def have(module: str) -> bool:
     return importlib.util.find_spec(module) is not None
 
 
+TESSERACT_DIRS = (r"C:\Program Files\Tesseract-OCR", r"C:\Program Files (x86)\Tesseract-OCR")
+
+
+def ensure_tesseract(dirs: tuple[str, ...] = TESSERACT_DIRS) -> bool:
+    """Make `tesseract` findable for the photo scan: add a standard Windows install folder to PATH when needed.
+
+    Returns True when the program is on PATH (already, or after adding a folder). The photo scan reads text with it
+    (`src/cv/ocr_vote.py`), so without it every public photo scan fails.
+    """
+    if shutil.which("tesseract"):
+        return True
+    for folder in dirs:
+        if (Path(folder) / "tesseract.exe").exists():
+            os.environ["PATH"] = os.environ.get("PATH", "") + os.pathsep + folder
+            return shutil.which("tesseract") is not None
+    return False
+
+
 def check_environment() -> dict[str, bool]:
     """Report what the demo can do on this machine. Missing parts degrade a stage, they do not stop the start."""
     caps = {
@@ -47,6 +65,10 @@ def check_environment() -> dict[str, bool]:
         "retrieval models (sentence-transformers)": have("sentence_transformers"),
     }
     print(f"python {sys.version.split()[0]} in {sys.prefix}")
+    if ensure_tesseract():
+        print(f"  ok      Tesseract found ({shutil.which('tesseract')}): the public photo scan can read text")
+    else:
+        print("  MISSING Tesseract not found: public photo scans will fail (install it, or use Type the name)")
     for name, ok in caps.items():
         print(f"  {'ok     ' if ok else 'MISSING'} {name}")
     if sys.version_info[:2] != (3, 12):

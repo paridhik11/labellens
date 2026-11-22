@@ -14,7 +14,7 @@ Wait for the URLs. On a machine with no index store the first start builds the d
 .venv312\Scripts\python.exe ui\tools\golden_setup.py --base http://127.0.0.1:8000 --out <folder>
 ```
 
-It prints the product id and the label PDF path. Open `http://127.0.0.1:8000/ui/professional/index.html?mode=api&product=<product id>`. The badge at the top must read `api`, not `mock`. The user switch (top right) starts as the editor `usr_demo_editor`.
+It prints the product id and the label PDF path. Open `http://127.0.0.1:8000/ui/professional/index.html?mode=api&product=<product id>`. The page is in api mode by default (`?mode=mock` is the static mock mode); the badge at the top must read `api`, not `mock`. The user switch (top right) starts as the editor `usr_demo_editor`.
 
 ## Click path
 

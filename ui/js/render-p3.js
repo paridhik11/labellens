@@ -26,9 +26,9 @@
     const askAvail = window.LabelLensAsk;
     const isApi = window.LabelLensData.CONFIG.mode === 'api';
     // Panel state for this render: an instant answer and/or an AI job.
-    const view = { answer: null, ai: null, note: '', busy: false };
+    const view = { answer: null, ai: null, note: '', busy: false, noLabel: false };
     if (askAvail.isAskJob(safeData)) view.ai = safeData;
-    else view.answer = safeData;
+    else if (data && Object.keys(data).length) view.answer = safeData;
     const testBadge = window.LabelLensData.renderTestBadge(safeData);
 
     function paint() {
@@ -59,6 +59,13 @@
             <div class="text-xs text-muted" id="p3Note" style="margin-top: 6px;">${esc(view.note)}</div>
           </div>
 
+          ${view.noLabel ? `
+            <div class="notice-banner notice-warning" data-testid="no-label-loaded" style="margin-bottom: 12px;">
+              <div class="notice-icon">i</div>
+              <div><div class="notice-title">No label loaded for this name</div>
+              <div class="notice-text">The 30 curated reference labels do not match it, so no answer is shown. Search DailyMed, pick the label, then ask again.</div></div>
+            </div>
+            <div id="p3LiveHost"></div>` : ''}
           ${view.answer ? `
             <div class="font-semibold text-xs text-muted" style="margin-bottom: 6px;">Extractive answer (instant)</div>
             ${askAvail.answerHtml(view.answer)}` : ''}
@@ -70,6 +77,8 @@
           </div>
         </div>`;
       bind();
+      const host = container.querySelector('#p3LiveHost');
+      if (host && window.LabelLensLive) window.LabelLensLive.mountSearch(host, () => (container.querySelector('#p3Medicine') || {}).value || currentMedicine);
     }
 
     /** Resolve the reference product id: match the typed medicine name (the real matcher, CR-23). */
@@ -82,7 +91,7 @@
       const r = await window.LabelLensApi.request('POST', '/public/match', { json: { product_name: name.trim() } });
       if (r.status !== 200) throw new Error((r.body && r.body.message) || `matching failed (HTTP ${r.status})`);
       const best = (r.body.candidates || [])[0];
-      if (!best) throw new Error('No reference label matched that name.');
+      if (!best || r.body.outcome === 'no_reference_match') { const err = new Error('No label loaded for this name'); err.noLabel = true; throw err; }
       return best.product_id;
     }
 
@@ -124,6 +133,8 @@
         } catch (e) {
           view.busy = false;
           view.note = e.message;
+          view.noLabel = Boolean(e.noLabel);
+          view.answer = null;
           paint();
         }
       };

@@ -347,3 +347,35 @@ def test_other_ingredient_in_the_text_makes_a_match_review() -> None:
     assert combo["outcome"] == "needs_review" and combo["candidates"][0][0] == pid
     slip = public_scan.apply_evidence(found, distinct, ["metformin", "metformln"], other)
     assert slip["outcome"] == "matched"  # an OCR slip of the product's own word is not a foreign ingredient
+
+
+def _flat_gate(sharpness: float, reasons: tuple[str, ...] = ("low_contrast",)):
+    """A gate that reports the given reasons with a chosen sharpness (a mostly white pack with sparse text)."""
+    from src.api.quality import QualityReport
+
+    def gate(_path: Path) -> QualityReport:
+        return QualityReport(ok=False, reasons=reasons,
+                             metrics={"sharpness": sharpness, "contrast": 37.0, "glare_blob": 0.0, "glare_edge": 255.0})
+    return gate
+
+
+def test_sharp_photo_with_only_low_contrast_is_read(client) -> None:
+    """A clean image measured 37 against the contrast cut-off 40 (sharpness 1528): it must still be read."""
+    client.app.state.quality_gate = _flat_gate(1528.0)
+    response = post(client)
+    job = client.get(f"/jobs/{response.json()['job_id']}").json()
+    assert job["state"] == "done"
+
+
+def test_low_contrast_with_weak_sharpness_is_still_rejected(client) -> None:
+    client.app.state.quality_gate = _flat_gate(250.0)
+    response = post(client)
+    job = client.get(f"/jobs/{response.json()['job_id']}").json()
+    assert job["state"] == "failed" and job["error"]["details"]["reasons"] == ["low_contrast"]
+
+
+def test_low_contrast_together_with_blur_is_still_rejected(client) -> None:
+    client.app.state.quality_gate = _flat_gate(1528.0, ("low_contrast", "glare"))
+    response = post(client)
+    job = client.get(f"/jobs/{response.json()['job_id']}").json()
+    assert job["state"] == "failed"

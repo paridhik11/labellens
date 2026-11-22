@@ -204,7 +204,24 @@
   }
   wrapP2();
 
+  /** Append the "Search DailyMed" panel to `host` (name: a string or a function returning the typed name). */
+  function mountSearch(host, name) {
+    const typed = typeof name === 'function' ? name() : name;
+    const holder = document.createElement('div');
+    holder.style.cssText = 'max-width:640px;margin:0 auto;';
+    holder.innerHTML = panelHtml(typed || 'this medicine');
+    host.appendChild(holder);
+    const out = holder.querySelector('[data-testid="live-results"]');
+    holder.querySelector('[data-testid="live-search-go"]').addEventListener('click', () => {
+      const n = typeof name === 'function' ? name() : name;
+      if (!String(n || '').trim()) { out.innerHTML = '<p class="text-xs text-muted">Type a medicine name first.</p>'; return; }
+      state.lastName = n;
+      search(n, out);
+    });
+  }
+
   window.LabelLensLive = {
+    mountSearch,
     LIVE_LABEL, current, setLastName(n) { state.lastName = n; }, currentName() { return current.typed_name || ''; },
     productIdFor(name) {
       const n = norm(name);
