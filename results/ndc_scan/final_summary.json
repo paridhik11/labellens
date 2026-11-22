@@ -1,0 +1,1843 @@
+{
+ "config_commit": "8c9b540965026caf51ce4a4bd682c7046f1fc2a5",
+ "config": {
+  "tau": 22.0,
+  "top": 3
+ },
+ "gate": {
+  "1_wrong_products_unused_decoys_new_method": 0,
+  "1_wrong_products_unused_decoys_E_replay": 0,
+  "1_decoy_products": 33,
+  "1_decoy_photos_with_any_product_shown_new": 42,
+  "1_decoy_photos_with_any_product_shown_E": 32,
+  "2_timeouts_unused_new": 6,
+  "2_timeouts_unused_E_replay": 6,
+  "2_timeouts_unused_E_recorded": 13,
+  "2_timeouts_positives_new": 0,
+  "2_timeouts_positives_E_replay": 0,
+  "3_correct_positives_new": 46,
+  "3_correct_positives_E_replay": 34,
+  "3_positive_photos": 57,
+  "pass_1": true,
+  "pass_2": true,
+  "pass_3": true,
+  "pass_all": true
+ },
+ "coverage": {
+  "positives": {
+   "photos": 57,
+   "barcode_ndc_read": 10,
+   "barcode_in_table": 10,
+   "printed_ndc_shaped": 35,
+   "printed_in_table": 32,
+   "either_in_table": 33,
+   "ndc_decided": 33
+  },
+  "unused_decoy": {
+   "photos": 45,
+   "barcode_ndc_read": 10,
+   "barcode_in_table": 0,
+   "printed_ndc_shaped": 14,
+   "printed_in_table": 0,
+   "either_in_table": 0,
+   "ndc_decided": 0
+  },
+  "new_set": {
+   "photos": 54,
+   "barcode_ndc_read": 18,
+   "barcode_in_table": 0,
+   "printed_ndc_shaped": 33,
+   "printed_in_table": 0,
+   "either_in_table": 0,
+   "ndc_decided": 0
+  },
+  "all_decoys": {
+   "photos": 99,
+   "barcode_ndc_read": 28,
+   "barcode_in_table": 0,
+   "printed_ndc_shaped": 47,
+   "printed_in_table": 0,
+   "either_in_table": 0,
+   "ndc_decided": 0
+  },
+  "positives/artwork": {
+   "photos": 19,
+   "barcode_ndc_read": 4,
+   "barcode_in_table": 4,
+   "printed_ndc_shaped": 10,
+   "printed_in_table": 10,
+   "either_in_table": 11,
+   "ndc_decided": 11
+  },
+  "positives/moderate": {
+   "photos": 19,
+   "barcode_ndc_read": 4,
+   "barcode_in_table": 4,
+   "printed_ndc_shaped": 12,
+   "printed_in_table": 11,
+   "either_in_table": 11,
+   "ndc_decided": 11
+  },
+  "positives/hard": {
+   "photos": 19,
+   "barcode_ndc_read": 2,
+   "barcode_in_table": 2,
+   "printed_ndc_shaped": 13,
+   "printed_in_table": 11,
+   "either_in_table": 11,
+   "ndc_decided": 11
+  }
+ },
+ "new": {
+  "positives": {
+   "photos": 57,
+   "counts": {
+    "not_identified": 3,
+    "review": 8,
+    "correct": 46
+   },
+   "correct_interval": [
+    0.687,
+    0.889
+   ],
+   "wrong_interval": [
+    0.0,
+    0.063
+   ],
+   "seconds": {
+    "median": 16.9,
+    "max": 48.3
+   }
+  },
+  "unused_decoy": {
+   "photos": 45,
+   "counts": {
+    "review": 20,
+    "not_identified": 19,
+    "timeout": 6
+   },
+   "correct_interval": [
+    0.0,
+    0.079
+   ],
+   "wrong_interval": [
+    0.0,
+    0.079
+   ],
+   "seconds": {
+    "median": 37.0,
+    "max": 1595.2
+   }
+  },
+  "new_set": {
+   "photos": 54,
+   "counts": {
+    "timeout": 22,
+    "review": 22,
+    "not_identified": 10
+   },
+   "correct_interval": [
+    0.0,
+    0.066
+   ],
+   "wrong_interval": [
+    0.0,
+    0.066
+   ],
+   "seconds": {
+    "median": 46.5,
+    "max": 1472.2
+   }
+  },
+  "all_decoys": {
+   "photos": 99,
+   "counts": {
+    "review": 42,
+    "not_identified": 29,
+    "timeout": 28
+   },
+   "correct_interval": [
+    0.0,
+    0.037
+   ],
+   "wrong_interval": [
+    0.0,
+    0.037
+   ],
+   "seconds": {
+    "median": 42.1,
+    "max": 1595.2
+   }
+  }
+ },
+ "e_replay": {
+  "positives": {
+   "photos": 57,
+   "counts": {
+    "not_identified": 6,
+    "review": 17,
+    "correct": 34
+   },
+   "correct_interval": [
+    0.467,
+    0.714
+   ],
+   "wrong_interval": [
+    0.0,
+    0.063
+   ],
+   "seconds": {
+    "median": 19.9,
+    "max": 48.9
+   }
+  },
+  "unused_decoy": {
+   "photos": 45,
+   "counts": {
+    "review": 15,
+    "not_identified": 24,
+    "timeout": 6
+   },
+   "correct_interval": [
+    0.0,
+    0.079
+   ],
+   "wrong_interval": [
+    0.0,
+    0.079
+   ],
+   "seconds": {
+    "median": 36.9,
+    "max": 1595.1
+   }
+  },
+  "new_set": {
+   "photos": 54,
+   "counts": {
+    "timeout": 22,
+    "review": 17,
+    "not_identified": 15
+   },
+   "correct_interval": [
+    0.0,
+    0.066
+   ],
+   "wrong_interval": [
+    0.0,
+    0.066
+   ],
+   "seconds": {
+    "median": 46.5,
+    "max": 1471.5
+   }
+  },
+  "all_decoys": {
+   "photos": 99,
+   "counts": {
+    "review": 32,
+    "not_identified": 39,
+    "timeout": 28
+   },
+   "correct_interval": [
+    0.0,
+    0.037
+   ],
+   "wrong_interval": [
+    0.0,
+    0.037
+   ],
+   "seconds": {
+    "median": 41.9,
+    "max": 1595.1
+   }
+  }
+ },
+ "new_by_condition": {
+  "positives": {
+   "artwork": {
+    "photos": 19,
+    "counts": {
+     "not_identified": 1,
+     "review": 2,
+     "correct": 16
+    },
+    "correct_interval": [
+     0.624,
+     0.945
+    ],
+    "wrong_interval": [
+     0.0,
+     0.168
+    ],
+    "seconds": {
+     "median": 24.1,
+     "max": 48.3
+    }
+   },
+   "moderate": {
+    "photos": 19,
+    "counts": {
+     "not_identified": 1,
+     "review": 2,
+     "correct": 16
+    },
+    "correct_interval": [
+     0.624,
+     0.945
+    ],
+    "wrong_interval": [
+     0.0,
+     0.168
+    ],
+    "seconds": {
+     "median": 15.6,
+     "max": 24.3
+    }
+   },
+   "hard": {
+    "photos": 19,
+    "counts": {
+     "not_identified": 1,
+     "review": 4,
+     "correct": 14
+    },
+    "correct_interval": [
+     0.512,
+     0.882
+    ],
+    "wrong_interval": [
+     0.0,
+     0.168
+    ],
+    "seconds": {
+     "median": 14.3,
+     "max": 20.4
+    }
+   }
+  },
+  "unused_decoy": {
+   "artwork": {
+    "photos": 15,
+    "counts": {
+     "review": 6,
+     "not_identified": 3,
+     "timeout": 6
+    },
+    "correct_interval": [
+     -0.0,
+     0.204
+    ],
+    "wrong_interval": [
+     -0.0,
+     0.204
+    ],
+    "seconds": {
+     "median": 46.1,
+     "max": 1595.2
+    }
+   },
+   "moderate": {
+    "photos": 15,
+    "counts": {
+     "review": 8,
+     "not_identified": 7
+    },
+    "correct_interval": [
+     -0.0,
+     0.204
+    ],
+    "wrong_interval": [
+     -0.0,
+     0.204
+    ],
+    "seconds": {
+     "median": 37.9,
+     "max": 47.9
+    }
+   },
+   "hard": {
+    "photos": 15,
+    "counts": {
+     "review": 6,
+     "not_identified": 9
+    },
+    "correct_interval": [
+     -0.0,
+     0.204
+    ],
+    "wrong_interval": [
+     -0.0,
+     0.204
+    ],
+    "seconds": {
+     "median": 31.4,
+     "max": 42.1
+    }
+   }
+  },
+  "new_set": {
+   "artwork": {
+    "photos": 18,
+    "counts": {
+     "timeout": 17,
+     "review": 1
+    },
+    "correct_interval": [
+     0.0,
+     0.176
+    ],
+    "wrong_interval": [
+     0.0,
+     0.176
+    ],
+    "seconds": {
+     "median": 53.5,
+     "max": 62.0
+    }
+   },
+   "moderate": {
+    "photos": 18,
+    "counts": {
+     "review": 12,
+     "not_identified": 3,
+     "timeout": 3
+    },
+    "correct_interval": [
+     0.0,
+     0.176
+    ],
+    "wrong_interval": [
+     0.0,
+     0.176
+    ],
+    "seconds": {
+     "median": 46.5,
+     "max": 65.9
+    }
+   },
+   "hard": {
+    "photos": 18,
+    "counts": {
+     "not_identified": 7,
+     "review": 9,
+     "timeout": 2
+    },
+    "correct_interval": [
+     0.0,
+     0.176
+    ],
+    "wrong_interval": [
+     0.0,
+     0.176
+    ],
+    "seconds": {
+     "median": 39.2,
+     "max": 1472.2
+    }
+   }
+  },
+  "all_decoys": {
+   "artwork": {
+    "photos": 33,
+    "counts": {
+     "review": 7,
+     "not_identified": 3,
+     "timeout": 23
+    },
+    "correct_interval": [
+     0.0,
+     0.104
+    ],
+    "wrong_interval": [
+     0.0,
+     0.104
+    ],
+    "seconds": {
+     "median": 51.4,
+     "max": 1595.2
+    }
+   },
+   "moderate": {
+    "photos": 33,
+    "counts": {
+     "review": 20,
+     "not_identified": 10,
+     "timeout": 3
+    },
+    "correct_interval": [
+     0.0,
+     0.104
+    ],
+    "wrong_interval": [
+     0.0,
+     0.104
+    ],
+    "seconds": {
+     "median": 41.1,
+     "max": 65.9
+    }
+   },
+   "hard": {
+    "photos": 33,
+    "counts": {
+     "review": 15,
+     "not_identified": 16,
+     "timeout": 2
+    },
+    "correct_interval": [
+     0.0,
+     0.104
+    ],
+    "wrong_interval": [
+     0.0,
+     0.104
+    ],
+    "seconds": {
+     "median": 35.8,
+     "max": 1472.2
+    }
+   }
+  }
+ },
+ "e_by_condition": {
+  "positives": {
+   "artwork": {
+    "photos": 19,
+    "counts": {
+     "not_identified": 1,
+     "review": 5,
+     "correct": 13
+    },
+    "correct_interval": [
+     0.46,
+     0.846
+    ],
+    "wrong_interval": [
+     0.0,
+     0.168
+    ],
+    "seconds": {
+     "median": 29.8,
+     "max": 48.9
+    }
+   },
+   "moderate": {
+    "photos": 19,
+    "counts": {
+     "not_identified": 2,
+     "review": 6,
+     "correct": 11
+    },
+    "correct_interval": [
+     0.363,
+     0.769
+    ],
+    "wrong_interval": [
+     0.0,
+     0.168
+    ],
+    "seconds": {
+     "median": 17.5,
+     "max": 25.4
+    }
+   },
+   "hard": {
+    "photos": 19,
+    "counts": {
+     "not_identified": 3,
+     "review": 6,
+     "correct": 10
+    },
+    "correct_interval": [
+     0.317,
+     0.727
+    ],
+    "wrong_interval": [
+     0.0,
+     0.168
+    ],
+    "seconds": {
+     "median": 16.3,
+     "max": 26.0
+    }
+   }
+  },
+  "unused_decoy": {
+   "artwork": {
+    "photos": 15,
+    "counts": {
+     "review": 5,
+     "not_identified": 4,
+     "timeout": 6
+    },
+    "correct_interval": [
+     -0.0,
+     0.204
+    ],
+    "wrong_interval": [
+     -0.0,
+     0.204
+    ],
+    "seconds": {
+     "median": 46.1,
+     "max": 1595.1
+    }
+   },
+   "moderate": {
+    "photos": 15,
+    "counts": {
+     "review": 5,
+     "not_identified": 10
+    },
+    "correct_interval": [
+     -0.0,
+     0.204
+    ],
+    "wrong_interval": [
+     -0.0,
+     0.204
+    ],
+    "seconds": {
+     "median": 37.7,
+     "max": 47.7
+    }
+   },
+   "hard": {
+    "photos": 15,
+    "counts": {
+     "not_identified": 10,
+     "review": 5
+    },
+    "correct_interval": [
+     -0.0,
+     0.204
+    ],
+    "wrong_interval": [
+     -0.0,
+     0.204
+    ],
+    "seconds": {
+     "median": 30.3,
+     "max": 41.6
+    }
+   }
+  },
+  "new_set": {
+   "artwork": {
+    "photos": 18,
+    "counts": {
+     "timeout": 17,
+     "review": 1
+    },
+    "correct_interval": [
+     0.0,
+     0.176
+    ],
+    "wrong_interval": [
+     0.0,
+     0.176
+    ],
+    "seconds": {
+     "median": 53.5,
+     "max": 62.0
+    }
+   },
+   "moderate": {
+    "photos": 18,
+    "counts": {
+     "review": 10,
+     "not_identified": 5,
+     "timeout": 3
+    },
+    "correct_interval": [
+     0.0,
+     0.176
+    ],
+    "wrong_interval": [
+     0.0,
+     0.176
+    ],
+    "seconds": {
+     "median": 46.2,
+     "max": 65.5
+    }
+   },
+   "hard": {
+    "photos": 18,
+    "counts": {
+     "not_identified": 10,
+     "timeout": 2,
+     "review": 6
+    },
+    "correct_interval": [
+     0.0,
+     0.176
+    ],
+    "wrong_interval": [
+     0.0,
+     0.176
+    ],
+    "seconds": {
+     "median": 38.6,
+     "max": 1471.5
+    }
+   }
+  },
+  "all_decoys": {
+   "artwork": {
+    "photos": 33,
+    "counts": {
+     "review": 6,
+     "not_identified": 4,
+     "timeout": 23
+    },
+    "correct_interval": [
+     0.0,
+     0.104
+    ],
+    "wrong_interval": [
+     0.0,
+     0.104
+    ],
+    "seconds": {
+     "median": 51.4,
+     "max": 1595.1
+    }
+   },
+   "moderate": {
+    "photos": 33,
+    "counts": {
+     "review": 15,
+     "not_identified": 15,
+     "timeout": 3
+    },
+    "correct_interval": [
+     0.0,
+     0.104
+    ],
+    "wrong_interval": [
+     0.0,
+     0.104
+    ],
+    "seconds": {
+     "median": 40.9,
+     "max": 65.5
+    }
+   },
+   "hard": {
+    "photos": 33,
+    "counts": {
+     "not_identified": 20,
+     "review": 11,
+     "timeout": 2
+    },
+    "correct_interval": [
+     0.0,
+     0.104
+    ],
+    "wrong_interval": [
+     0.0,
+     0.104
+    ],
+    "seconds": {
+     "median": 35.2,
+     "max": 1471.5
+    }
+   }
+  }
+ },
+ "per_product": [
+  {
+   "product": "ALBUTEROL SULFATE",
+   "role": "positive",
+   "photos": 6,
+   "new": [
+    "review",
+    "review",
+    "review",
+    "correct",
+    "correct",
+    "review"
+   ],
+   "e": [
+    "review",
+    "review",
+    "review",
+    "correct",
+    "review",
+    "review"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e",
+    "e",
+    "e",
+    "ndc_printed",
+    "ndc_printed",
+    "e"
+   ]
+  },
+  {
+   "product": "ALLERGY RELIEF (CETIRIZINE HCL) TABLET [PIONEER LIFE SCIENCES, LLC]",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "timeout",
+    "review",
+    "review"
+   ],
+   "e": [
+    "timeout",
+    "review",
+    "not_identified"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e_none",
+    "e",
+    "text_rank"
+   ]
+  },
+  {
+   "product": "ALPRAZOLAM TABLET [PD-RX PHARMACEUTICALS, INC.]",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "timeout",
+    "not_identified",
+    "not_identified"
+   ],
+   "e": [
+    "timeout",
+    "not_identified",
+    "not_identified"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e_none",
+    "none",
+    "none"
+   ]
+  },
+  {
+   "product": "ANASTROZOLE TABLET [CHARTWELL RX, LLC]",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "timeout",
+    "review",
+    "not_identified"
+   ],
+   "e": [
+    "timeout",
+    "not_identified",
+    "not_identified"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e_none",
+    "text_rank",
+    "none"
+   ]
+  },
+  {
+   "product": "Amitriptyline Hydrochloride",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "timeout",
+    "review",
+    "not_identified"
+   ],
+   "e": [
+    "timeout",
+    "review",
+    "not_identified"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e_none",
+    "e",
+    "none"
+   ]
+  },
+  {
+   "product": "Amlodipine Besylate",
+   "role": "positive",
+   "photos": 3,
+   "new": [
+    "not_identified",
+    "not_identified",
+    "not_identified"
+   ],
+   "e": [
+    "not_identified",
+    "not_identified",
+    "not_identified"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "none",
+    "none",
+    "none"
+   ]
+  },
+  {
+   "product": "Aripiprazole",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "review",
+    "review",
+    "review"
+   ],
+   "e": [
+    "review",
+    "review",
+    "not_identified"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e",
+    "e",
+    "text_rank"
+   ]
+  },
+  {
+   "product": "Aspirin",
+   "role": "positive",
+   "photos": 3,
+   "new": [
+    "correct",
+    "correct",
+    "review"
+   ],
+   "e": [
+    "review",
+    "not_identified",
+    "not_identified"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "ndc_barcode",
+    "ndc_both",
+    "text_rank"
+   ]
+  },
+  {
+   "product": "BISOPROLOL FUMARATE AND HYDROCHLOROTHIAZIDE TABLET, FILM COATED [A-S MEDICATION SOLUTIONS]",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "review",
+    "review",
+    "review"
+   ],
+   "e": [
+    "review",
+    "review",
+    "review"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e",
+    "e",
+    "e"
+   ]
+  },
+  {
+   "product": "Bupropion Hydrochloride",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "timeout",
+    "not_identified",
+    "not_identified"
+   ],
+   "e": [
+    "timeout",
+    "not_identified",
+    "not_identified"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e_none",
+    "none",
+    "none"
+   ]
+  },
+  {
+   "product": "CLONAZEPAM TABLET [PD-RX PHARMACEUTICALS, INC.]",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "timeout",
+    "not_identified",
+    "not_identified"
+   ],
+   "e": [
+    "timeout",
+    "not_identified",
+    "not_identified"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e_none",
+    "none",
+    "none"
+   ]
+  },
+  {
+   "product": "Carvedilol",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "timeout",
+    "not_identified",
+    "not_identified"
+   ],
+   "e": [
+    "timeout",
+    "not_identified",
+    "not_identified"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e_none",
+    "none",
+    "none"
+   ]
+  },
+  {
+   "product": "Childrens Ibuprofen",
+   "role": "positive",
+   "photos": 3,
+   "new": [
+    "review",
+    "review",
+    "review"
+   ],
+   "e": [
+    "review",
+    "review",
+    "review"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e",
+    "e",
+    "e"
+   ]
+  },
+  {
+   "product": "Clonidine Hydrochloride",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "review",
+    "review",
+    "not_identified"
+   ],
+   "e": [
+    "review",
+    "review",
+    "not_identified"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e",
+    "e",
+    "none"
+   ]
+  },
+  {
+   "product": "DIGOXIN INJECTION [HENRY SCHEIN, INC.]",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "timeout",
+    "review",
+    "not_identified"
+   ],
+   "e": [
+    "timeout",
+    "review",
+    "not_identified"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e_none",
+    "e",
+    "none"
+   ]
+  },
+  {
+   "product": "Doxycycline Hyclate",
+   "role": "positive",
+   "photos": 3,
+   "new": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "e": [
+    "review",
+    "review",
+    "review"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "ndc_printed",
+    "ndc_printed",
+    "ndc_printed"
+   ]
+  },
+  {
+   "product": "Duloxetine",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "review",
+    "not_identified",
+    "review"
+   ],
+   "e": [
+    "review",
+    "not_identified",
+    "review"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e",
+    "none",
+    "e"
+   ]
+  },
+  {
+   "product": "ELIQUIS",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "not_identified",
+    "not_identified",
+    "not_identified"
+   ],
+   "e": [
+    "not_identified",
+    "not_identified",
+    "not_identified"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "none",
+    "none",
+    "none"
+   ]
+  },
+  {
+   "product": "FAMOTIDINE",
+   "role": "positive",
+   "photos": 3,
+   "new": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "e": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "ndc_both",
+    "ndc_both",
+    "ndc_both"
+   ]
+  },
+  {
+   "product": "FUROSEMIDE",
+   "role": "positive",
+   "photos": 3,
+   "new": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "e": [
+    "correct",
+    "review",
+    "review"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "ndc_printed",
+    "ndc_printed",
+    "ndc_printed"
+   ]
+  },
+  {
+   "product": "Fluoxetine",
+   "role": "positive",
+   "photos": 3,
+   "new": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "e": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e",
+    "e",
+    "ndc_printed"
+   ]
+  },
+  {
+   "product": "Glipizide",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "timeout",
+    "not_identified",
+    "not_identified"
+   ],
+   "e": [
+    "timeout",
+    "not_identified",
+    "not_identified"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e_none",
+    "none",
+    "none"
+   ]
+  },
+  {
+   "product": "HALOPERIDOL TABLET [MAJOR PHARMACEUTICALS]",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "timeout",
+    "review",
+    "not_identified"
+   ],
+   "e": [
+    "timeout",
+    "review",
+    "not_identified"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e_none",
+    "e",
+    "none"
+   ]
+  },
+  {
+   "product": "HYDROXYZINE HYDROCHLORIDE",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "review",
+    "review",
+    "review"
+   ],
+   "e": [
+    "review",
+    "not_identified",
+    "review"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e",
+    "text_rank",
+    "e"
+   ]
+  },
+  {
+   "product": "IRBESARTAN TABLET [BRYANT RANCH PREPACK]",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "timeout",
+    "review",
+    "review"
+   ],
+   "e": [
+    "timeout",
+    "review",
+    "review"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e_none",
+    "e",
+    "e"
+   ]
+  },
+  {
+   "product": "LABETALOL HYDROCHLORIDE TABLET [BLUEPOINT LABORATORIES]",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "timeout",
+    "review",
+    "review"
+   ],
+   "e": [
+    "timeout",
+    "not_identified",
+    "not_identified"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e_none",
+    "text_rank",
+    "text_rank"
+   ]
+  },
+  {
+   "product": "LETROZOLE (LETROZOLE TABLETS) TABLET, FILM COATED [GOLDEN STATE MEDICAL SUPPLY, INC.]",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "timeout",
+    "review",
+    "review"
+   ],
+   "e": [
+    "timeout",
+    "review",
+    "review"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e_none",
+    "e",
+    "e"
+   ]
+  },
+  {
+   "product": "LITHIUM CARBONATE TABLET, EXTENDED RELEASE [PD-RX PHARMACEUTICALS, INC.]",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "timeout",
+    "review",
+    "review"
+   ],
+   "e": [
+    "timeout",
+    "review",
+    "review"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e_none",
+    "e",
+    "e"
+   ]
+  },
+  {
+   "product": "LORAZEPAM TABLET [REMEDYREPACK INC.]",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "timeout",
+    "review",
+    "not_identified"
+   ],
+   "e": [
+    "timeout",
+    "review",
+    "not_identified"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e_none",
+    "e",
+    "none"
+   ]
+  },
+  {
+   "product": "METFORMIN HYDROCHLORIDE",
+   "role": "positive",
+   "photos": 3,
+   "new": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "e": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "ndc_both",
+    "ndc_both",
+    "ndc_both"
+   ]
+  },
+  {
+   "product": "METHYLPREDNISOLONE ACETATE INJECTION, SUSPENSION [GLAND PHARMA LIMITED]",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "timeout",
+    "review",
+    "review"
+   ],
+   "e": [
+    "timeout",
+    "review",
+    "review"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e_none",
+    "e",
+    "e"
+   ]
+  },
+  {
+   "product": "Mirtazapine",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "review",
+    "review",
+    "review"
+   ],
+   "e": [
+    "not_identified",
+    "not_identified",
+    "review"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "text_rank",
+    "text_rank",
+    "e"
+   ]
+  },
+  {
+   "product": "Naproxen",
+   "role": "positive",
+   "photos": 3,
+   "new": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "e": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e",
+    "e",
+    "ndc_printed"
+   ]
+  },
+  {
+   "product": "PANTOPRAZOLE SODIUM TABLET, DELAYED RELEASE [CARDINAL HEALTH 107, LLC]",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "timeout",
+    "timeout",
+    "timeout"
+   ],
+   "e": [
+    "timeout",
+    "timeout",
+    "timeout"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e_none",
+    "e_none",
+    "e_none"
+   ]
+  },
+  {
+   "product": "PREDNISOLONE SODIUM PHOSPHATE SOLUTION [AMERICAN HEALTH PACKAGING]",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "timeout",
+    "timeout",
+    "timeout"
+   ],
+   "e": [
+    "timeout",
+    "timeout",
+    "timeout"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e_none",
+    "e_none",
+    "e_none"
+   ]
+  },
+  {
+   "product": "Pain Relief Extra Strength",
+   "role": "positive",
+   "photos": 3,
+   "new": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "e": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "ndc_printed",
+    "ndc_printed",
+    "ndc_printed"
+   ]
+  },
+  {
+   "product": "PredniSONE",
+   "role": "positive",
+   "photos": 3,
+   "new": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "e": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e",
+    "e",
+    "ndc_printed"
+   ]
+  },
+  {
+   "product": "Pregabalin",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "not_identified",
+    "not_identified",
+    "not_identified"
+   ],
+   "e": [
+    "not_identified",
+    "not_identified",
+    "not_identified"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "none",
+    "none",
+    "none"
+   ]
+  },
+  {
+   "product": "RAMIPRIL CAPSULE [BRYANT RANCH PREPACK]",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "timeout",
+    "review",
+    "review"
+   ],
+   "e": [
+    "timeout",
+    "review",
+    "review"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e_none",
+    "e",
+    "e"
+   ]
+  },
+  {
+   "product": "RISPERIDONE TABLET, FILM COATED [WESTMINSTER PHARMACEUTICALS, LLC]",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "timeout",
+    "timeout",
+    "review"
+   ],
+   "e": [
+    "timeout",
+    "timeout",
+    "not_identified"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e_none",
+    "e_none",
+    "text_rank"
+   ]
+  },
+  {
+   "product": "Rosuvastatin Calcium",
+   "role": "positive",
+   "photos": 6,
+   "new": [
+    "correct",
+    "correct",
+    "correct",
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "e": [
+    "review",
+    "correct",
+    "not_identified",
+    "correct",
+    "review",
+    "review"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "ndc_printed",
+    "ndc_printed",
+    "ndc_printed",
+    "ndc_printed",
+    "ndc_printed",
+    "ndc_printed"
+   ]
+  },
+  {
+   "product": "Sertraline Hydrochloride",
+   "role": "positive",
+   "photos": 6,
+   "new": [
+    "correct",
+    "correct",
+    "correct",
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "e": [
+    "correct",
+    "correct",
+    "correct",
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e",
+    "e",
+    "e",
+    "e",
+    "e",
+    "e"
+   ]
+  },
+  {
+   "product": "TAMOXIFEN CITRATE TABLET [MYLAN PHARMACEUTICALS INC.]",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "timeout",
+    "not_identified",
+    "not_identified"
+   ],
+   "e": [
+    "timeout",
+    "not_identified",
+    "not_identified"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e_none",
+    "none",
+    "none"
+   ]
+  },
+  {
+   "product": "Tadalafil",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "timeout",
+    "review",
+    "review"
+   ],
+   "e": [
+    "timeout",
+    "review",
+    "review"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e_none",
+    "e",
+    "e"
+   ]
+  },
+  {
+   "product": "Topiramate",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "review",
+    "review",
+    "not_identified"
+   ],
+   "e": [
+    "review",
+    "review",
+    "not_identified"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e",
+    "e",
+    "none"
+   ]
+  },
+  {
+   "product": "Zetia",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "not_identified",
+    "review",
+    "review"
+   ],
+   "e": [
+    "not_identified",
+    "not_identified",
+    "review"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "none",
+    "text_rank",
+    "e"
+   ]
+  },
+  {
+   "product": "Zolpidem Tartrate",
+   "role": "decoy",
+   "photos": 3,
+   "new": [
+    "timeout",
+    "not_identified",
+    "not_identified"
+   ],
+   "e": [
+    "timeout",
+    "not_identified",
+    "not_identified"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "e_none",
+    "none",
+    "none"
+   ]
+  },
+  {
+   "product": "valsartan and hydrochlorothiazide",
+   "role": "positive",
+   "photos": 6,
+   "new": [
+    "correct",
+    "correct",
+    "correct",
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "e": [
+    "correct",
+    "correct",
+    "correct",
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "new_wrong": false,
+   "e_wrong": false,
+   "sources": [
+    "ndc_both",
+    "ndc_both",
+    "ndc_printed",
+    "ndc_printed",
+    "ndc_printed",
+    "e"
+   ]
+  }
+ ]
+}
