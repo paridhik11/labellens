@@ -140,6 +140,8 @@ async function main() {
   const page = await ctx.newPage();
   const pageErrors = [];
   page.on('pageerror', (e) => pageErrors.push(e.message));
+  const mocked = [];
+  page.on('response', (r) => { if (r.headers()['x-mock']) mocked.push(r.url()); });
   const S = {};
 
   await step(null, 'sample files are byte-identical to their sources', '', async () => {
@@ -161,7 +163,9 @@ async function main() {
     await idle(page);
     await noError(page, 'products');
     const n = await page.$$eval('[data-testid="product-row"]', (r) => r.length);
-    return `${n} products listed; ${await text(page, '[data-testid="product-note"]')}; user ${await text(page, '[data-testid="who"]')}`;
+    const refreshHelp = await text(page, '[data-testid="help-refresh"]');
+    if (!/reloads the product list/i.test(refreshHelp)) throw new Error('no help line under Refresh: ' + refreshHelp);
+    return `${n} products listed; Refresh help "${refreshHelp}"; ${await text(page, '[data-testid="product-note"]')}; user ${await text(page, '[data-testid="who"]')}`;
   });
 
   await step(page, 'search filtering', '02_filter', async () => {
@@ -197,22 +201,49 @@ async function main() {
     const human = await page.$$eval('[data-testid="human-review"] li', (x) => x.length).catch(() => 0);
     const unreliable = !!(await page.$('[data-testid="unreliable-note"]'));
     const nocite = await page.$$eval('[data-testid="no-citation"]', (x) => x.length);
-    return `${await text(page, '[data-testid="check-outcome"]')}; ${n} finding(s), ${nocite} say a person must look; ${human} human-review items; extraction_unreliable note ${unreliable}`;
+    S.lotBefore = await page.evaluate(() => {
+      const dt = [...document.querySelectorAll('[data-testid="record"] dt')].find((d) => d.textContent.trim() === 'lot');
+      return dt ? dt.nextElementSibling.firstChild.textContent.trim() : '';
+    });
+    const helps = {};
+    for (const id of ['help-check', 'help-change', 'help-evidence']) helps[id] = await text(page, `[data-testid="${id}"]`);
+    if (!/16 rules/.test(helps['help-check'])) throw new Error('help under Run check: ' + helps['help-check']);
+    const btnText = await text(page, '[data-testid="btn-check"]');
+    return `${btnText}; ${await text(page, '[data-testid="check-outcome"]')}; ${n} finding(s), ${nocite} say a person must look; ${human} human-review items; extraction_unreliable note ${unreliable}; help lines ${Object.keys(helps).length}; lot before ${S.lotBefore}`;
   });
 
-  await step(page, 'evidence search and question', '06_evidence', async () => {
+  await step(page, 'Ask the regulations: expiry question returns 21 CFR 801 passages, off-topic abstains', '06_evidence', async () => {
+    const mockedBefore = mocked.length;
     await click(page, 'btn-toggle-evidence');
-    const q = await page.inputValue('[data-testid="evidence-query"]');
-    await click(page, 'btn-search');
-    await noError(page, 'search');
-    const hits = await page.$$eval('[data-testid="evidence-results"] .item', (x) => x.length);
-    const cites = await page.$$eval('[data-testid="evidence-results"] [data-testid="citation"]', (x) => x.length);
-    const question = await page.inputValue('[data-testid="evidence-question"]');
-    await click(page, 'btn-ask');
+    const title = await text(page, '[data-testid="evidence"] h3');
+    if (!/^Evidence for /.test(title)) throw new Error('card title: ' + title);
+    const passagesOf = () => page.evaluate(() => [...document.querySelectorAll('[data-testid="evidence"] > [data-testid="evidence-results"] [data-testid="passage"]')].map((e) => e.querySelector('.ptitle').innerText.replace(/\s+/g, ' ')));
+    const ask = async (q) => {
+      await fill(page, 'evidence-question', q);
+      await click(page, 'btn-ask');
+      await noError(page, 'ask');
+      return { none: !!(await page.$('[data-testid="evidence"] > [data-testid="no-passage"]')), passages: await passagesOf() };
+    };
+    // the example buttons run the question themselves
+    await click(page, 'example-expiration');
     await noError(page, 'ask');
-    const kind = (await page.$('[data-testid="answer"]')) ? 'answered' : ((await page.$('[data-testid="abstained"]')) ? 'abstained with closest passages' : 'nothing');
-    if (kind === 'nothing') throw new Error('no answer or abstention shown');
-    return `"${q}": ${hits} passages, ${cites} citations; "${question}": ${kind}`;
+    const expiry = await passagesOf();
+    if (!expiry.length || !/^21 CFR 801/.test(expiry[0])) throw new Error('expiry question did not return 21 CFR 801 first: ' + expiry.join(' | '));
+    if (expiry.length > 3) throw new Error('more than 3 passages shown before Show more: ' + expiry.length);
+    const shown = await page.$eval('[data-testid="evidence"]', (e) => ({ ids: /fda_21cfr/.test(e.innerText), open: e.querySelector('details[data-testid="evidence-details"]').open }));
+    if (shown.ids || shown.open) throw new Error('chunk ids visible without opening details: ' + JSON.stringify(shown));
+    await click(page, 'btn-more-passages');
+    const more = await page.$$eval('[data-testid="more-results"] [data-testid="passage"]', (x) => x.length);
+    const off = await ask('weather in Paris tomorrow');
+    if (!off.none || off.passages.length) throw new Error('off-topic question was not stopped: ' + JSON.stringify(off));
+    const noText = await text(page, '[data-testid="no-passage"]');
+    if (!/No regulation passage answers this\. Try a labeling question\./.test(noText)) throw new Error('no-answer text: ' + noText);
+    // the user's own example is reported, not asserted: the existing score gate sits just below its score
+    const golden = await ask('benefits of golden pump');
+    const card = await text(page, '[data-testid="evidence"]');
+    if (mocked.length !== mockedBefore) throw new Error('a mock response was served: ' + mocked.slice(mockedBefore).join(', '));
+    if (/\b(sample|mock|lorem)\b/i.test(card)) throw new Error('sample or mock wording on the evidence card');
+    return `expiry: ${expiry.length} passages, first "${expiry[0].slice(0, 60)}", +${more} more; "weather in Paris tomorrow": abstained; "benefits of golden pump": ${golden.none ? 'abstained' : golden.passages.length + ' passages shown (the gate does not stop it)'}; no X-Mock responses`;
   });
 
   await step(page, 'invalid value error and Retry', '07_invalid_value', async () => {
@@ -261,6 +292,55 @@ async function main() {
     const f = await page.$$eval('[data-testid="finding"]', (x) => x.map((e) => e.dataset.rule));
     const cited = await page.$$eval('[data-testid="finding"][data-rule="B-LOT"] [data-testid="citation"]', (x) => x.map((e) => e.innerText.slice(0, 60)));
     return `${await text(page, '[data-testid="check-outcome"]')}; findings ${f.join(', ')}; B-LOT citation: ${cited.join(' | ') || 'none'}`;
+  });
+
+  ok = ok && await step(page, 'what changed: versions and history say lot X to LOT2 with the change id', '10b_what_changed', async () => {
+    await openStage(page, 'check');
+    await page.waitForSelector('[data-testid="what-changed"]');
+    const cells = await page.$$eval('[data-testid="what-changed"]', (x) => x.map((e) => e.innerText.trim()));
+    const l2 = cells.find((c) => c.startsWith('L2:')); const l1 = cells.find((c) => c.startsWith('L1:'));
+    if (l1 !== 'L1: first upload') throw new Error('L1 text: ' + l1);
+    const before = S.lotBefore.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp('^L2: lot ' + before + ' → LOT2 \\(change chg_[0-9a-f]+\\)$');
+    if (!l2 || !re.test(l2)) throw new Error(`L2 text "${l2}" (record lot before: "${S.lotBefore}")`);
+    const details = await page.$$eval('[data-testid="history-detail"]', (x) => x.map((e) => e.textContent.trim()).filter(Boolean));
+    const req = details.find((d) => d.startsWith('Change requested: lot')) || '';
+    const rec = details.find((d) => /^Record v2: lot/.test(d)) || '';
+    if (!req.includes('→ LOT2') || !rec.includes('→ LOT2')) throw new Error('history details: ' + details.join(' | '));
+    return `${l1}; ${l2}; history: "${req}", "${rec}"`;
+  });
+
+  ok = ok && await step(page, 'Evidence for this field: all ten fields, value + check + passages', '10c_field_evidence', async () => {
+    const fields = ['name', 'model', 'manufacturer', 'manufacturer_address', 'udi_di', 'sterilization', 'storage', 'lot', 'expiry', 'serial'];
+    const word = { manufacturer_address: 'manufacturer address', udi_di: 'UDI-DI' };
+    const mockedBefore = mocked.length;
+    const out = [];
+    for (const f of fields) {
+      await click(page, `evidence-${f}`);
+      await noError(page, 'field-ask');
+      const r = await page.evaluate(() => {
+        const p = document.querySelector('[data-testid="field-evidence"]');
+        return {
+          value: p.querySelector('[data-testid="field-value"]').innerText.trim(),
+          rules: [...p.querySelectorAll('[data-testid="field-rule"]')].map((x) => `${x.querySelector('.mono').innerText}:${x.dataset.outcome}`),
+          noRule: /No check rule looks at this field/.test(p.innerText),
+          passages: [...p.querySelectorAll('[data-testid="passage"] .ptitle strong')].map((x) => x.innerText),
+          abstained: !!p.querySelector('[data-testid="no-passage"]'),
+          title: p.querySelector('h3').innerText,
+        };
+      });
+      if (!r.title.includes(word[f] || f)) throw new Error(`${f}: panel title ${r.title}`);
+      if (r.value === '') throw new Error(`${f}: no record value shown`);
+      if (!r.passages.length && !r.abstained) throw new Error(`${f}: neither passages nor a no-answer notice`);
+      out.push(`${f}=${r.value.slice(0, 14)} [${r.rules.join(',') || (r.noRule ? 'no rule' : 'no check yet')}] ${r.passages.length ? r.passages[0] : 'no passage'}`);
+      if (f === 'lot') {
+        if (r.value.replace(/\s*TEST$/, '') !== 'LOT2') throw new Error('lot value shown ' + r.value);
+        if (!r.rules.length) throw new Error('lot panel has no check result although L2 was re-checked');
+        if (!r.passages.some((x) => /801|830/.test(x))) throw new Error('lot panel has no 801 or 830 passage: ' + r.passages.join(','));
+      }
+    }
+    if (mocked.length !== mockedBefore) throw new Error('a mock response was served');
+    return out.join('; ');
   });
 
   ok = ok && await step(page, 'change name: barcode KEEP, confirm', '11_change_name_keep', async () => {

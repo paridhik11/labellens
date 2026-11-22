@@ -122,6 +122,9 @@
     async getProduct(id) { return (await expect('GET', `/products/${enc(id)}`, [200])).data; },
     async registerTemplate(id, body) { return (await expect('POST', `/products/${enc(id)}/templates`, [201], { json: body })).data; },
     async history(id) { return (await expect('GET', `/products/${enc(id)}/history`, [200])).data.items; },
+    /** Every record version of a product, oldest first (the fields a change edited are the diff between two). */
+    async productVersions(id) { return (await expect('GET', `/products/${enc(id)}/versions`, [200])).data.versions; },
+    async getChange(id) { return (await expect('GET', `/changes/${enc(id)}`, [200])).data; },
     upload,
     async labelVersions(labelId) { return (await expect('GET', `/labels/${enc(labelId)}/versions`, [200])).data.versions; },
     async labelVersion(v) { return (await expect('GET', `/label-versions/${enc(v)}`, [200])).data; },
@@ -129,7 +132,7 @@
     async confirmExtraction(v, fields) { return (await expect('POST', `/label-versions/${enc(v)}/extraction/confirm`, [200], { json: { fields } })).data; },
     inspect(v, onTick) { return checkLike(`/label-versions/${enc(v)}/inspect`, onTick); },
     recheck(v, onTick) { return checkLike(`/label-versions/${enc(v)}/recheck`, onTick); },
-    async search(query) { return (await expect('POST', '/search', [200], { json: { query, module: 'device', k: 10 } })).data; },
+    async search(query, k) { return (await expect('POST', '/search', [200], { json: { query, module: 'device', k: k || 10 } })).data; },
     async ask(question) { return (await expect('POST', '/ask', [200], { json: { question } })).data; },
     async assessChange(productId, field, newValue) {
       return (await expect('POST', '/changes', [201], { json: { product_id: productId, edits: [{ field, new_value: newValue }] } })).data;

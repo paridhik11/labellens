@@ -30,7 +30,7 @@ Common to every request:
 | 14 | confirmExtraction (330) | POST /label-versions/{version_id}/extraction/confirm | JSON `ExtractionConfirm` (line 1625): `fields` | `fields`, `confirmed`, `confirmed_by` | editor | 200 | demo_flow.py 207 |
 | 15 | inspectLabel (354) | POST /label-versions/{version_id}/inspect | no body (as demo_flow) | 200 `CheckResult`, or 202 `Job` whose `result_url` is `/check-results/{check_id}` | any demo user | 200 or 202 | demo_flow.py 214 |
 | 16 | getCheckResult (387) | GET /check-results/{check_id} (a job's `result_url`) | none | `CheckResult` (line 1686): `check_id`, `kind`, `passed`, `critical_count`, `review_count`, `info_count`, `needs_human_count`, `findings[]` (`rule_id`, `kind`, `severity`, `message`, `field`, `observed`, `expected`, `needs_human`, `citations[]`), `coverage[]` (`rule_id`, `outcome`, `reason`), `retrieval_config`, `disclaimer` | any demo user | 200 | demo_flow.py 216 |
-| 17 | searchEvidence (406) | POST /search | JSON `SearchRequest` (line 1729): `query`, `module: "device"`, `k: 10` (as `ui/js/api.js` line 117) | `retrieval.method`, `hits[]` (`rank`, `doc_id`, `score`, `text`), `citations[]` | anyone | 200 | ui/js/api.js 117 (D5 screen) |
+| 17 | searchEvidence (406) | POST /search | JSON `SearchRequest` (line 1729): `query`, `module: "device"`, `k: 10` (as `ui/js/api.js` line 117). Step 29: only used by "Show more passages" (after /ask has passed the gate) | `retrieval.method`, `hits[]` (`rank`, `doc_id`, `score`, `text`), `citations[]` | anyone | 200 | ui/js/api.js 117 (D5 screen) |
 | 18 | askProfessional (1153) | POST /ask (extractive, no `mode`) | JSON `question` | answered: `answer`, `sources[]`; abstained: `reason`, `message`, `score_name`, `score`, `threshold`, `sources[]` | anyone | 200 | run_demo.py 189, ui/js/api.js 124 |
 | 19 | assessChange (428) | POST /changes | JSON `ChangeCreate` (line 1769): `product_id`, `edits: [{field, new_value}]` | `change` (`change_id`, `field`, `old_value`, `new_value`, `parse_state`), `parser`, `affected[]` (`impact_id`, `item_kind`, `title`, `description`, `reason`, `suggestion`, `needs_human`, `rule_ids`, `evidence_chunk_ids`, `barcode_decision`), `citations[]`, `needs_human_review`, `unassessed_edits[]`, `assessment_id` | editor | 201 (422 `no_change`, `duplicate_field`) | demo_flow.py 229 |
 | 20 | confirmChange (507) | POST /changes/{change_id}/confirm | JSON `ChangeConfirm` (line 1862): `parse_confirmed: true`, `decisions: [{impact_id, user_decision}]` | same `ChangeAssessment` (now with `user_decision` and confirmed barcode decisions) | editor | 200 | demo_flow.py 249 |
@@ -44,8 +44,10 @@ Common to every request:
 | 28 | listPrintVerifications (837) | GET /label-versions/{version_id}/print-verifications | none | `items[]` (`PrintVerification`) | any demo user | 200 | contract only (read) |
 | 29 | verifyPrint (859) | POST /label-versions/{version_id}/print-verifications | multipart: `photo` (PNG or JPEG), `condition` (`clean_print_scan`, `phone_photo`, `blur`, `glare`) | 202 `Job`, `result_url` `/print-verifications/{verification_id}`; 409 `not_approved`, `rejected`, `version_superseded`, `no_reference` | any demo user | 202 | contract (CR-26); `ui/js/render-d10.js` |
 | 30 | getPrintVerification (902) | GET /print-verifications/{verification_id} (the job's `result_url`) | none | `outcome` (`match`, `mismatch`, `rescan_needed`), `rescan_reason`, `mismatches[]`, `fields[]` (`field`, `expected`, `observed`, `status`), `barcode` (`expected_payload`, `match`), `quality` | any demo user | 200 | contract only (read) |
+| 31 | listProductVersions | GET /products/{product_id}/versions | none | `versions[]`: the record fields, `extra` (lot, expiry, serial), `version`, `source_change_id`, `supersedes_version` | any demo user | 200 | Step 29: the page diffs two record versions to write "lot LOT1 -> LOT2" in Label versions and Activity history |
+| 32 | getChange | GET /changes/{change_id} | none | `field`, `old_value`, `new_value`, `status` | any demo user | 200 | Step 29: the "Change requested" line of Activity history |
 
-Rows marked "contract only (read)" are plain GET reads of objects the proven sequence creates; the page uses them to show state after a reload. All 30 are in `REAL_OPERATIONS` (`src/api/routes.py` line 70) or are `getHealth`.
+Rows marked "contract only (read)" are plain GET reads of objects the proven sequence creates; the page uses them to show state after a reload. All 32 are in `REAL_OPERATIONS` (`src/api/routes.py` line 70) or are `getHealth`.
 
 ## Static files (not API operations)
 
@@ -56,4 +58,4 @@ Rows marked "contract only (read)" are plain GET reads of objects the proven seq
 
 ## Not used
 
-publishVersion, getTemplate, listProductVersions, getChange, listAffectedLabels, the AI answer (`?mode=ai`) and every public operation. No endpoint is called that is not in the table above.
+publishVersion, getTemplate, listAffectedLabels, the AI answer (`?mode=ai`) and every public operation. No endpoint is called that is not in the table above.
