@@ -25,7 +25,7 @@ def main() -> None:
              "## Gate", "",
              "| check | result | pass |", "|---|---|---|",
              f"| 1 wrong products on unused decoys ({g['1_decoy_products']} products) | new "
-             f"{g['1_wrong_products_unused_decoys_new_method']}, E replay {g['1_wrong_products_unused_decoys_E_replay']}"
+             f"{g['1_wrong_products_unused_decoys_new_method']}, E replay {g['1_wrong_products_unused_decoys_E_replay']}"  # noqa: E501
              f" | {g['pass_1']} |",
              f"| 2 timeouts, unused decoy photos | new {g['2_timeouts_unused_new']}, E replay "
              f"{g['2_timeouts_unused_E_replay']}, E recorded {g['2_timeouts_unused_E_recorded']} | |",
@@ -35,13 +35,13 @@ def main() -> None:
              f"{g['3_correct_positives_E_replay']} | {g['pass_3']} |",
              f"| **all** | | **{g['pass_all']}** |", "",
              f"Decoy photos where any product was shown (review lists included): new "
-             f"{g['1_decoy_photos_with_any_product_shown_new']}, E replay {g['1_decoy_photos_with_any_product_shown_E']}.",
+             f"{g['1_decoy_photos_with_any_product_shown_new']}, E replay {g['1_decoy_photos_with_any_product_shown_E']}.",  # noqa: E501
              "", "## Coverage of each signal", "",
              "| set | photos | barcode NDC read | barcode in table | printed NDC-shaped | printed in table | "
              "either in table | NDC decided |", "|---|---|---|---|---|---|---|---|"]
     for name, c in s["coverage"].items():
         lines.append(f"| {name} | {c['photos']} | {c['barcode_ndc_read']} | {c['barcode_in_table']} | "
-                     f"{c['printed_ndc_shaped']} | {c['printed_in_table']} | {c['either_in_table']} | {c['ndc_decided']} |")
+                     f"{c['printed_ndc_shaped']} | {c['printed_in_table']} | {c['either_in_table']} | {c['ndc_decided']} |")  # noqa: E501
     lines += ["", "## Results by set (Wilson 95%)", "",
               "| set | method | photos | correct | wrong | review | not identified | timeout | median s | max s |",
               "|---|---|---|---|---|---|---|---|---|---|"]
@@ -49,7 +49,7 @@ def main() -> None:
         for label, key in (("new", "new"), ("E replay", "e_replay")):
             r = s[key][name]
             c = r["counts"]
-            lines.append(f"| {name} | {label} | {r['photos']} | {pct(c.get('correct', 0), r['photos'], r['correct_interval'])}"
+            lines.append(f"| {name} | {label} | {r['photos']} | {pct(c.get('correct', 0), r['photos'], r['correct_interval'])}"  # noqa: E501
                          f" | {pct(c.get('wrong', 0), r['photos'], r['wrong_interval'])} | {c.get('review', 0)} | "
                          f"{c.get('not_identified', 0)} | {c.get('timeout', 0)} | {r['seconds']['median']} | "
                          f"{r['seconds']['max']} |")

@@ -260,8 +260,13 @@ def cmd_score() -> None:
     rows: list[dict[str, Any]] = []
     with target.open("x", encoding="utf-8") as handle:
         for name in ("positives", "unused_decoy", "new_set"):
+            seen: set[str] = set()
             for line in (OUT / f"lines_{name}.jsonl").read_text("utf-8").splitlines():
-                result = score_row(engine, json.loads(line), config)
+                cached = json.loads(line)
+                if cached["id"] in seen:  # two readers may have read the same photo: the first reading counts
+                    continue
+                seen.add(cached["id"])
+                result = score_row(engine, cached, config)
                 rows.append(result)
                 handle.write(json.dumps(result) + "\n")
                 handle.flush()
