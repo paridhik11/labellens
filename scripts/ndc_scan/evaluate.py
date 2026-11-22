@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import json
+import os
 import statistics
 import subprocess
 import sys
@@ -26,7 +27,8 @@ from src.ndc.table import load_table
 OUT = Path("results/ndc_scan")
 OLD = Path("../labellens-publicscan")
 CONFIG_E = Path("src/api/public_scan_config.json")
-WORKERS = 3
+WORKERS = int(os.environ.get("NDC_WORKERS", "1"))
+READ_TIMEOUT_S = float(os.environ.get("NDC_READ_TIMEOUT", "150"))  # generous: the reader still stops itself at 44 s
 GRID = [float(x) for x in range(0, 42, 2)]
 
 
@@ -63,9 +65,9 @@ def cmd_read(names: list[str]) -> None:
         done = {json.loads(r)["id"] for r in target.read_text("utf-8").splitlines()} if target.exists() else set()
         todo = [p for p in photos_of(name) if p["id"] not in done]
 
-        def one(item: dict[str, Any], target: Path = target) -> None:
+        def one(item: dict[str, Any], target: Path = target, name: str = name) -> None:
             started = time.monotonic()
-            reading = public_scan.read_lines(Path(item["path"]))
+            reading = public_scan.read_lines(Path(item["path"]), timeout_s=READ_TIMEOUT_S)
             row = {**item, "lines": reading["lines"], "complete": reading["complete"], "killed": reading["killed"],
                    "ocr_seconds": round(time.monotonic() - started, 2)}
             with lock, target.open("a", encoding="utf-8") as handle:
@@ -166,7 +168,8 @@ def score_row(engine: Engine, row: dict[str, Any], config: Any, barcodes: list[d
 def cmd_dev() -> None:
     """Choose TAU on the dev photos only (cached lines, cached E outcomes), print dev numbers, write the config."""
     engine = Engine(with_e=False)
-    dev_e = {r["id"]: r for r in json.loads(Path("results/public_scan/dev_configs.json").read_text("utf-8"))["E"]["rows"]}
+    tuned = json.loads(Path("results/public_scan/dev_configs.json").read_text("utf-8"))
+    dev_e = {r["id"]: r for r in tuned["E"]["rows"]}
     rows = [json.loads(r) for r in Path("results/public_scan/lines_dev_real.jsonl").read_text("utf-8").splitlines()]
     scored = []
     for row in rows:
@@ -177,7 +180,8 @@ def cmd_dev() -> None:
         started = time.monotonic()
         barcodes = read_payloads(photo)
         scored.append({"id": row["id"], "kind": row["kind"], "condition": row["condition"], "e_cat": e["category"],
-                       "top_score": rank[0][1] if rank else 0.0, "top_name": engine.name_of.get(rank[0][0]) if rank else "",
+                       "top_score": rank[0][1] if rank else 0.0,
+                       "top_name": engine.name_of.get(rank[0][0]) if rank else "",
                        "expected": row["expected"], "text": text, "ndcs": [c for b in barcodes for c in b["ndcs"]],
                        "barcode_seconds": time.monotonic() - started})
     pool = [s for s in scored if s["e_cat"] == "not_identified" and not any(
@@ -231,7 +235,9 @@ def per_product(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     out = []
     for product in sorted({r["product"] for r in rows}):
         group = [r for r in rows if r["product"] == product]
-        cats = lambda key: [r[key]["category"] for r in group]  # noqa: E731
+        def cats(key: str, group: list[dict[str, Any]] = group) -> list[str]:
+            return [r[key]["category"] for r in group]
+
         out.append({"product": product, "role": group[0]["role"], "photos": len(group), "new": cats("new"),
                     "e": cats("e"), "new_wrong": "wrong" in cats("new"), "e_wrong": "wrong" in cats("e"),
                     "sources": [r["new"]["source"] for r in group]})
