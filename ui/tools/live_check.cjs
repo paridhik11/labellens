@@ -22,6 +22,7 @@ const ok = (c, m) => { console.log(`${c ? 'PASS' : 'FAIL'}     ${m}`); if (!c) f
 async function typedEmpty(page) {
   await page.goto(URL_P);
   await page.waitForFunction(() => window.LabelLensLive && window.LabelLensRenderers);
+  await page.waitForSelector('[data-testid="take-photo"]'); // the page opens on the scan tab; wait for it before showing a match
   await page.evaluate((name) => {
     window.LabelLensLive.setLastName(name);
     window.LabelLensPublicScan.showMatch({ banner: 'Authenticity not verified. Based on a reference label match.', outcome: 'no_reference_match', candidates: [], message: 'No reference match.' });

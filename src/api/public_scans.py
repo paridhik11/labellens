@@ -89,7 +89,11 @@ def run_job(app: Any, job_id: str, scan_id: str) -> None:
                         uploads.render_pdf_page(stored, raster)
                 else:
                     report = app.state.quality_gate(raster)
-                    if not report.ok:
+                    # p95 - p5 reads a mostly white pack with sparse text as "flat" (a clean image measured 37 against
+                    # the cut-off 40 with sharpness 1528). A sole low_contrast reason on a sharp photo is let through;
+                    # blur and glare still reject, and a photo never auto-confirms.
+                    only_flat = report.reasons == ("low_contrast",) and report.metrics["sharpness"] >= 400
+                    if not report.ok and not only_flat:
                         _fail(session, job_id, scan_id, report.error_body(app.state.quality_thresholds), started)
                         return
                 checks.advance_job(session, job_id, "processing", 0.3, "reading the text on the pack")
