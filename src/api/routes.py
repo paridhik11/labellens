@@ -16,6 +16,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from src.api import (
+    live_jobs,
     artwork,
     ask_jobs,
     changes,
@@ -43,6 +44,8 @@ from src.api.models import (
     User,
 )
 from src.api.requests import (
+    LiveFetchCreate,
+    LiveSearchCreate,
     ChangeConfirmCreate,
     ChangeCreate,
     ExtractionConfirmCreate,
@@ -104,6 +107,9 @@ REAL_OPERATIONS = frozenset(
         "matchMedicine",
         "publicScan",
         "getPublicScan",
+        "searchLiveMedicine",
+        "fetchLiveLabel",
+        "getLiveProduct",
     }
 )
 router = APIRouter()
@@ -670,12 +676,24 @@ def ask_public(
     if _ask_mode(mode) == "ai":
         return _ask_job(request, background, session, body.question, "medicine", body.product_id)
     service = request.app.state.medicine
+    if request.app.state.live.knows(body.product_id):  # a label fetched live from DailyMed (CR-28)
+        return _ask_live(request, body.question, body.product_id)
     if service.knows(body.product_id):  # a reference product: answer from its own label chunks (CR-23)
         rag = request.app.state.rag
         result = _ask_product(service, body.question, body.product_id, rag.provider, rag.settings)
         return result.to_wire(based_on=medicine.based_on(service.catalog.products[body.product_id]))
     result = _ask(request, body.question, "medicine")
     return result.to_wire(based_on=f"{PUBLIC_BASED_ON}; product {body.product_id}")
+
+
+def _ask_live(request: Request, question: str, product_id: str) -> Any:
+    """Extractive answer from one live label, every citation checked against the label text (CR-28)."""
+    live, rag = request.app.state.live, request.app.state.rag
+    try:
+        result, label = live.ask(question, product_id, rag.provider, rag.settings)
+    except Exception as error:  # models missing or the cached label is damaged
+        raise ApiError(503, "retrieval_unavailable", f"live label retrieval is not available: {error}") from error
+    return live.wire(result, label)
 
 
 def _ask_product(service: Any, question: str, product_id: str, provider: Any, settings: Any) -> Any:
@@ -739,6 +757,49 @@ def get_public_scan(scan_id: str, request: Request, session: Session = Depends(g
     from src.api.mock_server import mock_response  # imported here: mock_server imports this module
 
     return mock_response("getPublicScan", request)
+
+
+@router.post("/public/live/search", operation_id="searchLiveMedicine", tags=["public"])
+def search_live_medicine(body: LiveSearchCreate, request: Request) -> Any:
+    """List DailyMed human drug labels with this name (CR-28). A list to pick from, never a ranking or a match.
+
+    Offline or a DailyMed error is a 200 with outcome `unavailable` and a plain message: the 30 curated medicines
+    keep working, nothing is mocked.
+    """
+    return request.app.state.live.search(body.product_name)
+
+
+@router.post("/public/live/fetch", operation_id="fetchLiveLabel", status_code=202, tags=["public"])
+def fetch_live_label(
+    body: LiveFetchCreate, request: Request, background: BackgroundTasks, session: Session = Depends(get_session),
+) -> JSONResponse:
+    """Fetch the label the person picked, index it and cache it (202 Job of kind live_fetch, CR-28).
+
+    Poll GET /jobs/{job_id}; a done job points at GET /public/live/products/{product_id}.
+    """
+    if not request.app.state.live.enabled:
+        raise ApiError(503, "live_disabled", "Live lookup is switched off on this server.")
+    live_jobs.try_acquire()
+    try:
+        job = checks.new_job(session, "live_fetch", None, public_scans.PUBLIC_USER)
+        payload = checks.job_json(job)
+    except BaseException:
+        live_jobs.release()
+        raise
+    background.add_task(live_jobs.run_fetch_job, request.app, job.job_id, body.setid, body.version)
+    return JSONResponse(payload, status_code=202)
+
+
+@router.get("/public/live/products/{product_id}", operation_id="getLiveProduct", tags=["public"])
+def get_live_product(product_id: str, request: Request) -> Any:
+    """The reference page of a fetched live label: fields, sections and the live label info (CR-28)."""
+    from src.api.live_dailymed import LiveFetchError, product_body
+
+    try:
+        label = request.app.state.live.load(product_id)
+    except LiveFetchError as error:
+        raise ApiError(404, "not_found", error.message) from error
+    return product_body(label)
 
 
 @router.get("/public/medicine", include_in_schema=False)

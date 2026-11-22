@@ -1008,6 +1008,99 @@ paths:
             application/json:
               schema: {$ref: "#/components/schemas/Error"}
 
+  /public/live/search:
+    post:
+      tags: [public]
+      operationId: searchLiveMedicine
+      summary: List DailyMed labels with a typed name (CR-28)
+      description: |
+        For a name the curated set does not know. Asks the DailyMed public API (human Rx and OTC labels only, 8 s
+        time limit) and returns up to 10 candidates in DailyMed's order. It is a list to choose from: the server
+        never auto-picks, and a single candidate still has to be chosen by the person. Offline or a DailyMed error
+        is a 200 with `outcome: unavailable` and a plain message, so the page falls back to the curated products.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product_name]
+              additionalProperties: false
+              properties:
+                product_name: {type: string, minLength: 2, maxLength: 200}
+      responses:
+        "200":
+          description: Candidate list, no candidates, or unavailable
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/LiveSearchResult"}
+        "422": {$ref: "#/components/responses/Invalid"}
+
+  /public/live/fetch:
+    post:
+      tags: [public]
+      operationId: fetchLiveLabel
+      summary: Fetch, index and cache the label the person picked (CR-28)
+      description: |
+        202 Job of kind `live_fetch`. The job downloads that one label (time limit 40 s), checks that it is a human
+        drug label with the chosen set id and version, chunks it with the curated corpus rules, builds the E5b index
+        over its chunks and caches it on disk. A done job has `result_url` `/public/live/products/{product_id}`. A
+        failed job has Error `live_fetch_failed` with `details.reason` (offline, timeout, api_error, not_a_human_label,
+        id_mismatch, no_text, bad_archive) or `retrieval_unavailable`. At most two fetches run at once (429 busy).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [setid, version]
+              additionalProperties: false
+              properties:
+                setid: {type: string, minLength: 36, maxLength: 36}
+                version: {type: integer, minimum: 1, maximum: 9999}
+      responses:
+        "202":
+          description: Accepted. Job envelope of kind live_fetch; poll GET /jobs/{job_id}.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Job"}
+        "422": {$ref: "#/components/responses/Invalid"}
+        "429":
+          description: busy (two labels are being fetched already)
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "503":
+          description: live_disabled (the server has live lookup switched off)
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
+  /public/live/products/{product_id}:
+    get:
+      tags: [public]
+      operationId: getLiveProduct
+      summary: The reference page of a label fetched live (CR-28)
+      description: |
+        Same shape as a match result with `outcome: live_selected`: one candidate with fields derived from the label
+        text, `sections` (summary, ingredients, warnings, sources) and `live` (the label to show on screen). Pass its
+        `product_id` to askPublic to ask about it.
+      security: []
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: Live product
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/PublicMatchResult"}
+        "404": {$ref: "#/components/responses/NotFound"}
+
   /public/ask:
     post:
       tags: [public]
@@ -1245,7 +1338,7 @@ components:
       additionalProperties: false
       properties:
         job_id: {type: string}
-        kind: {type: string, enum: [scan, inspect, generate, recheck, print_verify, public_scan, ask]}
+        kind: {type: string, enum: [scan, inspect, generate, recheck, print_verify, public_scan, ask, live_fetch]}
         state: {type: string, enum: [queued, processing, done, failed]}
         progress: {type: number, minimum: 0, maximum: 1}
         message: {type: string}
@@ -2042,7 +2135,7 @@ components:
     # ------------------------------------------------------------ public medicine mode (CR-13)
     MedicineMatch:
       type: object
-      required: [product_id, product_name, match_confidence, read_from_photo, from_reference_label]
+      required: [product_id, product_name, read_from_photo, from_reference_label]
       additionalProperties: false
       properties:
         product_id: {type: string}
@@ -2052,7 +2145,7 @@ components:
         pack_size: {type: string}
         manufacturer: {type: string}
         reference_label_url: {type: string}
-        match_confidence: {type: number, minimum: 0, maximum: 1}
+        match_confidence: {type: number, minimum: 0, maximum: 1, description: "Absent for a label fetched live (CR-28): nothing was ranked, the person picked it"}
         read_from_photo: {type: object, additionalProperties: {type: string}}
         from_reference_label: {type: object, additionalProperties: {type: string}}
         not_in_corpus:
@@ -2082,8 +2175,8 @@ components:
         sources: {type: array, items: {$ref: "#/components/schemas/Citation"}}
         outcome:
           type: string
-          enum: [matched, needs_review, no_reference_match]
-          description: Added by CR-23. Absent on older mocks.
+          enum: [matched, needs_review, no_reference_match, live_selected]
+          description: "Added by CR-23. Absent on older mocks. live_selected (CR-28): a label the person picked from a live DailyMed list; no score, see `live`."
         score_name: {type: string, description: "bge_large_cosine (CR-23)"}
         score: {type: number}
         threshold: {type: number}
@@ -2095,6 +2188,7 @@ components:
             Added by CR-27, only on a photo scan with outcome no_reference_match. no_text: no readable line;
             no_match: no candidate string reached the threshold; timeout: the time budget cut the reading or the
             matching, so nothing is identified. The page then offers to type the name.
+        live: {$ref: "#/components/schemas/LiveLabelInfo"}
         matched_text: {type: string, description: "CR-27. The OCR text (a line, two lines or the whole text) that gave the best match; empty when nothing matched"}
         read_lines:
           type: array
@@ -2131,6 +2225,57 @@ components:
                   fetched: {type: string}
                   chunk_ids: {type: array, items: {type: string}}
             ingredients_note: {type: string}
+    LiveLabelInfo:
+      type: object
+      description: |
+        CR-28. What must be shown next to everything that comes from a label fetched live: `label` is the fixed
+        sentence "Fetched live from DailyMed, not in the curated set", with the DailyMed set id and the fetch date.
+      required: [label, setid, version, effective_date, fetched_on, source_url]
+      additionalProperties: false
+      properties:
+        label: {type: string, const: "Fetched live from DailyMed, not in the curated set"}
+        setid: {type: string}
+        version: {type: integer}
+        effective_date: {type: string}
+        fetched_on: {type: string, description: The day this label was downloaded (cached copies keep their day)}
+        source_url: {type: string}
+    LiveCandidate:
+      type: object
+      description: |
+        CR-28. One DailyMed label from the name search. A list entry to choose from, not a match: nothing is ranked
+        by relevance and the server never picks one.
+      required: [setid, version, title, url]
+      additionalProperties: false
+      properties:
+        setid: {type: string}
+        version: {type: integer}
+        title: {type: string, description: The DailyMed list title as given}
+        product_name: {type: string}
+        generic_name: {type: string}
+        dosage_form: {type: string}
+        labeler: {type: string}
+        published_date: {type: string}
+        url: {type: string}
+    LiveSearchResult:
+      type: object
+      description: |
+        CR-28. outcome `candidates`: show the list and let the person pick. `no_candidates`: DailyMed has no human drug
+        label with that name (`message`). `unavailable`: offline, a timeout or a DailyMed error (`reason`: offline,
+        timeout, api_error or disabled); `message` says so and that the curated medicines still work. Nothing is mocked.
+      required: [outcome, query, source, candidates]
+      additionalProperties: false
+      properties:
+        outcome: {type: string, enum: [candidates, no_candidates, unavailable]}
+        query: {type: string}
+        source: {type: string, const: DailyMed}
+        searched_on: {type: string}
+        candidates:
+          type: array
+          maxItems: 10
+          items: {$ref: "#/components/schemas/LiveCandidate"}
+        total_matches: {type: integer, description: How many labels DailyMed found in all (the list shows at most 10)}
+        reason: {type: string, enum: [offline, timeout, api_error, disabled]}
+        message: {type: string}
     PublicBanner:
       type: string
       const: Authenticity not verified. Based on a reference label match.
@@ -2154,6 +2299,7 @@ components:
           description: Every claim is backed by a retrieved passage
           items: {$ref: "#/components/schemas/Citation"}
         based_on: {type: string}
+        live: {$ref: "#/components/schemas/LiveLabelInfo"}
         banner: {$ref: "#/components/schemas/PublicBanner"}
     AbstainedAnswer:
       type: object
@@ -2176,6 +2322,7 @@ components:
             Optional (CR-18). Verbatim passages shown when no answer was generated or it failed verification.
             They are not an answer and no claim is made from them.
           items: {$ref: "#/components/schemas/Citation"}
+        live: {$ref: "#/components/schemas/LiveLabelInfo"}
         banner: {$ref: "#/components/schemas/PublicBanner"}
     AnswerResponse:
       description: Exactly one of the two shapes, told apart by the boolean abstained

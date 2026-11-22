@@ -1,0 +1,9 @@
+{
+  "outcome": "unavailable",
+  "query": "Example Antihistamine",
+  "source": "DailyMed",
+  "reason": "offline",
+  "searched_on": "2026-01-01",
+  "candidates": [],
+  "message": "DailyMed cannot be reached from this computer. The 30 curated medicines still work: type one of their names or scan its pack."
+}

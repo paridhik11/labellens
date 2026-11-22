@@ -59,6 +59,9 @@ Entities and field meanings are in [`DATA_MODEL.md`](DATA_MODEL.md). Template an
 |---|---|---|---|---|
 | `POST /public/scans` | publicScan | Scan packaging, find reference label candidates | 202 Job | |
 | `GET /public/scans/{scan_id}` | getPublicScan | Match candidates (picker when several) | 200 PublicMatchResult | 404 |
+| `POST /public/live/search` | searchLiveMedicine | List DailyMed human drug labels for a name the curated set does not know (CR-28) | 200 LiveSearchResult (candidates, no_candidates or unavailable) | 422 |
+| `POST /public/live/fetch` | fetchLiveLabel | Fetch, index and cache the label the person picked (CR-28) | 202 Job (kind `live_fetch`) | 422, 429, 503 |
+| `GET /public/live/products/{product_id}` | getLiveProduct | Reference page of a label fetched live | 200 PublicMatchResult (`live_selected`) | 404 |
 | `POST /public/ask` | askPublic | Ask about the matched label. `?mode=ai` starts a job (CR-21) | 200 AnswerResponse (answer or abstain); 202 Job (kind `ask`) with `mode=ai` | 422, 503 |
 | `POST /ask` | askProfessional | Ask about the device regulations (CR-19). `?mode=ai` as above | 200 ProfessionalAnswerResponse; 202 Job (kind `ask`) with `mode=ai` | 422, 503 |
 | `POST /search` with `module: medicine` | searchEvidence | Shared search endpoint, medicine data only | 200 SearchResponse | |

@@ -38,6 +38,12 @@ Camera or upload of medication packaging.
 | success | `getPublicScan`, one candidate | `public/product/success.json` |
 | needs_review | `getPublicScan`, several candidates (show the picker) | `public/product/needs_review.json` |
 | empty | `getPublicScan`, no candidate ("No reference label found") | `public/product/empty.json` |
+| live_candidates | `searchLiveMedicine`, a typed name the curated set does not know (CR-28): list of DailyMed labels, the person picks one | `public/live/search_candidates.json` |
+| live_none | `searchLiveMedicine`, DailyMed has no human drug label with that name | `public/live/search_none.json` |
+| live_offline | `searchLiveMedicine`, outcome unavailable (offline, timeout, DailyMed error): plain message, the 30 curated medicines still work | `public/live/search_unavailable.json` |
+| live_fetching | `fetchLiveLabel` 202, then `getJob`. Visible spinner and "this can take a little while" | `public/live/fetching.json` |
+| live_fetch_failed | `getJob` (state failed, `details.reason`) | `public/live/fetch_failed.json` |
+| live_success | `getLiveProduct`, one label fetched live, always with the line "Fetched live from DailyMed, not in the curated set" and the set id and fetch date | `public/live/product.json` |
 
 ### P3. Ask about this label (chat box in panel 2)
 

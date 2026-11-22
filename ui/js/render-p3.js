@@ -47,7 +47,7 @@
           ${isApi ? `
             <div style="margin-top: 12px;">
               <label class="text-xs text-muted" for="p3Medicine">Medicine name (matched to a reference label)</label>
-              <input type="text" id="p3Medicine" value="${esc(currentMedicine)}" placeholder="for example: Childrens Ibuprofen" style="width: 100%; padding: 6px 10px; border: 1px solid var(--color-border); border-radius: var(--radius-md);">
+              <input type="text" id="p3Medicine" value="${esc(currentMedicine || (window.LabelLensLive && window.LabelLensLive.currentName()) || '')}" placeholder="for example: Childrens Ibuprofen" style="width: 100%; padding: 6px 10px; border: 1px solid var(--color-border); border-radius: var(--radius-md);">
             </div>` : ''}
 
           <div style="margin: 16px 0;">
@@ -76,6 +76,8 @@
     async function resolveProduct() {
       const name = (container.querySelector('#p3Medicine') || {}).value || currentMedicine;
       currentMedicine = name;
+      const liveId = window.LabelLensLive && window.LabelLensLive.productIdFor(name);
+      if (liveId) return liveId; // a label the person picked from DailyMed (CR-28)
       if (!name.trim()) throw new Error('Type a medicine name first.');
       const r = await window.LabelLensApi.request('POST', '/public/match', { json: { product_name: name.trim() } });
       if (r.status !== 200) throw new Error((r.body && r.body.message) || `matching failed (HTTP ${r.status})`);
