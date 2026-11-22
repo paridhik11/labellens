@@ -307,16 +307,20 @@
     const v = trimmedForm();
     if (!v.name) throw new Error('Type the product name before saving.');
     const p = S.add.prog || (S.add.prog = {});
+    const res = await fetch('/ui/pro/sample/test_device.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error(`Could not load the template file /ui/pro/sample/test_device.json (HTTP ${res.status}).`);
+    const t = await res.json();
     if (!p.pid) {
+      // The template prints these text slots; the renderer refuses an empty one, so they must be filled before saving.
+      const printed = t.slots.filter((sl) => sl.type === 'text').map((sl) => (sl.field === 'product_name' ? 'name' : sl.field));
+      const missing = RECORD_FIELDS.filter(([f]) => printed.includes(f) && !v[f]).map(([, label]) => label);
+      if (missing.length) throw new Error(`The label template prints these fields, so they cannot be empty: ${missing.join(', ')}. Type them from the product specification, then save. (A product record cannot be edited after saving.)`);
       setMsg('Step 1 of 4: registering the product record');
       const made = await A.registerProduct(recordBody(v));
       p.pid = made.product.product_id;
     }
     if (!p.template) {
       setMsg('Step 2 of 4: registering the label template');
-      const res = await fetch('/ui/pro/sample/test_device.json', { cache: 'no-store' });
-      if (!res.ok) throw new Error(`Could not load the template file /ui/pro/sample/test_device.json (HTTP ${res.status}).`);
-      const t = await res.json();
       const tpl = await A.registerTemplate(p.pid, { size_mm: t.size_mm, background: null, slots: t.slots });
       p.template = `${tpl.template_id} v${tpl.version}`;
     }

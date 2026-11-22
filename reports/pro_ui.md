@@ -80,3 +80,14 @@ Other checks (all on the pro-ui branch, server on 8020):
 - The check id needed for approval lives in the browser session only: after a page reload, run the re-check again before approving.
 - A product added from a label of another layout still gets the 100 x 60 mm test template.
 - Adding a product reads the label twice (decision 1), about 30 s for the golden PDF.
+
+## Fix after the first demo try (branch pro-ui-fix)
+
+A product saved with an empty model could not get revised artwork: `POST /changes/{id}/generate` answered 422 with a layout CheckResult (`critical: Text must contain printable ASCII with optional newlines`), because the template prints a model slot and the renderer refuses empty text. Two changes:
+
+- The page now shows a 422 CheckResult's findings ("The layout check chk_... refused it: critical: ...") instead of a bare "HTTP 422". It only read the Error shape before.
+- Save product refuses while any text field the template prints (name, manufacturer, address, model, lot, expiry, taken from the template slots) is empty, with a message naming them. A product record cannot be edited after saving, so the check has to come first.
+
+A product already saved with an empty model cannot be repaired from the page: a model change waits for a new UDI-DI (21 CFR 830.50 rule, `docs/CHANGE_SPEC.md` 5.3). Add the product again with the model filled.
+
+Verified: the new message on the real failing change (`chg_f9c78d97` on the 8000 server); `pro_e2e.cjs` 23 of 23 PASS on a separate 8020 server, with a new check in step 4 that saving with an empty model is refused first (screenshot `03b_empty_model_refused.jpg`). The other screenshots and `results.json` are from the first run.
