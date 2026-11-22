@@ -1080,3 +1080,12 @@ The local 3b model picks sentence numbers from the retrieved chunks and the answ
 4. **How I verified it:** E on 45 unused decoy photos: 0 wrong, 13 timed out, median 47.0 s, max 54.5 s; fast suite 959 passed; demo_e2e 20/20; 61 states mock and api; live flows 0 FAIL; camera and confirm checks pass.
 5. **Check yourself:** the confirm step in `ui/js/public-scan.js`; the gate numbers in `results/public_scan/final_unused_decoy_summary.json`; the limits in the report.
 6. **Unsure:** real phone photos are unmeasured; E's correct-identification rate on fresh photos was not measured; the exposed re-run was stopped after 6 photos.
+
+## Step 28: simple professional page (ui/pro)
+
+1. **What I did:** Built a new one-screen Professional page (`/ui/pro/index.html`) for the demo: Products, Add label, Check, Change, Revise artwork, Review and approve, Export, with an Editor / Reviewer switch and a LIVE API indicator. It makes the same API calls as `scripts/demo_flow.py` and shows only API data; failures show the API message and Retry. A Playwright script clicks through the whole flow on the real server.
+2. **Files:** `ui/pro/` (page, API client, app, styles, two byte-identical sample files), `ui/tools/pro_e2e.cjs` (end-to-end check), `docs/PRO_UI_API_MAP.md` (every operation with its source), `reports/pro_ui.md` and `reports/pro_ui/` (decisions, results, screenshots), one link in `ui/index.html`.
+3. **How it works:** An upload needs a product id, and a product record cannot be edited later, so "Read label" uploads to one hidden intake record first; "Save product" then registers the product, its template and its first label version from the confirmed values, exactly as demo_flow does. A job (202) is polled at `/jobs/{id}` until done.
+4. **How I verified it:** pro_e2e 24/24 PASS (including blocked approval, invalid value, camera denied, API unreachable and a real server stop); fast suite 1041 passed, 8 skipped; ruff src tests clean; demo_e2e 20/20; old UI screen checks 67 states 0 failed in mock and api mode; live flows 13, 0 FAIL.
+5. **Check yourself:** the intake-record decision in `reports/pro_ui.md`; `prefill` and `confirmFields` in `ui/pro/pro.js`; the API map rows.
+6. **Unsure:** real camera and real print photos untested; the check id for approval lives only in the browser session; every new product gets the 100 x 60 mm test template.
