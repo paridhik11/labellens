@@ -34,6 +34,35 @@
     ['serial', 'Serial'], ['udi_di', 'UDI-DI'],
   ];
   const EXTRA_KEYS = ['lot', 'expiry', 'serial'];
+  // Plain names of record fields, used in "lot LOT1 -> LOT2" text.
+  const FIELD_WORD = {
+    name: 'name', model: 'model', manufacturer: 'manufacturer', manufacturer_address: 'manufacturer address', udi_di: 'UDI-DI',
+    sterilization: 'sterilization', storage: 'storage', lot: 'lot', expiry: 'expiry', serial: 'serial',
+  };
+  // One fixed question per record field for "Evidence for this field". Written once, shown on the card.
+  const FIELD_QUESTION = {
+    name: 'What must a device label show for the name of the device?',
+    model: 'What must a device label show for the catalog or model number?',
+    manufacturer: 'Must a device label show the name and place of business of the manufacturer?',
+    manufacturer_address: 'Must a device label show the name and place of business of the manufacturer?',
+    udi_di: 'Must the label of every medical device bear a unique device identifier?',
+    lot: 'How must the lot or batch number appear on a device label?',
+    expiry: 'What must a label show for the expiration date?',
+    serial: 'How must a serial number appear in the unique device identifier of a device label?',
+    storage: 'What must the labeling of a device say about storage conditions?',
+    sterilization: 'What must a device label say about sterilization?',
+  };
+  // The checker rules that look at each field (src/checker/runner.py). Serial, storage and sterilization have none.
+  const FIELD_RULES = {
+    name: ['P-NAME'], model: ['P-REF'], manufacturer: ['P-MFR', 'R-NAMEPLACE', 'S-MFR'], manufacturer_address: ['P-ADDR', 'R-NAMEPLACE'],
+    udi_di: ['P-UDI', 'R-UDI', 'B-GS1'], lot: ['B-LOT'], expiry: ['D-FMT', 'B-EXP', 'S-EXP'], serial: [], storage: [], sterilization: [],
+  };
+  const EXAMPLES = [
+    ['Expiration date', 'What must a label show for the expiration date?'],
+    ['Lot number', 'How must the lot or batch number appear on a device label?'],
+    ['Sterilization', 'What must a device label say about sterilization?'],
+  ];
+  let pendingScroll = null;
   // Label text field (extractor name) that carries each record field (src/checker/synthetic.py FIELD_ORDER).
   const LABEL_FIELD = { name: 'product_name', manufacturer: 'manufacturer', manufacturer_address: 'manufacturer_address', model: 'model', lot: 'lot', expiry: 'expiry' };
   const PREFIX_RE = /^\s*[A-Za-z][A-Za-z .#/]{0,15}:\s*/;
@@ -43,6 +72,11 @@
     return { file: null, source: 'upload', previewUrl: null, read: null, form: {}, notes: {}, prog: null, camMsg: '' };
   }
 
+  /** Evidence card state: the free question, its answer, the on-demand extra passages and the per-field panel. */
+  function freshEvidence(open) {
+    return { open: !!open, question: '', ask: null, askedQuestion: '', more: null, showMore: false, field: null, fieldAsk: null };
+  }
+
   const S = {
     stage: 'products', role: 'editor', me: null,
     busy: null, busyMsg: '', busyStart: 0, errors: {}, flash: '',
@@ -50,7 +84,8 @@
     add: freshAdd(), cam: null,
     product: null, versions: [], labelId: null, history: [],
     checks: {},
-    evidence: { open: false, query: 'format of expiration date on a device label', question: 'What must a label show for the expiration date?', search: null, answer: null },
+    recordVersions: [], changeInfo: {},
+    evidence: freshEvidence(),
     change: { field: 'lot', value: '', assessment: null, decisions: {}, confirmed: null },
     artwork: null, artworkL: null, previewUrl: null,
     exports: {}, reviews: {}, reviewComment: '', lastReview: null,
@@ -73,6 +108,11 @@
     const attrs = Object.entries(opt.data || {}).map(([k, v]) => ` data-${k}="${esc(v)}"`).join('');
     return `<button type="button" class="btn${opt.primary ? ' primary' : ''}${opt.small ? ' small' : ''}" data-act="${act}"${attrs}`
       + ` data-testid="${esc(opt.testid || 'btn-' + act)}"${opt.disabled || S.busy ? ' disabled' : ''}>${label}</button>`;
+  }
+
+  /** A button with one line of help text under it. */
+  function btnHelp(buttonHtml, help, testid) {
+    return `<div class="bh">${buttonHtml}<span class="bh-help small muted" data-testid="${testid}">${esc(help)}</span></div>`;
   }
 
   function statusHtml(id) {
@@ -162,15 +202,27 @@
       Object.assign(S, { checks: {}, artwork: null, artworkL: null, exports: {}, reviews: {}, lastReview: null, download: null });
       S.change = { field: 'lot', value: '', assessment: null, decisions: {}, confirmed: null };
       S.print = { file: null, condition: 'clean_print_scan', result: null, list: {} };
-      S.evidence.search = null; S.evidence.answer = null;
+      S.evidence = freshEvidence(S.evidence.open);
+      S.changeInfo = {};
       if (S.previewUrl) { URL.revokeObjectURL(S.previewUrl); S.previewUrl = null; }
     }
     S.product = detail;
     S.labelId = detail.labels.length ? detail.labels[0].label_id : null;
     setMsg('Loading label versions and history');
     S.versions = S.labelId ? await A.labelVersions(S.labelId) : [];
-    S.history = await A.history(pid);
+    await refreshHistory(pid);
     history.replaceState(null, '', `#product=${encodeURIComponent(pid)}`);
+  }
+
+  /** Reload the activity history plus what it needs to say what changed: record versions and the changes behind them. */
+  async function refreshHistory(pid) {
+    S.history = await A.history(pid);
+    S.recordVersions = await A.productVersions(pid);
+    const ids = new Set(S.history.filter((h) => h.entity_type === 'change').map((h) => h.entity_id));
+    S.recordVersions.forEach((r) => { if (r.source_change_id) ids.add(r.source_change_id); });
+    for (const id of ids) {
+      if (!S.changeInfo[id]) { try { S.changeInfo[id] = await A.getChange(id); } catch (e) { /* the text then names only the id */ } }
+    }
   }
 
   function openProduct(pid) {
@@ -189,7 +241,7 @@
     setMsg('Loading the export package');
     S.exports[v] = await A.exports(v);
     S.print.list[v] = await A.printVerifications(v);
-    S.history = await A.history(S.product.product.product_id);
+    await refreshHistory(S.product.product.product_id);
   }
 
   // ---------------------------------------------------------------- add label: read, prefill, save
@@ -510,19 +562,69 @@
     </div>`;
   }
 
+  // ---------------------------------------------------------------- what changed (record version diffs)
+
+  const recordVersion = (n) => S.recordVersions.find((r) => r.version === n);
+  const plain = (v) => String(v === null || v === undefined ? '' : v).trim();
+
+  /** Fields whose value differs between two record versions: [{field, from, to}]. Empty and missing count as equal. */
+  function diffRecords(a, b) {
+    const val = (r, f) => (EXTRA_KEYS.includes(f) || !(f in r) ? plain((r.extra || {})[f]) : plain(r[f]));
+    const keys = ['name', 'model', 'manufacturer', 'manufacturer_address', 'udi_di', 'sterilization', 'storage',
+      ...new Set([...Object.keys(a.extra || {}), ...Object.keys(b.extra || {})].filter((k) => k !== 'intake'))];
+    return [...new Set(keys)].map((f) => ({ field: f, from: val(a, f), to: val(b, f) })).filter((d) => d.from !== d.to);
+  }
+
+  const arrowText = (ds) => ds.map((d) => `${FIELD_WORD[d.field] || d.field} ${d.from || '(empty)'} → ${d.to || '(empty)'}`).join(', ');
+
+  /** "L2: lot LOT1 -> LOT2 (change chg_...)" or "L1: first upload", from the record versions the label versions point at. */
+  function versionChangeText(v) {
+    const i = S.versions.findIndex((x) => x.version_id === v.version_id);
+    const tag = `L${v.artwork_version}`;
+    if (i <= 0) return `${tag}: first upload`;
+    const a = recordVersion(S.versions[i - 1].product_version);
+    const b = recordVersion(v.product_version);
+    if (!a || !b) return `${tag}: record version ${v.product_version} (details not loaded)`;
+    const ds = diffRecords(a, b);
+    if (!ds.length) return `${tag}: no record change (record v${b.version}), new ${v.kind === 'generated' ? 'artwork' : 'upload'}`;
+    return `${tag}: ${arrowText(ds)}${b.source_change_id ? ` (change ${b.source_change_id})` : ''}`;
+  }
+
   function versionsTable() {
     if (!S.versions.length) return '<div class="muted">This product has no label version yet.</div>';
-    return `<table class="tbl" data-testid="version-history"><thead><tr><th>Version</th><th>Kind</th><th>Status</th><th>Marks</th><th>Made by</th><th>When</th></tr></thead><tbody>
+    return `<table class="tbl" data-testid="version-history"><thead><tr><th>Version</th><th>What changed</th><th>Kind</th><th>Status</th><th>Marks</th><th>Made by</th><th>When</th></tr></thead><tbody>
       ${S.versions.slice().reverse().map((v) => `<tr><td><strong>L${esc(v.artwork_version)}</strong><div class="small mono">${esc(v.version_id)}</div></td>
+        <td data-testid="what-changed">${esc(versionChangeText(v))}</td>
         <td>${esc(v.kind)}</td><td><span class="badge ${v.status === 'reviewed' ? 'teal' : ''}">${esc(v.status)}</span></td>
         <td>${v.draft_watermark ? '<span class="badge draft">DRAFT</span>' : ''}</td><td>${esc(v.created_by)}</td><td class="small">${when(v.created_at)}</td></tr>`).join('')}
     </tbody></table>`;
   }
 
+  /** One plain sentence for the events that carry a change, else an empty string. */
+  function historyDetail(h) {
+    const ci = S.changeInfo[h.entity_id];
+    if (h.action === 'change.created') {
+      return ci ? `Change requested: ${FIELD_WORD[ci.field] || ci.field} ${ci.old_value || '(empty)'} → ${ci.new_value || '(empty)'}` : '';
+    }
+    if (h.action === 'product.version_created') {
+      const n = h.version_after;
+      if (!n || n === 1) return 'Record v1 created';
+      const a = recordVersion(n - 1); const b = recordVersion(n);
+      if (!a || !b) return `Record v${n} created`;
+      const ds = diffRecords(a, b);
+      return `Record v${n}: ${ds.length ? arrowText(ds) : 'no field differs'}${b.source_change_id ? ` (change ${b.source_change_id})` : ''}`;
+    }
+    if (h.action === 'label.version_created') {
+      const v = S.versions.find((x) => x.version_id === h.entity_id);
+      return v ? versionChangeText(v) : '';
+    }
+    return '';
+  }
+
   function historyTable() {
     if (!S.history.length) return '<div class="muted">No events yet.</div>';
-    return `<table class="tbl" data-testid="history"><thead><tr><th>When</th><th>Who</th><th>What</th><th>On</th></tr></thead><tbody>
-      ${S.history.map((h) => `<tr><td class="small">${when(h.at)}</td><td>${esc(h.user_id)}</td><td>${esc(h.action)}</td><td class="small"><span class="mono">${esc(h.entity_type)} ${esc(h.entity_id)}</span></td></tr>`).join('')}
+    return `<table class="tbl" data-testid="history"><thead><tr><th>When</th><th>Who</th><th>What</th><th>On</th><th>Detail</th></tr></thead><tbody>
+      ${S.history.map((h) => `<tr><td class="small">${when(h.at)}</td><td>${esc(h.user_id)}</td><td>${esc(h.action)}</td><td class="small"><span class="mono">${esc(h.entity_type)} ${esc(h.entity_id)}</span></td><td class="small" data-testid="history-detail">${esc(historyDetail(h))}</td></tr>`).join('')}
     </tbody></table>`;
   }
 
@@ -584,7 +686,7 @@
     return head('Products', 'Your inventory of device products. Open a product to check its label, change a detail, revise the artwork and send it for review. Anyone can view; an Editor adds products.',
       btn('go-add', 'Add product', { primary: true }))
       + `<div class="card"><div class="row mb"><input class="input" style="flex:1 1 320px" id="prodFilter" data-model="filter" data-testid="product-filter" placeholder="Filter by name, model, manufacturer or product id" value="${esc(S.filter)}">
-        ${btn('load-products', 'Refresh')}</div>
+        ${btnHelp(btn('load-products', 'Refresh'), 'Reloads the product list from the server.', 'help-refresh')}</div>
         ${statusHtml('products')}
         ${S.products ? `<table class="tbl"><thead><tr><th>Name</th><th>Model</th><th>Manufacturer</th><th>Version</th><th>Labels</th><th>Open findings</th></tr></thead><tbody id="prodRows">${r.body}</tbody></table>
         <div class="small muted mt" id="prodNote" data-testid="product-note">${esc(r.note)}</div>` : ''}</div>`;
@@ -631,48 +733,108 @@
     return html;
   }
 
+  // ---------------------------------------------------------------- evidence
+
+  const FIELD_OUTCOME = { pass: ['teal', 'Pass'], needs_human: ['warn', 'Needs a person'], not_checked: ['', 'Not checked'], not_applicable: ['', 'Not applicable'] };
+
+  /** One regulation passage as a compact card: section and title, a two-line quote, a link. Ids and scores go in details. */
+  function passageHtml(c) {
+    return `<div class="cite compact" data-testid="passage"><div class="ptitle"><strong>21 CFR ${esc(c.section)}</strong> ${esc(c.title)}`
+      + `${c.url ? ` <a href="${esc(c.url)}" target="_blank" rel="noopener noreferrer">Open the regulation</a>` : ''}</div>`
+      + `${c.quote ? `<div class="q clamp2">"${esc(c.quote)}"</div>` : ''}</div>`;
+  }
+
+  /** The result of one /ask call: a no-answer notice, or the top 3 passages. extra is the "show more" block. */
+  function askResultHtml(res, more) {
+    if (!res) return '';
+    const sources = res.sources || [];
+    const gate = res.score !== null && res.score !== undefined
+      ? `<div>${esc(res.score_name)} ${esc(Number(res.score).toFixed(5))}${res.threshold !== null && res.threshold !== undefined ? `, gate ${esc(Number(res.threshold).toFixed(5))}` : ''}</div>` : '';
+    const ids = sources.length ? `<div>Passage ids: ${sources.map((c) => `<span class="mono">${esc(c.chunk_id)}</span>`).join(', ')}</div>` : '';
+    const details = (gate || ids) ? `<details class="small muted mt" data-testid="evidence-details"><summary>details</summary>${gate}${ids}</details>` : '';
+    if (!sources.length && res.abstained) {
+      return `<div class="note" data-testid="no-passage">No regulation passage answers this. Try a labeling question.</div>${details}`;
+    }
+    let html = res.abstained
+      ? '<div class="small muted mt" data-testid="closest">Closest regulation passages. Retrieval found these; no answer was written, so a person should read them.</div>'
+      : `<div class="okbox" data-testid="answer">${esc(res.answer)}</div>`;
+    html += `<div data-testid="evidence-results">${sources.slice(0, 3).map(passageHtml).join('')}</div>`;
+    if (more) html += more;
+    return html + details;
+  }
+
+  /** "Show more passages" for the free question: the rest of retrieval's top 10 that are not already shown. */
+  function moreHtml() {
+    const ev = S.evidence;
+    if (!ev.ask || !(ev.ask.sources || []).length) return '';
+    const shown = new Set((ev.ask.sources || []).map((c) => c.chunk_id));
+    const rest = (ev.more || []).filter((c) => !shown.has(c.chunk_id)).slice(0, 7);
+    return `<div class="mt">${btn('more-passages', ev.showMore ? 'Hide more passages' : 'Show more passages', { small: true })}${statusHtml('more')}</div>`
+      + (ev.showMore ? `<div data-testid="more-results">${rest.map(passageHtml).join('') || '<div class="muted small mt">No further passages.</div>'}</div>` : '');
+  }
+
+  /** The three parts of "Evidence for this field": the record value, the latest check for the field, the passages. */
+  function fieldPanel() {
+    const ev = S.evidence; const f = ev.field;
+    if (!f) return '';
+    const rec = S.product.record; const v = currentVersion();
+    const c = v && S.checks[v.version_id];
+    const rules = FIELD_RULES[f] || [];
+    let check;
+    if (!rules.length) check = '<div class="small muted">No check rule looks at this field. A person compares it with the label by eye.</div>';
+    else if (!c) check = `<div class="small muted" data-testid="field-nocheck">No check has been run on L${esc(v ? v.artwork_version : '?')} in this session. Press Run check.</div>`;
+    else {
+      check = rules.map((rid) => {
+        const cov = (c.coverage || []).find((x) => x.rule_id === rid);
+        const found = (c.findings || []).filter((x) => x.rule_id === rid);
+        if (!cov) return `<div class="small muted">Rule ${esc(rid)}: not reported in this check.</div>`;
+        let [cls, word] = FIELD_OUTCOME[cov.outcome] || ['', cov.outcome];
+        if (cov.outcome === 'fail') { cls = 'danger'; word = found.some((x) => /mismatch$/.test(x.kind)) ? 'Mismatch' : 'Problem found'; }
+        return `<div class="small mt" data-testid="field-rule" data-outcome="${esc(cov.outcome)}"><span class="badge ${cls}">${esc(word)}</span> <span class="mono">${esc(rid)}</span> ${esc(cov.reason || '')}`
+          + `${found.map((x) => `<div>${x.message === cov.reason ? '' : esc(x.message)}${x.observed || x.expected ? ` Read: <strong>${esc(x.observed || '(nothing)')}</strong>. Expected: <strong>${esc(x.expected || '(nothing)')}</strong>.` : ''}</div>`).join('')}</div>`;
+      }).join('');
+    }
+    return `<div class="fieldpanel" data-testid="field-evidence" data-field="${esc(f)}">
+      <h3>Evidence for this field: ${esc(FIELD_WORD[f] || f)}</h3>
+      <div class="grid3">
+        <div><div class="part">1. Product record</div><div data-testid="field-value">${fmtVal(recVal(rec, f)) || '<span class="muted">(empty)</span>'}</div><div class="small muted">record version ${esc(rec.version)}</div></div>
+        <div><div class="part">2. Latest check${v ? ` (L${esc(v.artwork_version)})` : ''}</div>${check}</div>
+        <div><div class="part">3. Regulation passages (retrieval)</div><div class="small muted">Question: ${esc(FIELD_QUESTION[f])}</div>${statusHtml('field-ask')}${askResultHtml(ev.fieldAsk)}</div>
+      </div></div>`;
+  }
+
   function renderEvidence() {
     const ev = S.evidence;
-    let html = `<div class="card" data-testid="evidence"><h3>Evidence: search the device regulations</h3>
-      <p class="small muted mb">Our own retrieval (BM25 plus dense, fused) over 21 CFR 801, 820 and 830. Results are passages with their section, title and quote.</p>
-      <div class="row"><input class="input" style="flex:1 1 380px" data-model="evidence.query" data-enter="search" data-testid="evidence-query" value="${esc(ev.query)}">${btn('search', 'Search', { primary: true })}</div>
-      ${statusHtml('search')}`;
-    if (ev.search) {
-      const s = ev.search;
-      html += `<div class="small muted mt">Method ${esc((s.retrieval || {}).method)}; ${esc(s.hits.length)} passages.</div>
-        <div class="grid2 mt" data-testid="evidence-results"><div><h3>Ranked passages</h3>${s.hits.map((h) => `<div class="item"><div class="item-head"><span class="badge">#${esc(h.rank)}</span><span class="mono">${esc(h.doc_id)}</span><span class="small muted">score ${Number(h.score).toFixed(4)}</span></div><div class="small">${esc(h.text)}</div></div>`).join('') || '<div class="muted">No passages found.</div>'}</div>
-        <div><h3>Citations</h3>${s.citations.map(citationHtml).join('') || '<div class="muted">No citations.</div>'}</div></div>`;
-    }
-    html += `<h3 class="mt">Ask a question</h3><div class="row"><input class="input" style="flex:1 1 380px" data-model="evidence.question" data-enter="ask" data-testid="evidence-question" value="${esc(ev.question)}">${btn('ask', 'Ask', { primary: true })}</div>
-      ${statusHtml('ask')}`;
-    if (ev.answer) {
-      const a = ev.answer;
-      if (a.abstained) {
-        html += `<div class="note" data-testid="abstained"><strong>No answer was given</strong> (${esc(a.reason)}). ${esc(a.message)}
-          ${a.score !== null && a.score !== undefined ? `<div class="small mono mt">${esc(a.score_name)} ${esc(a.score)}${a.threshold !== null && a.threshold !== undefined ? `, threshold ${esc(a.threshold)}` : ''}</div>` : ''}</div>
-          ${(a.sources || []).length ? `<div class="small muted">Closest passages (not an answer, a person should read them):</div>${a.sources.map(citationHtml).join('')}` : ''}`;
-      } else {
-        html += `<div class="okbox" data-testid="answer">${esc(a.answer)}</div>${(a.sources || []).map(citationHtml).join('')}`;
-      }
-    }
-    return html + '</div>';
+    return `<div class="card" data-testid="evidence"><h3>Evidence for ${esc(S.product.record.name)}</h3>
+      <p class="small muted mb">Facts about this product come from the product record and the latest check. Regulation text comes from retrieval over 21 CFR 801, 820 and 830. Press "Evidence for this field" in the Product record below to see both together.</p>
+      ${fieldPanel()}
+      <h3 class="mt">Ask the regulations</h3>
+      <p class="small muted mb">Answers labeling-regulation questions, not questions about this product. Try:</p>
+      <div class="row mb">${EXAMPLES.map(([label, q]) => btn('ask-example', esc(label), { small: true, data: { q }, testid: 'example-' + label.toLowerCase().split(' ')[0] })).join('')}</div>
+      <label class="small" for="evQuestion"><strong>Regulation search (general)</strong></label>
+      <div class="row"><input class="input" id="evQuestion" style="flex:1 1 380px" data-model="evidence.question" data-enter="ask" data-testid="evidence-question" placeholder="For example: what must a label show for the expiration date?" value="${esc(ev.question)}">${btn('ask', 'Ask', { primary: true })}</div>
+      ${statusHtml('ask')}${askResultHtml(ev.ask, moreHtml())}</div>`;
   }
 
   function renderCheck() {
     const rec = S.product.record; const v = currentVersion();
     const extra = rec.extra || {};
     let html = head('Product and label check', 'The check compares the label with the product record and attaches cited passages from 21 CFR 801, 820 and 830 found by our retrieval. Every finding has a citation or says a person must look. Rules decide; nothing here says a label meets the regulations. Anyone can run a check.',
-      `${btn('check', v ? `Run check on L${esc(v.artwork_version)}` : 'Run check', { primary: true, disabled: !v })}${btn('go-change', 'Change a detail')}${btn('toggle-evidence', S.evidence.open ? 'Hide evidence' : 'Evidence')}`)
+      `${btnHelp(btn('check', v ? `Run check on L${esc(v.artwork_version)}` : 'Run check', { primary: true, disabled: !v }), 'Compares this label version with the product record using 16 rules.', 'help-check')}`
+      + `${btnHelp(btn('go-change', 'Change a detail'), 'Starts a change to one record field, for example the lot, and shows what the label needs.', 'help-change')}`
+      + `${btnHelp(btn('toggle-evidence', S.evidence.open ? 'Hide evidence' : 'Evidence'), 'Shows, per record field, the value, the latest check and the regulation passages. Also a question box.', 'help-evidence')}`)
       + productHeader()
       + statusHtml('check');
     const c = v && S.checks[v.version_id];
     if (c) html += `<div class="card">${checkHtml(c)}</div>`;
     else if (v) html += `<div class="info small">No check has been run on L${esc(v.artwork_version)} in this session. ${v.kind === 'generated' ? 'For generated artwork the check reads the rendered PDF back (re-check).' : 'Press Run check.'}</div>`;
     if (S.evidence.open) html += renderEvidence();
+    const fieldRow = (f, k, val) => `<dt>${k}</dt><dd>${fmtVal(val) || '<span class="muted">(empty)</span>'} ${btn('field-evidence', 'Evidence for this field', { small: true, data: { f }, testid: `evidence-${f}` })}</dd>`;
     html += `<div class="grid2"><div class="card"><h3>Product record</h3><dl class="kv" data-testid="record">
-        ${[['Name', rec.name], ['Model', rec.model], ['Manufacturer', rec.manufacturer], ['Manufacturer address', rec.manufacturer_address], ['UDI-DI', rec.udi_di], ['Sterilization', rec.sterilization], ['Storage', rec.storage]]
-          .map(([k, val]) => `<dt>${k}</dt><dd>${fmtVal(val) || '<span class="muted">(empty)</span>'}</dd>`).join('')}
-        ${Object.entries(extra).map(([k, val]) => `<dt>${esc(k)}</dt><dd>${fmtVal(val)}</dd>`).join('')}
+        ${[['name', 'Name', rec.name], ['model', 'Model', rec.model], ['manufacturer', 'Manufacturer', rec.manufacturer], ['manufacturer_address', 'Manufacturer address', rec.manufacturer_address], ['udi_di', 'UDI-DI', rec.udi_di], ['sterilization', 'Sterilization', rec.sterilization], ['storage', 'Storage', rec.storage]]
+          .map(([f, k, val]) => fieldRow(f, k, val)).join('')}
+        ${EXTRA_KEYS.map((k) => fieldRow(k, esc(k), extra[k])).join('')}
+        ${Object.entries(extra).filter(([k]) => k !== 'intake' && !EXTRA_KEYS.includes(k)).map(([k, val]) => `<dt>${esc(k)}</dt><dd>${fmtVal(val)}</dd>`).join('')}
         <dt>Record version</dt><dd>${esc(rec.version)} (by ${esc(rec.created_by)})</dd>
         <dt>Templates</dt><dd>${S.product.templates.map((t) => `${esc(t.template_id)} v${esc(t.version)} (${esc(t.size_mm.w)} x ${esc(t.size_mm.h)} mm)`).join(', ') || '(none)'}</dd></dl></div>
       <div class="card"><h3>Label versions</h3>${versionsTable()}</div></div>
@@ -875,6 +1037,11 @@
       + views[stage]();
     const video = $('#camVideo');
     if (video && S.cam && video.srcObject !== S.cam) { video.srcObject = S.cam; video.play().catch(() => {}); }
+    if (pendingScroll && !S.busy) {
+      const el = document.querySelector(`[data-testid="${pendingScroll}"]`);
+      pendingScroll = null;
+      if (el) el.scrollIntoView({ block: 'start' });
+    }
   }
 
   // ---------------------------------------------------------------- events
@@ -905,18 +1072,35 @@
       setMsg(v.kind === 'generated' ? 'Re-checking the generated artwork' : 'Running the checks');
       const fn = v.kind === 'generated' ? A.recheck : A.inspect;
       S.checks[v.version_id] = await fn(v.version_id, (j) => setMsg(`Check: ${j.message || j.state}`));
-      S.history = await A.history(S.product.product.product_id);
-    }),
-    search: () => act('search', async () => {
-      if (!S.evidence.query.trim()) throw new Error('Type a search first.');
-      setMsg('Searching the regulations');
-      S.evidence.search = await A.search(S.evidence.query.trim());
+      await refreshHistory(S.product.product.product_id);
     }),
     ask: () => act('ask', async () => {
-      if (!S.evidence.question.trim()) throw new Error('Type a question first.');
-      setMsg('Retrieving passages');
-      S.evidence.answer = await A.ask(S.evidence.question.trim());
+      const q = S.evidence.question.trim();
+      if (!q) throw new Error('Type a question first, or press one of the examples.');
+      setMsg('Retrieving regulation passages');
+      S.evidence.ask = await A.ask(q);
+      S.evidence.askedQuestion = q; S.evidence.more = null; S.evidence.showMore = false;
     }),
+    'ask-example': (el) => { S.evidence.question = el.dataset.q; HANDLERS.ask(); },
+    'more-passages': () => {
+      if (S.evidence.showMore) { S.evidence.showMore = false; render(); return; }
+      if (S.evidence.more) { S.evidence.showMore = true; render(); return; }
+      act('more', async () => {
+        setMsg('Loading the next passages');
+        S.evidence.more = (await A.search(S.evidence.askedQuestion, 10)).citations || [];
+        S.evidence.showMore = true;
+      });
+    },
+    'field-evidence': (el) => {
+      const f = el.dataset.f;
+      // open the panel first so the spinner shows inside it while the passages load
+      S.evidence.open = true; S.evidence.field = f; S.evidence.fieldAsk = null;
+      act('field-ask', async () => {
+        setMsg('Retrieving the governing regulation passages');
+        S.evidence.fieldAsk = await A.ask(FIELD_QUESTION[f]);
+        pendingScroll = 'evidence';
+      });
+    },
     assess: () => act('assess', doAssess),
     'dec-all': () => { (S.change.assessment.affected || []).forEach((i) => { S.change.decisions[i.impact_id] = 'confirmed'; }); render(); },
     confirm: () => act('confirm', doConfirm),
