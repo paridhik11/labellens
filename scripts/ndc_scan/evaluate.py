@@ -61,7 +61,7 @@ def cmd_read(names: list[str]) -> None:
 
     lock = threading.Lock()
     for name in names:
-        target = OUT / f"lines_{name}.jsonl"
+        target = OUT / f"lines_{name}{os.environ.get('NDC_SUFFIX', '')}.jsonl"
         done = {json.loads(r)["id"] for r in target.read_text("utf-8").splitlines()} if target.exists() else set()
         todo = [p for p in photos_of(name) if p["id"] not in done]
 
@@ -329,6 +329,25 @@ def build_summary(rows: list[dict[str, Any]], commit: str, config: dict[str, Any
             "per_product": per_product(rows)}
 
 
+def cmd_rescore_quiet() -> None:
+    """NOT the gate: the frozen version on the 57 positives re-read one photo at a time (written to supp_*)."""
+    config = load_config()
+    engine = Engine()
+    target = OUT / "supp_positives_quiet_rows.jsonl"
+    rows = []
+    with target.open("x", encoding="utf-8") as handle:
+        for line in (OUT / "lines_positives_quiet.jsonl").read_text("utf-8").splitlines():
+            result = score_row(engine, json.loads(line), config)
+            rows.append(result)
+            handle.write(json.dumps(result) + chr(10))
+    summary = {"photos": len(rows), "new": summarise(rows, "new"), "e_replay": summarise(rows, "e"),
+               "new_by_condition": by_condition(rows, "new"), "e_by_condition": by_condition(rows, "e"),
+               "ocr_complete": sum(r["ocr_complete"] for r in rows),
+               "wrong_new": sum(r["new"]["category"] == "wrong" for r in rows)}
+    (OUT / "supp_positives_quiet_summary.json").write_text(json.dumps(summary, indent=1), encoding="utf-8")
+    print(json.dumps(summary, indent=1))
+
+
 if __name__ == "__main__":
     command = sys.argv[1]
     if command == "read":
@@ -337,5 +356,7 @@ if __name__ == "__main__":
         cmd_dev()
     elif command == "score":
         cmd_score()
+    elif command == "rescore_quiet":
+        cmd_rescore_quiet()
     else:
         raise SystemExit(__doc__)
