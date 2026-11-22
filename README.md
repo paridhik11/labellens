@@ -2,7 +2,7 @@
 
 AI-assisted inspection, change assessment and artwork revision for medical device labels, built around information retrieval.
 
-CSD358 Information Retrieval course project. Team: Pari (lead), Parth, Ishanvi.
+CSD358 Information Retrieval course project. Team: Pari, Parth, Ishanvi.
 
 > LabelLens supports human reviewers. It does not certify compliance or authenticity. Every flag and every generated label is a proposal with evidence attached, and a human approves or rejects it.
 
