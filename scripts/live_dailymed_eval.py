@@ -1,3 +1,4 @@
+# ruff: noqa: E501  (report table lines)
 """Score the live DailyMed lookup once on the fixed set (protocol: reports/live_dailymed_protocol.md).
 
     python scripts/live_dailymed_eval.py --out results/live_dailymed

@@ -61,7 +61,7 @@
     return `<div class="card" data-testid="live-fetching" style="text-align:center;padding:32px 24px;max-width:640px;margin:16px auto;">
       <div class="spinner" aria-hidden="true" style="margin:0 auto 12px auto;"></div>
       <h3>Fetching this label from DailyMed</h3>
-      <p class="text-sm" style="margin-top:8px;">This can take a little while: the label is downloaded and prepared for questions.</p>
+      <p class="text-sm" style="margin-top:8px;">This can take a little while: the label is downloaded and prepared for questions. Large labels can take several minutes on a busy computer.</p>
       <p class="text-xs text-muted" style="margin-top:8px;">${esc((job && job.state) || 'processing')} | ${pct}%${seconds != null ? ` | ${seconds} s` : ''}</p>
     </div>`;
   }
@@ -89,7 +89,7 @@
       if (r.status !== 200) throw new Error(`job ${jobId}: HTTP ${r.status}`);
       onTick(r.body, Math.round((Date.now() - t0) / 1000));
       if (r.body.state === 'done' || r.body.state === 'failed') return r.body;
-      if (Date.now() - t0 > 150000) throw new Error('The fetch took longer than 150 s. Try again later.');
+      if (Date.now() - t0 > 600000) throw new Error('The fetch took longer than 10 minutes. Try again later; large labels are slow on a busy computer.');
       await new Promise((res) => setTimeout(res, 1500));
     }
   }

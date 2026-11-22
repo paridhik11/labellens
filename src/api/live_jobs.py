@@ -44,9 +44,9 @@ def run_fetch_job(app: Any, job_id: str, setid: str, version: int) -> None:
                 checks.advance_job(session, job_id, "done", 1.0, "done",
                                    result_url=f"/public/live/products/{label.product_id}")
             except LiveUnavailable as error:
-                checks.advance_job(session, job_id, "failed", 1.0,
-                                   error=_error("live_fetch_failed", f"{error.message} The curated medicines still work.",
-                                                error.reason))
+                message = f"{error.message} The curated medicines still work."
+                failure = _error("live_fetch_failed", message, error.reason)
+                checks.advance_job(session, job_id, "failed", 1.0, error=failure)
             except LiveFetchError as error:
                 checks.advance_job(session, job_id, "failed", 1.0,
                                    error=_error("live_fetch_failed", error.message, error.code))

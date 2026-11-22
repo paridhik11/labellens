@@ -279,7 +279,8 @@ def parse_label(xml: bytes, setid: str, version: int, fetched: str) -> LiveLabel
     code, identity = root.find("s:code", NS), root.find("s:setId", NS)
     number, effective = root.find("s:versionNumber", NS), root.find("s:effectiveTime", NS)
     if code is None or code.get("code") not in HUMAN_SPL_CODES:
-        raise LiveFetchError("not_a_human_label", "This is not a human drug label (device or veterinary labels are not used).")
+        raise LiveFetchError(
+            "not_a_human_label", "This is not a human drug label (device or veterinary labels are not used).")
     if identity is None or identity.get("root", "").lower() != setid:
         raise LiveFetchError("id_mismatch", "DailyMed returned a label with a different set id than the one chosen.")
     if number is None or number.get("value") != str(version):
@@ -421,7 +422,9 @@ class LiveService:
 
     def knows(self, product_id: str | None) -> bool:
         """True when this id is a live label that is cached on disk."""
-        return bool(product_id) and bool(LIVE_ID_RE.match(product_id)) and (self.cache_dir / f"{product_id}.json").exists()
+        if not product_id or not LIVE_ID_RE.match(product_id):
+            return False
+        return (self.cache_dir / f"{product_id}.json").exists()
 
     def load(self, product_id: str) -> LiveLabel:
         """The cached label (LiveFetchError not_found when absent or damaged)."""
@@ -429,10 +432,14 @@ class LiveService:
         try:
             return LiveLabel.from_json(json.loads(path.read_text(encoding="utf-8")))
         except (OSError, ValueError, KeyError, TypeError) as error:
-            raise LiveFetchError("not_found", "This live label is not in the cache. Search and pick it again.") from error
+            raise LiveFetchError(
+                "not_found", "This live label is not in the cache. Search and pick it again.") from error
 
     def fetch(self, setid: str, version: int) -> LiveLabel:
-        """Download (unless cached), parse, cache and index one picked label. Raises LiveUnavailable or LiveFetchError."""
+        """Download (unless cached), parse, cache and index one picked label.
+
+        Raises LiveUnavailable or LiveFetchError.
+        """
         setid = setid.lower()
         if not SETID_RE.match(setid) or not 1 <= version <= 9999:
             raise LiveFetchError("bad_request", "Not a DailyMed set id and version.")

@@ -36,8 +36,8 @@
 | D7 Review | returned | professional/review/returned.json | x-mock | pass |  |
 | D7 Review | failed | professional/review/self_approval_forbidden.json | x-mock | pass |  |
 | D8 Export | success | professional/export/draft.json | x-mock | pass |  |
-| D8 Export | approved | professional/export/approved.json | x-mock | FAIL | missing qr-card |
-| D8 Export | success | professional/export/publish_success.json | x-mock | FAIL | missing publish-card |
+| D8 Export | approved | professional/export/approved.json | x-mock | pass |  |
+| D8 Export | success | professional/export/publish_success.json | x-mock | pass |  |
 | D9 History | success | professional/history/success.json | api | pass |  |
 | D9 History | empty | professional/history/empty.json | x-mock | pass |  |
 | D9 History | success | professional/history/label_versions.json | api | pass |  |

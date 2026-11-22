@@ -8,7 +8,6 @@ run must have seen every documented status of every real operation.
 from __future__ import annotations
 
 import time
-
 from collections import defaultdict
 from typing import Any
 
@@ -298,7 +297,7 @@ def test_every_real_response_conforms_to_openapi(run: Run, tmp_path, monkeypatch
     run.client.app.state.medicine = stub_medicine()
     # live DailyMed lookup (CR-28): recorded fixtures, stub retriever
     from src.api import live_jobs
-    from tests.live_helpers import LABEL, FakeHttp, live_service
+    from tests.live_helpers import LABEL, live_service
 
     run.client.app.state.live = live_service(tmp_path)
     c("searchLiveMedicine", 200, "POST", "/public/live/search", user=None, json={"product_name": "cetirizine"})
@@ -326,7 +325,8 @@ def test_every_real_response_conforms_to_openapi(run: Run, tmp_path, monkeypatch
     c("fetchLiveLabel", 503, "POST", "/public/live/fetch", user=None, json=pick)
     run.client.app.state.live.enabled = True
     pid = live_job["result_url"].rsplit("/", 1)[1]
-    c("askPublic", 200, "POST", "/public/ask", user=None, json={"question": "What are the warnings?", "product_id": pid})
+    ask = {"question": "What are the warnings?", "product_id": pid}
+    c("askPublic", 200, "POST", "/public/ask", user=None, json=ask)
     # public photo scan (CR-27): stub reader, real matcher thresholds over the stub ranker
     from src.api import public_scans
     from tests.test_public_scan import FIRST, reader

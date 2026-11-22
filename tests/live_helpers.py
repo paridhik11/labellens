@@ -56,7 +56,8 @@ class WordRetriever:
         """Best chunks first."""
         words = set(query.lower().split())
         scored = sorted(((len(words & set(c.text.lower().split())), c) for c in self.chunks), key=lambda t: -t[0])
-        return [Hit(doc_id=c.chunk_id, score=float(s) + 0.01, rank=i, text=c.text) for i, (s, c) in enumerate(scored[:k], 1)]
+        return [Hit(doc_id=c.chunk_id, score=float(s) + 0.01, rank=i, text=c.text)
+                for i, (s, c) in enumerate(scored[:k], 1)]
 
 
 def live_service(tmp_path: Path, http: FakeHttp | None = None) -> LiveService:

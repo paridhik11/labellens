@@ -159,7 +159,8 @@ def test_api_flow_search_fetch_ask(tmp_path) -> None:
 
 def test_api_fetch_failure_has_a_reason(tmp_path) -> None:
     with TestClient(create_app("sqlite://", seed=False)) as client:
-        client.app.state.live = live_service(tmp_path, FakeHttp(xml=XML.replace(LABEL["setid"].encode(), b"0" * 8 + b"-0000-0000-0000-000000000000")))
+        other = XML.replace(LABEL["setid"].encode(), b"00000000-0000-0000-0000-000000000000")
+        client.app.state.live = live_service(tmp_path, FakeHttp(xml=other))
         started = client.post("/public/live/fetch", json={"setid": LABEL["setid"], "version": LABEL["version"]})
         for _ in range(100):
             job = client.get(f"/jobs/{started.json()['job_id']}").json()
