@@ -1,0 +1,43 @@
+{
+ "concurrency": 2,
+ "alone": [
+  {
+   "photo": "a519e355__Remedy_Label__moderate.jpg",
+   "seconds": 12.1,
+   "lines": 23,
+   "complete": true
+  },
+  {
+   "photo": "4cd07a3c__5860dc47_c4da_20b6_32da_6aa74c3fa1dc_00__moderate.jpg",
+   "seconds": 12.8,
+   "lines": 46,
+   "complete": true
+  },
+  {
+   "photo": "3881afaf__loratadine_01__moderate.jpg",
+   "seconds": 14.9,
+   "lines": 148,
+   "complete": true
+  }
+ ],
+ "together": [
+  {
+   "photo": "a519e355__Remedy_Label__moderate.jpg",
+   "seconds": 14.4,
+   "lines": 23,
+   "complete": true
+  },
+  {
+   "photo": "4cd07a3c__5860dc47_c4da_20b6_32da_6aa74c3fa1dc_00__moderate.jpg",
+   "seconds": 15.3,
+   "lines": 46,
+   "complete": true
+  },
+  {
+   "photo": "3881afaf__loratadine_01__moderate.jpg",
+   "seconds": 15.4,
+   "lines": 148,
+   "complete": true
+  }
+ ]
+}

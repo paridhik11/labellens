@@ -1,0 +1,173 @@
+{
+ "photos": 57,
+ "new": {
+  "photos": 57,
+  "counts": {
+   "timeout": 7,
+   "not_identified": 2,
+   "review": 6,
+   "correct": 42
+  },
+  "correct_interval": [
+   0.61,
+   0.834
+  ],
+  "wrong_interval": [
+   0.0,
+   0.063
+  ],
+  "seconds": {
+   "median": 31.8,
+   "max": 1115.8
+  }
+ },
+ "e_replay": {
+  "photos": 57,
+  "counts": {
+   "timeout": 11,
+   "not_identified": 5,
+   "review": 14,
+   "correct": 27
+  },
+  "correct_interval": [
+   0.35,
+   0.601
+  ],
+  "wrong_interval": [
+   0.0,
+   0.063
+  ],
+  "seconds": {
+   "median": 36.0,
+   "max": 1115.8
+  }
+ },
+ "new_by_condition": {
+  "artwork": {
+   "photos": 19,
+   "counts": {
+    "timeout": 6,
+    "correct": 12,
+    "review": 1
+   },
+   "correct_interval": [
+    0.41,
+    0.809
+   ],
+   "wrong_interval": [
+    0.0,
+    0.168
+   ],
+   "seconds": {
+    "median": 48.5,
+    "max": 1115.8
+   }
+  },
+  "moderate": {
+   "photos": 19,
+   "counts": {
+    "not_identified": 1,
+    "timeout": 1,
+    "correct": 16,
+    "review": 1
+   },
+   "correct_interval": [
+    0.624,
+    0.945
+   ],
+   "wrong_interval": [
+    0.0,
+    0.168
+   ],
+   "seconds": {
+    "median": 36.1,
+    "max": 71.0
+   }
+  },
+  "hard": {
+   "photos": 19,
+   "counts": {
+    "not_identified": 1,
+    "review": 4,
+    "correct": 14
+   },
+   "correct_interval": [
+    0.512,
+    0.882
+   ],
+   "wrong_interval": [
+    0.0,
+    0.168
+   ],
+   "seconds": {
+    "median": 20.5,
+    "max": 57.8
+   }
+  }
+ },
+ "e_by_condition": {
+  "artwork": {
+   "photos": 19,
+   "counts": {
+    "timeout": 9,
+    "correct": 7,
+    "review": 3
+   },
+   "correct_interval": [
+    0.191,
+    0.59
+   ],
+   "wrong_interval": [
+    0.0,
+    0.168
+   ],
+   "seconds": {
+    "median": 49.1,
+    "max": 1115.8
+   }
+  },
+  "moderate": {
+   "photos": 19,
+   "counts": {
+    "not_identified": 2,
+    "timeout": 2,
+    "correct": 10,
+    "review": 5
+   },
+   "correct_interval": [
+    0.317,
+    0.727
+   ],
+   "wrong_interval": [
+    0.0,
+    0.168
+   ],
+   "seconds": {
+    "median": 36.0,
+    "max": 70.8
+   }
+  },
+  "hard": {
+   "photos": 19,
+   "counts": {
+    "not_identified": 3,
+    "review": 6,
+    "correct": 10
+   },
+   "correct_interval": [
+    0.317,
+    0.727
+   ],
+   "wrong_interval": [
+    0.0,
+    0.168
+   ],
+   "seconds": {
+    "median": 23.4,
+    "max": 62.1
+   }
+  }
+ },
+ "ocr_complete": 46,
+ "wrong_new": 0
+}
