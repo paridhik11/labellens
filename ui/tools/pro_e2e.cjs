@@ -100,6 +100,15 @@ async function addProduct(page, o) {
     prefilled[f] = await page.inputValue(`[data-testid="input-${f}"]`);
   }
   if (o.shotRead) await page.evaluate(() => window.scrollTo(0, 0)); await page.screenshot({ path: path.join(SHOTS, `${o.shotRead}.png`), fullPage: true });
+  if (o.emptyFirst) {
+    // Saving with a printed field empty must be refused by the page with a clear message.
+    for (const [f, v] of Object.entries(o.values)) if (f !== o.emptyFirst) await fill(page, `input-${f}`, v);
+    await fill(page, `input-${o.emptyFirst}`, '');
+    await click(page, 'btn-save');
+    await page.waitForSelector('[data-testid="error-save"]', { timeout: 10000 });
+    o.emptyMsg = (await text(page, '[data-testid="error-save"]')).replace(/\s+/g, ' ').replace(/Retry$/, '').trim();
+    if (o.shotEmpty) { await page.evaluate(() => window.scrollTo(0, 0)); await page.screenshot({ path: path.join(SHOTS, `${o.shotEmpty}.png`), fullPage: true }); }
+  }
   for (const [f, v] of Object.entries(o.values)) await fill(page, `input-${f}`, v);
   await click(page, 'btn-save');
   await noError(page, 'save');
@@ -107,7 +116,7 @@ async function addProduct(page, o) {
   const flash = await text(page, '[data-testid="flash"]');
   const pid = /Saved product (prd_[0-9a-z]+)/.exec(flash);
   if (!pid) throw new Error('no product id in: ' + flash);
-  return { pid: pid[1], unclear, prefilled, flash };
+  return { pid: pid[1], unclear, prefilled, flash, emptyMsg: o.emptyMsg };
 }
 
 async function assess(page, field, value) {
@@ -169,11 +178,12 @@ async function main() {
 
   let ok = await step(page, 'add sample Golden Pump (read, correct, save)', '04_saved', async () => {
     const r = await addProduct(page, {
-      sample: true, shotRead: '03_read_sample',
+      sample: true, shotRead: '03_read_sample', emptyFirst: 'model', shotEmpty: '03b_empty_model_refused',
       values: { name: `Golden Pump (pro ${stamp})`, model: 'GP-100', sterilization: 'EO', storage: 'Store dry' },
     });
     S.pidA = r.pid;
-    return `${r.pid}; unclear highlighted: ${r.unclear.join(', ')}; prefilled lot ${r.prefilled.lot}, expiry ${r.prefilled.expiry}, udi ${r.prefilled.udi_di}, serial ${r.prefilled.serial}, model "${r.prefilled.model}"`;
+    if (!r.emptyMsg || !/Model/.test(r.emptyMsg)) throw new Error('empty model was not refused: ' + r.emptyMsg);
+    return `${r.pid}; empty model refused first ("${r.emptyMsg.slice(0, 90)}"); unclear highlighted: ${r.unclear.join(', ')}; prefilled lot ${r.prefilled.lot}, expiry ${r.prefilled.expiry}, udi ${r.prefilled.udi_di}, serial ${r.prefilled.serial}, model "${r.prefilled.model}"`;
   });
 
   ok = ok && await step(page, 'run check (inspect)', '05_check', async () => {

@@ -30,6 +30,11 @@
       if (body.task && body.task.title) text += ` (task: ${body.task.title})`;
       return text;
     }
+    if (body && typeof body === 'object' && Array.isArray(body.findings)) {
+      // A 422 from generateArtwork can be a CheckResult (layout checks failed before rendering), not an Error.
+      const msgs = body.findings.map((f) => `${f.severity}: ${f.message}`).join('; ');
+      return `The ${body.kind || 'layout'} check ${body.check_id || ''} refused it: ${msgs || 'no finding text'}`;
+    }
     if (body && typeof body === 'object' && body.detail) return `${fallback}: ${typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail)}`;
     return fallback;
   }
