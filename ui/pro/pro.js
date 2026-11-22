@@ -526,13 +526,26 @@
     </tbody></table>`;
   }
 
+  /** Text fields the product's newest template prints but the record leaves empty (the renderer refuses those). */
+  function emptyPrinted() {
+    const tpls = (S.product && S.product.templates) || [];
+    if (!tpls.length) return [];
+    const t = tpls.reduce((x, y) => (y.version > x.version ? y : x));
+    const rec = S.product.record;
+    const labels = Object.fromEntries(RECORD_FIELDS);
+    return t.slots.filter((sl) => sl.type === 'text')
+      .map((sl) => (sl.field === 'product_name' ? 'name' : sl.field))
+      .filter((f) => labels[f] && !String(recVal(rec, f)).trim())
+      .map((f) => labels[f]);
+  }
+
   function productHeader() {
     const rec = S.product.record; const v = currentVersion();
     return `<div class="card" data-testid="product-header"><div class="row" style="justify-content:space-between">
       <div><div style="font-size:1.2rem;font-weight:700">${esc(rec.name)}</div>
       <div class="small muted">${esc(S.product.product.product_id)} | model ${esc(rec.model || '(none)')} | ${esc(rec.manufacturer || '')} | record version ${esc(rec.version)}</div></div>
       <div class="row">${v ? `<span class="badge blue" data-testid="current-version">Current label L${esc(v.artwork_version)} (${esc(v.kind)})</span><span class="badge">${esc(v.status)}</span>${v.draft_watermark ? '<span class="badge draft">DRAFT</span>' : ''}` : '<span class="badge warn">No label version</span>'}</div>
-    </div></div>`;
+    </div>${emptyPrinted().length ? `<div class="note" data-testid="record-incomplete">This product record has no ${esc(emptyPrinted().join(', '))}, but the label template prints it, so revised artwork cannot be generated (the renderer refuses empty text). A saved record cannot be edited: add the product again with every printed field filled.</div>` : ''}</div>`;
   }
 
   function roleNote(needed) {
@@ -750,7 +763,7 @@
       + productHeader() + roleNote('editor');
     if (!ch) return html + '<div class="info">Confirm a change first (stage Change). The artwork is generated for one confirmed change.</div>';
     html += `<div class="card"><div class="row"><strong>Change ${esc(ch.change.change_id)}</strong>: ${esc(ch.change.field)} from ${esc(ch.change.old_value || '(empty)')} to ${esc(ch.change.new_value)}</div>
-      <div class="row mt">${btn('generate', 'Generate revised artwork', { primary: true, disabled: !ed })}</div>${statusHtml('generate')}</div>`;
+      <div class="row mt">${btn('generate', 'Generate revised artwork', { primary: true, disabled: !ed || emptyPrinted().length > 0 })}</div>${statusHtml('generate')}</div>`;
     const art = S.artwork && S.artwork.change_id === ch.change.change_id ? S.artwork : null;
     if (art) {
       const chk = S.checks[art.version_id];
@@ -957,6 +970,13 @@
   document.addEventListener('keydown', (e) => {
     const t = e.target;
     if (e.key === 'Enter' && t.dataset && t.dataset.enter && !S.busy) { e.preventDefault(); const h = HANDLERS[t.dataset.enter]; if (h) h(t); }
+  });
+
+  // Opening a link with another #product= in the same tab does not reload the page, so follow the hash here.
+  window.addEventListener('hashchange', () => {
+    const m = /product=([^&]+)/.exec(location.hash);
+    const id = m && decodeURIComponent(m[1]);
+    if (id && !S.busy && (!S.product || S.product.product.product_id !== id)) openProduct(id);
   });
 
   // ---------------------------------------------------------------- start
