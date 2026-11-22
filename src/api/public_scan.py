@@ -381,13 +381,31 @@ class ScanOutcome:
 
 
 def scan_photo(path: Path, service: Any, config: ScanConfig | None = None, *, read: Callable[..., dict[str, Any]]
-               | None = None) -> ScanOutcome:
-    """Photo in, contract ``PublicMatchResult`` out (``service`` is the app's MedicineService)."""
+               | None = None, ndc: bool = True) -> ScanOutcome:
+    """Photo in, contract ``PublicMatchResult`` out (``service`` is the app's MedicineService).
+
+    With ``ndc`` (default) the NDC signal runs first (barcode, printed NDC), method E unchanged otherwise
+    (``src/api/ndc_glue.py``, protocol results/ndc_scan/protocol.md). ``ndc=False`` is method E alone.
+    """
     from src.api import medicine
 
     config = config or load_config()
     start = time.monotonic()
     memoise_queries(service.matcher)
+    if ndc:
+        from src.api import ndc_glue
+
+        catalog = service.catalog
+        inputs = scan_inputs(catalog, config)
+
+        def run_e(reading: dict[str, Any]) -> dict[str, Any]:
+            return identify(reading["lines"], service.matcher.match, inputs.vocab, config, start=start,
+                            cut_short=not reading.get("complete", True), distinct=inputs.distinct, other=inputs.other)
+
+        body, extra = ndc_glue.scan_with_ndc(path, service, read or read_lines, run_e)
+        extra.setdefault("tried", 0)
+        extra.setdefault("killed", False)
+        return ScanOutcome(body, time.monotonic() - start, extra)
     reading = (read or read_lines)(path)
     lines = reading["lines"]
     catalog = service.catalog

@@ -52,3 +52,4 @@ data/real_labels_eval/
 data/cache/
 !results/step23_*
 results/step23_run.log
+!results/ndc_scan/

@@ -1,0 +1,3175 @@
+{
+ "summary": {
+  "artwork-all145/decoy": {
+   "n": 105,
+   "any_barcode": 38,
+   "ndc_barcode": 30,
+   "ndc_in_table": 0
+  },
+  "artwork-all145/positive": {
+   "n": 40,
+   "any_barcode": 13,
+   "ndc_barcode": 8,
+   "ndc_in_table": 8
+  },
+  "dev-photos/decoy/artwork": {
+   "n": 15,
+   "any_barcode": 4,
+   "ndc_barcode": 2,
+   "barcode_in_table": 0,
+   "ocr_ndc_shaped": 1,
+   "ocr_ndc_in_table": 0,
+   "either_in_table": 0
+  },
+  "dev-photos/decoy/hard": {
+   "n": 15,
+   "any_barcode": 4,
+   "ndc_barcode": 3,
+   "barcode_in_table": 0,
+   "ocr_ndc_shaped": 6,
+   "ocr_ndc_in_table": 0,
+   "either_in_table": 0
+  },
+  "dev-photos/decoy/moderate": {
+   "n": 15,
+   "any_barcode": 5,
+   "ndc_barcode": 3,
+   "barcode_in_table": 0,
+   "ocr_ndc_shaped": 4,
+   "ocr_ndc_in_table": 0,
+   "either_in_table": 0
+  },
+  "dev-photos/positive/artwork": {
+   "n": 21,
+   "any_barcode": 6,
+   "ndc_barcode": 4,
+   "barcode_in_table": 4,
+   "ocr_ndc_shaped": 5,
+   "ocr_ndc_in_table": 4,
+   "either_in_table": 5
+  },
+  "dev-photos/positive/hard": {
+   "n": 21,
+   "any_barcode": 1,
+   "ndc_barcode": 1,
+   "barcode_in_table": 1,
+   "ocr_ndc_shaped": 9,
+   "ocr_ndc_in_table": 9,
+   "either_in_table": 9
+  },
+  "dev-photos/positive/moderate": {
+   "n": 21,
+   "any_barcode": 5,
+   "ndc_barcode": 3,
+   "barcode_in_table": 3,
+   "ocr_ndc_shaped": 9,
+   "ocr_ndc_in_table": 8,
+   "either_in_table": 8
+  }
+ },
+ "images": [
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "9fdbaf5e__F109802QCH_R3_2024_0429.jpg",
+   "setid": "9fdbaf5e-f88b-4d18-97df-0b2e8dddf377",
+   "payloads": [
+    "F109802QCH_R3"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.14
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "0faa3b41__ibuprofen_01.jpg",
+   "setid": "0faa3b41-a241-4aae-9cc8-e075728ff916",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.06
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "3881afaf__loratadine_01.jpg",
+   "setid": "3881afaf-8d0d-4154-85a8-79a3c7806b49",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.08
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "346141b5__omeprazole_01.jpg",
+   "setid": "346141b5-b49d-489a-84eb-18df8b940460",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.16
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "446ca466__Famotidinepdp.jpg",
+   "setid": "446ca466-a43c-0401-e063-6394a90ac0d1",
+   "payloads": [
+    "0381033023502"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [
+    "81033002350"
+   ],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "2c395111__image_01.jpg",
+   "setid": "2c395111-c9c1-483e-a542-58b935ede689",
+   "payloads": [
+    "QA081730*71205-817-30*#30*00000*65862-0017-05*000000*MASTER",
+    "0371205817305",
+    "010037120581730521MASTER<GS>171000000"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [
+    "71205081730",
+    "71205081730"
+   ],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "d8bd1779__image_01.jpg",
+   "setid": "d8bd1779-d1c4-4dde-816d-ea72b37bb5cd",
+   "payloads": [
+    "ZM030978*82804-309-78*#180*00000*67877-0930-10*000000*MASTER",
+    "0382804309788",
+    "010038280430978821MASTER<GS>171000000"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [
+    "82804030978",
+    "82804030978"
+   ],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "a519e355__Remedy_Label.jpg",
+   "setid": "a519e355-84f0-40d1-b586-e6e8eadb5b0f",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "1a2124e6__image_01.jpg",
+   "setid": "1a2124e6-aea2-40dd-bb8d-52c58405a67e",
+   "payloads": [
+    "ZL032930*82804-329-30*#30*00000*68180-0967-09*000000*MASTER",
+    "0382804329304",
+    "010038280432930421MASTER<GS>171000000"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [
+    "82804032930",
+    "82804032930"
+   ],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "1810ff8e__albuterol_fig4.jpg",
+   "setid": "1810ff8e-d505-bf9c-e063-6394a90a6540",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.17
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "1810ff8e__albuterol_fig5.jpg",
+   "setid": "1810ff8e-d505-bf9c-e063-6394a90a6540",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.64
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "c3099892__good_neighbor_pharmacy_44_227_1.jpg",
+   "setid": "c3099892-a8cd-4574-a6f9-041e59e2feae",
+   "payloads": [
+    "0346122596022"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [
+    "46122059602"
+   ],
+   "seconds": 0.25
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "caa22bcb__image_01.jpg",
+   "setid": "caa22bcb-6617-4724-8dcb-e63bfeef41a9",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.08
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "caa22bcb__image_02.jpg",
+   "setid": "caa22bcb-6617-4724-8dcb-e63bfeef41a9",
+   "payloads": [
+    "4H288 D3 S5"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.06
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "6286ea54__Losartan_Potassium_50mg_70518_2786_00.jpg",
+   "setid": "6286ea54-2350-49fc-8f37-4b979bd7f986",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "6286ea54__Losartan_Potassium_50mg_70518_2786_01.jpg",
+   "setid": "6286ea54-2350-49fc-8f37-4b979bd7f986",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "b17cd16b__42708_031_30_Label.jpg",
+   "setid": "b17cd16b-8d0a-4cfa-bd48-2529983fcd12",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.14
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "b17cd16b__42708_032_30_Label.jpg",
+   "setid": "b17cd16b-8d0a-4cfa-bd48-2529983fcd12",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.14
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "687ebdc4__Sertraline_HCl_50mg_70518_0094_00.jpg",
+   "setid": "687ebdc4-6946-454e-8d46-3207488ccf32",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "687ebdc4__Sertraline_HCl_50mg_70518_0094_01.jpg",
+   "setid": "687ebdc4-6946-454e-8d46-3207488ccf32",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "318fdf0d__42708_045_21_Label.jpg",
+   "setid": "318fdf0d-c03a-4b48-a380-b7bb630363fb",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.09
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "3f1535d9__Remedy_Label.jpg",
+   "setid": "3f1535d9-6c3b-4355-a2ef-eb6ee33054a5",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "de803217__image_01.jpg",
+   "setid": "de803217-6d32-4ef8-afe7-02462f37bf0c",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "de803217__image_02.jpg",
+   "setid": "de803217-6d32-4ef8-afe7-02462f37bf0c",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "d889c656__14b2acb6_ce0c_4f70_9d0a_b6726c945ac2_07.jpg",
+   "setid": "d889c656-f024-4e18-b83c-68a7707945d8",
+   "payloads": [
+    "**111726*",
+    "738"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.12
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "a569ba80__doxycycline_hyclate_caps_and_tabs_a062031_a062421_2.jpg",
+   "setid": "a569ba80-ffea-40b2-9fbe-a42810b1fccb",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "15e4c3a3__Label1.jpg",
+   "setid": "15e4c3a3-7d64-471e-bfdf-6156731e24aa",
+   "payloads": [
+    "019999999999999921999999999999\\&179999991099999"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "307aa67f__42708_043_20_Label.jpg",
+   "setid": "307aa67f-53b9-4c60-a328-091bbf6338d4",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.19
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "b4831735__42708_025_30.jpg",
+   "setid": "b4831735-6731-473a-b4f0-1f4a67aa7120",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.16
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "a6b5edf2__Cephalexin_250mg_70518_2273_00.jpg",
+   "setid": "a6b5edf2-1ef8-46b7-977a-8c303900f3f0",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "a6b5edf2__Cephalexin_250mg_70518_2273_01.jpg",
+   "setid": "a6b5edf2-1ef8-46b7-977a-8c303900f3f0",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "4cd07a3c__5860dc47_c4da_20b6_32da_6aa74c3fa1dc_00.jpg",
+   "setid": "4cd07a3c-9673-4aa0-b76a-d79df2399ee1",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "3cde88e6__a7e7d657_a748_4234_8dd6_c0e4d0f81a86_00.jpg",
+   "setid": "3cde88e6-28f2-4cbe-8c3f-770b05cc0e1b",
+   "payloads": [
+    "0055154422550"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "176b400b__4212a038_806d_4d8a_a4b5_964c67358ef8_01.jpg",
+   "setid": "176b400b-2b4e-481d-b6c4-0f99e4c711c3",
+   "payloads": [
+    "0372578043162"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [
+    "72578004316"
+   ],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "176b400b__4212a038_806d_4d8a_a4b5_964c67358ef8_02.jpg",
+   "setid": "176b400b-2b4e-481d-b6c4-0f99e4c711c3",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.08
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "682dd8b8__allopurinol_100mg_label.jpg",
+   "setid": "682dd8b8-fc6e-47c5-95b7-82d7ad96b750",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "682dd8b8__allopurinol_300mg_label.jpg",
+   "setid": "682dd8b8-fc6e-47c5-95b7-82d7ad96b750",
+   "payloads": [
+    "0316729135160"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [
+    "16729013516"
+   ],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "c9ec1996__43063762.jpg",
+   "setid": "c9ec1996-6a54-4622-b8a6-57dea49f6b35",
+   "payloads": [
+    "0343063762301",
+    "(01)00343063762301(21)A21F04000001(17)230131(10)A21F04"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [
+    "43063076230",
+    "43063076230"
+   ],
+   "seconds": 0.09
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "02797697__5ed36e7e_f172_4db1_9bd8_a409ab34907c_144_1.jpg",
+   "setid": "02797697-300a-43db-92cf-9b78f08626be",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "02797697__5ed36e7e_f172_4db1_9bd8_a409ab34907c_144_2.jpg",
+   "setid": "02797697-300a-43db-92cf-9b78f08626be",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "2ad0606c__42708_041_60.jpg",
+   "setid": "2ad0606c-7a90-44bd-a75d-d256de30fbcf",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.14
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "fbb587fa__69292_601_01.jpg",
+   "setid": "fbb587fa-75c0-4f4d-8eaf-f0e7ba8b5c75",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "fbb587fa__69292_602_01.jpg",
+   "setid": "fbb587fa-75c0-4f4d-8eaf-f0e7ba8b5c75",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "5bacc909__42708_027_30.jpg",
+   "setid": "5bacc909-6b02-4815-85ef-55fd25b1b1f7",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.12
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "602d3866__72189_668_90.jpg",
+   "setid": "602d3866-7ff4-71aa-e063-6294a90a9521",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "f6b6aeab__43063947.jpg",
+   "setid": "f6b6aeab-bedd-4254-8811-4f65cf8a351f",
+   "payloads": [
+    "0343063947906",
+    "(01)00343063947906(21)I23D85000003(17)260228(10)I23D85"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.06
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "41a133ef__71610_0662_18.jpg",
+   "setid": "41a133ef-e461-48ad-8221-b735bdd0ec25",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.0
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "c85d6d02__lbl713353197.jpg",
+   "setid": "c85d6d02-6cf6-4995-a590-cfca302ea0c9",
+   "payloads": [
+    "0100363629103317211444981724013110LOT42832",
+    "7133531971",
+    "https://dailymed.nlm.nih.gov/dailymed/search.cfm?query=71335-3197-1"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "20ec4646__42708_007_30.jpg",
+   "setid": "20ec4646-9d1c-41c9-93f6-754b3a4f234f",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.14
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "ac903bda__Duloxetine_60mg_70518_2630_00.jpg",
+   "setid": "ac903bda-76af-4aba-9c8a-ebf7066e05ee",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "ac903bda__Duloxetine_60mg_70518_2630_01.jpg",
+   "setid": "ac903bda-76af-4aba-9c8a-ebf7066e05ee",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "0930965b__43063833.jpg",
+   "setid": "0930965b-80e3-4a0c-bffc-14ac32a47894",
+   "payloads": [
+    "0343063833605",
+    "(01)00343063833605(21)K23C61000003(17)250228(10)K23C61"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.11
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "a9fc7091__BusPIRone_HCl_10mg_70518_2031_00.jpg",
+   "setid": "a9fc7091-b3ce-45fd-8d89-aeebdd81c327",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "a9fc7091__BusPIRone_HCl_10mg_70518_2031_01.jpg",
+   "setid": "a9fc7091-b3ce-45fd-8d89-aeebdd81c327",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "5fecf4b2__68001_160_00_VENLAFAXINE_75MG_67046_2065_30.jpg",
+   "setid": "5fecf4b2-67fe-a7e9-e063-6394a90a793e",
+   "payloads": [
+    "(01)00367046206538(21)1234567890000(17)05/09/(20)27(10)123456789"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.06
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "9f0e33bd__Remedy_Label.jpg",
+   "setid": "9f0e33bd-65f8-446a-886f-e7e16a142ce5",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "9f0e33bd__traMADol_HCl_50mg_70518_4713_01.jpg",
+   "setid": "9f0e33bd-65f8-446a-886f-e7e16a142ce5",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "8f41912e__hydrOXYzine_HCl_25mg_70518_4141_00.jpg",
+   "setid": "8f41912e-12ce-4174-a0fb-cfb4888d8d58",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "8f41912e__hydrOXYzine_HCl_25mg_70518_4141_01.jpg",
+   "setid": "8f41912e-12ce-4174-a0fb-cfb4888d8d58",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "2fa30bdb__42708_044_05_Label.jpg",
+   "setid": "2fa30bdb-f60e-40a7-98b4-c346bc85d539",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.09
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "34e57aff__Remedy_Label.jpg",
+   "setid": "34e57aff-dc4b-4631-9d57-31020244835d",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "34e57aff__Cyclobenzaprine_HCl_10mg_70518_4692_01.jpg",
+   "setid": "34e57aff-dc4b-4631-9d57-31020244835d",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "ae0dcb4e__spironolactone_fig3.jpg",
+   "setid": "ae0dcb4e-63df-459c-8e60-0caa817b8135",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "ae0dcb4e__spironolactone_fig4.jpg",
+   "setid": "ae0dcb4e-63df-459c-8e60-0caa817b8135",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "c4da6de7__image_17.jpg",
+   "setid": "c4da6de7-9ab1-4fcf-88f3-fe785019e6e7",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.01
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "c4da6de7__image_18.jpg",
+   "setid": "c4da6de7-9ab1-4fcf-88f3-fe785019e6e7",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "c829b7bf__55289806.jpg",
+   "setid": "c829b7bf-1a12-44b2-b5ce-fd44a1f0d333",
+   "payloads": [
+    "(01)00355289806905(21)K19A59000001(17)210331(10)K19A59"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.09
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "625fad5b__spl_zolpidem_label_2.jpg",
+   "setid": "625fad5b-8817-4773-a2fc-20b662140e6e",
+   "payloads": [
+    "**100825*",
+    "1256"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.11
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "70cd448a__lamo_25mg_100tablets_21.jpg",
+   "setid": "70cd448a-2921-4c69-bdf2-5a6ce883bd07",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "70cd448a__lamo_100mg_100tablets_21.jpg",
+   "setid": "70cd448a-2921-4c69-bdf2-5a6ce883bd07",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "0a967468__42708_019_30.jpg",
+   "setid": "0a967468-3869-4c8c-849f-9fc3a8dcc489",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.11
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "1760ccdc__pregabalin_caps_100mg_30s_count.jpg",
+   "setid": "1760ccdc-46f7-4182-a563-96b13212cb7e",
+   "payloads": [
+    "**091025*",
+    "1344"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.19
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "6cb41b00__image_3.jpg",
+   "setid": "6cb41b00-0589-42d0-9e3e-230385768875",
+   "payloads": [
+    "**111726*",
+    "683"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.06
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "fa152ce7__Pravastatin_Sodium_40mg_70518_4339_00.jpg",
+   "setid": "fa152ce7-6c07-4aaf-9374-932ce81d0cf9",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "fa152ce7__Pravastatin_Sodium_40mg_70518_4339_01.jpg",
+   "setid": "fa152ce7-6c07-4aaf-9374-932ce81d0cf9",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "7ea2fdf1__40_mg_ValsartanTablets_Carton.jpg",
+   "setid": "7ea2fdf1-4fda-47a7-8110-62fb6468c989",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "7ea2fdf1__40_mg_Blister.jpg",
+   "setid": "7ea2fdf1-4fda-47a7-8110-62fb6468c989",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "174e45e0__zetia_02.jpg",
+   "setid": "174e45e0-45bb-48b7-9e60-8f6cfc1d22bb",
+   "payloads": [
+    "60007723",
+    "0378206178015"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "5dbffab4__Screenshot_2026_10_13_170323.jpg",
+   "setid": "5dbffab4-d287-f0e3-e063-6394a90a311d",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "5dbffab4__Diclo.jpg",
+   "setid": "5dbffab4-d287-f0e3-e063-6394a90a311d",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "601b8b7e__PROPRANOLOL_20MG_60CT_60760_945_60.jpg",
+   "setid": "601b8b7e-763f-2466-e063-6294a90aa688",
+   "payloads": [
+    "(01)00360760945608(21)000000000(17)??????(10)???????"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "70d7a585__42708_012_30.jpg",
+   "setid": "70d7a585-7a46-4eac-b2b5-2ac5b98d9882",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "b99f7199__Celecoxib_100mg_70518_2922_00.jpg",
+   "setid": "b99f7199-e407-442d-849f-6a1c4837e12f",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "b99f7199__Celecoxib_100mg_70518_2922_01.jpg",
+   "setid": "b99f7199-e407-442d-849f-6a1c4837e12f",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "e482a50d__Finasteride_5mg_70518_3616_00.jpg",
+   "setid": "e482a50d-db15-4407-85c9-160c88e8a657",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "e482a50d__Finasteride_5mg_70518_3616_01.jpg",
+   "setid": "e482a50d-db15-4407-85c9-160c88e8a657",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "6562eb60__quetiapine_fig4.jpg",
+   "setid": "6562eb60-0d70-4909-bd07-88d5c9241516",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.06
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "6562eb60__quetiapine_fig5.jpg",
+   "setid": "6562eb60-0d70-4909-bd07-88d5c9241516",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "84ef7b29__Clonidine_HCl_0.1mg_70518_0898_00.jpg",
+   "setid": "84ef7b29-dd48-43d3-bda8-d6337bc22891",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.06
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "84ef7b29__Clonidine_HCl_0.1mg_70518_0898_01.jpg",
+   "setid": "84ef7b29-dd48-43d3-bda8-d6337bc22891",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "b6752b08__Remedy_Label.jpg",
+   "setid": "b6752b08-4c93-4e5f-895d-40f189bd356d",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "69f9c6f8__35_mg_4_ct.jpg",
+   "setid": "69f9c6f8-a8df-4ddf-8fb1-2768eb099ada",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.12
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "69f9c6f8__35_mg_12_ct.jpg",
+   "setid": "69f9c6f8-a8df-4ddf-8fb1-2768eb099ada",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.06
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "3f99b26b__Topiramate_50mg_70518_4340_00.jpg",
+   "setid": "3f99b26b-79b9-4efb-aa2c-2868e1e126c8",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "3f99b26b__Topiramate_50mg_70518_4340_01.jpg",
+   "setid": "3f99b26b-79b9-4efb-aa2c-2868e1e126c8",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "25db7cc0__71610_0864_16.jpg",
+   "setid": "25db7cc0-604c-3d6b-e063-6394a90a337f",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.0
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "204592ba__lbl636292239.jpg",
+   "setid": "204592ba-a68f-452a-9987-1b33b7b6c4d5",
+   "payloads": [
+    "0100363629103317211444981724013110LOT42832",
+    "6362922391",
+    "https://dailymed.nlm.nih.gov/dailymed/search.cfm?query=63629-2239-1"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.06
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "29ec1221__a83b8840_dd78_46f1_b952_893c30bf5bf9_01.jpg",
+   "setid": "29ec1221-04d8-4b21-822e-2779fcaae62c",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "29ec1221__a83b8840_dd78_46f1_b952_893c30bf5bf9_00.jpg",
+   "setid": "29ec1221-04d8-4b21-822e-2779fcaae62c",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "e98f6d83__btl_lbl_60s.jpg",
+   "setid": "e98f6d83-5172-97a1-ee41-5d7d1d8ba2fd",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "e98f6d83__btl_lbl_500s.jpg",
+   "setid": "e98f6d83-5172-97a1-ee41-5d7d1d8ba2fd",
+   "payloads": [
+    "0360505625659"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "3f4e5db8__4a13e20b_6a21_4d45_a159_a2add4ce215e_00.jpg",
+   "setid": "3f4e5db8-5bfb-4b24-8465-9757cbaad2be",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "ab6c4a4b__51655_356_25_Rev_A_05_20_NHC.jpg",
+   "setid": "ab6c4a4b-97b3-3631-e053-2a95a90a614a",
+   "payloads": [
+    "(01)00351655356258(21)000000000000000(17)000000(10)0000000000",
+    "0000000000"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "73b8e5ab__Warfarin_Sodium_1mg_70518_4637_00.jpg",
+   "setid": "73b8e5ab-86f8-44f8-b290-346acb81c9ae",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "73b8e5ab__Remedy_Label.jpg",
+   "setid": "73b8e5ab-86f8-44f8-b290-346acb81c9ae",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "495f22cc__Valacyclovir_500mg_70518_1302_00.jpg",
+   "setid": "495f22cc-18d4-4264-9313-7ab20e7b5bc9",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.06
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "495f22cc__Valacyclovir_500mg_70518_1302_01.jpg",
+   "setid": "495f22cc-18d4-4264-9313-7ab20e7b5bc9",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "5e55526f__label.jpg",
+   "setid": "5e55526f-bb34-4b67-85ea-b2765e8066bb",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "850566b1__diltiazem_120_mg_30.jpg",
+   "setid": "850566b1-0c8e-42bc-85fa-c8ee710f34ba",
+   "payloads": [
+    "0333342521071"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "850566b1__diltiazem_120_mg_90.jpg",
+   "setid": "850566b1-0c8e-42bc-85fa-c8ee710f34ba",
+   "payloads": [
+    "0333342521101"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.06
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "95755a7b__55289757.jpg",
+   "setid": "95755a7b-4a9f-45ea-a381-d3f661150efe",
+   "payloads": [
+    "0355289757306",
+    "(01)00355289757306(21)F23B28000001(17)240731(10)F23B28"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.06
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "1bf70380__51407_011_09.jpg",
+   "setid": "1bf70380-8272-4c0d-8841-d39ef2772351",
+   "payloads": [
+    "GTIN:LOT:EXP:SN:"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "1bf70380__51407_012_09.jpg",
+   "setid": "1bf70380-8272-4c0d-8841-d39ef2772351",
+   "payloads": [
+    "GTIN:LOT:EXP:SN:"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.06
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "b1a6714a__20mgcontainerlabelofeso.jpg",
+   "setid": "b1a6714a-cdeb-4502-b44b-a4f08cc1cde1",
+   "payloads": [
+    "**111726*",
+    "1431"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.09
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "58e9b4c6__mirtazapine_fig2.jpg",
+   "setid": "58e9b4c6-531f-49c4-a640-6953e70892fe",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "58e9b4c6__mirtazapine_fig1.jpg",
+   "setid": "58e9b4c6-531f-49c4-a640-6953e70892fe",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "5feca839__68001_404_03_LEVETIRACETAM_750MG_67046_882_30.jpg",
+   "setid": "5feca839-8554-739b-e063-6394a90a4e65",
+   "payloads": [
+    "(01)00367046882305(21)1234567890000(17)05/09/(20)27(10)123456789"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.09
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "415bd983__Tadalafil_5mg_70518_3434_00.jpg",
+   "setid": "415bd983-86f3-4f38-917a-9805024f31cb",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "415bd983__Tadalafil_5mg_70518_3434_01.jpg",
+   "setid": "415bd983-86f3-4f38-917a-9805024f31cb",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "86c1bdae__55289798.jpg",
+   "setid": "86c1bdae-c749-4ec3-90f6-7ebe8e76c461",
+   "payloads": [
+    "0355289798309",
+    "(01)00355289798309(21)SAMPLE000001(17)500131(10)SAMPLE"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.22
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "0c7f9bd0__hydralazine_hydrochloride_10_mg_bottle_label.jpg",
+   "setid": "0c7f9bd0-6c0a-4521-b77a-3582faa96874",
+   "payloads": [
+    "0362135579128"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.06
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "0c7f9bd0__hydralazine_hydrochloride_25_mg_bottle_label.jpg",
+   "setid": "0c7f9bd0-6c0a-4521-b77a-3582faa96874",
+   "payloads": [
+    "0362135580124"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "2794f86b__43063946.jpg",
+   "setid": "2794f86b-d521-414b-8154-5dd1e2519653",
+   "payloads": [
+    "(01)10343063946930(21)B19B590001(17)200630(10)B19B59",
+    "0343063946930"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.22
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "8d252dab__piomet_fig1.jpg",
+   "setid": "8d252dab-e868-42d3-95ea-69423d909e84",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.06
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "8d252dab__piomet_fig2.jpg",
+   "setid": "8d252dab-e868-42d3-95ea-69423d909e84",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "5ca218af__53401_0040_53.jpg",
+   "setid": "5ca218af-b3f4-512a-e063-6394a90a3ec6",
+   "payloads": [
+    "5340104053"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "ce4afef1__50_mg_Nitrofurantoin_Capsules_50_UD.jpg",
+   "setid": "ce4afef1-22c1-4a1c-a102-a32fb6a2e045",
+   "payloads": [
+    "dailymed.nlm.nih.gov/dailymed/search.cfm?labeltype=all&query=6068783965"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "ce4afef1__50_mg_Nitrofurantoin_Capsules_100UD.jpg",
+   "setid": "ce4afef1-22c1-4a1c-a102-a32fb6a2e045",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "b52bdaf7__clindamycin_05.jpg",
+   "setid": "b52bdaf7-3b54-4165-9ab0-9dfa08170e47",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.11
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "b52bdaf7__clindamycin_06.jpg",
+   "setid": "b52bdaf7-3b54-4165-9ab0-9dfa08170e47",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.12
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "5723eaf9__72789124.jpg",
+   "setid": "5723eaf9-8659-4730-b792-4e4c33690ccb",
+   "payloads": [
+    "(01)00372789124018(21)H20C840001(17)220831(10)H20C84",
+    "0312129124018"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.06
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "5723eaf9__72789125.jpg",
+   "setid": "5723eaf9-8659-4730-b792-4e4c33690ccb",
+   "payloads": [
+    "(01)00372789125503(21)H20C840001(17)220831(10)H20C84",
+    "0372789125503"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.11
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "2f7d84d4__Metronidazole_500mg_70518_2305_00.jpg",
+   "setid": "2f7d84d4-1085-4243-be88-442eecb85205",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.06
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "2f7d84d4__Metronidazole_500mg_70518_2305_01.jpg",
+   "setid": "2f7d84d4-1085-4243-be88-442eecb85205",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "126406ae__FLUCONAZOLE_150MG_1CT_60760_950_01.jpg",
+   "setid": "126406ae-1fdc-df20-e063-6294a90a2718",
+   "payloads": [
+    "(01)00360760950015(21)000000000(17)??????(10)???????"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.06
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "5fa4920c__68071_5347_9.jpg",
+   "setid": "5fa4920c-ec29-b879-e063-6294a90adcad",
+   "payloads": [
+    "0100368071534795210000000002<GS>170000010000000<GS>"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "603c07bb__label_5mg.jpg",
+   "setid": "603c07bb-61bf-410f-8abf-01ef09d61c14",
+   "payloads": [
+    "(01)00387063305304(17)260908(10)00000000(21)264357"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.09
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "603c07bb__label_10mg.jpg",
+   "setid": "603c07bb-61bf-410f-8abf-01ef09d61c14",
+   "payloads": [
+    "(01)00387063304307(17)260908(10)00000000(21)264359"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.14
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "0f692652__Remedy_Label.jpg",
+   "setid": "0f692652-4451-4eef-901d-1e6aadc43847",
+   "payloads": [],
+   "any_barcode": false,
+   "ndc_barcode": false,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "cf79ac74__43063804.jpg",
+   "setid": "cf79ac74-017e-4fb4-85d3-4ea944080e89",
+   "payloads": [
+    "0343063804124",
+    "(01)00343063804124(21)K19E010002(17)210430(10)K19E01"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.14
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "1a7b373a__43063677.jpg",
+   "setid": "1a7b373a-9b74-4b9d-93fb-081614222e30",
+   "payloads": [
+    "(01)00343063677308(21)G23D59000001(17)251231(10)G23D59"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "8cd22728__acyclovir_capsules_200mg_50s_bottle_label.jpg",
+   "setid": "8cd22728-34b4-4e55-8339-580138fe46d8",
+   "payloads": [
+    "0362135039509"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.03
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "8cd22728__acyclovir_tablets_800mg_50s_bottle_label.jpg",
+   "setid": "8cd22728-34b4-4e55-8339-580138fe46d8",
+   "payloads": [
+    "0362135019501"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.02
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "9391b8d8__bottle.jpg",
+   "setid": "9391b8d8-2217-4838-8976-1a5ad90ef4ca",
+   "payloads": [
+    "0369452237465"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.05
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "9391b8d8__carton.jpg",
+   "setid": "9391b8d8-2217-4838-8976-1a5ad90ef4ca",
+   "payloads": [
+    "(01)00369452237465(21)XXXXXXXXXXXX(17)YYMMDD(10)XXXXXXXX"
+   ],
+   "any_barcode": true,
+   "ndc_barcode": true,
+   "in_table": [],
+   "seconds": 0.08
+  }
+ ],
+ "dev_photos": [
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "a519e355__Remedy_Label__artwork",
+   "expected": "Atorvastatin Calcium",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "moderate",
+   "role": "positive",
+   "id": "a519e355__Remedy_Label__moderate",
+   "expected": "Atorvastatin Calcium",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "positive",
+   "id": "a519e355__Remedy_Label__hard",
+   "expected": "Atorvastatin Calcium",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "4cd07a3c__5860dc47_c4da_20b6_32da_6aa74c3fa1dc_00__artwork",
+   "expected": "Clopidogrel",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": false
+  },
+  {
+   "condition": "moderate",
+   "role": "positive",
+   "id": "4cd07a3c__5860dc47_c4da_20b6_32da_6aa74c3fa1dc_00__moderate",
+   "expected": "Clopidogrel",
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [
+    "00904646707"
+   ],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "positive",
+   "id": "4cd07a3c__5860dc47_c4da_20b6_32da_6aa74c3fa1dc_00__hard",
+   "expected": "Clopidogrel",
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [
+    "00904646707"
+   ],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "3881afaf__loratadine_01__artwork",
+   "expected": "Loratadine",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": false
+  },
+  {
+   "condition": "moderate",
+   "role": "positive",
+   "id": "3881afaf__loratadine_01__moderate",
+   "expected": "Loratadine",
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": false
+  },
+  {
+   "condition": "hard",
+   "role": "positive",
+   "id": "3881afaf__loratadine_01__hard",
+   "expected": "Loratadine",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "caa22bcb__image_01__artwork",
+   "expected": "Berkley and Jensen Allergy Relief",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "moderate",
+   "role": "positive",
+   "id": "caa22bcb__image_01__moderate",
+   "expected": "Berkley and Jensen Allergy Relief",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "positive",
+   "id": "caa22bcb__image_01__hard",
+   "expected": "Berkley and Jensen Allergy Relief",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "caa22bcb__image_02__artwork",
+   "expected": "Berkley and Jensen Allergy Relief",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": true,
+   "barcode_in_table": [],
+   "ocr_complete": false
+  },
+  {
+   "condition": "moderate",
+   "role": "positive",
+   "id": "caa22bcb__image_02__moderate",
+   "expected": "Berkley and Jensen Allergy Relief",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": true,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "positive",
+   "id": "caa22bcb__image_02__hard",
+   "expected": "Berkley and Jensen Allergy Relief",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "b17cd16b__42708_031_30_Label__artwork",
+   "expected": "Lisinopril",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "moderate",
+   "role": "positive",
+   "id": "b17cd16b__42708_031_30_Label__moderate",
+   "expected": "Lisinopril",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "positive",
+   "id": "b17cd16b__42708_031_30_Label__hard",
+   "expected": "Lisinopril",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "b17cd16b__42708_032_30_Label__artwork",
+   "expected": "Lisinopril",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "moderate",
+   "role": "positive",
+   "id": "b17cd16b__42708_032_30_Label__moderate",
+   "expected": "Lisinopril",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "positive",
+   "id": "b17cd16b__42708_032_30_Label__hard",
+   "expected": "Lisinopril",
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [
+    "42708003230"
+   ],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "2c395111__image_01__artwork",
+   "expected": "Amoxicillin",
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [
+    "71205081730"
+   ],
+   "ndc_barcode": true,
+   "any_barcode": true,
+   "barcode_in_table": [
+    "71205081730",
+    "71205081730"
+   ],
+   "ocr_complete": true
+  },
+  {
+   "condition": "moderate",
+   "role": "positive",
+   "id": "2c395111__image_01__moderate",
+   "expected": "Amoxicillin",
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [
+    "71205081730"
+   ],
+   "ndc_barcode": true,
+   "any_barcode": true,
+   "barcode_in_table": [
+    "71205081730"
+   ],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "positive",
+   "id": "2c395111__image_01__hard",
+   "expected": "Amoxicillin",
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [
+    "71205081730"
+   ],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "1a2124e6__image_01__artwork",
+   "expected": "Levothyroxine Sodium",
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [
+    "82804032930"
+   ],
+   "ndc_barcode": true,
+   "any_barcode": true,
+   "barcode_in_table": [
+    "82804032930",
+    "82804032930"
+   ],
+   "ocr_complete": true
+  },
+  {
+   "condition": "moderate",
+   "role": "positive",
+   "id": "1a2124e6__image_01__moderate",
+   "expected": "Levothyroxine Sodium",
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [
+    "82804032930"
+   ],
+   "ndc_barcode": true,
+   "any_barcode": true,
+   "barcode_in_table": [
+    "82804032930"
+   ],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "positive",
+   "id": "1a2124e6__image_01__hard",
+   "expected": "Levothyroxine Sodium",
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [
+    "82804032930"
+   ],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "3f1535d9__Remedy_Label__artwork",
+   "expected": "Gabapentin",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "moderate",
+   "role": "positive",
+   "id": "3f1535d9__Remedy_Label__moderate",
+   "expected": "Gabapentin",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "positive",
+   "id": "3f1535d9__Remedy_Label__hard",
+   "expected": "Gabapentin",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "3cde88e6__a7e7d657_a748_4234_8dd6_c0e4d0f81a86_00__artwork",
+   "expected": "Protonix I.V.",
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [
+    "55154422505"
+   ],
+   "ndc_barcode": false,
+   "any_barcode": true,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "moderate",
+   "role": "positive",
+   "id": "3cde88e6__a7e7d657_a748_4234_8dd6_c0e4d0f81a86_00__moderate",
+   "expected": "Protonix I.V.",
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [
+    "55154422505"
+   ],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "positive",
+   "id": "3cde88e6__a7e7d657_a748_4234_8dd6_c0e4d0f81a86_00__hard",
+   "expected": "Protonix I.V.",
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [
+    "55154422505"
+   ],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "6286ea54__Losartan_Potassium_50mg_70518_2786_00__artwork",
+   "expected": "Losartan Potassium",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "moderate",
+   "role": "positive",
+   "id": "6286ea54__Losartan_Potassium_50mg_70518_2786_00__moderate",
+   "expected": "Losartan Potassium",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "positive",
+   "id": "6286ea54__Losartan_Potassium_50mg_70518_2786_00__hard",
+   "expected": "Losartan Potassium",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "6286ea54__Losartan_Potassium_50mg_70518_2786_01__artwork",
+   "expected": "Losartan Potassium",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "moderate",
+   "role": "positive",
+   "id": "6286ea54__Losartan_Potassium_50mg_70518_2786_01__moderate",
+   "expected": "Losartan Potassium",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "positive",
+   "id": "6286ea54__Losartan_Potassium_50mg_70518_2786_01__hard",
+   "expected": "Losartan Potassium",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "346141b5__omeprazole_01__artwork",
+   "expected": "Omeprazole",
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "moderate",
+   "role": "positive",
+   "id": "346141b5__omeprazole_01__moderate",
+   "expected": "Omeprazole",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "positive",
+   "id": "346141b5__omeprazole_01__hard",
+   "expected": "Omeprazole",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "c9ec1996__43063762__artwork",
+   "expected": "Montelukast Sodium",
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [
+    "43063076230"
+   ],
+   "ndc_barcode": true,
+   "any_barcode": true,
+   "barcode_in_table": [
+    "43063076230",
+    "43063076230"
+   ],
+   "ocr_complete": true
+  },
+  {
+   "condition": "moderate",
+   "role": "positive",
+   "id": "c9ec1996__43063762__moderate",
+   "expected": "Montelukast Sodium",
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [
+    "43063076230"
+   ],
+   "ndc_barcode": true,
+   "any_barcode": true,
+   "barcode_in_table": [
+    "43063076230",
+    "43063076230"
+   ],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "positive",
+   "id": "c9ec1996__43063762__hard",
+   "expected": "Montelukast Sodium",
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [
+    "43063076230"
+   ],
+   "ndc_barcode": true,
+   "any_barcode": true,
+   "barcode_in_table": [
+    "43063076230"
+   ],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "de803217__image_01__artwork",
+   "expected": "Escitalopram",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": false
+  },
+  {
+   "condition": "moderate",
+   "role": "positive",
+   "id": "de803217__image_01__moderate",
+   "expected": "Escitalopram",
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [
+    "60687086501"
+   ],
+   "ndc_barcode": false,
+   "any_barcode": true,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "positive",
+   "id": "de803217__image_01__hard",
+   "expected": "Escitalopram",
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [
+    "60687086501"
+   ],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "de803217__image_02__artwork",
+   "expected": "Escitalopram",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": false
+  },
+  {
+   "condition": "moderate",
+   "role": "positive",
+   "id": "de803217__image_02__moderate",
+   "expected": "Escitalopram",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": false
+  },
+  {
+   "condition": "hard",
+   "role": "positive",
+   "id": "de803217__image_02__hard",
+   "expected": "Escitalopram",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": false
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "a6b5edf2__Cephalexin_250mg_70518_2273_00__artwork",
+   "expected": "Cephalexin",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "moderate",
+   "role": "positive",
+   "id": "a6b5edf2__Cephalexin_250mg_70518_2273_00__moderate",
+   "expected": "Cephalexin",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "positive",
+   "id": "a6b5edf2__Cephalexin_250mg_70518_2273_00__hard",
+   "expected": "Cephalexin",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "a6b5edf2__Cephalexin_250mg_70518_2273_01__artwork",
+   "expected": "Cephalexin",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "moderate",
+   "role": "positive",
+   "id": "a6b5edf2__Cephalexin_250mg_70518_2273_01__moderate",
+   "expected": "Cephalexin",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "positive",
+   "id": "a6b5edf2__Cephalexin_250mg_70518_2273_01__hard",
+   "expected": "Cephalexin",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "682dd8b8__allopurinol_100mg_label__artwork",
+   "expected": "Allopurinol",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": false
+  },
+  {
+   "condition": "moderate",
+   "role": "positive",
+   "id": "682dd8b8__allopurinol_100mg_label__moderate",
+   "expected": "Allopurinol",
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [
+    "16729013416"
+   ],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "positive",
+   "id": "682dd8b8__allopurinol_100mg_label__hard",
+   "expected": "Allopurinol",
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [
+    "16729013416"
+   ],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "positive",
+   "id": "682dd8b8__allopurinol_300mg_label__artwork",
+   "expected": "Allopurinol",
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": true,
+   "any_barcode": true,
+   "barcode_in_table": [
+    "16729013516"
+   ],
+   "ocr_complete": false
+  },
+  {
+   "condition": "moderate",
+   "role": "positive",
+   "id": "682dd8b8__allopurinol_300mg_label__moderate",
+   "expected": "Allopurinol",
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [
+    "16729013516"
+   ],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "positive",
+   "id": "682dd8b8__allopurinol_300mg_label__hard",
+   "expected": "Allopurinol",
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [
+    "16729013516"
+   ],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "5e55526f__label__artwork",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": false
+  },
+  {
+   "condition": "moderate",
+   "role": "decoy",
+   "id": "5e55526f__label__moderate",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": false
+  },
+  {
+   "condition": "hard",
+   "role": "decoy",
+   "id": "5e55526f__label__hard",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": false
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "b99f7199__Celecoxib_100mg_70518_2922_00__artwork",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": false
+  },
+  {
+   "condition": "moderate",
+   "role": "decoy",
+   "id": "b99f7199__Celecoxib_100mg_70518_2922_00__moderate",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "decoy",
+   "id": "b99f7199__Celecoxib_100mg_70518_2922_00__hard",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "c85d6d02__lbl713353197__artwork",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": true,
+   "any_barcode": true,
+   "barcode_in_table": [],
+   "ocr_complete": false
+  },
+  {
+   "condition": "moderate",
+   "role": "decoy",
+   "id": "c85d6d02__lbl713353197__moderate",
+   "expected": null,
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": true,
+   "any_barcode": true,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "decoy",
+   "id": "c85d6d02__lbl713353197__hard",
+   "expected": null,
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": true,
+   "any_barcode": true,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "204592ba__lbl636292239__artwork",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": true,
+   "any_barcode": true,
+   "barcode_in_table": [],
+   "ocr_complete": false
+  },
+  {
+   "condition": "moderate",
+   "role": "decoy",
+   "id": "204592ba__lbl636292239__moderate",
+   "expected": null,
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": true,
+   "any_barcode": true,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "decoy",
+   "id": "204592ba__lbl636292239__hard",
+   "expected": null,
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": true,
+   "any_barcode": true,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "602d3866__72189_668_90__artwork",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": false
+  },
+  {
+   "condition": "moderate",
+   "role": "decoy",
+   "id": "602d3866__72189_668_90__moderate",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": true,
+   "any_barcode": true,
+   "barcode_in_table": [],
+   "ocr_complete": false
+  },
+  {
+   "condition": "hard",
+   "role": "decoy",
+   "id": "602d3866__72189_668_90__hard",
+   "expected": null,
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": true,
+   "any_barcode": true,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "5ca218af__53401_0040_53__artwork",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": true,
+   "barcode_in_table": [],
+   "ocr_complete": false
+  },
+  {
+   "condition": "moderate",
+   "role": "decoy",
+   "id": "5ca218af__53401_0040_53__moderate",
+   "expected": null,
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": true,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "decoy",
+   "id": "5ca218af__53401_0040_53__hard",
+   "expected": null,
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": true,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "0a967468__42708_019_30__artwork",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "moderate",
+   "role": "decoy",
+   "id": "0a967468__42708_019_30__moderate",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "decoy",
+   "id": "0a967468__42708_019_30__hard",
+   "expected": null,
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "fa152ce7__Pravastatin_Sodium_40mg_70518_4339_00__artwork",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": false
+  },
+  {
+   "condition": "moderate",
+   "role": "decoy",
+   "id": "fa152ce7__Pravastatin_Sodium_40mg_70518_4339_00__moderate",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "decoy",
+   "id": "fa152ce7__Pravastatin_Sodium_40mg_70518_4339_00__hard",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "2f7d84d4__Metronidazole_500mg_70518_2305_00__artwork",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": false
+  },
+  {
+   "condition": "moderate",
+   "role": "decoy",
+   "id": "2f7d84d4__Metronidazole_500mg_70518_2305_00__moderate",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "decoy",
+   "id": "2f7d84d4__Metronidazole_500mg_70518_2305_00__hard",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "c4da6de7__image_17__artwork",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": false
+  },
+  {
+   "condition": "moderate",
+   "role": "decoy",
+   "id": "c4da6de7__image_17__moderate",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "decoy",
+   "id": "c4da6de7__image_17__hard",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "ce4afef1__50_mg_Nitrofurantoin_Capsules_50_UD__artwork",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": true,
+   "barcode_in_table": [],
+   "ocr_complete": false
+  },
+  {
+   "condition": "moderate",
+   "role": "decoy",
+   "id": "ce4afef1__50_mg_Nitrofurantoin_Capsules_50_UD__moderate",
+   "expected": null,
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": true,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "decoy",
+   "id": "ce4afef1__50_mg_Nitrofurantoin_Capsules_50_UD__hard",
+   "expected": null,
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "20ec4646__42708_007_30__artwork",
+   "expected": null,
+   "ocr_ndc_shaped": true,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "moderate",
+   "role": "decoy",
+   "id": "20ec4646__42708_007_30__moderate",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "decoy",
+   "id": "20ec4646__42708_007_30__hard",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "a9fc7091__BusPIRone_HCl_10mg_70518_2031_00__artwork",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "moderate",
+   "role": "decoy",
+   "id": "a9fc7091__BusPIRone_HCl_10mg_70518_2031_00__moderate",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "decoy",
+   "id": "a9fc7091__BusPIRone_HCl_10mg_70518_2031_00__hard",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "5bacc909__42708_027_30__artwork",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "moderate",
+   "role": "decoy",
+   "id": "5bacc909__42708_027_30__moderate",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "decoy",
+   "id": "5bacc909__42708_027_30__hard",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "artwork",
+   "role": "decoy",
+   "id": "9f0e33bd__Remedy_Label__artwork",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "moderate",
+   "role": "decoy",
+   "id": "9f0e33bd__Remedy_Label__moderate",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  },
+  {
+   "condition": "hard",
+   "role": "decoy",
+   "id": "9f0e33bd__Remedy_Label__hard",
+   "expected": null,
+   "ocr_ndc_shaped": false,
+   "ocr_ndc_in_table": [],
+   "ndc_barcode": false,
+   "any_barcode": false,
+   "barcode_in_table": [],
+   "ocr_complete": true
+  }
+ ]
+}
