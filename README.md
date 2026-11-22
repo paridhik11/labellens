@@ -111,7 +111,7 @@ Check that everything works, in a second terminal while the demo runs:
 ```
 
 It calls the real running API with the real extractor on a rendered golden package and on one synthetic photo and prints PASS,
-PASS (mock), FALLBACK or FAIL per stage. Developer checks: `python -m pytest -q -m "not slow"` and `ruff check src tests`.
+PASS (mock), FALLBACK or FAIL per stage. Developer checks: `python -m pytest -q -m "not slow"` (994 passed, 9 skipped at the last merge) and `ruff check src tests`. The UI check script covers 67 states in mock and api mode.
 Always run Python as `python -m ...` or `python scripts/...` from the repo root.
 
 ### Demo script
@@ -128,13 +128,13 @@ Everything below is also one `demo_e2e.py` run.
 5. **Generate and re-check.** Fill the template. The draft carries `DRAFT, not for production` and test data is marked. Re-check reads the rendered PDF back as an image.
 6. **Approve and publish.** As the reviewer approve exactly that version (hash and passed check), then publish. The QR on the label opens `/versions/<version_id>`.
 7. **Export.** Download the PDF at physical size, the SVG template and the report (hash verified).
-8. **Public mode.** Open `/public/medicine`, type `Childrens Ibuprofen`, read the reference fields and sections, ask `what are the warnings`. Try `Zzyzx Gummies` for the no-match case. Try the AI answer (`/public/ask?mode=ai`).
+8. **Public mode.** Open `/public/medicine`, type `Childrens Ibuprofen`, read the reference fields and sections, ask `what are the warnings`. Try `Zzyzx Gummies` for the no-match case. A name outside the 30 curated products (exact spelling) can be looked up live on DailyMed: you pick the label, it is marked as not curated, and large labels can take minutes. The photo scan (camera or upload) reads the NDC or the text, then asks "Is this X?" with Confirm, Not this one or Type the name; nothing is shown until you confirm. Try the AI answer (`/public/ask?mode=ai`).
 
 ### Known limits
 
-- **Real photos are the weakest part.** Computer vision is tuned and scored mostly on synthetic labels of one template family. On real package photos the printed product name is not read reliably and symbols are not detected reliably. The public "scan a photo" entry works but is conservative: it never auto-confirms, can take up to a minute, and often asks you to confirm or type the name. Every doubtful read goes to a person (needs_human). Numbers: reports/cv3.md, reports/cv4b.md, reports/public_scan.md.
-- **Evidence is small and LLM-graded.** Relevance and faithfulness grades come from one LLM (checked on a 308-row human sample), test sets are 13 to 40 queries, and abstention does not reach its target, so the product refuses instead of guessing. Intervals are in every report in results/.
-- **Scope is intentionally narrow.** US regulation corpus only, one label template family, every export is marked DRAFT (not for production), the medicine mode covers a fixed set of 30 DailyMed products (a typed name outside them can be fetched live from DailyMed, labelled as not curated, `reports/live_dailymed.md`), and publishing is local to the demo server.
+- **Real photos are the weakest part.** Computer vision is tuned mostly on synthetic labels of one template family; on real package photos the printed product name and symbols are not read reliably. The public photo scan works mainly through the NDC printed on the package, never auto-confirms, can take up to a minute, and sends every doubtful read to a person. Numbers: `reports/cv3.md`, `reports/ndc_scan.md`.
+- **Evidence is small and LLM-graded.** Relevance and faithfulness grades come from one LLM (checked on a 308-row human sample), test sets are 13 to 40 queries, and abstention does not reach its target, so the product refuses instead of guessing. Intervals are in every report in `results/`.
+- **Scope is intentionally narrow.** US regulation corpus only, one label template family, every export marked DRAFT, medicine mode covers 30 curated products plus an uncurated live DailyMed lookup, publishing is local to the demo server.
 
 Full list: docs/KNOWN_LIMITS.md.
 

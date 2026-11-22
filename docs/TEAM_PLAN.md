@@ -24,7 +24,7 @@ Locked files (change only if Pari agrees): `src/common/schemas.py`, `src/ir/base
 
 ## Contracts (Step 19, in `docs/contracts/`)
 
-1. The UI and the backend meet at `docs/contracts/openapi.yaml` (36 operations; scan, generate and print verify return 202 Job envelopes). `docs/contracts/API.md` explains it, `SCREENS.md` lists the 13 screens, their states and the mock file behind each state.
+1. The UI and the backend meet at `docs/contracts/openapi.yaml` (42 operations; scan, generate and print verify return 202 Job envelopes). `docs/contracts/API.md` explains it, `SCREENS.md` lists the 13 screens, their states and the mock file behind each state.
 2. Ishanvi builds against `src/api/mock/*.json` only (indexed in `src/api/mock/index.json`). `tests/test_mock_contracts.py` fails if a mock drifts from the contract. Switching a page to the real API is Pari's job.
 3. Parth delivers three functions that match `DATA_MODEL.md` and `TEMPLATE_SPEC.md`: `extract_label(image_path)`, `render_label(template_spec, record)` (SVG, PDF at size_mm, slot report) and `verify_print(photo_path, approved_label)`.
 4. Open differences between the contract and Parth's merged code are D-1 to D-11 in `docs/contracts/SCHEMA_CHANGE_REQUESTS.md`. Decided so far: the contract follows the code for D-2, D-4, D-8 and part of D-7; Parth fixes D-3 (background), D-5 (one `artifact_sha256`), D-6 (approval record names, `check_id`) and D-9 (named SVG groups); the other layout kind names in D-7 are still open. CR-1 to CR-16 (changes to `schemas.py`) are not approved.
