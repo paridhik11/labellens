@@ -165,15 +165,18 @@ async function main() {
   });
 
   await step(page, 'search filtering', '02_filter', async () => {
-    await fill(page, 'product-filter', 'golden');
+    // Filter by a word from a product that is really listed (the database may hold any products).
+    const first = await page.$eval('[data-testid="product-row"] strong', (e) => e.innerText);
+    const word = first.split(/\s+/)[0].toLowerCase();
+    await fill(page, 'product-filter', word);
     const names = await page.$$eval('[data-testid="product-row"]', (r) => r.map((x) => x.innerText.toLowerCase()));
-    if (!names.length || names.some((n) => !n.includes('golden'))) throw new Error('filter "golden" shows rows without golden');
+    if (!names.length || names.some((n) => !n.includes(word))) throw new Error(`filter "${word}" shows rows without it`);
     await fill(page, 'product-filter', 'zz-no-such-product');
     await page.waitForSelector('[data-testid="no-match"]', { timeout: 3000 });
     await fill(page, 'product-filter', 'ExampleDevice');
     const ex = await page.$$eval('[data-testid="product-row"]', (r) => r.length);
-    await fill(page, 'product-filter', 'golden');
-    return `golden -> ${names.length} rows, nonsense -> no-match message, ExampleDevice -> ${ex} row(s)`;
+    await fill(page, 'product-filter', '');
+    return `${word} -> ${names.length} rows, nonsense -> no-match message, ExampleDevice -> ${ex} row(s)`;
   });
 
   let ok = await step(page, 'add sample Golden Pump (read, correct, save)', '04_saved', async () => {
