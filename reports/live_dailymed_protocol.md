@@ -25,6 +25,12 @@ Per query the harness runs the same code as the API, in this order:
 - G3: 10 of 10 decoys rejected as defined in step 3.
 - G4: median fetch-to-answer time (pick to first answer, cold cache) reported. No pass/fail threshold on it.
 
+## Amendment before scoring (no eval name had been run)
+The default extractive mode (no language model) answers in the contract's abstained shape, `needs_human_check`
+with `provider_off`, carrying verbatim quoted passages. A dry run on a development name showed this. So "answered"
+below means: at least one passage with a citation is shown for at least one of the two questions. The citation
+checks (G2) run on every shown passage, whatever the `abstained` flag says.
+
 ## Reported, not gated
 Product-level result with Wilson 95% intervals: found (right label in the list), fetched, answered with at least
 one citation. Each is out of 30. Network failures are reported as failures, not retried beyond the client's own
