@@ -48,4 +48,13 @@ Gate G1 to G3 passed, G4 reported. Per item rows: `results/live_dailymed.md` and
   UI states: live_candidates, live_none, live_offline, live_fetching, live_fetch_failed, live_success.
 
 ## Pre-merge suite
-See the bottom of this file (filled in at merge time).
+Run on the branch before merge, server on port 8011 (not 8000: a docs session and a scan re-run were using the machine).
+- Fast tests: full run 979 passed, 9 skipped, 1 failed (`test_real_operations_never_carry_x_mock` did not list the
+  three new operations); fixed, that file and the contract and live files re-run: 131 passed, 1 skipped. Not a second
+  full run. ruff clean.
+- UI states 67 (61 before plus 6 live states), mock and api mode: 0 failed. live_flows 13 flows 0 FAIL (golden e2e 9/9),
+  camera_check ALL PASSED, confirm_check ALL PASSED, new `ui/tools/live_check.cjs` all PASS (real network).
+- demo_e2e.py: 20 of 20 PASS, no mock, no fallback.
+- A first run of the live flows and demo_e2e failed (D5 timeout, stages 15 to 19) because that server was started with
+  `--skip-indexes`, so the 618-chunk medicine index was being encoded from scratch; restarted with the index store, all passed.
+
