@@ -21,8 +21,8 @@ def read_payloads(path: Path) -> list[dict[str, Any]]:
     """
     import zxingcpp
 
-    formats = (zxingcpp.BarcodeFormat.UPCA | zxingcpp.BarcodeFormat.EAN13 | zxingcpp.BarcodeFormat.DataMatrix
-               | zxingcpp.BarcodeFormat.Code128 | zxingcpp.BarcodeFormat.QRCode)
+    fmt = zxingcpp.BarcodeFormat
+    formats = [fmt.UPCA, fmt.EAN13, fmt.DataMatrix, fmt.Code128, fmt.QRCode]
     with Image.open(path) as photo:
         gray = np.asarray(photo.convert("L"))
     found: dict[str, dict[str, Any]] = {}
