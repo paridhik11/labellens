@@ -135,3 +135,13 @@ textarea.input { min-height: 80px; resize: vertical; }
 .grid3 { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 16px; }
 .part { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--color-text-muted); font-weight: 700; margin-bottom: 6px; }
 @media (max-width: 1100px) { .grid3 { grid-template-columns: 1fr; } }
+
+/* ---------------------------------------------------------------- IR panels (Step 30) */
+mark { background: #fff2a8; color: inherit; padding: 0 1px; border-radius: 2px; }
+.turn { border-top: 1px solid var(--color-border); padding: 12px 0; margin-top: 12px; }
+.turn-q { font-weight: 600; margin-bottom: 6px; }
+.uline { display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+.uline select.input { width: auto; min-height: 34px; padding: 4px 8px; font-size: 0.85rem; }
+.labscroll { overflow-x: auto; }
+.tbl.lab td { min-width: 150px; }
+.tbl.lab td.agree { background: var(--color-primary-teal-subtle); border-left: 3px solid var(--color-primary-teal); }

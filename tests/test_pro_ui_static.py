@@ -48,3 +48,35 @@ def test_evidence_uses_the_existing_ask_gate_not_a_new_threshold() -> None:
     """The page sends the question to askProfessional (scope rule and score gate) and sets no threshold itself."""
     assert "A.ask(" in JS
     assert "threshold =" not in JS and "THRESHOLD" not in JS
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_lab_evaluation_numbers_match_the_results_file() -> None:
+    """Every number in the Retrieval lab table is in results/step18_final.md (no number is typed from memory)."""
+    final = (ROOT / "results" / "step18_final.md").read_text(encoding="utf-8")
+    block = re.search(r"const LAB_EVAL = \[(.*?)\];", JS, re.S)
+    assert block, "LAB_EVAL not found"
+    rows = re.findall(r"\['([^']+)', '([0-9.]+)', '([0-9.]+)'\]", block.group(1))
+    assert len(rows) == 3
+    for _name, ndcg, recall in rows:
+        assert f"| {ndcg} | {recall} |" in final or f"**{ndcg}** | **{recall}**" in final, (ndcg, recall)
+    assert "LLM grades" in JS
+
+
+def test_required_elements_and_lab_systems_exist() -> None:
+    """The five required elements and the five lab systems are all there, and every system is a real search method."""
+    required = JS[JS.index("const REQUIRED = ["):JS.index("const REQ_WORD")]
+    for key in ("manufacturer", "udi", "lot", "expiry", "barcode"):
+        assert f"['{key}'," in required
+    systems = re.findall(r"\['(bm25|tfidf|dense|hybrid_rrf|e5b)', '", JS)
+    assert sorted(systems) == ["bm25", "dense", "e5b", "hybrid_rrf", "tfidf"]
+
+
+def test_new_page_files_are_wired_and_have_no_em_dash() -> None:
+    """index.html loads readhints.js before pro.js, and the new file has no em dash."""
+    html = (ROOT / "ui" / "pro" / "index.html").read_text(encoding="utf-8")
+    assert html.index("readhints.js") < html.index("pro.js")
+    assert "—" not in (ROOT / "ui" / "pro" / "readhints.js").read_text(encoding="utf-8")
+    assert "—" not in (ROOT / "ui" / "pro" / "pro-api.js").read_text(encoding="utf-8")

@@ -62,6 +62,26 @@
     ['Lot number', 'How must the lot or batch number appear on a device label?'],
     ['Sterilization', 'What must a device label say about sterilization?'],
   ];
+  // What 21 CFR 801 asks a device label to carry, with the question retrieval answers for each (shown in Add label).
+  const REQUIRED = [
+    ['manufacturer', 'Manufacturer name and place of business', (f) => (f.manufacturer && f.manufacturer_address ? 'found' : (f.manufacturer || f.manufacturer_address ? 'partly' : 'missing')), FIELD_QUESTION.manufacturer],
+    ['udi', 'Unique device identifier (UDI-DI)', (f) => (f.udi_di ? 'found' : 'missing'), FIELD_QUESTION.udi_di],
+    ['lot', 'Lot or batch number', (f) => (f.lot ? 'found' : 'missing'), FIELD_QUESTION.lot],
+    ['expiry', 'Expiration date written year-month-day', (f) => (!f.expiry ? 'missing' : (/^\d{4}-\d{2}-\d{2}$/.test(f.expiry) ? 'found' : 'format')), FIELD_QUESTION.expiry],
+    ['barcode', 'Machine-readable barcode with the identifier (AIDC)', (f, ex) => ((ex.barcodes || []).length ? 'found' : 'missing'), 'UDI automatic identification and data capture AIDC technology plain-text'],
+  ];
+  const REQ_WORD = { found: ['teal', 'Found'], partly: ['warn', 'Partly found'], format: ['warn', 'Found, not YYYY-MM-DD'], missing: ['danger', 'Not read'] };
+  const HL_STOP = new Set(['what', 'must', 'should', 'shall', 'does', 'this', 'that', 'with', 'from', 'have', 'show', 'about', 'there', 'which', 'device', 'devices', 'label', 'labels']);
+  // The five retrieval systems of the Retrieval lab (POST /search `retrieval.method`).
+  const LAB_SYSTEMS = [
+    ['bm25', 'BM25', 'our own inverted index'], ['tfidf', 'TF-IDF', 'our own index, cosine'], ['dense', 'Dense', 'embeddings plus FAISS'],
+    ['hybrid_rrf', 'Hybrid', 'BM25 and dense, reciprocal rank fusion'], ['e5b', 'E5b (final)', 'stemming, query prefix, heading text, fused'],
+  ];
+  const LAB_EXAMPLES = ['What must a label show for the expiration date?', 'sterile device labeling', 'unique device identifier on a package',
+    'who must put their name on the label'];
+  // Fresh 30-query set, scored once (results/step18_final.md). LLM grades, not human grades. tests/test_pro_ui_static.py
+  // checks these numbers against that file.
+  const LAB_EVAL = [['Plain hybrid', '0.701', '0.927'], ['Hybrid + stemming + prefix', '0.762', '0.987'], ['E5b (final)', '0.783', '0.990']];
   let pendingScroll = null;
   // Label text field (extractor name) that carries each record field (src/checker/synthetic.py FIELD_ORDER).
   const LABEL_FIELD = { name: 'product_name', manufacturer: 'manufacturer', manufacturer_address: 'manufacturer_address', model: 'model', lot: 'lot', expiry: 'expiry' };
@@ -69,12 +89,12 @@
   const TEST_UDI = '00000000000000';
 
   function freshAdd() {
-    return { file: null, source: 'upload', previewUrl: null, read: null, form: {}, notes: {}, prog: null, camMsg: '' };
+    return { file: null, extra: [], source: 'upload', previewUrl: null, read: null, form: {}, notes: {}, prog: null, camMsg: '', req: null };
   }
 
   /** Evidence card state: the free question, its answer, the on-demand extra passages and the per-field panel. */
   function freshEvidence(open) {
-    return { open: !!open, question: '', ask: null, askedQuestion: '', more: null, showMore: false, field: null, fieldAsk: null };
+    return { open: !!open, question: '', thread: [], field: null, fieldAsk: null };
   }
 
   const S = {
@@ -84,7 +104,7 @@
     add: freshAdd(), cam: null,
     product: null, versions: [], labelId: null, history: [],
     checks: {},
-    recordVersions: [], changeInfo: {},
+    recordVersions: [], changeInfo: {}, lab: { query: '', runs: null },
     evidence: freshEvidence(),
     change: { field: 'lot', value: '', assessment: null, decisions: {}, confirmed: null },
     artwork: null, artworkL: null, previewUrl: null,
@@ -180,6 +200,7 @@
     if (S.busy) return;
     if (NEEDS_PRODUCT.has(stage) && !S.product) return;
     S.stage = stage; S.flash = '';
+    if (stage === 'lab') { render(); return; }
     if (stage === 'products') {
       history.replaceState(null, '', '#');
       act('products', loadProducts);
@@ -200,6 +221,7 @@
     const detail = await A.getProduct(pid);
     if (!S.product || S.product.product.product_id !== pid) {
       Object.assign(S, { checks: {}, artwork: null, artworkL: null, exports: {}, reviews: {}, lastReview: null, download: null });
+      S.restored = null;
       S.change = { field: 'lot', value: '', assessment: null, decisions: {}, confirmed: null };
       S.print = { file: null, condition: 'clean_print_scan', result: null, list: {} };
       S.evidence = freshEvidence(S.evidence.open);
@@ -211,7 +233,21 @@
     setMsg('Loading label versions and history');
     S.versions = S.labelId ? await A.labelVersions(S.labelId) : [];
     await refreshHistory(pid);
+    await restoreCheck();
     history.replaceState(null, '', `#product=${encodeURIComponent(pid)}`);
+  }
+
+  /** After a reload the check results are gone from memory; read the newest saved one for the current version. */
+  async function restoreCheck() {
+    const v = currentVersion();
+    if (!v || S.checks[v.version_id]) return;
+    const ids = S.history.filter((h) => h.action === 'check.recorded' && (!h.details || h.details.kind !== 'layout')).slice(0, 4).map((h) => h.entity_id);
+    for (const id of ids) {
+      try {
+        const c = await A.checkResult(id);
+        if (c.version_id === v.version_id) { S.checks[v.version_id] = c; S.restored = c.check_id; return; }
+      } catch (e) { /* an unreadable old check is skipped */ }
+    }
   }
 
   /** Reload the activity history plus what it needs to say what changed: record versions and the changes behind them. */
@@ -255,6 +291,19 @@
     if (/^image\//.test(file.type)) S.add.previewUrl = URL.createObjectURL(file);
   }
 
+  /** The server takes PNG, JPEG and PDF. WebP, BMP and GIF are redrawn as JPEG in the browser first (TIFF and HEIC cannot be). */
+  async function toUploadable(file) {
+    if (/^(application\/pdf|image\/(png|jpeg))$/.test(file.type)) return file;
+    if (!/^image\/(webp|bmp|gif)$/.test(file.type)) throw new Error(`${file.name}: this file type (${file.type || 'unknown'}) cannot be read. Use PNG, JPEG, WebP, BMP or PDF. For TIFF or HEIC photos, export them as JPEG first.`);
+    const bmp = await createImageBitmap(file);
+    const canvas = document.createElement('canvas');
+    canvas.width = bmp.width; canvas.height = bmp.height;
+    canvas.getContext('2d').drawImage(bmp, 0, 0);
+    const blob = await new Promise((res) => canvas.toBlob(res, 'image/jpeg', 0.92));
+    if (!blob) throw new Error(`${file.name}: the browser could not convert this image.`);
+    return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' });
+  }
+
   /** The one internal intake record that holds label reads before a product exists (uploadScan needs a product_id). */
   async function ensureIntake() {
     const items = await A.listProducts();
@@ -268,13 +317,33 @@
     if (!S.add.file) throw new Error('Choose a label file, take a photo or use the sample first.');
     setMsg('Preparing the intake record');
     const intake = await ensureIntake();
-    setMsg('Uploading the label');
-    const scan = await A.upload(S.add.file, S.add.source, intake, (j) => setMsg(`Reading text and barcode: ${j.message || j.state}`));
-    setMsg('Loading what was read');
-    const ex = await A.extraction(scan.version_id);
-    S.add.read = { intake, scan, ex };
+    const files = [S.add.file, ...S.add.extra];
+    const reads = [];
+    for (const [i, original] of files.entries()) {
+      const tag = files.length > 1 ? `Image ${i + 1} of ${files.length}: ` : '';
+      setMsg(`${tag}Preparing the file`);
+      const file = await toUploadable(original);
+      const scan = await A.upload(file, S.add.source, intake, (j) => setMsg(`${tag}Reading text and barcode: ${j.message || j.state}`));
+      setMsg(`${tag}Loading what was read`);
+      reads.push({ scan, ex: await A.extraction(scan.version_id) });
+    }
+    const ex = window.ReadHints.merge(reads.map((x) => x.ex));
+    const scan = reads[0].scan;
+    S.add.read = { intake, scan, ex, count: reads.length };
     const pre = prefill(ex);
+    augment(pre.values, pre.notes, ex);
+    // two images that read the same field differently: say so on the field
+    const labelToRecord = Object.fromEntries(Object.entries(LABEL_FIELD).map(([rf, lf]) => [lf, rf]));
+    Object.entries(ex.conflicts || {}).forEach(([lf, vals]) => {
+      const rf = labelToRecord[lf];
+      if (rf && pre.notes[rf]) pre.notes[rf].why = `The images disagree: ${vals.join(' | ')}. Check the label.`;
+    });
     S.add.form = pre.values; S.add.notes = pre.notes; S.add.prog = null;
+    S.add.req = {};
+    for (const [key, , , question] of REQUIRED) {
+      setMsg(`Looking up what the regulations require (${Object.keys(S.add.req).length + 1} of ${REQUIRED.length})`);
+      try { S.add.req[key] = await A.ask(question); } catch (e) { S.add.req[key] = { error: e.message }; }
+    }
   }
 
   /** GS1 AI 17 is YYMMDD. The renderer and the change rules use years 2000 to 2099 (docs/CHANGE_SPEC.md). */
@@ -330,6 +399,29 @@
       notes[rf] = { src: '', why: 'Not read from the label. Type it from the product specification if it applies.' };
     }
     return { values, notes };
+  }
+
+  /** Fill still-empty fields from text lines no field accounts for. Every such value is marked "check it". */
+  function augment(values, notes, ex) {
+    const H = window.ReadHints;
+    const ls = H.lines(ex);
+    const st = H.sterilization(ls);
+    if (st && !values.sterilization) {
+      values.sterilization = st.value;
+      notes.sterilization = { src: `Suggested from the text line "${st.line}"`, why: 'A rule suggested this from a printed line. Check it.' };
+    }
+    const sg = H.storage(ls);
+    if (sg && !values.storage) {
+      values.storage = sg.value;
+      notes.storage = { src: `Suggested from the text line "${sg.lines.join('" and "')}"`, why: 'A rule suggested this from a printed line. Check it.' };
+    }
+    if (!values.model) {
+      const cand = H.modelCandidate(H.unassigned(ex, values));
+      if (cand) {
+        values.model = cand.text;
+        notes.model = { src: `Guessed from the text line "${cand.text}"`, why: 'Guess: the only unassigned line shaped like a model number. Check it.' };
+      }
+    }
   }
 
   const trimmedForm = () => Object.fromEntries(RECORD_FIELDS.map(([f]) => [f, String(S.add.form[f] || '').trim()]));
@@ -660,6 +752,60 @@
     return `<div class="stage-head"><h2>${title}</h2><div class="row">${right || ''}</div></div><p class="help">${help}</p>`;
   }
 
+  // ---------------------------------------------------------------- Retrieval lab
+
+  async function runLab() {
+    const q = S.lab.query.trim();
+    if (!q) throw new Error('Type a query first, or press an example.');
+    const runs = [];
+    for (const [method, label] of LAB_SYSTEMS) {
+      setMsg(`Searching with ${label} (${runs.length + 1} of ${LAB_SYSTEMS.length})`);
+      const t0 = performance.now();
+      const r = await A.search(q, 5, method);
+      const cite = Object.fromEntries((r.citations || []).map((c) => [c.chunk_id, c]));
+      runs.push({ method, label, ms: Math.round(performance.now() - t0), hits: (r.hits || []).slice(0, 5).map((h) => ({ ...h, c: cite[h.doc_id] || null })) });
+    }
+    S.lab.runs = runs; S.lab.asked = q;
+  }
+
+  function renderLab() {
+    const L = S.lab;
+    let html = head('Retrieval lab', 'Retrieval is the core of LabelLens: it finds the regulation text that explains a check. Type one query and see what each of the five systems returns, side by side. Passages that several systems agree on are marked.',
+      btn('go-products', 'Back to Products'));
+    html += `<div class="card"><h3>Same query, five systems</h3>
+      <div class="row mb">${LAB_EXAMPLES.map((q, i) => btn('lab-example', esc(q), { small: true, data: { q }, testid: `lab-example-${i}` })).join('')}</div>
+      <div class="row"><input class="input" style="flex:1 1 380px" data-model="lab.query" data-enter="lab-run" data-testid="lab-query" placeholder="A labeling question or keywords" value="${esc(L.query)}">${btn('lab-run', 'Run on all five', { primary: true })}</div>
+      ${statusHtml('lab')}`;
+    if (L.runs) {
+      const count = {};
+      L.runs.forEach((r) => r.hits.forEach((h) => { count[h.doc_id] = (count[h.doc_id] || 0) + 1; }));
+      const agree = Object.values(count).filter((n) => n >= 3).length;
+      html += `<div class="small muted mt" data-testid="lab-summary">${Object.keys(count).length} different passages in the five top-5 lists; ${agree} appear in three or more systems (marked). Question words are not highlighted here: ranking, not wording, is the point. Timings include the network.</div>
+        <div class="labscroll"><table class="tbl lab" data-testid="lab-table"><thead><tr><th>Rank</th>${L.runs.map((r) => `<th>${esc(r.label)}<div class="small muted" style="text-transform:none;font-weight:400">${esc((LAB_SYSTEMS.find((x) => x[0] === r.method) || [])[2] || '')}, ${esc(r.ms)} ms</div></th>`).join('')}</tr></thead><tbody>
+        ${[0, 1, 2, 3, 4].map((i) => `<tr><td>${i + 1}</td>${L.runs.map((r) => {
+          const h = r.hits[i];
+          if (!h) return '<td class="muted">none</td>';
+          const c = h.c;
+          return `<td class="${count[h.doc_id] >= 3 ? 'agree' : ''}" data-testid="lab-cell" data-chunk="${esc(h.doc_id)}" data-agree="${count[h.doc_id] >= 3}"><strong>${c ? `21 CFR ${esc(c.section)}` : esc(h.doc_id)}</strong><div class="small">${c ? esc(c.title) : ''}</div><div class="small muted mono">${esc(String(h.doc_id).split('_').pop())}, score ${esc(Number(h.score).toFixed(4))}</div></td>`;
+        }).join('')}</tr>`).join('')}</tbody></table></div>`;
+    }
+    html += '</div>';
+    html += `<div class="grid2"><div class="card" data-testid="lab-how"><h3>How a question becomes a cited passage</h3>
+        <ol class="small" style="padding-left:18px;line-height:1.6">
+          <li><strong>Index.</strong> The regulations are cut into passages. BM25 and TF-IDF are our own code, not a library. Dense retrieval embeds each passage once.</li>
+          <li><strong>Rank.</strong> Each system ranks the passages for your query. Hybrid fuses BM25 and dense with reciprocal rank fusion. E5b adds stemming, a query prefix and the section heading.</li>
+          <li><strong>Gate.</strong> If the best score is below a threshold fitted on development queries, nothing is shown (the "No regulation passage answers this" notice).</li>
+          <li><strong>Pick sentences.</strong> A small cross-encoder picks the sentences of the top passages that best match the question.</li>
+          <li><strong>Cite.</strong> The checker rules decide pass or fail. Retrieval only attaches the passage that explains why, with a verbatim quote and a link.</li>
+        </ol></div>
+      <div class="card" data-testid="lab-eval"><h3>How well does it work?</h3>
+        <p class="small muted mb">30 fresh queries (20 device, 10 medicine), scored once. Relevance grades are LLM grades, not human grades.</p>
+        <table class="tbl"><thead><tr><th>System</th><th>nDCG@10</th><th>Recall@20 (pool-based)</th></tr></thead><tbody>
+        ${LAB_EVAL.map(([n, a, b]) => `<tr><td>${esc(n)}</td><td>${esc(a)}</td><td>${esc(b)}</td></tr>`).join('')}</tbody></table>
+        <p class="small muted mt">E5b over plain hybrid: +0.082 nDCG@10, 95% interval [+0.037, +0.136]. Over hybrid with stemming and prefix: +0.021 [-0.011, +0.054], which includes zero. E5b was chosen on cross-validation, where the gains are optimistic. The abstention gate is weak (no score reaches AUROC 0.90). Source: results/step18_final.md.</p></div></div>`;
+    return html;
+  }
+
   // ---------------------------------------------------------------- rendering: stages
 
   function productRows() {
@@ -694,11 +840,11 @@
 
   function renderAdd() {
     const ad = S.add; const ed = isEditor();
-    const file = ad.file ? `<div class="okbox" data-testid="chosen-file">Chosen: <strong>${esc(ad.file.name)}</strong> (${Math.round(ad.file.size / 1024)} KB, ${esc(ad.file.type || 'unknown type')}, source ${esc(ad.source)})</div>` : '';
+    const file = ad.file ? `<div class="okbox" data-testid="chosen-file">Chosen: <strong>${esc(ad.file.name)}</strong> (${Math.round(ad.file.size / 1024)} KB, ${esc(ad.file.type || 'unknown type')}, source ${esc(ad.source)})${ad.extra.length ? ` and ${ad.extra.length} more image(s): ${esc(ad.extra.map((f) => f.name).join(', '))}` : ''}</div>` : '';
     let html = head('Add a product from its label', 'Upload a PDF or a photo of the label, take a photo, or use the sample Golden Pump label. LabelLens reads the text (OCR) and the barcode. You check and correct every field, then save: that registers the product record, its label template and its first label version. Editor only.')
       + roleNote('editor')
       + `<div class="card"><h3>1. Choose the label</h3><div class="row">
-          <label class="btn${ed && !S.busy ? '' : ' disabled'}" style="${ed && !S.busy ? '' : 'opacity:.5;pointer-events:none'}">Choose PDF or image<input type="file" id="addFile" data-file="add" data-testid="add-file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" hidden></label>
+          <label class="btn${ed && !S.busy ? '' : ' disabled'}" style="${ed && !S.busy ? '' : 'opacity:.5;pointer-events:none'}">Choose PDF or image<input type="file" id="addFile" data-file="add" data-testid="add-file" accept=".pdf,.png,.jpg,.jpeg,.webp,.bmp,.gif,application/pdf,image/png,image/jpeg,image/webp,image/bmp,image/gif" multiple hidden></label>
           ${btn('cam-start', 'Take a photo', { disabled: !ed || !!S.cam })}
           ${btn('sample', 'Use sample Golden Pump label', { disabled: !ed })}
         </div>
@@ -711,7 +857,7 @@
       const ex = ad.read.ex;
       const unclearCount = RECORD_FIELDS.filter(([f]) => (ad.notes[f] || {}).why).length;
       html += `<div class="card" data-testid="read-result"><h3>2. Check what was read, then save</h3>
-        <p class="small muted mb">Read from ${esc(ad.file ? ad.file.name : '')} (scan ${esc(ad.read.scan.scan_id)}). Highlighted fields need your attention (${unclearCount}). Nothing is saved until you press Save product.</p>
+        <p class="small muted mb">Read from ${esc(ad.file ? ad.file.name : '')}${ad.read.count > 1 ? ` and ${ad.read.count - 1} more image(s), merged` : ''} (scan ${esc(ad.read.scan.scan_id)}). Highlighted fields need your attention (${unclearCount}). Nothing is saved until you press Save product.</p>
         <div class="grid2"><div><div class="form-grid">
           ${RECORD_FIELDS.map(([f, label]) => {
             const n = ad.notes[f] || {};
@@ -724,8 +870,10 @@
           ${(ex.barcodes || []).length ? ex.barcodes.map((b) => `<div data-testid="barcode"><strong>${esc(b.type)}</strong><div class="mono">${esc(b.raw)}</div>
             ${b.parsed ? `<div class="small">${Object.entries(b.parsed).map(([k, v]) => `(${esc(k)}) ${fmtVal(v)}`).join(' &nbsp; ')}</div>` : ''}</div>`).join('') : '<div class="muted">No barcode was decoded.</div>'}
           <h3 class="mt">Reader notes</h3><ul class="small">${(ex.warnings || []).map((w) => `<li>${esc(w)}</li>`).join('') || '<li>None</li>'}</ul>
-          <details class="small mt"><summary>Text lines read (${(ex.ocr_blocks || []).length})</summary><ul>${(ex.ocr_blocks || []).map((b) => `<li class="mono">${esc(b.text)}${b.conf !== undefined ? ` <span class="muted">${Math.round(b.conf * 100)}%</span>` : ''}</li>`).join('')}</ul></details>
+          ${unassignedHtml(ex)}
+          <details class="small mt"><summary>All text lines read (${(ex.ocr_blocks || []).length})</summary><ul>${(ex.ocr_blocks || []).map((b) => `<li class="mono">${esc(b.text)}${b.conf !== undefined ? ` <span class="muted">${Math.round(b.conf * 100)}%</span>` : ''}</li>`).join('')}</ul></details>
         </div></div></div>
+        ${requiredHtml(ex)}
         <div class="row mt">${btn('save', 'Save product', { primary: true, disabled: !ed })}${btn('go-products', 'Cancel')}</div>
         ${ad.prog && ad.prog.pid ? `<div class="info small" data-testid="save-progress">Saved so far: product ${esc(ad.prog.pid)}${ad.prog.template ? `, template ${esc(ad.prog.template)}` : ''}${ad.prog.scan ? `, label version ${esc(ad.prog.scan.version_id)}` : ''}. Retry continues from here.</div>` : ''}
         ${statusHtml('save')}</div>`;
@@ -737,16 +885,25 @@
 
   const FIELD_OUTCOME = { pass: ['teal', 'Pass'], needs_human: ['warn', 'Needs a person'], not_checked: ['', 'Not checked'], not_applicable: ['', 'Not applicable'] };
 
-  /** One regulation passage as a compact card: section and title, a two-line quote, a link. Ids and scores go in details. */
-  function passageHtml(c) {
-    return `<div class="cite compact" data-testid="passage"><div class="ptitle"><strong>21 CFR ${esc(c.section)}</strong> ${esc(c.title)}`
-      + `${c.url ? ` <a href="${esc(c.url)}" target="_blank" rel="noopener noreferrer">Open the regulation</a>` : ''}</div>`
-      + `${c.quote ? `<div class="q clamp2">"${esc(c.quote)}"</div>` : ''}</div>`;
+  /** Escape text, then mark the words of the question that appear in it (word starts, so "label" marks "labeling"). */
+  function markTerms(text, q) {
+    const terms = [...new Set(String(q || '').toLowerCase().match(/[a-z]{4,}/g) || [])].filter((t) => !HL_STOP.has(t));
+    const safe = esc(text);
+    if (!terms.length) return safe;
+    return safe.replace(new RegExp(`\\b(${terms.join('|')})`, 'gi'), '<mark>$1</mark>');
   }
 
-  /** The result of one /ask call: a no-answer notice, or the top 3 passages. extra is the "show more" block. */
-  function askResultHtml(res, more) {
+  /** One regulation passage as a compact card: section and title, a two-line quote with the question words marked, a link. */
+  function passageHtml(c, q) {
+    return `<div class="cite compact" data-testid="passage"><div class="ptitle"><strong>21 CFR ${esc(c.section)}</strong> ${esc(c.title)}`
+      + `${c.url ? ` <a href="${esc(c.url)}" target="_blank" rel="noopener noreferrer">Open the regulation</a>` : ''}</div>`
+      + `${c.quote ? `<div class="q clamp2">"${markTerms(c.quote, q)}"</div>` : ''}</div>`;
+  }
+
+  /** The result of one /ask call: a no-answer notice, or the top 3 passages. more is the "show more" block. */
+  function askResultHtml(res, more, q) {
     if (!res) return '';
+    if (res.error) return `<div class="note">The lookup failed: ${esc(res.error)}</div>`;
     const sources = res.sources || [];
     const gate = res.score !== null && res.score !== undefined
       ? `<div>${esc(res.score_name)} ${esc(Number(res.score).toFixed(5))}${res.threshold !== null && res.threshold !== undefined ? `, gate ${esc(Number(res.threshold).toFixed(5))}` : ''}</div>` : '';
@@ -758,19 +915,40 @@
     let html = res.abstained
       ? '<div class="small muted mt" data-testid="closest">Closest regulation passages. Retrieval found these; no answer was written, so a person should read them.</div>'
       : `<div class="okbox" data-testid="answer">${esc(res.answer)}</div>`;
-    html += `<div data-testid="evidence-results">${sources.slice(0, 3).map(passageHtml).join('')}</div>`;
+    html += `<div data-testid="evidence-results">${sources.slice(0, 3).map((c) => passageHtml(c, q)).join('')}</div>`;
     if (more) html += more;
     return html + details;
   }
 
-  /** "Show more passages" for the free question: the rest of retrieval's top 10 that are not already shown. */
-  function moreHtml() {
-    const ev = S.evidence;
-    if (!ev.ask || !(ev.ask.sources || []).length) return '';
-    const shown = new Set((ev.ask.sources || []).map((c) => c.chunk_id));
-    const rest = (ev.more || []).filter((c) => !shown.has(c.chunk_id)).slice(0, 7);
-    return `<div class="mt">${btn('more-passages', ev.showMore ? 'Hide more passages' : 'Show more passages', { small: true })}${statusHtml('more')}</div>`
-      + (ev.showMore ? `<div data-testid="more-results">${rest.map(passageHtml).join('') || '<div class="muted small mt">No further passages.</div>'}</div>` : '');
+  const AI_FALLBACK = {
+    model_unavailable: 'The AI model is not available here. Showing the closest passages.',
+    timeout: 'The AI took too long. Showing the closest passages.',
+    verification_failed: 'The AI answer did not pass the citation checks. Showing the closest passages.',
+  };
+
+  /** Body of an AI turn: the verified answer, or the passages with the reason the model was not used. */
+  function aiBody(t) {
+    const ai = t.ai; const a = ai.answer || {};
+    const meta = `<div class="small muted mt" data-testid="ai-meta">Model ${esc(ai.model)}${ai.latency_s !== undefined ? `, ${esc(Number(ai.latency_s).toFixed(1))} s` : ''}. The model may only use the retrieved passages; a checker rejects any sentence the passages do not support.</div>`;
+    if (ai.fallback_reason) return `<div class="info small" data-testid="ai-fallback" data-reason="${esc(ai.fallback_reason)}">${esc(AI_FALLBACK[ai.fallback_reason] || ai.fallback_reason)}</div>${askResultHtml(a, '', t.q)}${meta}`;
+    if (ai.model_used && a.abstained) return `<div class="note" data-testid="ai-no-answer">The model says the retrieved passages do not answer this question.</div>${meta}`;
+    if (ai.model_used) return `<div class="okbox" data-testid="ai-answer">${esc(a.answer)}</div><div class="small muted">AI-generated, supported by the cited text only. Check the quotes. This is not a compliance decision.</div><div data-testid="evidence-results">${(a.sources || []).slice(0, 3).map((c) => passageHtml(c, t.q)).join('')}</div>${meta}`;
+    return `${askResultHtml(a, '', t.q)}${meta}`;
+  }
+
+  /** "Show more passages" for one turn: the rest of retrieval's top 10 that are not already shown. */
+  function moreHtml(t, i) {
+    if (!t.res || !(t.res.sources || []).length) return '';
+    const shown = new Set((t.res.sources || []).map((c) => c.chunk_id));
+    const rest = (t.more || []).filter((c) => !shown.has(c.chunk_id)).slice(0, 7);
+    return `<div class="mt">${btn('more-passages', t.showMore ? 'Hide more passages' : 'Show more passages', { small: true, data: { i }, testid: `more-${i}` })}${statusHtml('more')}</div>`
+      + (t.showMore ? `<div data-testid="more-results">${rest.map((c) => passageHtml(c, t.q)).join('') || '<div class="muted small mt">No further passages.</div>'}</div>` : '');
+  }
+
+  function turnHtml(t, i) {
+    const ai = t.mode === 'ai';
+    return `<div class="turn" data-testid="turn" data-mode="${esc(t.mode)}"><div class="turn-q"><span class="badge ${ai ? 'draft' : 'blue'}">${ai ? 'AI answer' : 'Passages'}</span> ${esc(t.q)}</div>`
+      + `${ai ? aiBody(t) : askResultHtml(t.res, moreHtml(t, i), t.q)}</div>`;
   }
 
   /** The three parts of "Evidence for this field": the record value, the latest check for the field, the passages. */
@@ -782,7 +960,7 @@
     const rules = FIELD_RULES[f] || [];
     let check;
     if (!rules.length) check = '<div class="small muted">No check rule looks at this field. A person compares it with the label by eye.</div>';
-    else if (!c) check = `<div class="small muted" data-testid="field-nocheck">No check has been run on L${esc(v ? v.artwork_version : '?')} in this session. Press Run check.</div>`;
+    else if (!c) check = `<div class="small muted" data-testid="field-nocheck">No check has been run on L${esc(v ? v.artwork_version : '?')} yet. Press Run check.</div>`;
     else {
       check = rules.map((rid) => {
         const cov = (c.coverage || []).find((x) => x.rule_id === rid);
@@ -799,7 +977,7 @@
       <div class="grid3">
         <div><div class="part">1. Product record</div><div data-testid="field-value">${fmtVal(recVal(rec, f)) || '<span class="muted">(empty)</span>'}</div><div class="small muted">record version ${esc(rec.version)}</div></div>
         <div><div class="part">2. Latest check${v ? ` (L${esc(v.artwork_version)})` : ''}</div>${check}</div>
-        <div><div class="part">3. Regulation passages (retrieval)</div><div class="small muted">Question: ${esc(FIELD_QUESTION[f])}</div>${statusHtml('field-ask')}${askResultHtml(ev.fieldAsk)}</div>
+        <div><div class="part">3. Regulation passages (retrieval)</div><div class="small muted">Question: ${esc(FIELD_QUESTION[f])}</div>${statusHtml('field-ask')}${askResultHtml(ev.fieldAsk, '', FIELD_QUESTION[f])}</div>
       </div></div>`;
   }
 
@@ -809,11 +987,40 @@
       <p class="small muted mb">Facts about this product come from the product record and the latest check. Regulation text comes from retrieval over 21 CFR 801, 820 and 830. Press "Evidence for this field" in the Product record below to see both together.</p>
       ${fieldPanel()}
       <h3 class="mt">Ask the regulations</h3>
-      <p class="small muted mb">Answers labeling-regulation questions, not questions about this product. Try:</p>
+      <p class="small muted mb">Answers labeling-regulation questions, not questions about this product. The passages appear at once; the AI answer is optional and slow (about 40 s). Try:</p>
       <div class="row mb">${EXAMPLES.map(([label, q]) => btn('ask-example', esc(label), { small: true, data: { q }, testid: 'example-' + label.toLowerCase().split(' ')[0] })).join('')}</div>
       <label class="small" for="evQuestion"><strong>Regulation search (general)</strong></label>
-      <div class="row"><input class="input" id="evQuestion" style="flex:1 1 380px" data-model="evidence.question" data-enter="ask" data-testid="evidence-question" placeholder="For example: what must a label show for the expiration date?" value="${esc(ev.question)}">${btn('ask', 'Ask', { primary: true })}</div>
-      ${statusHtml('ask')}${askResultHtml(ev.ask, moreHtml())}</div>`;
+      <div class="row"><input class="input" id="evQuestion" style="flex:1 1 380px" data-model="evidence.question" data-enter="ask" data-testid="evidence-question" placeholder="For example: what must a label show for the expiration date?" value="${esc(ev.question)}">${btn('ask', 'Ask', { primary: true })}${btn('ask-ai', 'Ask with AI (optional, about 40 s)', { testid: 'btn-ask-ai' })}</div>
+      ${statusHtml('ask')}${statusHtml('ask-ai')}
+      <div data-testid="thread">${ev.thread.slice().reverse().map((t) => ({ t, i: ev.thread.indexOf(t) })).map(({ t, i }) => turnHtml(t, i)).join('')}</div>
+      ${ev.thread.length ? `<div class="mt">${btn('clear-thread', 'Clear questions', { small: true })}</div>` : ''}</div>`;
+  }
+
+  // ---------------------------------------------------------------- Add label: lines not in a field, required elements
+
+  function unassignedHtml(ex) {
+    const list = window.ReadHints.unassigned(ex, S.add.form);
+    const opts = RECORD_FIELDS.map(([f, label]) => `<option value="${f}">${esc(label)}</option>`).join('');
+    return `<h3 class="mt">Other text read (${list.length})</h3>
+      <p class="small muted">Lines the reader found that no field accounts for. Choose a field to move a line into it.</p>
+      ${list.length ? list.map((l, i) => `<div class="uline" data-testid="unassigned-line"><span class="mono">${esc(l.text)}</span>${l.conf !== null ? ` <span class="muted small">${Math.round(l.conf * 100)}%</span>` : ''}
+        <select class="input" data-assign="${i}" data-line="${esc(l.text)}" aria-label="Put this line into a field"><option value="">Put into...</option>${opts}</select></div>`).join('')
+        : '<div class="muted small" data-testid="no-unassigned">Every line that was read is already in a field.</div>'}`;
+  }
+
+  function requiredHtml(ex) {
+    const f = S.add.form;
+    const rows = REQUIRED.map(([key, label, test]) => ({ key, label, status: test(f, ex), res: (S.add.req || {})[key] }));
+    const found = rows.filter((r) => r.status === 'found').length;
+    return `<div class="card mt" data-testid="required"><h3>What the regulations require on this label (${found} of ${rows.length} found)</h3>
+      <p class="small muted mb">Found only means a value was read from the label or typed by you. It does not say the label complies. Each passage was retrieved for the question shown, through the same score gate as Evidence.</p>
+      <table class="tbl"><thead><tr><th>Required element</th><th>On this label</th><th>Governing regulation (retrieval)</th></tr></thead><tbody>
+      ${rows.map((r) => {
+        const [cls, word] = REQ_WORD[r.status];
+        const q = (REQUIRED.find((x) => x[0] === r.key) || [])[3];
+        return `<tr data-testid="required-row" data-key="${esc(r.key)}" data-status="${esc(r.status)}"><td><strong>${esc(r.label)}</strong></td><td><span class="badge ${cls}">${esc(word)}</span></td>
+          <td>${S.add.req ? askResultHtml(r.res, '', q) : '<span class="muted">Not looked up</span>'}</td></tr>`;
+      }).join('')}</tbody></table></div>`;
   }
 
   function renderCheck() {
@@ -826,8 +1033,8 @@
       + productHeader()
       + statusHtml('check');
     const c = v && S.checks[v.version_id];
-    if (c) html += `<div class="card">${checkHtml(c)}</div>`;
-    else if (v) html += `<div class="info small">No check has been run on L${esc(v.artwork_version)} in this session. ${v.kind === 'generated' ? 'For generated artwork the check reads the rendered PDF back (re-check).' : 'Press Run check.'}</div>`;
+    if (c) html += `<div class="card">${S.restored === c.check_id ? `<div class="small muted mb" data-testid="restored">Showing the saved check ${esc(c.check_id)} from ${when(c.run_at)}. Press Run check to check again.</div>` : ''}${checkHtml(c)}</div>`;
+    else if (v) html += `<div class="info small">No saved check exists for L${esc(v.artwork_version)}. ${v.kind === 'generated' ? 'For generated artwork the check reads the rendered PDF back (re-check).' : 'Press Run check.'}</div>`;
     if (S.evidence.open) html += renderEvidence();
     const fieldRow = (f, k, val) => `<dt>${k}</dt><dd>${fmtVal(val) || '<span class="muted">(empty)</span>'} ${btn('field-evidence', 'Evidence for this field', { small: true, data: { f }, testid: `evidence-${f}` })}</dd>`;
     html += `<div class="grid2"><div class="card"><h3>Product record</h3><dl class="kv" data-testid="record">
@@ -1030,7 +1237,7 @@
     document.querySelectorAll('[data-role]').forEach((b) => { b.classList.toggle('on', b.dataset.role === S.role); b.disabled = !!S.busy; b.setAttribute('aria-pressed', String(b.dataset.role === S.role)); });
     $('#proWho').textContent = S.me ? `${S.me.name} (${S.me.role})` : '';
     renderSteps();
-    const views = { products: renderProducts, add: renderAdd, check: renderCheck, change: renderChange, artwork: renderArtwork, review: renderReview, export: renderExport };
+    const views = { lab: renderLab, products: renderProducts, add: renderAdd, check: renderCheck, change: renderChange, artwork: renderArtwork, review: renderReview, export: renderExport };
     const stage = NEEDS_PRODUCT.has(S.stage) && !S.product ? 'products' : S.stage;
     $('#app').innerHTML = statusHtml('role') + statusHtml('open')
       + (S.flash ? `<div class="okbox" data-testid="flash">${esc(S.flash)}</div>` : '')
@@ -1078,17 +1285,28 @@
       const q = S.evidence.question.trim();
       if (!q) throw new Error('Type a question first, or press one of the examples.');
       setMsg('Retrieving regulation passages');
-      S.evidence.ask = await A.ask(q);
-      S.evidence.askedQuestion = q; S.evidence.more = null; S.evidence.showMore = false;
+      S.evidence.thread.push({ q, mode: 'extractive', res: await A.ask(q), more: null, showMore: false });
     }),
     'ask-example': (el) => { S.evidence.question = el.dataset.q; HANDLERS.ask(); },
-    'more-passages': () => {
-      if (S.evidence.showMore) { S.evidence.showMore = false; render(); return; }
-      if (S.evidence.more) { S.evidence.showMore = true; render(); return; }
+    'ask-ai': () => act('ask-ai', async () => {
+      const q = S.evidence.question.trim();
+      if (!q) throw new Error('Type a question first, or press one of the examples.');
+      setMsg('The AI is reading the retrieved passages (about 40 s, at most 90 s)');
+      const ai = await A.askAi(q, (j) => setMsg(`AI answer: ${j.message || j.state}`));
+      S.evidence.thread.push({ q, mode: 'ai', ai });
+    }),
+    'lab-run': () => act('lab', runLab),
+    'lab-example': (el) => { S.lab.query = el.dataset.q; HANDLERS['lab-run'](); },
+    'clear-thread': () => { S.evidence.thread = []; render(); },
+    'more-passages': (el) => {
+      const t = S.evidence.thread[Number(el.dataset.i)];
+      if (!t) return;
+      if (t.showMore) { t.showMore = false; render(); return; }
+      if (t.more) { t.showMore = true; render(); return; }
       act('more', async () => {
         setMsg('Loading the next passages');
-        S.evidence.more = (await A.search(S.evidence.askedQuestion, 10)).citations || [];
-        S.evidence.showMore = true;
+        t.more = (await A.search(t.q, 10)).citations || [];
+        t.showMore = true;
       });
     },
     'field-evidence': (el) => {
@@ -1145,9 +1363,16 @@
 
   document.addEventListener('change', (e) => {
     const t = e.target;
+    if (t.dataset && t.dataset.assign !== undefined && t.value) {
+      const f = t.value; const text = t.dataset.line;
+      S.add.form[f] = ['model', 'lot', 'expiry'].includes(f) ? strip(text) : text;
+      S.add.notes[f] = { src: `Moved from the text line "${text}"`, why: '' };
+      render();
+      return;
+    }
     if (t.dataset && t.dataset.dec) { S.change.decisions[t.dataset.dec] = t.value; render(); return; }
     if (t.dataset && t.dataset.model && t.tagName === 'SELECT') { setPath(t.dataset.model, t.value); if (t.dataset.model === 'change.field') render(); return; }
-    if (t.dataset && t.dataset.file === 'add' && t.files && t.files[0]) { setFile(t.files[0], 'upload'); render(); }
+    if (t.dataset && t.dataset.file === 'add' && t.files && t.files[0]) { setFile(t.files[0], 'upload'); S.add.extra = [...t.files].slice(1); render(); }
     if (t.dataset && t.dataset.file === 'print') { S.print.file = t.files && t.files[0] ? t.files[0] : null; render(); }
   });
 

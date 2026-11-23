@@ -132,7 +132,19 @@
     async confirmExtraction(v, fields) { return (await expect('POST', `/label-versions/${enc(v)}/extraction/confirm`, [200], { json: { fields } })).data; },
     inspect(v, onTick) { return checkLike(`/label-versions/${enc(v)}/inspect`, onTick); },
     recheck(v, onTick) { return checkLike(`/label-versions/${enc(v)}/recheck`, onTick); },
-    async search(query, k) { return (await expect('POST', '/search', [200], { json: { query, module: 'device', k: k || 10 } })).data; },
+    async search(query, k, method) {
+      const json = { query, module: 'device', k: k || 10 };
+      if (method) json.retrieval = { method };
+      return (await expect('POST', '/search', [200], { json })).data;
+    },
+    /** The optional AI answer (CR-21): a 202 job, polled; the finished job carries result (AskJobResult). */
+    async askAi(question, onTick) {
+      const r = await expect('POST', '/ask?mode=ai', [202], { json: { question } });
+      const done = await waitJob(r.data, onTick, 120000);
+      if (!done.result) throw new ApiError('The AI job finished without a result.', {});
+      return done.result;
+    },
+    async checkResult(id) { return (await expect('GET', `/check-results/${enc(id)}`, [200])).data; },
     async ask(question) { return (await expect('POST', '/ask', [200], { json: { question } })).data; },
     async assessChange(productId, field, newValue) {
       return (await expect('POST', '/changes', [201], { json: { product_id: productId, edits: [{ field, new_value: newValue }] } })).data;

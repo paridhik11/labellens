@@ -46,8 +46,11 @@ Common to every request:
 | 30 | getPrintVerification (902) | GET /print-verifications/{verification_id} (the job's `result_url`) | none | `outcome` (`match`, `mismatch`, `rescan_needed`), `rescan_reason`, `mismatches[]`, `fields[]` (`field`, `expected`, `observed`, `status`), `barcode` (`expected_payload`, `match`), `quality` | any demo user | 200 | contract only (read) |
 | 31 | listProductVersions | GET /products/{product_id}/versions | none | `versions[]`: the record fields, `extra` (lot, expiry, serial), `version`, `source_change_id`, `supersedes_version` | any demo user | 200 | Step 29: the page diffs two record versions to write "lot LOT1 -> LOT2" in Label versions and Activity history |
 | 32 | getChange | GET /changes/{change_id} | none | `field`, `old_value`, `new_value`, `status` | any demo user | 200 | Step 29: the "Change requested" line of Activity history |
+| 33 | getCheckResult | GET /check-results/{check_id} | none | the CheckResult of a saved check | any demo user | 200 | Step 30: after a reload the page reads the newest saved check of the current version (ids come from the history) |
+| 34 | askProfessional (mode=ai) | POST /ask?mode=ai, then GET /jobs/{job_id} | JSON `question` | 202 `Job` of kind `ask`; the done job carries `result` (`answer`, `model`, `model_used`, `latency_s`, `fallback_reason`) | anyone | 202 | Step 30: "Ask with AI (optional)" in Evidence (CR-21, `docs/AI_ANSWER.md`) |
+| 35 | searchEvidence (method override) | POST /search with `retrieval.method` bm25, tfidf, dense, hybrid_rrf or e5b, `k: 5` | JSON | `hits[]`, `citations[]` | anyone | 200 | Step 30: the Retrieval lab runs one query through the five systems |
 
-Rows marked "contract only (read)" are plain GET reads of objects the proven sequence creates; the page uses them to show state after a reload. All 32 are in `REAL_OPERATIONS` (`src/api/routes.py` line 70) or are `getHealth`.
+Rows marked "contract only (read)" are plain GET reads of objects the proven sequence creates; the page uses them to show state after a reload. All 35 rows are in `REAL_OPERATIONS` (`src/api/routes.py` line 70) or are `getHealth`.
 
 ## Static files (not API operations)
 
@@ -58,4 +61,4 @@ Rows marked "contract only (read)" are plain GET reads of objects the proven seq
 
 ## Not used
 
-publishVersion, getTemplate, listAffectedLabels, the AI answer (`?mode=ai`) and every public operation. No endpoint is called that is not in the table above.
+publishVersion, getTemplate, listAffectedLabels, every public operation. No endpoint is called that is not in the table above.
