@@ -408,3 +408,18 @@ def test_reviews_write_audit_events_and_are_append_only(session):
     last = events[-1]
     assert (last.action, last.user_id, last.entity_id) == ("review.returned", REVIEWER, L3)
     assert last.details["review_id"] == review.review_id
+
+
+def test_product_version_audit_lists_only_the_fields_that_differ(session):
+    """changed_fields is the real diff: passing every field of the record must not list the unchanged ones."""
+    current = session.scalars(
+        select(ProductVersion).where(ProductVersion.product_id == PRODUCT_ID).order_by(ProductVersion.version.desc())
+    ).first()
+    changes = {f: getattr(current, f) for f in ("name", "model", "manufacturer", "storage")}
+    changes["storage"] = "Store below 30 C"
+    add_product_version(session, EDITOR, PRODUCT_ID, changes)
+    event = session.scalars(
+        select(AuditEvent).where(AuditEvent.action == "product.version_created", AuditEvent.entity_id == PRODUCT_ID)
+        .order_by(AuditEvent.seq.desc())
+    ).first()
+    assert event.details["changed_fields"] == ["storage"]

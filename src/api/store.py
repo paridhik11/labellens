@@ -159,7 +159,7 @@ def add_product_version(
         product_id,
         current.version,
         version.version,
-        {"changed_fields": sorted(changes)},
+        {"changed_fields": sorted(f for f in changes if changes[f] != getattr(current, f))},  # only what differs
         at=when,
     )
     _finish(session, commit)

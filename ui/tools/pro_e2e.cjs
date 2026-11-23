@@ -95,6 +95,11 @@ async function addProduct(page, o) {
   await noError(page, 'read');
   await page.waitForSelector('[data-testid="read-result"]', { timeout: 10000 });
   const unclear = await page.$$eval('.field.unclear', (els) => els.map((e) => e.dataset.testid.replace('field-', '')));
+  const required = await page.$$eval('[data-testid="required-row"]', (rows) => rows.map((r) => ({
+    key: r.dataset.key, status: r.dataset.status,
+    passage: !!r.querySelector('[data-testid="passage"]'), none: !!r.querySelector('[data-testid="no-passage"]'), failed: /lookup failed/.test(r.innerText),
+  })));
+  const unassigned = await page.$$eval('[data-testid="unassigned-line"] .mono', (x) => x.map((e) => e.innerText));
   const prefilled = {};
   for (const f of ['name', 'manufacturer', 'manufacturer_address', 'model', 'lot', 'expiry', 'udi_di', 'serial']) {
     prefilled[f] = await page.inputValue(`[data-testid="input-${f}"]`);
@@ -116,7 +121,7 @@ async function addProduct(page, o) {
   const flash = await text(page, '[data-testid="flash"]');
   const pid = /Saved product (prd_[0-9a-z]+)/.exec(flash);
   if (!pid) throw new Error('no product id in: ' + flash);
-  return { pid: pid[1], unclear, prefilled, flash, emptyMsg: o.emptyMsg };
+  return { pid: pid[1], unclear, prefilled, flash, emptyMsg: o.emptyMsg, required, unassigned };
 }
 
 async function assess(page, field, value) {
@@ -190,7 +195,11 @@ async function main() {
     });
     S.pidA = r.pid;
     if (!r.emptyMsg || !/Model/.test(r.emptyMsg)) throw new Error('empty model was not refused: ' + r.emptyMsg);
-    return `${r.pid}; empty model refused first ("${r.emptyMsg.slice(0, 90)}"); unclear highlighted: ${r.unclear.join(', ')}; prefilled lot ${r.prefilled.lot}, expiry ${r.prefilled.expiry}, udi ${r.prefilled.udi_di}, serial ${r.prefilled.serial}, model "${r.prefilled.model}"`;
+    if (r.required.length !== 5) throw new Error('required panel rows: ' + r.required.length);
+    const bad = r.required.filter((x) => !x.passage && !x.none);
+    if (bad.length || r.required.some((x) => x.failed)) throw new Error('required rows without passage or notice: ' + JSON.stringify(bad));
+    const reqText = r.required.map((x) => `${x.key}:${x.status}${x.passage ? '+passage' : '+gate'}`).join(' ');
+    return `${r.pid}; empty model refused first ("${r.emptyMsg.slice(0, 90)}"); unclear highlighted: ${r.unclear.join(', ')}; required panel [${reqText}]; unassigned lines [${r.unassigned.join(' | ')}]; prefilled lot ${r.prefilled.lot}, expiry ${r.prefilled.expiry}, udi ${r.prefilled.udi_di}, serial ${r.prefilled.serial}, model "${r.prefilled.model}"`;
   });
 
   ok = ok && await step(page, 'run check (inspect)', '05_check', async () => {
@@ -217,12 +226,13 @@ async function main() {
     await click(page, 'btn-toggle-evidence');
     const title = await text(page, '[data-testid="evidence"] h3');
     if (!/^Evidence for /.test(title)) throw new Error('card title: ' + title);
-    const passagesOf = () => page.evaluate(() => [...document.querySelectorAll('[data-testid="evidence"] > [data-testid="evidence-results"] [data-testid="passage"]')].map((e) => e.querySelector('.ptitle').innerText.replace(/\s+/g, ' ')));
+    const first = '[data-testid="thread"] > .turn:first-child';
+    const passagesOf = () => page.$$eval(`${first} [data-testid="evidence-results"] [data-testid="passage"]`, (x) => x.map((e) => e.querySelector('.ptitle').innerText.replace(/\s+/g, ' ')));
     const ask = async (q) => {
       await fill(page, 'evidence-question', q);
       await click(page, 'btn-ask');
       await noError(page, 'ask');
-      return { none: !!(await page.$('[data-testid="evidence"] > [data-testid="no-passage"]')), passages: await passagesOf() };
+      return { none: !!(await page.$(`${first} [data-testid="no-passage"]`)), passages: await passagesOf() };
     };
     // the example buttons run the question themselves
     await click(page, 'example-expiration');
@@ -230,20 +240,61 @@ async function main() {
     const expiry = await passagesOf();
     if (!expiry.length || !/^21 CFR 801/.test(expiry[0])) throw new Error('expiry question did not return 21 CFR 801 first: ' + expiry.join(' | '));
     if (expiry.length > 3) throw new Error('more than 3 passages shown before Show more: ' + expiry.length);
-    const shown = await page.$eval('[data-testid="evidence"]', (e) => ({ ids: /fda_21cfr/.test(e.innerText), open: e.querySelector('details[data-testid="evidence-details"]').open }));
+    const marks = await page.$$eval(`${first} mark`, (x) => x.length);
+    if (!marks) throw new Error('no question word is marked in the quotes');
+    const shown = await page.$eval(first, (e) => ({ ids: /fda_21cfr/.test(e.innerText), open: e.querySelector('details[data-testid="evidence-details"]').open }));
     if (shown.ids || shown.open) throw new Error('chunk ids visible without opening details: ' + JSON.stringify(shown));
-    await click(page, 'btn-more-passages');
+    await click(page, 'more-0');
     const more = await page.$$eval('[data-testid="more-results"] [data-testid="passage"]', (x) => x.length);
     const off = await ask('weather in Paris tomorrow');
     if (!off.none || off.passages.length) throw new Error('off-topic question was not stopped: ' + JSON.stringify(off));
-    const noText = await text(page, '[data-testid="no-passage"]');
+    const noText = await text(page, `${first} [data-testid="no-passage"]`);
     if (!/No regulation passage answers this\. Try a labeling question\./.test(noText)) throw new Error('no-answer text: ' + noText);
     // the user's own example is reported, not asserted: the existing score gate sits just below its score
     const golden = await ask('benefits of golden pump');
+    const turns = await page.$$eval('[data-testid="thread"] > .turn', (x) => x.length);
+    if (turns !== 3) throw new Error('thread has ' + turns + ' turns, expected 3');
     const card = await text(page, '[data-testid="evidence"]');
     if (mocked.length !== mockedBefore) throw new Error('a mock response was served: ' + mocked.slice(mockedBefore).join(', '));
     if (/\b(sample|mock|lorem)\b/i.test(card)) throw new Error('sample or mock wording on the evidence card');
-    return `expiry: ${expiry.length} passages, first "${expiry[0].slice(0, 60)}", +${more} more; "weather in Paris tomorrow": abstained; "benefits of golden pump": ${golden.none ? 'abstained' : golden.passages.length + ' passages shown (the gate does not stop it)'}; no X-Mock responses`;
+    return `expiry: ${expiry.length} passages, first "${expiry[0].slice(0, 60)}", ${marks} marked words, +${more} more; "weather in Paris tomorrow": abstained; "benefits of golden pump": ${golden.none ? 'abstained' : golden.passages.length + ' passages shown (the gate does not stop it)'}; 3 turns kept; no X-Mock responses`;
+  });
+
+  await step(page, 'Ask with AI: a verified answer or the passages with the reason (about 50 s)', '06b_ai', async () => {
+    await fill(page, 'evidence-question', 'What must a label show for the expiration date?');
+    await click(page, 'btn-ask-ai');
+    await noError(page, 'ask-ai');
+    const turn = '[data-testid="thread"] > .turn:first-child';
+    const mode = await page.$eval(turn, (e) => e.dataset.mode);
+    if (mode !== 'ai') throw new Error('newest turn is ' + mode);
+    const kind = await page.$eval(turn, (e) => ({
+      answer: !!e.querySelector('[data-testid="ai-answer"]'), fallback: (e.querySelector('[data-testid="ai-fallback"]') || { dataset: {} }).dataset.reason || '',
+      none: !!e.querySelector('[data-testid="ai-no-answer"]'), passages: e.querySelectorAll('[data-testid="passage"]').length,
+      meta: (e.querySelector('[data-testid="ai-meta"]') || { innerText: '' }).innerText.slice(0, 80),
+    }));
+    if (!kind.answer && !kind.fallback && !kind.none && !kind.passages) throw new Error('AI turn shows nothing: ' + JSON.stringify(kind));
+    return `${kind.answer ? 'verified AI answer' : kind.fallback ? 'fallback ' + kind.fallback : kind.none ? 'model said no answer' : 'gate'}; ${kind.passages} passages; ${kind.meta}`;
+  });
+
+  await step(page, 'Retrieval lab: one query, five systems, agreement marked', '06c_lab', async () => {
+    await click(page, 'open-lab');
+    await click(page, 'lab-example-0');
+    await noError(page, 'lab');
+    await page.waitForSelector('[data-testid="lab-table"]');
+    const heads = await page.$$eval('[data-testid="lab-table"] thead th', (x) => x.map((e) => e.innerText.split('\n')[0]));
+    const cells = await page.$$eval('[data-testid="lab-cell"]', (x) => x.length);
+    const agree = await page.$$eval('[data-testid="lab-cell"][data-agree="true"]', (x) => x.length);
+    if (heads.length !== 6 || cells < 20) throw new Error(`lab table: ${heads.join(',')} ${cells} cells`);
+    const eval_ = await text(page, '[data-testid="lab-eval"]');
+    if (!/0\.783/.test(eval_) || !/LLM grades/.test(eval_)) throw new Error('lab evaluation text missing');
+    if (!(await page.$('[data-testid="lab-how"]'))) throw new Error('no explanation card');
+    return `${heads.slice(1).join(', ')}; ${cells} cells, ${agree} marked as agreement; ${await text(page, '[data-testid="lab-summary"]').then((t) => t.split('.')[0])}`;
+  });
+
+  await step(page, 'back from the lab to the product', '06d_back', async () => {
+    await page.click('[data-testid="step-check"]');
+    await page.waitForSelector('[data-testid="btn-check"]');
+    return 'check stage shown again';
   });
 
   await step(page, 'invalid value error and Retry', '07_invalid_value', async () => {
@@ -308,6 +359,16 @@ async function main() {
     const rec = details.find((d) => /^Record v2: lot/.test(d)) || '';
     if (!req.includes('→ LOT2') || !rec.includes('→ LOT2')) throw new Error('history details: ' + details.join(' | '));
     return `${l1}; ${l2}; history: "${req}", "${rec}"`;
+  });
+
+  ok = ok && await step(page, 'reload the page: the saved check comes back', '10b2_reload', async () => {
+    await page.reload();
+    await page.waitForFunction(() => document.getElementById('proLiveText').textContent === 'LIVE API', null, { timeout: 15000 });
+    await idle(page);
+    await page.waitForSelector('[data-testid="restored"]', { timeout: 30000 });
+    const note = await text(page, '[data-testid="restored"]');
+    await page.waitForSelector('[data-testid="check-result"]');
+    return note.slice(0, 110);
   });
 
   ok = ok && await step(page, 'Evidence for this field: all ten fields, value + check + passages', '10c_field_evidence', async () => {
@@ -449,6 +510,26 @@ async function main() {
   });
 
   // ------------------------------------------------------------ layout at 1024 px
+  await step(page, 'two images of one label (PNG and WebP): both read, merged into one form', '20b_two_images', async () => {
+    // A synthetic phone-style photo (the quality gate rejects a flat digital render), saved as PNG and as WebP.
+    const a = path.join(work, 'two_a.png'); const b = path.join(work, 'two_b.webp');
+    execFileSync(PY, ['-c', `import sys, pathlib; sys.path.insert(0, r'${ROOT}'); from scripts.demo_flow import synthetic_photo; from PIL import Image; p, _ = synthetic_photo(pathlib.Path(r'${work}')); im = Image.open(p).convert('RGB'); im.save(r'${a}'); im.save(r'${b}', 'WEBP', quality=95)`], { cwd: ROOT });
+    await openStage(page, 'products');
+    await click(page, 'btn-go-add');
+    await page.setInputFiles('[data-testid="add-file"]', [a, b]);
+    await page.waitForSelector('[data-testid="chosen-file"]');
+    const chosen = await text(page, '[data-testid="chosen-file"]');
+    if (!/and 1 more image/.test(chosen)) throw new Error('second image not listed: ' + chosen);
+    await click(page, 'btn-read');
+    await noError(page, 'read');
+    await page.waitForSelector('[data-testid="read-result"]', { timeout: 10000 });
+    const note = await page.$eval('[data-testid="read-result"] p', (e) => e.innerText);
+    if (!/and 1 more image\(s\), merged/.test(note)) throw new Error('merged note missing: ' + note);
+    const v = await page.evaluate(() => ({ model: document.getElementById('f_model').value, lot: document.getElementById('f_lot').value, name: document.getElementById('f_name').value }));
+    if (!v.name && !v.lot && !v.model) throw new Error('merged form is empty: ' + JSON.stringify(v));
+    return `${chosen.slice(0, 90)}; merged read: name "${v.name}", model "${v.model}", lot "${v.lot}"`;
+  });
+
   await step(page, 'layout at 1024 px (no horizontal scroll)', '21_width_1024', async () => {
     await page.setViewportSize({ width: 1024, height: 800 });
     await openStage(page, 'check');

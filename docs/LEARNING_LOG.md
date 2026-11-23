@@ -1097,3 +1097,11 @@ The local 3b model picks sentence numbers from the retrieved chunks and the answ
 4. **How I verified it:** pro_e2e 25/25 PASS on an isolated server, fast suite 1045 passed, ruff clean, demo_e2e 20/20 PASS, no mock, no fallback.
 5. **Check yourself:** `versionChangeText` and `diffRecords` in `ui/pro/pro.js`; the `FIELD_QUESTION` and `FIELD_RULES` tables; the no-passage notice in `askResultHtml`.
 6. **Unsure:** the existing gate does NOT stop "benefits of golden pump" (score 0.03154 against 0.03151), so that query still shows 3 closest passages. I did not invent a second gate. Serial, name and model show no passage when the gate stops them.
+
+## Step 30: read more from the label, IR on screen (branch pro-ir-v1)
+1. **What I did:** The Add label page now lists text lines the reader found but did not use (and fills model, sterilization and storage from them as marked suggestions), accepts several images of one label and merges them, and converts WebP, BMP and GIF in the browser. IR is more visible: a panel of what 21 CFR 801 requires with a retrieved passage for each element, a Retrieval lab that runs one query through the five systems side by side with the evaluation numbers, and Ask the regulations as a thread with an optional AI answer. A saved check now survives a reload.
+2. **Files:** `ui/pro/readhints.js` (new), `pro.js`, `pro-api.js`, `pro.css`, `index.html`, `ui/tools/pro_e2e.cjs`, `tests/test_readhints_js.py`, `tests/test_pro_ui_static.py`, `src/api/store.py` (audit detail), `docs/PRO_UI_API_MAP.md`, `reports/pro_ir_v1.md`.
+3. **How it works:** Merging two images: each field takes the first value its image did not mark unclear; if the images disagree both values are shown on the field. The Retrieval lab sends the same query to `/search` five times with `retrieval.method` set to bm25, tfidf, dense, hybrid_rrf, e5b and marks a passage that appears in three or more lists.
+4. **How I verified it:** pro_e2e 30/30 PASS, fast suite 1067 passed, ruff clean, new tests (see the report).
+5. **Check yourself:** `augment` and `merge`, the `REQUIRED` questions, `LAB_EVAL` against `results/step18_final.md`.
+6. **Unsure:** the new rules have no real-photo measurement; the gate still passes "benefits of golden pump".
