@@ -342,7 +342,8 @@ def read_lines(path: Path, *, timeout_s: float = CHILD_TIMEOUT_S) -> dict[str, A
     command = [sys.executable, "-m", "src.api.public_scan_worker", str(path), str(MAX_SIDE), str(BUDGET_S),
                str(SEARCH_SIDE)]
     try:
-        done = subprocess.run(command, cwd=REPO_ROOT, capture_output=True, text=True, timeout=timeout_s)
+        done = subprocess.run(command, cwd=REPO_ROOT, capture_output=True, text=True, encoding="utf-8",
+                              errors="replace", timeout=timeout_s)
     except subprocess.TimeoutExpired:
         return {"lines": [], "complete": False, "killed": True}
     for row in reversed(done.stdout.splitlines()):

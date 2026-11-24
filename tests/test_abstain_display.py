@@ -76,7 +76,7 @@ def test_curated_sections_do_not_change() -> None:
     from scripts.real.build_medicine_corpus import CATEGORIES as CURATED
     from src.api.live_dailymed import CATEGORIES, LIVE_CATEGORIES
 
-    assert CATEGORIES == CURATED and set(LIVE_CATEGORIES) - set(CURATED) == {"34069-5", "44425-7"}
+    assert CATEGORIES == CURATED and set(LIVE_CATEGORIES) - set(CURATED) == {"34069-5", "44425-7", "34084-4"}
     plain = parse_label(XML, LABEL["setid"], LABEL["version"], "2026-01-02")
     with_storage = parse_label(_with_storage(XML), LABEL["setid"], LABEL["version"], "2026-01-02")
     assert len(with_storage.chunks) == len(plain.chunks) + 1

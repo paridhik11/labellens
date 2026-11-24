@@ -2,6 +2,7 @@
 
     python scripts/run_demo.py                 # indexes, seed, API, warm-up, prints the URL
     python scripts/run_demo.py --port 8010 --fresh
+    python scripts/run_demo.py --warm          # also prefetch the live DailyMed labels of the demo (warm_demo_cache.py)
 
 What it does, in order:
  1. checks the environment (which of the real extractor, renderer, retrieval models and the local LLM are available)
@@ -162,7 +163,31 @@ def find_ui() -> Path | None:
     return None
 
 
-def warm_and_seed(base: str, golden: bool, caps: dict[str, bool]) -> None:
+def warm_ollama(model: str | None = None, url: str = "http://127.0.0.1:11434") -> str:
+    """Load the AI answer model into Ollama (empty prompt, kept 30 minutes) so the first Ask with AI is not cold.
+
+    Returns a one-line status. Does nothing when Ollama is not running.
+    """
+    import requests
+
+    from src.rag.settings import AI_MODEL
+
+    model = model or AI_MODEL
+    started = time.time()
+    try:
+        requests.get(url + "/api/tags", timeout=2).raise_for_status()
+    except Exception:
+        return "AI model: Ollama is not running, nothing to warm"
+    try:
+        body = {"model": model, "prompt": "", "keep_alive": "30m"}
+        reply = requests.post(url + "/api/generate", json=body, timeout=300)
+        reply.raise_for_status()
+        return f"AI model: {model} loaded in {time.time() - started:.1f} s"
+    except Exception as error:
+        return f"AI model: warm-up of {model} failed ({error})"
+
+
+def warm_and_seed(base: str, golden: bool, caps: dict[str, bool], live: bool = False) -> None:
     """After the server listens: load the models with real requests, then seed the golden package through the API."""
     import requests
 
@@ -185,6 +210,13 @@ def warm_and_seed(base: str, golden: bool, caps: dict[str, bool]) -> None:
             print(f"warm-up: {name} {call().status_code} in {time.time() - started:.1f} s", flush=True)
         except Exception as error:
             print(f"warm-up: {name} failed ({error})", flush=True)
+    print("warm-up: " + warm_ollama(), flush=True)
+    if live:
+        from warm_demo_cache import warm
+
+        rows = warm(base, log=lambda line: print(line, flush=True))
+        ready = sum(r.get("state") == "done" for r in rows)
+        print(f"warm-up: live DailyMed labels ready {ready} of {len(rows)}", flush=True)
     if not golden:
         return
     api = f.Api(base)
@@ -221,6 +253,7 @@ def main() -> int:
     ap.add_argument("--fresh", action="store_true", help="delete the demo database and stored files first")
     ap.add_argument("--skip-indexes", action="store_true", help="do not copy or build dense indexes")
     ap.add_argument("--no-golden", action="store_true", help="do not seed the golden package")
+    ap.add_argument("--warm", action="store_true", help="prefetch the demo live DailyMed labels")
     args = ap.parse_args()
 
     caps = check_environment()
@@ -255,7 +288,7 @@ def main() -> int:
         mock_dir = ROOT / "src" / "api" / "mock"
         if ui == ROOT / "ui" and mock_dir.is_dir():
             app.mount("/src/api/mock", StaticFiles(directory=mock_dir), name="ui-mocks")
-    threading.Thread(target=warm_and_seed, args=(base, not args.no_golden, caps), daemon=True).start()
+    threading.Thread(target=warm_and_seed, args=(base, not args.no_golden, caps, args.warm), daemon=True).start()
     print("\n" + "=" * 64)
     print(f"LabelLens demo   {base}")
     print(f"  API docs                {base}/docs")

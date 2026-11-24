@@ -11,6 +11,7 @@ from pathlib import Path
 
 from src.common.schemas import Chunk
 from src.ir.base import Retriever
+from src.rag.applicability import chunk_filter
 from src.rag.pipeline import RagResult, answer_question
 from src.rag.provider import NullProvider, Provider, provider_from_env
 from src.rag.settings import RagSettings
@@ -67,11 +68,17 @@ class RagService:
 
     def ask(
         self, question: str, module: str, provider: Provider | None = None, settings: RagSettings | None = None,
+        product_text: str | None = None,
     ) -> RagResult:
-        """Run the pipeline in one module. Never mixes modules. A provider or settings can be given for one call."""
+        """Run the pipeline in one module. Never mixes modules. A provider or settings can be given for one call.
+
+        product_text (device module): the product record as text. Passages of sections that do not apply to
+        this product are dropped and each section shows once, also in what the model sees.
+        """
         retriever = self._load()[module]
+        context_filter = chunk_filter(product_text) if product_text is not None else None
         return answer_question(question, module, retriever, self.chunks(module), provider or self.provider,
-                               settings or self.settings, self.threshold)
+                               settings or self.settings, self.threshold, context_filter=context_filter)
 
     @property
     def mode(self) -> str:

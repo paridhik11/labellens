@@ -145,3 +145,9 @@ mark { background: #fff2a8; color: inherit; padding: 0 1px; border-radius: 2px; 
 .labscroll { overflow-x: auto; }
 .tbl.lab td { min-width: 150px; }
 .tbl.lab td.agree { background: var(--color-primary-teal-subtle); border-left: 3px solid var(--color-primary-teal); }
+
+/* Finding cards (Check, read-only in Review) */
+.fcards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.fcard { border: 1px solid var(--color-border); border-radius: 10px; padding: 12px; background: var(--color-bg-subtle); display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.fcard .row { justify-content: space-between; }
+.fcard details summary { cursor: pointer; margin-top: 6px; }

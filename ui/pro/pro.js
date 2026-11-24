@@ -39,7 +39,7 @@
     name: 'name', model: 'model', manufacturer: 'manufacturer', manufacturer_address: 'manufacturer address', udi_di: 'UDI-DI',
     sterilization: 'sterilization', storage: 'storage', lot: 'lot', expiry: 'expiry', serial: 'serial',
   };
-  // One fixed question per record field for "Evidence for this field". Written once, shown on the card.
+  // One fixed question per record field, used for the passage on its finding card ("Search used: ...").
   const FIELD_QUESTION = {
     name: 'What must a device label show for the name of the device?',
     model: 'What must a device label show for the catalog or model number?',
@@ -94,7 +94,7 @@
 
   /** Evidence card state: the free question, its answer, the on-demand extra passages and the per-field panel. */
   function freshEvidence(open) {
-    return { open: !!open, question: '', thread: [], field: null, fieldAsk: null };
+    return { open: !!open, question: '', thread: [] };
   }
 
   const S = {
@@ -103,7 +103,7 @@
     products: null, filter: '',
     add: freshAdd(), cam: null,
     product: null, versions: [], labelId: null, history: [],
-    checks: {},
+    checks: {}, fieldPassages: {},
     recordVersions: [], changeInfo: {}, lab: { query: '', runs: null },
     evidence: freshEvidence(),
     change: { field: 'lot', value: '', assessment: null, decisions: {}, confirmed: null },
@@ -225,6 +225,7 @@
       S.change = { field: 'lot', value: '', assessment: null, decisions: {}, confirmed: null };
       S.print = { file: null, condition: 'clean_print_scan', result: null, list: {} };
       S.evidence = freshEvidence(S.evidence.open);
+      S.fieldPassages = {};
       S.changeInfo = {};
       if (S.previewUrl) { URL.revokeObjectURL(S.previewUrl); S.previewUrl = null; }
     }
@@ -772,7 +773,7 @@
     const L = S.lab;
     let html = head('Retrieval lab', 'Retrieval is the core of LabelLens: it finds the regulation text that explains a check. Type one query and see what each of the five systems returns, side by side. Passages that several systems agree on are marked.',
       btn('go-products', 'Back to Products'));
-    html += `<div class="card"><h3>Same query, five systems</h3>
+    html += `<div class="card"><h3>Same query, five systems <span class="badge" data-testid="lab-raw">raw retrieval, unfiltered</span></h3><p class="small muted">Each system's top 5 as ranked, with no product filter and no merging of a section's chunks. Ask the regulations shows filtered passages.</p>
       <div class="row mb">${LAB_EXAMPLES.map((q, i) => btn('lab-example', esc(q), { small: true, data: { q }, testid: `lab-example-${i}` })).join('')}</div>
       <div class="row"><input class="input" style="flex:1 1 380px" data-model="lab.query" data-enter="lab-run" data-testid="lab-query" placeholder="A labeling question or keywords" value="${esc(L.query)}">${btn('lab-run', 'Run on all five', { primary: true })}</div>
       ${statusHtml('lab')}`;
@@ -900,11 +901,32 @@
       + `${c.quote ? `<div class="q clamp2">"${markTerms(c.quote, q)}"</div>` : ''}</div>`;
   }
 
+  // Display only (the gate itself is unchanged): a general question, not about labeling, whose top score sits just
+  // above the gate or whose top passages do not name its key term, folds its passages. "what is sterilization in
+  // medical?" retrieves 801.150 (processing and repacking), which does not define sterilization.
+  const GATE_MARGIN = 0.0005;
+  const LABELING_WORDS = /\b(label|labels|labeling|labelling|labeled|show|must|shall|require|required|requirements?|package|carton|udi|identifier|barcode|printed|appear|format|date|lot|batch|serial|expiration|expiry)\b/i;
+  const TERM_STOP = new Set(['what', 'which', 'where', 'when', 'about', 'medical', 'device', 'devices', 'mean', 'means', 'meaning', 'define', 'definition', 'does', 'there', 'their', 'benefits', 'should', 'would', 'could', 'explain', 'tell']);
+  function weakGeneral(res, q) {
+    const question = String(q || '');
+    if (!res || !(res.sources || []).length || LABELING_WORDS.test(question)) return false;
+    const near = res.score !== null && res.score !== undefined && res.threshold !== null && res.threshold !== undefined && res.score - res.threshold < GATE_MARGIN;
+    const terms = (question.toLowerCase().match(/[a-z]{5,}/g) || []).filter((t) => !TERM_STOP.has(t)).map((t) => t.slice(0, 7));
+    const heads = res.sources.slice(0, 3).map((c) => `${c.section} ${c.title}`.toLowerCase()).join(' ');
+    const named = terms.length && terms.some((t) => heads.includes(t));
+    return near || !named;
+  }
+
   /** The result of one /ask call: a no-answer notice, or the top 3 passages. more is the "show more" block. */
   function askResultHtml(res, more, q) {
     if (!res) return '';
     if (res.error) return `<div class="note">The lookup failed: ${esc(res.error)}</div>`;
     const sources = res.sources || [];
+    if (res.abstained && weakGeneral(res, q)) {
+      const det = res.score !== null && res.score !== undefined ? `<div class="small muted mt" data-testid="evidence-details-line">${esc(res.score_name)} ${esc(Number(res.score).toFixed(5))}, gate ${esc(Number(res.threshold).toFixed(5))}</div>` : '';
+      return `<div class="note" data-testid="not-defined">The regulations don't define this directly. Ask about what a device label must show, or open the closest passages.</div>`
+        + `<details class="small mt" data-testid="not-defined-passages"><summary>Show closest passages (${Math.min(3, sources.length)})</summary>${sources.slice(0, 3).map((c) => passageHtml(c, q)).join('')}</details>${det}`;
+    }
     const gate = res.score !== null && res.score !== undefined
       ? `<div>${esc(res.score_name)} ${esc(Number(res.score).toFixed(5))}${res.threshold !== null && res.threshold !== undefined ? `, gate ${esc(Number(res.threshold).toFixed(5))}` : ''}</div>` : '';
     const ids = sources.length ? `<div>Passage ids: ${sources.map((c) => `<span class="mono">${esc(c.chunk_id)}</span>`).join(', ')}</div>` : '';
@@ -939,8 +961,9 @@
   /** "Show more passages" for one turn: the rest of retrieval's top 10 that are not already shown. */
   function moreHtml(t, i) {
     if (!t.res || !(t.res.sources || []).length) return '';
-    const shown = new Set((t.res.sources || []).map((c) => c.chunk_id));
-    const rest = (t.more || []).filter((c) => !shown.has(c.chunk_id)).slice(0, 7);
+    // /search is raw retrieval: apply the same product filter, skip sections already shown, one chunk per section
+    const shown = new Set((t.res.sources || []).map((c) => String(c.section)));
+    const rest = (applicableOnly({ sources: t.more || [] }, S.product && S.product.record).sources || []).filter((c) => !shown.has(String(c.section))).slice(0, 7);
     return `<div class="mt">${btn('more-passages', t.showMore ? 'Hide more passages' : 'Show more passages', { small: true, data: { i }, testid: `more-${i}` })}${statusHtml('more')}</div>`
       + (t.showMore ? `<div data-testid="more-results">${rest.map((c) => passageHtml(c, t.q)).join('') || '<div class="muted small mt">No further passages.</div>'}</div>` : '');
   }
@@ -952,7 +975,10 @@
   }
 
   // Sections that only apply to some products (latex condoms) are dropped for other products; each section shows once.
-  const PRODUCT_SPECIFIC = { '801.435': /latex|condom/i };
+  // Same table as src/rag/applicability.py, which filters /ask on the server when a product_id is sent.
+  const PRODUCT_SPECIFIC = { '801.435': /latex|condom/i, '801.430': /tampon/i, '809.10': /in vitro|diagnostic|\bivd\b|reagent|assay/i };
+  /** The open device product, sent with /ask so the server filters passages for it (CR-29). */
+  const productId = () => (S.product && S.product.product ? S.product.product.product_id : undefined);
   function applicableOnly(res, rec) {
     if (!res || !res.sources) return res;
     const text = Object.values(rec || {}).filter((x) => typeof x === 'string').join(' ');
@@ -966,46 +992,121 @@
     return { ...res, sources };
   }
 
-  /** The three parts of "Evidence for this field": the record value, the latest check for the field, the passages. */
-  function fieldPanel() {
-    const ev = S.evidence; const f = ev.field;
-    if (!f) return '';
-    const rec = S.product.record; const v = currentVersion();
-    const c = v && S.checks[v.version_id];
-    const rules = FIELD_RULES[f] || [];
-    let check;
-    if (!rules.length) check = '<div class="small muted">No check rule looks at this field. A person compares it with the label by eye.</div>';
-    else if (!c) check = `<div class="small muted" data-testid="field-nocheck">No check yet on L${esc(v ? v.artwork_version : '?')}.</div><div class="mt">${btn('check', 'Run check', { primary: true, small: true, disabled: !v, testid: 'field-run-check' })}</div>`;
-    else {
-      check = rules.map((rid) => {
-        const cov = (c.coverage || []).find((x) => x.rule_id === rid);
-        const found = (c.findings || []).filter((x) => x.rule_id === rid);
-        if (!cov) return `<div class="small muted">Rule ${esc(rid)}: not reported in this check.</div>`;
-        let [cls, word] = FIELD_OUTCOME[cov.outcome] || ['', cov.outcome];
-        if (cov.outcome === 'fail') { cls = 'danger'; word = found.some((x) => /mismatch$/.test(x.kind)) ? 'Mismatch' : 'Problem found'; }
-        return `<div class="small mt" data-testid="field-rule" data-outcome="${esc(cov.outcome)}"><span class="badge ${cls}">${esc(word)}</span> <span class="mono">${esc(rid)}</span> ${esc(cov.reason || '')}`
-          + `${found.map((x) => `<div>${x.message === cov.reason ? '' : esc(x.message)}${x.observed || x.expected ? ` Read: <strong>${esc(x.observed || '(nothing)')}</strong>. Expected: <strong>${esc(x.expected || '(nothing)')}</strong>.` : ''}</div>`).join('')}</div>`;
-      }).join('');
+  // ---------------------------------------------------------------- finding cards (Check, read-only in Review)
+
+  // Fields with a checker rule (src/checker/runner.py). Order follows the label.
+  const CARD_FIELDS = ['name', 'model', 'manufacturer', 'manufacturer_address', 'udi_di', 'lot', 'expiry'];
+  const RANK = { fail: 4, needs_human: 3, pass: 2, not_applicable: 1, not_checked: 0 };
+  const RESULT_WORD = { fail: ['danger', 'Problem found'], needs_human: ['warn', 'A person must look'], pass: ['teal', 'Pass'], not_applicable: ['', 'Not applicable'], not_checked: ['', 'Not checked'] };
+
+  /** One field's result from the check: the worst outcome over its rules, the rules with their outcome, its findings. */
+  function fieldResult(c, f) {
+    const rules = (FIELD_RULES[f] || []).map((rid) => {
+      const cov = (c.coverage || []).find((x) => x.rule_id === rid);
+      return { rid, outcome: cov ? cov.outcome : 'not_checked', reason: cov ? cov.reason || '' : 'not reported in this check' };
+    });
+    const findings = (c.findings || []).filter((x) => (FIELD_RULES[f] || []).includes(x.rule_id));
+    const worst = rules.reduce((w, r) => (RANK[r.outcome] > RANK[w] ? r.outcome : w), 'not_checked');
+    let [cls, word] = RESULT_WORD[worst] || ['', worst];
+    if (worst === 'fail' && findings.some((x) => /mismatch$/.test(x.kind))) word = 'Mismatch';
+    return { rules, findings, worst, cls, word };
+  }
+
+  /** Passages for one field question, loaded once per product through /ask with the product filter (CR-29). */
+  const passageKey = (f) => `${productId() || ''}|${FIELD_QUESTION[f]}`;
+  let loadingPassages = false;
+  async function loadFieldPassages() {
+    if (loadingPassages || !S.product) return;
+    const todo = [...new Set(CARD_FIELDS.map(passageKey))].filter((k) => !S.fieldPassages[k]);
+    if (!todo.length) return;
+    loadingPassages = true;
+    try {
+      for (const k of todo) {
+        const q = k.slice(k.indexOf('|') + 1);
+        try { S.fieldPassages[k] = applicableOnly(await A.ask(q, productId()), S.product.record); } catch (e) { S.fieldPassages[k] = { error: e.message }; }
+      }
+    } finally { loadingPassages = false; }
+    if (!S.busy) render();
+  }
+
+  /** Cited passages of a field's findings, one per section, in order. */
+  function citedPassages(fr) {
+    const seen = new Set();
+    return fr.findings.flatMap((x) => (x.citations || []).map((cc) => ({ ...cc, by: x.rule_id })))
+      .filter((cc) => { const k = String(cc.section); if (seen.has(k)) return false; seen.add(k); return true; });
+  }
+
+  /** The top passage, collapsed to two lines; the rest behind "Show related passages". */
+  function cardPassagesHtml(f, fr) {
+    const more = (list) => (list.length > 1 ? `<details class="small"><summary data-testid="card-more">Show related passages (${list.length - 1})</summary>${list.slice(1).map((cc) => passageHtml(cc, FIELD_QUESTION[f])).join('')}</details>` : '');
+    const cited = citedPassages(fr);
+    if (cited.length) {
+      return `<div class="small" style="color:#888" data-testid="card-search-used">Cited by rule ${esc(cited[0].by)} (the checker's fixed query)</div>${passageHtml(cited[0], FIELD_QUESTION[f])}${more(cited)}`;
     }
-    return `<div class="fieldpanel" data-testid="field-evidence" data-field="${esc(f)}">
-      <h3>Evidence for this field: ${esc(FIELD_WORD[f] || f)}</h3>
-      <div class="grid3">
-        <div><div class="part">1. Product record</div><div data-testid="field-value">${fmtVal(recVal(rec, f)) || '<span class="muted">(empty)</span>'}</div><div class="small muted">record version ${esc(rec.version)}</div></div>
-        <div><div class="part">2. Latest check${v ? ` (L${esc(v.artwork_version)})` : ''}</div>${check}</div>
-        <div><div class="part">3. Regulation passages (retrieval)</div><div class="small" style="color:#888" data-testid="field-search-used">Search used: ${esc(FIELD_QUESTION[f])}</div>${statusHtml('field-ask')}${askResultHtml(applicableOnly(ev.fieldAsk, rec), '', FIELD_QUESTION[f])}</div>
-      </div></div>`;
+    const res = S.fieldPassages[passageKey(f)];
+    const used = `<div class="small" style="color:#888" data-testid="card-search-used">Search used: ${esc(FIELD_QUESTION[f])}</div>`;
+    if (!res) return `${used}<div class="small muted" data-testid="card-loading">Retrieving the governing passage...</div>`;
+    if (res.error) return `${used}<div class="small muted">The passage lookup failed: ${esc(res.error)}</div>`;
+    const src = res.sources || [];
+    if (!src.length) return `${used}<div class="small muted" data-testid="card-no-passage">No regulation passage answers this field's question. A person should look.</div>`;
+    return `${used}${passageHtml(src[0], FIELD_QUESTION[f])}${more(src)}`;
+  }
+
+  /** Finding cards for every field with a rule. readOnly (Review) shows no Run check button. */
+  function findingCardsHtml(v, readOnly) {
+    const rec = S.product.record;
+    const c = v && S.checks[v.version_id];
+    if (!c) {
+      return `<div class="card" data-testid="finding-cards"><h3>Findings by field</h3><div class="small muted" data-testid="cards-nocheck">No check yet on L${esc(v ? v.artwork_version : '?')}.</div>`
+        + (readOnly ? '' : `<div class="mt">${btn('check', 'Run check', { primary: true, small: true, disabled: !v, testid: 'cards-run-check' })}</div>`) + '</div>';
+    }
+    return `<div class="card" data-testid="finding-cards"><h3>Findings by field (L${esc(v.artwork_version)})</h3>
+      <p class="small muted mb">Each card: the product record value, what the check rules decided, and the top regulation passage retrieval found for that field. Rules decide; the passage explains. Pass is not a statement that the label meets the regulations.</p>
+      <div class="fcards">${CARD_FIELDS.map((f) => {
+        const fr = fieldResult(c, f);
+        return `<div class="fcard" data-testid="finding-card" data-field="${esc(f)}" data-outcome="${esc(fr.worst)}">
+          <div class="row"><strong>${esc(FIELD_WORD[f] || f)}</strong><span class="badge ${fr.cls}" data-testid="card-result">${esc(fr.word)}</span></div>
+          <div class="small">Product: <strong data-testid="card-value">${fmtVal(recVal(rec, f)) || '<span class="muted">(empty)</span>'}</strong></div>
+          ${fr.findings.map((x) => `<div class="small">${esc(String(x.message || '').replace(/([^.])$/, '$1.'))}${x.observed || x.expected ? ` Read: <strong>${esc(x.observed || '(nothing)')}</strong>. Expected: <strong>${esc(x.expected || '(nothing)')}</strong>.` : ''}</div>`).join('')}
+          <div class="small muted" data-testid="card-rules">Rule${fr.rules.length > 1 ? 's' : ''}: ${fr.rules.map((r) => `<span class="mono" title="${esc(r.reason)}">${esc(r.rid)}</span> ${esc((RESULT_WORD[r.outcome] || ['', r.outcome])[1].toLowerCase())}`).join(', ')}</div>
+          <div class="mt">${cardPassagesHtml(f, fr)}</div></div>`;
+      }).join('')}</div></div>`;
+  }
+
+  /** Plain-text findings report for the export: every finding with its rule id and cited passages. */
+  function findingsReport(v, c) {
+    const rec = S.product.record;
+    const lines = [`LabelLens findings report`, `Product: ${rec.name} (record version ${rec.version})`, `Label version: L${v.artwork_version} ${v.version_id}`,
+      `Check: ${c.check_id} (${c.kind}) run ${c.run_at}, retrieval ${(c.retrieval_config || {}).method || ''}`,
+      `Result: ${c.critical_count} critical, ${c.review_count} to review, ${c.info_count} info, ${c.needs_human_count || 0} rule(s) need a person.`,
+      'Rules decide; passages explain. This is not a compliance determination.', ''];
+    lines.push('By field:');
+    CARD_FIELDS.forEach((f) => {
+      const fr = fieldResult(c, f);
+      lines.push(`- ${FIELD_WORD[f] || f}: product "${recVal(rec, f)}" -> ${fr.word} (${fr.rules.map((r) => `${r.rid} ${r.outcome}`).join(', ')})`);
+    });
+    lines.push('', `Findings (${(c.findings || []).length}):`);
+    (c.findings || []).forEach((x, i) => {
+      lines.push(`${i + 1}. [${x.severity}] rule ${x.rule_id || '-'} field ${x.field || '-'}: ${x.message}`);
+      if (x.observed || x.expected) lines.push(`   read "${x.observed || ''}", expected "${x.expected || ''}"`);
+      (x.citations || []).forEach((cc) => lines.push(`   cited: 21 CFR ${cc.section} ${cc.title} (${cc.chunk_id}) "${cc.quote}" ${cc.url || ''}`));
+      if (!(x.citations || []).length) lines.push('   cited: none (a person must look)');
+    });
+    const human = (c.coverage || []).filter((x) => x.outcome === 'needs_human');
+    lines.push('', `A person must check (${human.length}):`);
+    human.forEach((h) => lines.push(`- ${h.rule_id}: ${h.reason || ''}`));
+    return lines.join('\n') + '\n';
   }
 
   function renderEvidence() {
     const ev = S.evidence;
     return `<div class="card" data-testid="evidence"><h3>Evidence for ${esc(S.product.record.name)}</h3>
-      <p class="small muted mb">Facts about this product come from the product record and the latest check. Regulation text comes from retrieval over 21 CFR 801, 820 and 830. Press "Evidence for this field" in the Product record below to see both together.</p>
-      ${fieldPanel()}
+      <p class="small muted mb">Facts about this product come from the product record and the latest check. Regulation text comes from retrieval over 21 CFR 801, 820 and 830. (See Findings by field.) Passages are filtered for this product: sections that only govern other products are dropped and each section shows once.</p>
       <h3 class="mt">Ask the regulations</h3>
-      <p class="small muted mb">Answers labeling-regulation questions, not questions about this product. The passages appear at once; the AI answer is optional and slow (about 40 s). Try:</p>
+      <p class="small muted mb">Answers labeling-regulation questions, not questions about this product. The passages appear at once; the AI answer is optional (about 15 s once the model is loaded, about a minute the first time). Try:</p>
       <div class="row mb">${EXAMPLES.map(([label, q]) => btn('ask-example', esc(label), { small: true, data: { q }, testid: 'example-' + label.toLowerCase().split(' ')[0] })).join('')}</div>
       <label class="small" for="evQuestion"><strong>Regulation search (general)</strong></label>
-      <div class="row"><input class="input" id="evQuestion" style="flex:1 1 380px" data-model="evidence.question" data-enter="ask" data-testid="evidence-question" placeholder="For example: what must a label show for the expiration date?" value="${esc(ev.question)}">${btn('ask', 'Ask', { primary: true })}${btn('ask-ai', 'Ask with AI (optional, about 40 s)', { testid: 'btn-ask-ai' })}</div>
+      <div class="row"><input class="input" id="evQuestion" style="flex:1 1 380px" data-model="evidence.question" data-enter="ask" data-testid="evidence-question" placeholder="For example: what must a label show for the expiration date?" value="${esc(ev.question)}">${btn('ask', 'Ask', { primary: true })}${btn('ask-ai', 'Ask with AI (optional, first run about a minute)', { testid: 'btn-ask-ai' })}</div>
       ${statusHtml('ask')}${statusHtml('ask-ai')}
       <div data-testid="thread">${ev.thread.slice().reverse().map((t) => ({ t, i: ev.thread.indexOf(t) })).map(({ t, i }) => turnHtml(t, i)).join('')}</div>
       ${ev.thread.length ? `<div class="mt">${btn('clear-thread', 'Clear questions', { small: true })}</div>` : ''}</div>`;
@@ -1044,14 +1145,15 @@
     let html = head('Product and label check', 'The check compares the label with the product record and attaches cited passages from 21 CFR 801, 820 and 830 found by our retrieval. Every finding has a citation or says a person must look. Rules decide; nothing here says a label meets the regulations. Anyone can run a check.',
       `${btnHelp(btn('check', v ? `Run check on L${esc(v.artwork_version)}` : 'Run check', { primary: true, disabled: !v }), 'Compares this label version with the product record using 16 rules.', 'help-check')}`
       + `${btnHelp(btn('go-change', 'Change a detail'), 'Starts a change to one record field, for example the lot, and shows what the label needs.', 'help-change')}`
-      + `${btnHelp(btn('toggle-evidence', S.evidence.open ? 'Hide evidence' : 'Evidence'), 'Shows, per record field, the value, the latest check and the regulation passages. Also a question box.', 'help-evidence')}`)
+      + `${btnHelp(btn('toggle-evidence', S.evidence.open ? 'Hide Ask the regulations' : 'Ask the regulations'), 'A question box over the device regulations, filtered for this product, with an optional AI answer.', 'help-evidence')}`)
       + productHeader()
       + statusHtml('check');
     const c = v && S.checks[v.version_id];
     if (c) html += `<div class="card">${S.restored === c.check_id ? `<div class="small muted mb" data-testid="restored">Showing the saved check ${esc(c.check_id)} from ${when(c.run_at)}. Press Run check to check again.</div>` : ''}${checkHtml(c)}</div>`;
     else if (v) html += `<div class="info small">No saved check exists for L${esc(v.artwork_version)}. ${v.kind === 'generated' ? 'For generated artwork the check reads the rendered PDF back (re-check).' : 'Press Run check.'}</div>`;
+    html += findingCardsHtml(v, false);
     if (S.evidence.open) html += renderEvidence();
-    const fieldRow = (f, k, val) => `<dt>${k}</dt><dd>${fmtVal(val) || '<span class="muted">(empty)</span>'} ${btn('field-evidence', 'Evidence for this field', { small: true, data: { f }, testid: `evidence-${f}` })}</dd>`;
+    const fieldRow = (f, k, val) => `<dt>${k}</dt><dd>${fmtVal(val) || '<span class="muted">(empty)</span>'}</dd>`;
     html += `<div class="grid2"><div class="card"><h3>Product record</h3><dl class="kv" data-testid="record">
         ${[['name', 'Name', rec.name], ['model', 'Model', rec.model], ['manufacturer', 'Manufacturer', rec.manufacturer], ['manufacturer_address', 'Manufacturer address', rec.manufacturer_address], ['udi_di', 'UDI-DI', rec.udi_di], ['sterilization', 'Sterilization', rec.sterilization], ['storage', 'Storage', rec.storage]]
           .map(([f, k, val]) => fieldRow(f, k, val)).join('')}
@@ -1180,6 +1282,7 @@
     html += roleNote('reviewer') + statusHtml('review-load')
       + `<div class="card"><div class="row"><strong>Version L${esc(v.artwork_version)}</strong><span class="mono small">${esc(v.version_id)}</span><span class="badge">${esc(v.status)}</span>${v.draft_watermark ? '<span class="badge draft">DRAFT</span>' : ''}</div>
         <div class="small mt">PDF hash the approval binds to: <span class="mono" data-testid="review-sha">${esc(sha || '(not loaded)')}</span></div></div>`;
+    html += findingCardsHtml(v, true);
     if (chk) html += `<div class="card"><h3>Re-check result</h3>${checkHtml(chk)}</div>`;
     else html += `<div class="note" data-testid="no-recheck">No re-check of L${esc(v.artwork_version)} in this session. Approval needs a passed check: run the re-check first.</div>`;
     html += `<div class="card"><h3>Decision</h3><div class="row mb">${btn('recheck', `Run re-check on L${esc(v.artwork_version)}`, { data: { v: v.version_id }, testid: 'btn-recheck-review' })}</div>
@@ -1216,6 +1319,14 @@
         <div class="row mt">${btn('download', 'Download PDF', { primary: true })}</div>${statusHtml('download')}
         ${d ? `<div class="${d.digest && d.digest === d.expected ? 'okbox' : 'note'}" data-testid="download-result">Downloaded ${esc(d.bytes)} bytes as ${esc(v.version_id)}.pdf. ${d.digest ? (d.digest === d.expected ? 'The sha256 computed in this browser matches the recorded hash.' : 'The sha256 computed in this browser does NOT match the recorded hash.') : 'This browser could not compute the hash.'} ${d.draftMark ? `Mark on the file: ${esc(d.draftMark)}.` : ''}</div>` : ''}</div>`;
     }
+    const chk = S.checks[v.version_id];
+    html += `<div class="card" data-testid="export-findings"><h3>Findings report of L${esc(v.artwork_version)}</h3>`
+      + (chk
+        ? `<p class="small muted">Every finding of check ${esc(chk.check_id)} with its rule id and cited passages, the per-field results, and the rules that need a person. Plain text, made in this browser from the stored check.</p>
+          <ul class="small" style="padding-left:18px" data-testid="export-findings-list">${(chk.findings || []).map((x) => `<li><span class="mono">${esc(x.rule_id || '-')}</span> ${esc(x.message)}${(x.citations || []).length ? ` (cited: ${x.citations.map((cc) => `21 CFR ${esc(cc.section)}`).join(', ')})` : ' (no citation, a person must look)'}</li>`).join('') || '<li>No problem findings.</li>'}</ul>
+          <div class="row">${btn('download-report', 'Download findings report (.txt)')}</div>`
+        : `<div class="small muted" data-testid="export-no-check">No check of L${esc(v.artwork_version)} in this session. Run the re-check in Review and approve first; the report is built from it.</div>`)
+      + '</div>';
     const pr = S.print.result && S.print.result.version_id === v.version_id ? S.print.result : null;
     const list = S.print.list[v.version_id] || [];
     html += `<div class="card" data-testid="print-verify"><h3>Print verification (optional)</h3>
@@ -1257,6 +1368,7 @@
     $('#app').innerHTML = statusHtml('role') + statusHtml('open')
       + (S.flash ? `<div class="okbox" data-testid="flash">${esc(S.flash)}</div>` : '')
       + views[stage]();
+    if ((stage === 'check' || stage === 'review') && S.product && !S.busy) loadFieldPassages();
     const video = $('#camVideo');
     if (video && S.cam && video.srcObject !== S.cam) { video.srcObject = S.cam; video.play().catch(() => {}); }
     if (pendingScroll && !S.busy) {
@@ -1300,7 +1412,7 @@
       const q = S.evidence.question.trim();
       if (!q) throw new Error('Type a question first, or press one of the examples.');
       setMsg('Retrieving regulation passages');
-      S.evidence.thread.push({ q, mode: 'extractive', res: await A.ask(q), more: null, showMore: false });
+      S.evidence.thread.push({ q, mode: 'extractive', res: await A.ask(q, productId()), more: null, showMore: false });
     }),
     'ask-example': (el) => { S.evidence.question = el.dataset.q; HANDLERS.ask(); },
     'ask-ai': () => act('ask-ai', async () => {
@@ -1309,10 +1421,11 @@
       setMsg('Model is loading, the first run can take about a minute (waiting up to 180 s)');
       let ai;
       try {
-        ai = await A.askAi(q, () => {});
+        const t0 = Date.now();
+        ai = await A.askAi(q, () => setMsg(`Model is loading, the first run can take about a minute (${Math.round((Date.now() - t0) / 1000)} s of up to 180 s)`), productId());
       } catch (e) {
         if (!e.timeout) throw e;
-        ai = { fallback_reason: 'timeout', model_used: false, answer: await A.ask(q) };
+        ai = { fallback_reason: 'timeout', model_used: false, answer: await A.ask(q, productId()) };
       }
       S.evidence.thread.push({ q, mode: 'ai', ai });
     }),
@@ -1330,15 +1443,13 @@
         t.showMore = true;
       });
     },
-    'field-evidence': (el) => {
-      const f = el.dataset.f;
-      // open the panel first so the spinner shows inside it while the passages load
-      S.evidence.open = true; S.evidence.field = f; S.evidence.fieldAsk = null;
-      act('field-ask', async () => {
-        setMsg('Retrieving the governing regulation passages');
-        S.evidence.fieldAsk = await A.ask(FIELD_QUESTION[f]);
-        pendingScroll = 'evidence';
-      });
+    'download-report': () => {
+      const v = latestGenerated(); const c = v && S.checks[v.version_id];
+      if (!c) return;
+      const url = URL.createObjectURL(new Blob([findingsReport(v, c)], { type: 'text/plain' }));
+      const a = document.createElement('a'); a.href = url; a.download = `${v.version_id}_findings.txt`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
     },
     assess: () => act('assess', doAssess),
     'dec-all': () => { (S.change.assessment.affected || []).forEach((i) => { S.change.decisions[i.impact_id] = 'confirmed'; }); render(); },

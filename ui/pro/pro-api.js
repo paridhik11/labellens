@@ -138,14 +138,16 @@
       return (await expect('POST', '/search', [200], { json })).data;
     },
     /** The optional AI answer (CR-21): a 202 job, polled; the finished job carries result (AskJobResult). */
-    async askAi(question, onTick) {
-      const r = await expect('POST', '/ask?mode=ai', [202], { json: { question } });
+    async askAi(question, onTick, productId) {
+      const json = productId ? { question, product_id: productId } : { question };
+      const r = await expect('POST', '/ask?mode=ai', [202], { json });
       const done = await waitJob(r.data, onTick, 180000);
       if (!done.result) throw new ApiError('The AI job finished without a result.', {});
       return done.result;
     },
     async checkResult(id) { return (await expect('GET', `/check-results/${enc(id)}`, [200])).data; },
-    async ask(question) { return (await expect('POST', '/ask', [200], { json: { question } })).data; },
+    /** Extractive answer. With a device productId (CR-29) sections that do not apply to it are dropped, each section once. */
+    async ask(question, productId) { return (await expect('POST', '/ask', [200], { json: productId ? { question, product_id: productId } : { question } })).data; },
     async assessChange(productId, field, newValue) {
       return (await expect('POST', '/changes', [201], { json: { product_id: productId, edits: [{ field, new_value: newValue }] } })).data;
     },

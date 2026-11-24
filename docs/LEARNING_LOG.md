@@ -1105,3 +1105,11 @@ The local 3b model picks sentence numbers from the retrieved chunks and the answ
 4. **How I verified it:** pro_e2e 30/30 PASS, fast suite 1067 passed, ruff clean, new tests (see the report).
 5. **Check yourself:** `augment` and `merge`, the `REQUIRED` questions, `LAB_EVAL` against `results/step18_final.md`.
 6. **Unsure:** the new rules have no real-photo measurement; the gate still passes "benefits of golden pump".
+
+## Final polish for the live demo (branch final-polish)
+1. **What I did:** Fixed the demo paths item by item (P1 to P3). Pro answers now drop regulation sections that govern other product types (latex condoms, tampons, in vitro diagnostics) and show each section once, in the passages and in what the AI model sees. Public mode tells a real "no answer" (gate miss) apart from "no model is running", fetches live labels with a chunking version in the cache key and Adverse Reactions chunked, and looks a photo's medicine name up on DailyMed when nothing else matches (always asked, never confirmed by itself). The Pro page shows finding cards per field and exports a findings report.
+2. **Files:** `src/rag/applicability.py` (new), `src/rag/pipeline.py`, `src/rag/service.py`, `src/api/routes.py`, `src/api/ask_jobs.py`, `src/api/live_dailymed.py`, `src/rag/query_rewrite.py`, `src/cv/ocr_vote.py` (UTF-8), UI files in `ui/js` and `ui/pro`, `scripts/warm_demo_cache.py`, `scripts/measure_curated_gate.py`, tests, docs; full list in `reports/final_polish.md`.
+3. **How it works:** For "what must a label show for the expiration date?" retrieval ranks 801.435 (latex condoms) high. With a `product_id` the server reads the product record; 801.435 applies only when the record mentions latex or condoms, so it is dropped before the passages are shown or sent to the model. The gate still reads the unfiltered top score, so the gate is unchanged.
+4. **How I verified it:** fast suite, ruff, pro_e2e, demo_e2e with the AI stage, check_ask_panel and a rehearsal driver with screenshots; numbers in `reports/final_polish.md`.
+5. **Check yourself:** `filter_chunks` in `src/rag/applicability.py`; `abstainKind` in `ui/js/ask-panel.js`; `guessNames` and `namesWord` in `ui/js/public-scan.js`.
+6. **Unsure:** the photo name lookup rule was adjusted on the same recorded OCR lines it was measured on; the live-label gate is a probe, not an evaluation.

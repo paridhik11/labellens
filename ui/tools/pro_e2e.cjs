@@ -1,7 +1,7 @@
 /**
  * End-to-end check of the single-workflow Professional page (ui/pro/) against a RUNNING demo server.
  * Real clicks in a headed Chromium, real API, nothing faked. Every step prints PASS or FAIL with its seconds,
- * saves a screenshot in reports/pro_ui/ and the table goes to reports/pro_ui/results.json.
+ * saves a screenshot in OUT (default: <temp>/labellens_pro_e2e, outside the repo) and the table goes to OUT/results.json.
  *
  *   python scripts/run_demo.py                       # terminal 1 (default port 8000)
  *   PLAYWRIGHT_DIR=<dir with node_modules/playwright> BASE=http://127.0.0.1:8000 node ui/tools/pro_e2e.cjs
@@ -24,7 +24,7 @@ const BASE = (process.env.BASE || 'http://127.0.0.1:8000').replace(/\/$/, '');
 const URL = `${BASE}/ui/pro/index.html`;
 const HEADLESS = process.env.HEADLESS === '1';
 const PY = process.env.PY || path.join(ROOT, '.venv312', 'Scripts', 'python.exe');
-const SHOTS = path.join(ROOT, 'reports', 'pro_ui');
+const SHOTS = process.env.OUT || path.join(require('os').tmpdir(), 'labellens_pro_e2e');
 const LONG = 300000;
 const stamp = new Date().toTimeString().slice(0, 8).replace(/:/g, '');
 fs.mkdirSync(SHOTS, { recursive: true });
@@ -240,24 +240,35 @@ async function main() {
     const expiry = await passagesOf();
     if (!expiry.length || !/^21 CFR 801/.test(expiry[0])) throw new Error('expiry question did not return 21 CFR 801 first: ' + expiry.join(' | '));
     if (expiry.length > 3) throw new Error('more than 3 passages shown before Show more: ' + expiry.length);
+    if (expiry.some((x) => /801\.435/.test(x))) throw new Error('801.435 (latex condoms) shown for Golden Pump: ' + expiry.join(' | '));
+    const secOf = (x) => (x.match(/^21 CFR (\S+)/) || [])[1];
+    if (new Set(expiry.map(secOf)).size !== expiry.length) throw new Error('a section is listed twice: ' + expiry.join(' | '));
     const marks = await page.$$eval(`${first} mark`, (x) => x.length);
     if (!marks) throw new Error('no question word is marked in the quotes');
     const shown = await page.$eval(first, (e) => ({ ids: /fda_21cfr/.test(e.innerText), open: e.querySelector('details[data-testid="evidence-details"]').open }));
     if (shown.ids || shown.open) throw new Error('chunk ids visible without opening details: ' + JSON.stringify(shown));
     await click(page, 'more-0');
-    const more = await page.$$eval('[data-testid="more-results"] [data-testid="passage"]', (x) => x.length);
+    const moreTitles = await page.$$eval('[data-testid="more-results"] [data-testid="passage"]', (x) => x.map((e) => e.querySelector('.ptitle').innerText.replace(/\s+/g, ' ')));
+    const more = moreTitles.length;
+    if (moreTitles.some((x) => /801\.435/.test(x))) throw new Error('801.435 in Show more passages');
+    const allSecs = expiry.concat(moreTitles).map(secOf);
+    if (new Set(allSecs).size !== allSecs.length) throw new Error('Show more repeats a shown section: ' + allSecs.join(','));
     const off = await ask('weather in Paris tomorrow');
     if (!off.none || off.passages.length) throw new Error('off-topic question was not stopped: ' + JSON.stringify(off));
     const noText = await text(page, `${first} [data-testid="no-passage"]`);
     if (!/No regulation passage answers this\. Try a labeling question\./.test(noText)) throw new Error('no-answer text: ' + noText);
     // the user's own example is reported, not asserted: the existing score gate sits just below its score
     const golden = await ask('benefits of golden pump');
+    const goldenFolded = !!(await page.$(`${first} [data-testid="not-defined"]`));
+    await ask('what is sterilization in medical?');
+    const general = await page.$eval(first, (e) => ({ note: !!e.querySelector('[data-testid="not-defined"]'), open: (e.querySelector('[data-testid="not-defined-passages"]') || {}).open }));
+    if (!general.note || general.open) throw new Error('general question not folded with "The regulations don\'t define this directly": ' + JSON.stringify(general));
     const turns = await page.$$eval('[data-testid="thread"] > .turn', (x) => x.length);
-    if (turns !== 3) throw new Error('thread has ' + turns + ' turns, expected 3');
+    if (turns !== 4) throw new Error('thread has ' + turns + ' turns, expected 4');
     const card = await text(page, '[data-testid="evidence"]');
     if (mocked.length !== mockedBefore) throw new Error('a mock response was served: ' + mocked.slice(mockedBefore).join(', '));
     if (/\b(sample|mock|lorem)\b/i.test(card)) throw new Error('sample or mock wording on the evidence card');
-    return `expiry: ${expiry.length} passages, first "${expiry[0].slice(0, 60)}", ${marks} marked words, +${more} more; "weather in Paris tomorrow": abstained; "benefits of golden pump": ${golden.none ? 'abstained' : golden.passages.length + ' passages shown (the gate does not stop it)'}; 3 turns kept; no X-Mock responses`;
+    return `expiry: ${expiry.length} passages, first "${expiry[0].slice(0, 60)}", ${marks} marked words, +${more} more; "weather in Paris tomorrow": abstained; "benefits of golden pump": ${golden.none ? 'abstained' : goldenFolded ? 'folded as not defined' : golden.passages.length + ' passages shown'}; "what is sterilization in medical?": folded; 4 turns kept; no X-Mock responses`;
   });
 
   await step(page, 'Ask with AI: a verified answer or the passages with the reason (about 50 s)', '06b_ai', async () => {
@@ -273,6 +284,9 @@ async function main() {
       meta: (e.querySelector('[data-testid="ai-meta"]') || { innerText: '' }).innerText.slice(0, 80),
     }));
     if (!kind.answer && !kind.fallback && !kind.none && !kind.passages) throw new Error('AI turn shows nothing: ' + JSON.stringify(kind));
+    const aiSecs = await page.$eval(turn, (e) => [...e.querySelectorAll('[data-testid="passage"] .ptitle strong')].map((x) => x.innerText));
+    if (aiSecs.some((x) => /801\.435/.test(x))) throw new Error('AI turn cites 801.435: ' + aiSecs.join(','));
+    if (new Set(aiSecs).size !== aiSecs.length) throw new Error('AI turn lists a section twice: ' + aiSecs.join(','));
     return `${kind.answer ? 'verified AI answer' : kind.fallback ? 'fallback ' + kind.fallback : kind.none ? 'model said no answer' : 'gate'}; ${kind.passages} passages; ${kind.meta}`;
   });
 
@@ -309,6 +323,7 @@ async function main() {
     const eval_ = await text(page, '[data-testid="lab-eval"]');
     if (!/0\.783/.test(eval_) || !/LLM grades/.test(eval_)) throw new Error('lab evaluation text missing');
     if (!(await page.$('[data-testid="lab-how"]'))) throw new Error('no explanation card');
+    if (!/raw retrieval, unfiltered/.test(await text(page, '[data-testid="lab-raw"]'))) throw new Error('lab is not labeled raw retrieval');
     return `${heads.slice(1).join(', ')}; ${cells} cells, ${agree} marked as agreement; ${await text(page, '[data-testid="lab-summary"]').then((t) => t.split('.')[0])}`;
   });
 
@@ -392,45 +407,31 @@ async function main() {
     return note.slice(0, 110);
   });
 
-  ok = ok && await step(page, 'Evidence for this field: all ten fields, value + check + passages', '10c_field_evidence', async () => {
-    const fields = ['name', 'model', 'manufacturer', 'manufacturer_address', 'udi_di', 'sterilization', 'storage', 'lot', 'expiry', 'serial'];
-    const word = { manufacturer_address: 'manufacturer address', udi_di: 'UDI-DI' };
+  ok = ok && await step(page, 'Finding cards: field, product value, result, rule, top passage', '10c_finding_cards', async () => {
     const mockedBefore = mocked.length;
-    const out = [];
-    for (const f of fields) {
-      await click(page, `evidence-${f}`);
-      await noError(page, 'field-ask');
-      const r = await page.evaluate(() => {
-        const p = document.querySelector('[data-testid="field-evidence"]');
-        return {
-          value: p.querySelector('[data-testid="field-value"]').innerText.trim(),
-          rules: [...p.querySelectorAll('[data-testid="field-rule"]')].map((x) => `${x.querySelector('.mono').innerText}:${x.dataset.outcome}`),
-          noRule: /No check rule looks at this field/.test(p.innerText),
-          passages: [...p.querySelectorAll('[data-testid="passage"] .ptitle strong')].map((x) => x.innerText),
-          abstained: !!p.querySelector('[data-testid="no-passage"]'),
-          title: p.querySelector('h3').innerText,
-          searchUsed: (p.querySelector('[data-testid="field-search-used"]') || { innerText: '' }).innerText,
-          questionLabel: /(^|\n)Question:/.test(p.innerText),
-          noCheckNoButton: !!p.querySelector('[data-testid="field-nocheck"]') && !p.querySelector('[data-testid="field-run-check"]'),
-          allSections: [...p.querySelectorAll('[data-testid="passage"] .ptitle strong')].map((x) => x.innerText),
-        };
-      });
-      if (!r.title.includes(word[f] || f)) throw new Error(`${f}: panel title ${r.title}`);
-      if (r.value === '') throw new Error(`${f}: no record value shown`);
-      if (!/^Search used: /.test(r.searchUsed) || r.questionLabel) throw new Error(`${f}: expected "Search used:" and no "Question:" (${r.searchUsed.slice(0, 30)})`);
-      if (r.noCheckNoButton) throw new Error(`${f}: no check yet but no Run check button`);
-      if (new Set(r.allSections).size !== r.allSections.length) throw new Error(`${f}: a section is listed twice: ${r.allSections.join(',')}`);
-      if (r.allSections.some((x) => /801\.435/.test(x))) throw new Error(`${f}: 801.435 (latex condoms) shown for Golden Pump`);
-      if (!r.passages.length && !r.abstained) throw new Error(`${f}: neither passages nor a no-answer notice`);
-      out.push(`${f}=${r.value.slice(0, 14)} [${r.rules.join(',') || (r.noRule ? 'no rule' : 'no check yet')}] ${r.passages.length ? r.passages[0] : 'no passage'}`);
-      if (f === 'lot') {
-        if (r.value.replace(/\s*TEST$/, '') !== 'LOT2') throw new Error('lot value shown ' + r.value);
-        if (!r.rules.length) throw new Error('lot panel has no check result although L2 was re-checked');
-        if (!r.passages.some((x) => /801|830/.test(x))) throw new Error('lot panel has no 801 or 830 passage: ' + r.passages.join(','));
-      }
+    await page.waitForSelector('[data-testid="finding-card"]');
+    if (await page.$('[data-testid^="evidence-"][data-act]')) throw new Error('an old "Evidence for this field" button is still shown');
+    await page.waitForFunction(() => !document.querySelector('[data-testid="card-loading"]'), null, { timeout: 60000 });
+    const cards = await page.$$eval('[data-testid="finding-card"]', (x) => x.map((c) => ({
+      field: c.dataset.field, outcome: c.dataset.outcome, result: c.querySelector('[data-testid="card-result"]').innerText.trim(),
+      value: c.querySelector('[data-testid="card-value"]').innerText.trim(), rules: c.querySelector('[data-testid="card-rules"]').innerText,
+      used: (c.querySelector('[data-testid="card-search-used"]') || { innerText: '' }).innerText,
+      top: [...c.querySelectorAll('[data-testid="passage"] .ptitle strong')].map((e) => e.textContent.trim()), // textContent: passages in a closed details have no innerText
+      more: !!c.querySelector('[data-testid="card-more"]'), noPassage: !!c.querySelector('[data-testid="card-no-passage"]'),
+      clamped: !!c.querySelector('.q.clamp2'),
+    })));
+    if (cards.length !== 7) throw new Error('expected 7 cards, got ' + cards.length);
+    for (const c of cards) {
+      if (!/^Rules?: [A-Z]-/.test(c.rules)) throw new Error(`${c.field}: no rule id (${c.rules})`);
+      if (!c.used) throw new Error(`${c.field}: no "Search used" or "Cited by rule" line`);
+      if (!c.top.length && !c.noPassage) throw new Error(`${c.field}: neither a passage nor a no-passage notice`);
+      if (c.top.some((x) => /801\.435/.test(x))) throw new Error(`${c.field}: 801.435 shown for Golden Pump`);
+      if (new Set(c.top).size !== c.top.length) throw new Error(`${c.field}: a section twice`);
     }
+    const lot = cards.find((c) => c.field === 'lot');
+    if (lot.value.replace(/\s*TEST$/, '') !== 'LOT2') throw new Error('lot card value ' + lot.value);
     if (mocked.length !== mockedBefore) throw new Error('a mock response was served');
-    return out.join('; ');
+    return cards.map((c) => `${c.field}=${c.value.slice(0, 14)} ${c.result} [${c.rules.replace(/^Rules?: /, '')}] ${c.top[0] || 'no passage'}${c.more ? ' +more' : ''}`).join('; ');
   });
 
   ok = ok && await step(page, 'change name: barcode KEEP, confirm', '11_change_name_keep', async () => {
@@ -459,6 +460,8 @@ async function main() {
     await noError(page, 'review-load');
     await setRole(page, 'reviewer');
     await page.waitForSelector('[data-testid="no-recheck"]');
+    const ro = await page.$eval('[data-testid="finding-cards"]', (e) => ({ nocheck: !!e.querySelector('[data-testid="cards-nocheck"]'), runBtn: !!e.querySelector('[data-testid="cards-run-check"]') }));
+    if (!ro.nocheck || ro.runBtn) throw new Error('review cards should say no check and have no Run check button: ' + JSON.stringify(ro));
     await click(page, 'btn-approve');
     await page.waitForSelector('[data-testid="error-review"]', { timeout: 10000 });
     const msg = await text(page, '[data-testid="error-review"]');
@@ -470,6 +473,8 @@ async function main() {
     await click(page, 'btn-recheck-review');
     await noError(page, 'recheck');
     await page.waitForSelector('[data-testid="check-result"]');
+    const cardCount = await page.$$eval('[data-testid="finding-card"]', (x) => x.length);
+    if (cardCount !== 7) throw new Error('review shows ' + cardCount + ' finding cards, expected 7 (read-only)');
     await fill(page, 'review-comment', `pro_e2e approval ${stamp}`);
     await click(page, 'btn-approve');
     await noError(page, 'review');
@@ -492,7 +497,12 @@ async function main() {
     if (!/matches the recorded hash/.test(res)) throw new Error(res);
     const pkg = await text(page, '[data-testid="export-package"]');
     if (!/DRAFT/.test(pkg) || !/100 x 60 mm/.test(pkg)) throw new Error('package text lacks DRAFT or size: ' + pkg.replace(/\s+/g, ' ').slice(0, 200));
-    return `${dl.suggestedFilename()}, ${fs.statSync(file).size} bytes, sha256 on disk ${sha(file).slice(0, 12)}; ${res}`;
+    const [rep] = await Promise.all([page.waitForEvent('download', { timeout: 30000 }), page.click('[data-testid="btn-download-report"]')]);
+    const repFile = path.join(work, rep.suggestedFilename());
+    await rep.saveAs(repFile);
+    const report = fs.readFileSync(repFile, 'utf8');
+    if (!/By field:/.test(report) || !/rule [A-Z]-/.test(report) && !/Findings \(0\)/.test(report)) throw new Error('findings report lacks rule ids: ' + report.slice(0, 300));
+    return `${dl.suggestedFilename()}, ${fs.statSync(file).size} bytes, sha256 on disk ${sha(file).slice(0, 12)}; ${res}; findings report ${rep.suggestedFilename()} ${report.split(/\r?\n/).length} lines`;
   });
 
   await step(page, 'print verification on a rasterized copy of the approved PDF', '16_print_verify', async () => {

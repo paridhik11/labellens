@@ -1114,7 +1114,7 @@ paths:
           description: |
             `extractive` (default, instant, no language model) or `ai` (CR-21). With `ai` the answer is a 202
             Job (kind `ask`); poll GET /jobs/{job_id}. The finished job carries `result` (AskJobResult). The AI
-            answer never fails the request: a missing model, a model slower than 90 s or an answer that fails
+            answer never fails the request: a missing model, a model slower than 170 s or an answer that fails
             verification end with the extractive passages and a `fallback_reason`.
           schema: {type: string, enum: [extractive, ai], default: extractive}
       requestBody:
@@ -1166,7 +1166,7 @@ paths:
           description: |
             `extractive` (default, instant, no language model) or `ai` (CR-21). With `ai` the answer is a 202
             Job (kind `ask`); poll GET /jobs/{job_id}. The finished job carries `result` (AskJobResult). The AI
-            answer never fails the request: a missing model, a model slower than 90 s or an answer that fails
+            answer never fails the request: a missing model, a model slower than 170 s or an answer that fails
             verification end with the extractive passages and a `fallback_reason`.
           schema: {type: string, enum: [extractive, ai], default: extractive}
       requestBody:
@@ -1351,7 +1351,7 @@ components:
         Result of an AI ask job (CR-21). `answer` is exactly the 200 body of the extractive operation (an answer, or
         an abstention that may carry quotes). `model_used` is false when the passages are shown instead of a model
         answer. `fallback_reason` explains why: model_unavailable (Ollama missing or failing), timeout (no answer
-        within 90 seconds) or verification_failed (the answer did not pass the citation checks). It is absent when
+        within 170 seconds) or verification_failed (the answer did not pass the citation checks). It is absent when
         the model ran, including when the model said the passages do not answer.
       required: [answer, model, model_used]
       additionalProperties: false
@@ -2335,6 +2335,13 @@ components:
       additionalProperties: false
       properties:
         question: {type: string, minLength: 1}
+        product_id:
+          type: string
+          minLength: 1
+          description: |
+            Optional device product (CR-29). Passages of sections that do not apply to this product (for
+            example 21 CFR 801.435 for a product that is not a latex condom) are dropped and each section
+            appears once, in the passages shown and in what the AI model sees. Unknown id: 404.
     ProfessionalAnsweredAnswer:
       type: object
       required: [abstained, answer, sources]

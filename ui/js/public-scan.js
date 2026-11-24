@@ -231,13 +231,13 @@
     }));
   }
 
-  function typeNameHtml() {
+  function typeNameHtml(prefill) {
     return `
       <div class="card" data-testid="type-name" style="margin-top:16px;padding:16px;text-align:left;">
         <div class="font-semibold text-sm">Type the name instead</div>
         <p class="text-xs text-muted" style="margin:4px 0 8px 0;">Type the medicine name as printed on the pack, for example the brand or the active ingredient.</p>
         <div class="flex-row" style="gap:8px;">
-          <input type="text" id="p1TypedName" data-testid="type-name-input" aria-label="Medicine name" maxlength="200" placeholder="Medicine name" style="flex:1;padding:8px 10px;border:1px solid var(--color-border);border-radius:8px;font:inherit;">
+          <input type="text" id="p1TypedName" data-testid="type-name-input" aria-label="Medicine name" maxlength="200" placeholder="Medicine name" value="${esc(prefill || '')}" style="flex:1;padding:8px 10px;border:1px solid var(--color-border);border-radius:8px;font:inherit;">
           <button class="btn btn-secondary" type="button" data-testid="type-name-go">Find</button>
         </div>
         <div class="text-xs text-muted" data-testid="type-name-note" style="margin-top:6px;"></div>
@@ -262,6 +262,120 @@
     };
     go.addEventListener('click', run);
     input.addEventListener('keydown', (e) => { if (e.key === 'Enter') run(); });
+  }
+
+
+  // ---------------------------------------------------------------- name from the photo text (no NDC, not in the 30)
+
+  // Words that are on most packs and never name the medicine: pack words, colours, Spanish instructions, salts
+  // ("metoprolol" finds the label, "tartrate" alone finds many unrelated ones) and common labeler words.
+  const NAME_STOP = new Set(('tablet tablets capsule capsules caplet caplets only each contains contain keep reach children '
+    + 'store storage stored usp film coated extended release delayed oral solution suspension injection cream ointment '
+    + 'dosage prescription pharmacist directions direction warning warnings synthetic test image label labels manufactured '
+    + 'distributed marketed packaged pharma pharmaceuticals pharmaceutical laboratories limited corp incorporated '
+    + 'hydrochloride sodium calcium potassium tartrate succinate maleate citrate phosphate sulfate acetate besylate '
+    + 'mesylate fumarate hyclate bromide chloride magnesium package insert information patient medication guide daily '
+    + 'times every hours count bottle blister carton strength active inactive ingredients ingredient purpose relief adult '
+    + 'adults years older under doctor before after using other questions comments call toll free made india china '
+    + 'canada dayton jersey usual dispense dispensed container tight light moisture temperature room controlled excursions '
+    + 'permitted protect between below above should while taking alcohol caution federal prohibits english espanol '
+    + 'instrucciones dirigido directed please provided separately drugs batch expiration coating stamping varnish paper '
+    + 'plastic shake sample master major green white yellow orange black brown purple violet round oval scored '
+    + 'see full prescribing lot exp expiry date serial generic brand equivalent compare drug facts uses tamper evident '
+    + 'regular extra pain attention physician recommended inhalation tablets each unit dose repack remedy').split(' '));
+  const STRENGTH = /\d\s*(mg|mcg|g|ml|%)\b/i;
+
+  /**
+   * Up to three words that may name the medicine, best first: letters only, 5 to 14 long (longer ones are words the
+   * reader ran together), not a common pack word, from lines the reader was sure of (confidence 0.8 or more).
+   * Only words within two lines of a strength ("50 mg"); words written in capitals and on earlier lines come first.
+   */
+  function guessNames(lines) {
+    const scored = new Map();
+    const list = lines || [];
+    list.forEach((l, i) => {
+      if (l.confidence !== undefined && l.confidence < 0.8) return;
+      const near = [list[i - 2], list[i - 1], l, list[i + 1], list[i + 2]].some((x) => x && STRENGTH.test(String(x.text || '')));
+      if (!near) return; // a medicine name sits next to its strength; elsewhere common words ("drink alcohol") get in
+      String(l.text || '').split(/[^A-Za-z]+/).forEach((w) => {
+        const low = w.toLowerCase();
+        if (low.length < 5 || low.length > 14 || NAME_STOP.has(low)) return;
+        const score = (near ? 2 : 0) + (w === w.toUpperCase() ? 1 : 0) + Math.max(0, 1 - i / 20) + Math.min(low.length, 12) / 24;
+        if (!scored.has(low) || scored.get(low).score < score) scored.set(low, { word: w, score });
+      });
+    });
+    return [...scored.values()].sort((a, b) => b.score - a.score).slice(0, 3).map((x) => x.word);
+  }
+
+  /**
+   * True when a DailyMed list entry's product or generic name starts with the word (never the labeler, never a word
+   * in the middle: "PHARMACY" must not propose "GOOD NEIGHBOR PHARMACY NASAL ALLERGY").
+   */
+  function namesWord(c, word) {
+    const w = word.toLowerCase();
+    return [c.product_name, c.generic_name].some((t) => String(t || '').toLowerCase().split(/[^a-z]+/).filter(Boolean)[0] === w);
+  }
+
+  /** Search DailyMed for the guessed words in order; the labels that name the first word with any result. */
+  async function lookupByName(words) {
+    for (const word of words) {
+      let r;
+      try { r = await window.LabelLensApi.request('POST', '/public/live/search', { json: { product_name: word } }); } catch (e) { return { error: 'This page could not reach its server.' }; }
+      if (r.status !== 200 || !r.body || r.mock) return { error: (r.body && r.body.message) || `The lookup failed (HTTP ${r.status}).` };
+      if (r.body.outcome === 'unavailable') return { error: r.body.message || 'DailyMed lookup is not available.' };
+      const list = (r.body.candidates || []).filter((c) => namesWord(c, word));
+      if (list.length) return { word, list };
+    }
+    return { word: words[0] || '', list: [] };
+  }
+
+  /** "Is this X?" for the next DailyMed label, or "We couldn't identify this pack" with the read name prefilled. */
+  function proposeLive(host, found, index) {
+    const c = found.list[index];
+    if (!c) {
+      host.innerHTML = `<div class="notice-banner notice-warning" data-testid="not-identified" style="margin-top:16px;"><div class="notice-icon">i</div><div>
+        <div class="notice-title">We couldn't identify this pack</div>
+        <div class="notice-text">${found.word ? `We read <strong>${esc(found.word)}</strong> on the pack, but no label was confirmed for it. ` : 'No medicine name could be read from the photo. '}Type the name as printed on the pack, or scan another photo.</div></div></div>
+        ${typeNameHtml(found.word)}`;
+      bindTypeName(host);
+      return;
+    }
+    const name = [c.product_name || c.title, c.generic_name ? `(${c.generic_name})` : '', c.dosage_form || ''].filter(Boolean).join(' ');
+    host.innerHTML = `<div data-testid="live-proposal" data-setid="${esc(c.setid)}">
+      <div class="notice-banner" style="margin-top:16px;"><div class="notice-icon">?</div><div>
+        <div class="notice-title">Is this ${esc(name)}?</div>
+        <div class="notice-text">We read <strong>${esc(found.word)}</strong> on the pack. It is not one of the 30 curated medicines, so DailyMed was searched for that name; this is a label it lists${c.labeler ? ` (from ${esc(c.labeler)})` : ''}. Check it against your pack before anything is shown.</div>
+      </div></div>
+      <div class="flex-row" style="justify-content:center;gap:8px;margin-top:16px;flex-wrap:wrap;">
+        <button class="btn btn-primary" type="button" data-testid="live-confirm">Confirm</button>
+        <button class="btn btn-secondary" type="button" data-testid="live-reject">Not this one</button>
+        <button class="btn btn-secondary" type="button" data-testid="live-typename">Type the name</button>
+      </div>
+      <div data-testid="live-fetch-area"></div><div data-testid="live-more"></div></div>`;
+    host.querySelector('[data-testid="live-confirm"]').addEventListener('click', () => {
+      host.querySelectorAll('button').forEach((b) => { b.disabled = true; });
+      window.LabelLensLive.fetchCandidate(c, found.word, host.querySelector('[data-testid="live-fetch-area"]'));
+    });
+    host.querySelector('[data-testid="live-reject"]').addEventListener('click', () => proposeLive(host, found, index + 1));
+    host.querySelector('[data-testid="live-typename"]').addEventListener('click', () => {
+      const more = host.querySelector('[data-testid="live-more"]');
+      more.innerHTML = typeNameHtml(found.word);
+      bindTypeName(more);
+    });
+  }
+
+  /** No NDC and no curated match: take the name from the photo text and look it up on DailyMed (never auto-confirmed). */
+  async function lookupFromPhoto(host, body) {
+    const words = guessNames(body.read_lines || []);
+    if (!words.length || !window.LabelLensLive || !window.LabelLensLive.fetchCandidate) { proposeLive(host, { word: words[0] || '', list: [] }, 0); return; }
+    host.innerHTML = `<p class="text-sm text-muted" data-testid="live-photo-searching" style="text-align:center;margin-top:16px;">We read <strong>${esc(words[0])}</strong> on the pack. Searching DailyMed for it...</p>`;
+    const found = await lookupByName(words);
+    if (found.error) {
+      host.innerHTML = `<div class="notice-banner notice-warning" data-testid="not-identified" style="margin-top:16px;"><div class="notice-icon">i</div><div><div class="notice-title">We couldn't identify this pack</div><div class="notice-text">${esc(found.error)} Type the name as printed on the pack.</div></div></div>${typeNameHtml(words[0])}`;
+      bindTypeName(host);
+      return;
+    }
+    proposeLive(host, found, 0);
   }
 
   /** The evidence card: every line read from the photo, the ones behind the match marked. */
@@ -292,20 +406,27 @@
     extra.setAttribute('data-testid', 'scan-extra');
     extra.style.cssText = 'max-width:640px;margin:0 auto;';
     let html = '';
+    // A photo that matched nothing (or only below the threshold) and was read completely: look the name up on DailyMed.
+    const nameLookup = fromScan && isApi() && body.outcome !== 'matched' && body.reason !== 'timeout' && (body.read_lines || []).length > 0;
     if (fromScan) {
-      if (body.outcome === 'no_reference_match') {
-        const text = body.message || 'This product is not one of the reference labels.';
-        html += `<div class="notice-banner notice-warning" data-testid="not-identified" style="margin-top:16px;"><div class="notice-icon">i</div><div><div class="notice-title">${body.reason === 'timeout' ? 'The photo took too long to read' : 'Not identified'}</div><div class="notice-text">${esc(text)}</div></div></div>`;
+      if (body.outcome === 'no_reference_match' && !nameLookup) {
+        const text = body.reason === 'timeout' ? (body.message || 'The photo took too long to read.') : 'No medicine name could be read from the photo.';
+        html += `<div class="notice-banner notice-warning" data-testid="not-identified" style="margin-top:16px;"><div class="notice-icon">i</div><div><div class="notice-title">${body.reason === 'timeout' ? 'The photo took too long to read' : "We couldn't identify this pack"}</div><div class="notice-text">${esc(text)}</div></div></div>`;
       }
-      html += evidenceHtml(body);
+      if (nameLookup) html += '<div data-testid="live-photo"></div>';
+      // not identified: the lines read are evidence, but nothing was "used for the match" (no match was accepted)
+      html += body.outcome === 'matched' ? evidenceHtml(body)
+        : evidenceHtml({ ...body, outcome: nameLookup ? 'matched' : body.outcome, matched_text: '', read_lines: (body.read_lines || []).map((l) => ({ ...l, used: false })) });
     }
-    if (askName) {
+    if (askName && !nameLookup) {
       html += typeNameHtml();
       html += `<div class="flex-row" style="justify-content:center;margin-top:12px;"><button class="btn btn-primary" type="button" data-testid="scan-again">Scan another photo</button></div>`;
     }
     extra.innerHTML = html;
     container.appendChild(extra);
     bindTypeName(extra);
+    const livePhoto = extra.querySelector('[data-testid="live-photo"]');
+    if (livePhoto) lookupFromPhoto(livePhoto, body);
     const again = extra.querySelector('[data-testid="scan-again"]');
     if (again) again.addEventListener('click', () => {
       document.querySelectorAll('.public-nav-btn[data-screen]').forEach((b) => {
@@ -365,6 +486,13 @@
       const wrapped = (container, state, meta, data) => {
         const scan = data && Array.isArray(data.read_lines) && data.outcome === 'matched' && state === 'success';
         if (scan && !data.__confirmed) { renderConfirm(container, data); return; }
+        if (data && Array.isArray(data.read_lines) && state === 'needs_review' && isApi()) {
+          // below the match threshold: never list those candidates for a photo; treat it as not identified
+          const plain = Object.assign({}, data, { candidates: [] });
+          base(container, 'empty', meta, plain);
+          decorateP2(container, 'empty', data);
+          return;
+        }
         base(container, state, meta, data);
         decorateP2(container, state, data);
       };
@@ -374,5 +502,5 @@
   }
   wrapP2();
 
-  window.LabelLensPublicScan = { mount, showMatch, renderConfirm, evidenceHtml, fileToJpeg, toJpeg, MAX_SIDE };
+  window.LabelLensPublicScan = { mount, showMatch, renderConfirm, evidenceHtml, fileToJpeg, toJpeg, MAX_SIDE, guessNames, namesWord };
 })();

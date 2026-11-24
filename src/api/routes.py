@@ -53,7 +53,7 @@ from src.api.requests import (
     LiveSearchCreate,
     MedicineMatchCreate,
     ProductCreate,
-    ProfessionalQuestion,
+    ProfessionalProductQuestion,
     PublicQuestion,
     ReviewCreate,
     SearchCreate,
@@ -62,6 +62,7 @@ from src.api.requests import (
 from src.api.reviews import record_review
 from src.api.store import (
     create_product,
+    current_product_version,
     get_user,
     register_template,
 )
@@ -650,10 +651,11 @@ def _ask(request: Request, question: str, module: str) -> Any:
 
 def _ask_job(
     request: Request, background: BackgroundTasks, session: Session, question: str, module: str, product_id: str | None,
+    product_text: str | None = None,
 ) -> JSONResponse:
     """Start the optional AI answer (CR-21) as a 202 job. The job falls back to the extractive passages."""
     job = checks.new_job(session, "ask", None, "anonymous")
-    background.add_task(ask_jobs.run_ask_job, request.app, job.job_id, question, module, product_id)
+    background.add_task(ask_jobs.run_ask_job, request.app, job.job_id, question, module, product_id, product_text)
     return JSONResponse(checks.job_json(job), status_code=202)
 
 
@@ -810,10 +812,34 @@ def medicine_page() -> HTMLResponse:
 
 @router.post("/ask", operation_id="askProfessional", tags=["device"])
 def ask_professional(
-    body: ProfessionalQuestion, request: Request, background: BackgroundTasks, mode: str = "extractive",
+    body: ProfessionalProductQuestion, request: Request, background: BackgroundTasks, mode: str = "extractive",
     session: Session = Depends(get_session),
 ) -> Any:
-    """Cited answer from the device regulations (21 CFR 8xx), or an abstention. No header needed. `mode=ai` as above."""
+    """Cited answer from the device regulations (21 CFR 8xx), or an abstention. No header needed. `mode=ai` as above.
+
+    With a product_id (CR-29) passages of sections that do not apply to that product are dropped and each
+    section shows once, in the passages shown and in what the model sees.
+    """
+    product_text = device_product_text(session, body.product_id)
     if _ask_mode(mode) == "ai":
-        return _ask_job(request, background, session, body.question, "device", None)
-    return _ask(request, body.question, "device").to_wire(banner=False)
+        return _ask_job(request, background, session, body.question, "device", body.product_id, product_text)
+    from src.rag.service import RetrievalUnavailable
+
+    try:
+        result = request.app.state.rag.ask(body.question, "device", product_text=product_text)
+    except RetrievalUnavailable as error:
+        raise ApiError(503, "retrieval_unavailable", str(error)) from error
+    return result.to_wire(banner=False)
+
+
+def device_product_text(session: Session, product_id: str | None) -> str | None:
+    """The current record of a device product as one text for the applicability filter; None without an id."""
+    if product_id is None:
+        return None
+    from src.rag.applicability import record_text
+
+    row = current_product_version(session, product_id)  # 404 for an unknown product
+    return record_text({
+        "name": row.name, "model": row.model, "manufacturer": row.manufacturer, "sterilization": row.sterilization,
+        "storage": row.storage, "extra": row.extra or {},
+    })

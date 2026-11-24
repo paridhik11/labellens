@@ -36,12 +36,31 @@
     return '';
   }
 
+  /** A DailyMed label chunk (section key like "labelling/34067-9/4"), not a regulation section. */
+  function isLabelSource(s) {
+    return Boolean(s) && (s.source_type === 'label_section' || s.source === 'DailyMed' || /^[a-z]+\/[0-9-]+\/\d+$/.test(String(s.section || '')));
+  }
+
+  /** "Label section: <title>" for label chunks (title "<medicine>: <section>"), "21 CFR <section>: <title>" otherwise. */
+  function sourceTitle(s) {
+    if (isLabelSource(s)) {
+      const t = String(s.title || '');
+      const i = t.indexOf(': ');
+      return 'Label section: ' + (i >= 0 ? t.slice(i + 2) : t);
+    }
+    return `21 CFR ${s.section || ''}: ${s.title || ''}`;
+  }
+
+  function sourceBadge(s) { return isLabelSource(s) ? 'Label' : 'Regulation'; }
+
   function renderScreenP2(container, state, meta, data) {
     if (!container) return;
     const safeData = data || {};
 
-    // Static Authenticity Notice Banner on every Screen 2 view
-    const authenticityBannerHtml = `
+    // The authenticity notice is shown once, in the page itself (ui/public/index.html), above every screen.
+    // Pages without that static notice (none at present) would set data-no-static-banner on <body>.
+    const staticBanner = !document.body || !document.body.hasAttribute('data-no-static-banner');
+    const authenticityBannerHtml = staticBanner ? '' : `
       <div class="notice-banner notice-warning" style="margin-bottom: 20px;">
         <div class="notice-icon">i</div>
         <div>
@@ -62,9 +81,9 @@
         ${authenticityBannerHtml}
         <div class="card" style="text-align: center; padding: 48px 24px; max-width: 640px; margin: 0 auto;">
           <div style="font-size: 2.2rem; margin-bottom: 12px; color: var(--color-text-muted);"><svg class="icon icon-xl" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l5 5v13H6V3z"/><path d="M14 3v5h5"/></svg></div>
-          <h3>No reference label found</h3>
+          <h3>${Array.isArray(safeData.read_lines) ? 'Not one of the 30 curated medicines' : 'No reference label found'}</h3>
           <p class="text-muted text-sm" style="margin-top: 8px;">
-            We could not match this package against official FDA drug labels in 21 CFR 201, 208, or 211.
+            ${Array.isArray(safeData.read_lines) ? 'The photo did not match a curated reference label with enough confidence, so no curated label is shown.' : 'This name does not match one of the 30 curated reference labels.'}
           </p>
           ${canScanAnother ? `
             <div style="margin-top: 20px;">
@@ -114,8 +133,6 @@
           <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 12px;">
             ${candidates.map((c, idx) => {
               const testBadge = renderTestBadge(c.product_id) || renderTestBadge(c);
-              const hasConfidence = typeof c.match_confidence === 'number';
-              const confDisplay = hasConfidence ? `Match: ${Math.round(c.match_confidence * 100)}%` : '';
               return `
                 <div class="card" style="border: 1px solid var(--color-border); padding: 16px; display: flex; justify-content: space-between; align-items: center;">
                   <div>
@@ -128,9 +145,9 @@
                     </div>
                   </div>
                   <div class="flex-row" style="gap: 12px;">
-                    ${hasConfidence ? `<span class="badge badge-teal">${confDisplay}</span>` : ''}
-                    <button class="btn btn-sm btn-primary btn-select-candidate" data-index="${idx}" type="button">
-                      Select
+                    <span class="badge badge-warning">Not certain</span>
+                    <button class="btn btn-sm btn-secondary btn-select-candidate" data-index="${idx}" type="button">
+                      This is my pack
                     </button>
                   </div>
                 </div>
@@ -151,7 +168,9 @@
           if (chosen) {
             const detailContainer = container.querySelector('#p2SelectedCandidateContainer');
             if (detailContainer) {
-              renderCandidateDetails(detailContainer, chosen, safeData.summary || '', safeData.sources || [], canScanAnother);
+              // the person picked it: show it without the match score (the system was not certain)
+              const picked = Object.assign({}, chosen); delete picked.match_confidence;
+              renderCandidateDetails(detailContainer, picked, safeData.summary || '', safeData.sources || [], canScanAnother);
               detailContainer.scrollIntoView({ behavior: 'smooth' });
             }
           }
@@ -177,6 +196,7 @@
       : '';
 
     const testBadge = renderTestBadge(cand.product_id) || renderTestBadge(cand);
+    if (cand.product_id) window.LabelLensCurrentProduct = { product_id: cand.product_id, product_name: cand.product_name || '' };
     const subtitleParts = [cand.dosage_form, cand.active_substance, cand.pack_size].filter(Boolean);
 
     container.innerHTML = `
@@ -186,7 +206,7 @@
           <h2>Product information</h2>
           <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
             <span style="font-size: 1.15rem; font-weight: 700; color: var(--color-text-dark);">${escapeHtml(cand.product_name || '')}</span>
-            <span class="badge badge-teal">Reference match found</span>
+            <span class="badge badge-teal">${hasConfidence ? 'Reference match found' : 'Label you picked'}</span>
             ${testBadge}
           </div>
           ${subtitleParts.length > 0 ? `
@@ -222,7 +242,7 @@
                   <span class="kv-label">${escapeHtml(k)}</span>
                   <span class="kv-value">${escapeHtml(String(v))} ${renderTestBadge(v)}</span>
                 </div>
-              `).join('')}
+              `).join('') || '<p class="text-sm text-muted" data-testid="no-photo-fields" style="margin: 8px 0;">No fields from a photo for this label: it was chosen by name, or the photo only told us the name.</p>'}
             </div>
           </div>
 
@@ -263,10 +283,10 @@
 
           ${sources.length > 0 ? `
             <div class="text-xs" style="margin-top: 14px; border-top: 1px solid var(--color-border); padding-top: 12px;">
-              <span class="font-semibold text-muted">Cited Regulatory Basis:</span>
+              <span class="font-semibold text-muted">${isLabelSource(sources[0]) ? 'From the label:' : 'Cited Regulatory Basis:'}</span>
               <div style="margin-top: 6px; display: flex; align-items: center; gap: 8px;">
-                <span class="badge badge-teal">${escapeHtml(sources[0].source_type || 'cfr')}</span>
-                <span style="font-weight: 600;">21 CFR ${escapeHtml(sources[0].section || '')}: ${escapeHtml(sources[0].title || '')}</span>
+                <span class="badge badge-teal">${sourceBadge(sources[0])}</span>
+                <span style="font-weight: 600;">${escapeHtml(sourceTitle(sources[0]))}</span>
               </div>
               ${sources[0].quote ? `
                 <div style="margin-top: 6px; font-style: italic; color: var(--color-text-muted); border-left: 2px solid var(--color-primary-teal); padding-left: 10px;">
@@ -282,8 +302,8 @@
       <div id="p2TabSourcesContent" style="display: none;">
         <div class="card">
           <div class="card-header-clean flex-between">
-            <h3>Cited Regulatory Sources</h3>
-            <span class="badge badge-teal">21 CFR Reference Corpus</span>
+            <h3>Cited sources</h3>
+            <span class="badge badge-teal">${sources.some(isLabelSource) ? 'Reference label' : '21 CFR Reference Corpus'}</span>
           </div>
           ${sources.length === 0 ? `
             <p class="text-sm text-muted">No external regulatory citations provided for this match.</p>
@@ -293,12 +313,12 @@
                 <div style="border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 16px; background-color: var(--color-bg-subtle);">
                   <div class="flex-between">
                     <div class="flex-row" style="gap: 8px;">
-                      <span class="badge badge-teal">${escapeHtml(s.source_type || 'cfr')}</span>
-                      <span class="font-semibold text-sm">21 CFR ${escapeHtml(s.section || '')}: ${escapeHtml(s.title || '')}</span>
+                      <span class="badge badge-teal">${sourceBadge(s)}</span>
+                      <span class="font-semibold text-sm">${escapeHtml(sourceTitle(s))}</span>
                     </div>
                     ${s.url ? `
                       <a href="${escapeHtml(s.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-secondary">
-                        View regulation &rarr;
+                        ${isLabelSource(s) ? 'View in label' : 'View regulation'} &rarr;
                       </a>
                     ` : ''}
                   </div>
@@ -308,7 +328,7 @@
                     </div>
                   ` : ''}
                   <div class="text-xs text-muted" style="margin-top: 8px;">
-                    Source: ${escapeHtml(s.source || 'FDA')} | Chunk: <code>${escapeHtml(s.chunk_id || '')}</code>
+                    Source: ${escapeHtml(s.source || 'FDA')} | passage id <code>${escapeHtml(s.chunk_id || '')}</code>
                   </div>
                 </div>
               `).join('')}

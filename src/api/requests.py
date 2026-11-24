@@ -212,6 +212,12 @@ class ProfessionalQuestion(BaseModel):
         return value.strip()
 
 
+class ProfessionalProductQuestion(ProfessionalQuestion):
+    """POST /ask with an optional device product_id (CR-29): passages that do not apply to it are dropped."""
+
+    product_id: str | None = Field(default=None, min_length=1)
+
+
 class PublicQuestion(ProfessionalQuestion):
     """POST /public/ask (medicine module). product_id is accepted as given; no product registry exists yet."""
 

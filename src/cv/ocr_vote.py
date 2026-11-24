@@ -26,7 +26,8 @@ def tesseract_lines(
         path = Path(folder)/'input.png'
         Image.fromarray(image).save(path)
         result = subprocess.run([program, str(path), 'stdout', '-l', 'eng', '--psm', '11', 'tsv'],
-                                capture_output=True, text=True, check=True,
+                                # Tesseract writes UTF-8; the Windows default code page turned "®" into "Â®"
+                                capture_output=True, text=True, encoding='utf-8', errors='replace', check=True,
                                 timeout=60 if timeout is None else min(60.0, timeout),
                                 env={**os.environ, 'OMP_THREAD_LIMIT': '1'})
     groups: dict[tuple[str, ...], list[dict[str, str]]] = {}
