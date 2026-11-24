@@ -22,6 +22,21 @@
     verification_failed: 'The AI answer did not pass the citation checks. Showing the closest passages.',
   };
 
+  /** Title of one citation. A DailyMed label chunk is titled "<medicine>: <section>": show the section only. */
+  function citationTitle(s) {
+    if (s.source_type === 'label_section') {
+      const t = String(s.title || '');
+      const i = t.indexOf(': ');
+      return 'Label section: ' + (i >= 0 ? t.slice(i + 2) : t);
+    }
+    return (s.section ? '21 CFR ' + s.section + ': ' : '') + (s.title || '');
+  }
+
+  /** True when the top score is under the gate: nothing relevant was found, so the passages are weak guesses. */
+  function lowConfidence(d) {
+    return d.score !== null && d.score !== undefined && d.threshold !== null && d.threshold !== undefined && d.score < d.threshold;
+  }
+
   function sourcesHtml(sources) {
     if (!sources || !sources.length) return '';
     return `
@@ -33,9 +48,9 @@
               <div class="flex-between">
                 <div class="flex-row" style="gap: 6px;">
                   <span class="badge badge-teal">${esc(s.source_type || 'cfr')}</span>
-                  <span class="font-semibold text-xs">${s.section ? '21 CFR ' + esc(s.section) + ': ' : ''}${esc(s.title || '')}</span>
+                  <span class="font-semibold text-xs">${esc(citationTitle(s))}</span>
                 </div>
-                ${s.url ? `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-secondary" style="font-size: 0.75rem; padding: 2px 8px;">View regulation &rarr;</a>` : ''}
+                ${s.url ? `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-secondary" style="font-size: 0.75rem; padding: 2px 8px;">${s.source_type === 'label_section' ? 'View in label' : 'View regulation'} &rarr;</a>` : ''}
               </div>
               ${s.quote ? `<div style="font-style: italic; font-size: 0.825rem; margin-top: 8px; border-left: 2px solid var(--color-primary-teal); padding-left: 10px;">"${esc(s.quote)}"</div>` : ''}
               <div class="text-xs text-muted" style="margin-top: 6px;">Source: ${esc(s.source || '')} | Chunk: <code>${esc(s.chunk_id || '')}</code></div>
@@ -62,7 +77,9 @@
             </div>
             <div class="notice-text" style="margin-top: 6px;">${esc(d.message || '')}</div>
             ${bits.length ? `<div class="text-xs font-mono" style="margin-top: 10px;">${bits.join(' | ')}</div>` : ''}
-            ${(d.sources || []).length ? `<div class="text-xs font-semibold" style="margin-top: 10px;">Closest passages (not an answer, a person should check them):</div>${sourcesHtml(d.sources)}` : ''}
+            ${(d.sources || []).length ? (lowConfidence(d)
+              ? `<details data-testid="low-confidence-passages" style="margin-top: 10px;"><summary class="text-xs font-semibold" style="cursor: pointer;">Show closest passages (low confidence)</summary>${sourcesHtml(d.sources)}</details>`
+              : `<div class="text-xs font-semibold" style="margin-top: 10px;">Closest passages (not an answer, a person should check them):</div>${sourcesHtml(d.sources)}`) : ''}
           </div>
         </div>`;
     }

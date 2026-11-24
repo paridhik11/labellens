@@ -27,6 +27,8 @@ MESSAGES = {
     "rerank_gate": "No sentence in the closest passages is a strong enough match to answer. A person should check this.",  # noqa: E501
     "no_answer": "The model found that the passages do not answer the question. A person should check this.",
     "verification": "A generated answer did not pass the citation checks, so only the closest passages are shown. A person should check this.",  # noqa: E501
+    # Medicine mode: nothing relevant was found, which is not the same as "no language model is running".
+    "no_match": "This label doesn't seem to answer that.",
     "provider_off": "No language model is running, so only the closest passages are shown. No answer was generated or verified.",  # noqa: E501
     "provider_timeout": "The language model took too long, so only the closest passages are shown. No answer was generated or verified.",  # noqa: E501
     "provider_error": "The language model failed, so only the closest passages are shown. No answer was generated or verified.",  # noqa: E501
@@ -59,6 +61,13 @@ class RagResult:
         """Contract reason for an abstained outcome, None when answered."""
         return None if self.outcome == "answered" else self.outcome
 
+    def message(self) -> str:
+        """Plain-language reason. In medicine mode a gate miss says the label does not answer the question."""
+        cause = self.cause.split(":")[0]
+        if self.module == "medicine" and cause in ("score_gate", "rerank_gate", "no_hits"):
+            return MESSAGES["no_match"]
+        return MESSAGES[cause]
+
     def to_wire(self, based_on: str = "", banner: bool = True) -> dict[str, Any]:
         """The contract AnswerResponse (public) or its professional twin (no banner, no based_on)."""
         extra: dict[str, Any] = {"banner": BANNER} if banner else {}
@@ -69,7 +78,7 @@ class RagResult:
             return {**out, **extra}
         out = {
             "abstained": True, "reason": self.outcome, "score_name": "scope_rule" if self.cause == "scope" else self.score_name,  # noqa: E501
-            "score": self.score, "threshold": self.threshold, "message": MESSAGES[self.cause.split(":")[0]],
+            "score": self.score, "threshold": self.threshold, "message": self.message(),
         }
         if self.sources:
             out["sources"] = self.sources

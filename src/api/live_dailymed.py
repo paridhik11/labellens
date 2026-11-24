@@ -67,6 +67,16 @@ CATEGORIES = {
     "50567-7": "warnings", "50566-9": "warnings", "53414-9": "warnings",
     "50565-1": "warnings", "34068-7": "dosage",
 }
+# Live labels also keep How Supplied (LOINC 34069-5, section 16) and Storage and Handling (44425-7), so a storage
+# question can be answered. The curated corpus is frozen without them, so CATEGORIES above stays equal to it.
+LIVE_EXTRA_CATEGORIES = {"34069-5": "storage", "44425-7": "storage"}
+LIVE_CATEGORIES = {**CATEGORIES, **LIVE_EXTRA_CATEGORIES}
+# Score gate for one label's own retrieval. The curated gate (0.0315) was fitted on the 903-chunk index and is not
+# comparable here. A top RRF score of 1/61 = 0.0164 is one system's rank-1 vote alone (no wording shared with any
+# chunk); with both systems agreeing a chunk scores about 0.03. 0.02 sits between them. Seen on one label only
+# (metoprolol, 8 questions: off-topic 0.0164, on-topic 0.0306 to 0.0328); it is not tuned or evaluated further.
+LABEL_GATE = 0.02
+PARSER_VERSION = 2  # 1 had no storage sections: a cache file without this number is fetched again
 
 
 class LiveUnavailable(Exception):
@@ -221,6 +231,7 @@ class LiveLabel:
     labeler: str
     active_ingredients: list[str]
     chunks: list[Chunk] = field(default_factory=list)
+    parser_version: int = PARSER_VERSION
 
     def to_json(self) -> dict[str, Any]:
         """The cache file content."""
@@ -230,6 +241,8 @@ class LiveLabel:
     @classmethod
     def from_json(cls, data: dict[str, Any]) -> "LiveLabel":
         """Read a cache file back; the chunk hashes are re-checked."""
+        if data.get("parser_version") != PARSER_VERSION:
+            raise ValueError("cached label was parsed by an older parser")
         chunks = [Chunk(**c) for c in data["chunks"]]
         for chunk in chunks:
             if chunk.hash != compute_content_hash(chunk.text):
@@ -306,7 +319,7 @@ def parse_label(xml: bytes, setid: str, version: int, fetched: str) -> LiveLabel
         current, category = section, None
         while current is not None and category is None:
             section_code = current.find("s:code", NS)
-            category = CATEGORIES.get(section_code.get("code")) if section_code is not None else None
+            category = LIVE_CATEGORIES.get(section_code.get("code")) if section_code is not None else None
             current = parents.get(current)
         body = section.find("s:text", NS)
         if category is None or body is None:
@@ -477,13 +490,27 @@ class LiveService:
                 self._retrievers.popitem(last=False)
         return built
 
-    def ask(self, question: str, product_id: str, provider: Any, settings: Any) -> tuple[Any, LiveLabel]:
-        """RagResult over one live label. Returns (result, label). Sources are label_section citations."""
+    def ask(self, question: str, product_id: str, provider: Any, settings: Any,
+            gated: bool = True) -> tuple[Any, LiveLabel]:
+        """RagResult over one live label. Returns (result, label). Sources are label_section citations.
+
+        "it" and "this" become the label's medicine name and storage questions get the section wording, for
+        retrieval only. With `gated`, a top score under LABEL_GATE abstains with the closest passages kept for a folded
+        view; the AI answer job passes gated=False so the person can still ask the model.
+        """
         from src.rag.pipeline import answer_question
+        from src.rag.query_rewrite import rewrite_for_retrieval
 
         label = self.load(product_id)
         chunks = {c.chunk_id: c for c in label.chunks}
-        result = answer_question(question, "medicine", self.retriever(label), chunks, provider, settings, None)
+        result = answer_question(rewrite_for_retrieval(question, label.name), "medicine", self.retriever(label), chunks,
+                                 provider, settings, LABEL_GATE if gated else None)
+        result.question = question
+        if result.cause == "score_gate":  # the gate stops before quotes exist: keep the closest, folded in the UI
+            from src.rag.pipeline import extractive_sources
+
+            closest = [chunks[i] for i in result.retrieved]
+            result.sources = extractive_sources(question, closest, settings.fallback_quotes)
         for source in result.sources:
             source["source_type"] = "label_section"
         return result, label

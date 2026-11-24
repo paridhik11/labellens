@@ -58,7 +58,7 @@ def _ask(app: Any, question: str, module: str, product_id: str | None, provider:
     """The pipeline for one job: a reference medicine product answers from its own chunks (CR-23), else as before."""
     service = app.state.medicine
     if module == "medicine" and app.state.live.knows(product_id):  # CR-28: a label fetched live
-        result, _label = app.state.live.ask(question, product_id, provider, AI_SETTINGS)
+        result, _label = app.state.live.ask(question, product_id, provider, AI_SETTINGS, gated=False)
         return result
     if module == "medicine" and service.knows(product_id):
         return service.ask(question, product_id, provider, AI_SETTINGS)
