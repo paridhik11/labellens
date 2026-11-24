@@ -94,7 +94,7 @@ py -3.12 -m venv .venv312
 `scripts/run_demo.py` is the one command. It checks the environment, builds or copies the dense indexes, seeds the demo
 database, chooses the checker retrieval, starts the API, warms the models and prints the URLs:
 the API at `http://127.0.0.1:8000` (docs at `/docs`), the public medicine page at `/public/medicine`, and the static UI (`ui/`, plain HTML and JS, no build) at `/ui/`,
-served next to the API with its mock JSON (`CONFIG.mode` in `ui/js/data.js`, default `mock`). Options: `--port`, `--fresh` (new database), `--skip-indexes`, `--no-golden`.
+served next to the API. The demo pages are `/ui/pro/index.html` (Professional workspace, live API) and `/ui/public/index.html` (public medicine mode, live API); the older multi-screen page is "Advanced view" in the Professional header. Options: `--port`, `--fresh` (new database), `--skip-indexes`, `--no-golden`, `--warm` (prefetch the live DailyMed labels of the demo, `scripts/warm_demo_cache.py`). When Ollama runs, the AI model is loaded at start.
 
 First run on a new machine:
 - The embedding model (BAAI/bge-large-en-v1.5, 1.3 GB) downloads from Hugging Face once. After that the app runs offline.
@@ -116,7 +116,7 @@ Always run Python as `python -m ...` or `python scripts/...` from the repo root.
 
 ### Demo script
 
-The exact 5 minute click path, with which stages are real and which are mocks, is `docs/DEMO_SCRIPT.md`. The overview below is the longer version.
+The click path for the live demo (about 6 minutes, with what to say and what to avoid) is `docs/DEMO_SCRIPT.md`. The overview below is the longer version.
 
 Users are stubs chosen by the `X-User-Id` header (`usr_demo_editor`, `usr_demo_reviewer`, `usr_demo_admin`), no login.
 Everything below is also one `demo_e2e.py` run.

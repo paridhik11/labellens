@@ -414,7 +414,9 @@
         html += `<div class="notice-banner notice-warning" data-testid="not-identified" style="margin-top:16px;"><div class="notice-icon">i</div><div><div class="notice-title">${body.reason === 'timeout' ? 'The photo took too long to read' : "We couldn't identify this pack"}</div><div class="notice-text">${esc(text)}</div></div></div>`;
       }
       if (nameLookup) html += '<div data-testid="live-photo"></div>';
-      html += evidenceHtml(body);
+      // not identified: the lines read are evidence, but nothing was "used for the match" (no match was accepted)
+      html += body.outcome === 'matched' ? evidenceHtml(body)
+        : evidenceHtml({ ...body, outcome: nameLookup ? 'matched' : body.outcome, matched_text: '', read_lines: (body.read_lines || []).map((l) => ({ ...l, used: false })) });
     }
     if (askName && !nameLookup) {
       html += typeNameHtml();

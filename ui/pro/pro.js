@@ -976,7 +976,7 @@
 
   // Sections that only apply to some products (latex condoms) are dropped for other products; each section shows once.
   // Same table as src/rag/applicability.py, which filters /ask on the server when a product_id is sent.
-  const PRODUCT_SPECIFIC = { '801.435': /latex|condom/i };
+  const PRODUCT_SPECIFIC = { '801.435': /latex|condom/i, '801.430': /tampon/i, '809.10': /in vitro|diagnostic|\bivd\b|reagent|assay/i };
   /** The open device product, sent with /ask so the server filters passages for it (CR-29). */
   const productId = () => (S.product && S.product.product ? S.product.product.product_id : undefined);
   function applicableOnly(res, rec) {
@@ -1067,7 +1067,7 @@
         return `<div class="fcard" data-testid="finding-card" data-field="${esc(f)}" data-outcome="${esc(fr.worst)}">
           <div class="row"><strong>${esc(FIELD_WORD[f] || f)}</strong><span class="badge ${fr.cls}" data-testid="card-result">${esc(fr.word)}</span></div>
           <div class="small">Product: <strong data-testid="card-value">${fmtVal(recVal(rec, f)) || '<span class="muted">(empty)</span>'}</strong></div>
-          ${fr.findings.map((x) => `<div class="small">${esc(x.message)}${x.observed || x.expected ? ` Read: <strong>${esc(x.observed || '(nothing)')}</strong>. Expected: <strong>${esc(x.expected || '(nothing)')}</strong>.` : ''}</div>`).join('')}
+          ${fr.findings.map((x) => `<div class="small">${esc(String(x.message || '').replace(/([^.])$/, '$1.'))}${x.observed || x.expected ? ` Read: <strong>${esc(x.observed || '(nothing)')}</strong>. Expected: <strong>${esc(x.expected || '(nothing)')}</strong>.` : ''}</div>`).join('')}
           <div class="small muted" data-testid="card-rules">Rule${fr.rules.length > 1 ? 's' : ''}: ${fr.rules.map((r) => `<span class="mono" title="${esc(r.reason)}">${esc(r.rid)}</span> ${esc((RESULT_WORD[r.outcome] || ['', r.outcome])[1].toLowerCase())}`).join(', ')}</div>
           <div class="mt">${cardPassagesHtml(f, fr)}</div></div>`;
       }).join('')}</div></div>`;
@@ -1103,7 +1103,7 @@
     return `<div class="card" data-testid="evidence"><h3>Evidence for ${esc(S.product.record.name)}</h3>
       <p class="small muted mb">Facts about this product come from the product record and the latest check. Regulation text comes from retrieval over 21 CFR 801, 820 and 830. (See Findings by field.) Passages are filtered for this product: sections that only govern other products are dropped and each section shows once.</p>
       <h3 class="mt">Ask the regulations</h3>
-      <p class="small muted mb">Answers labeling-regulation questions, not questions about this product. The passages appear at once; the AI answer is optional and slow (about 40 s). Try:</p>
+      <p class="small muted mb">Answers labeling-regulation questions, not questions about this product. The passages appear at once; the AI answer is optional (about 15 s once the model is loaded, about a minute the first time). Try:</p>
       <div class="row mb">${EXAMPLES.map(([label, q]) => btn('ask-example', esc(label), { small: true, data: { q }, testid: 'example-' + label.toLowerCase().split(' ')[0] })).join('')}</div>
       <label class="small" for="evQuestion"><strong>Regulation search (general)</strong></label>
       <div class="row"><input class="input" id="evQuestion" style="flex:1 1 380px" data-model="evidence.question" data-enter="ask" data-testid="evidence-question" placeholder="For example: what must a label show for the expiration date?" value="${esc(ev.question)}">${btn('ask', 'Ask', { primary: true })}${btn('ask-ai', 'Ask with AI (optional, first run about a minute)', { testid: 'btn-ask-ai' })}</div>

@@ -18,6 +18,8 @@ from src.common.schemas import Chunk
 # section -> pattern the product record must match for the section to apply
 PRODUCT_SPECIFIC: dict[str, re.Pattern[str]] = {
     "801.435": re.compile(r"latex|condom", re.IGNORECASE),
+    "801.430": re.compile(r"tampon", re.IGNORECASE),
+    "809.10": re.compile(r"in vitro|diagnostic|\bivd\b|reagent|assay", re.IGNORECASE),
 }
 
 

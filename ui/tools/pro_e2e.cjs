@@ -416,7 +416,7 @@ async function main() {
       field: c.dataset.field, outcome: c.dataset.outcome, result: c.querySelector('[data-testid="card-result"]').innerText.trim(),
       value: c.querySelector('[data-testid="card-value"]').innerText.trim(), rules: c.querySelector('[data-testid="card-rules"]').innerText,
       used: (c.querySelector('[data-testid="card-search-used"]') || { innerText: '' }).innerText,
-      top: [...c.querySelectorAll('[data-testid="passage"] .ptitle strong')].map((e) => e.innerText),
+      top: [...c.querySelectorAll('[data-testid="passage"] .ptitle strong')].map((e) => e.textContent.trim()), // textContent: passages in a closed details have no innerText
       more: !!c.querySelector('[data-testid="card-more"]'), noPassage: !!c.querySelector('[data-testid="card-no-passage"]'),
       clamped: !!c.querySelector('.q.clamp2'),
     })));

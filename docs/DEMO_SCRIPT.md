@@ -1,42 +1,51 @@
-# Demo script (about 5 minutes)
+# Demo script (about 6 minutes)
 
-Click path for the golden package, checked against `scripts/demo_e2e.py` (20 of 20 stages PASS, no mock, no fallback) and the UI flow `ui/tools/e2e_golden.cjs`. All test data is marked as test data and every draft carries the DRAFT mark. Nothing here is a compliance determination.
+The click path for the live demo on the simple pages: the public medicine page (`/ui/public/index.html`) and the Professional workspace (`/ui/pro/index.html`), both on the live API. Everything below was rehearsed on the final code (`reports/final_polish.md` has the timings and screenshots). Test data is marked as test data, every draft carries the DRAFT mark, and nothing here is a compliance determination.
 
-## Before you start (once, not part of the 5 minutes)
-
-```powershell
-.venv312\Scripts\python.exe scripts\run_demo.py
-```
-
-Wait for the URLs. On a machine with no index store the first start builds the dense indexes (about 40 minutes); set `LABELLENS_INDEX_DIR` to an existing store to skip that. Then, in a second terminal, optionally `.venv312\Scripts\python.exe scripts\demo_e2e.py` as a smoke test. To drive the UI on the golden package, prepare it with:
+## Before you start (once, not part of the 6 minutes)
 
 ```powershell
-.venv312\Scripts\python.exe ui\tools\golden_setup.py --base http://127.0.0.1:8000 --out <folder>
+.venv312\Scripts\python.exe scripts\run_demo.py --warm
 ```
 
-It prints the product id and the label PDF path. Open `http://127.0.0.1:8000/ui/professional/index.html?mode=api&product=<product id>`. The page is in api mode by default (`?mode=mock` is the static mock mode); the badge at the top must read `api`, not `mock`. The user switch (top right) starts as the editor `usr_demo_editor`.
+- Wait for the URLs and for `warm-up: live DailyMed labels ready 4 of 4` (first time: about 3 to 4 minutes, needs internet; later starts: seconds, the labels are cached on disk). `--warm` prefetches the live DailyMed labels the demo uses (pregabalin, Zetia, metoprolol, Lopressor) so no first fetch (30 s to 2 minutes) happens on stage. It also loads the AI model into Ollama when Ollama runs (`warm-up: AI model: ... loaded`).
+- Check the line `Tesseract found`: the photo scan needs it.
+- Close heavy programs. On a loaded PC the photo reader can hit its time limit and the AI answer takes longer.
+- Open the pages with Ctrl+F5 once so the browser loads the newest scripts.
 
 ## Click path
 
-| Min | Screen (sidebar) | Do | Say | Real or mock |
+| Min | Page | Do | Say | Avoid |
 |---|---|---|---|---|
-| 0:00 | D3 Upload or scan | Choose `golden_label.pdf`, click Upload. Wait for "Scan processed". | The system reads the label (text, barcode) with the real extractor. | Real |
-| 0:40 | D4 Inspect | Open the extraction. Type the correct values into the unclear fields (in the checked UI run: lot `LOT: LOT1`, expiry `EXP: 2030-06-30`, as printed on the label), click Confirm. | Nothing is trusted silently: unclear fields are corrected by a person, and each correction is recorded. | Real |
-| 1:10 | D4 Inspect | Click "Run inspection checks". | One `extraction_unreliable` finding: the rendered PDF page has no label boundary, so text checks are skipped and a human is asked. This first check has no citation. | Real |
-| 1:40 | D6 Changes | Field `lot`, new value `LOT2`, Assess, then Confirm checklist. | The lot is encoded in the barcode, so the decision is REGENERATE. Rules decided this, not a language model. | Real (rule parser) |
-| 2:20 | D6 Changes | Generate draft artwork. | The template is filled, never an image model. The draft is marked DRAFT and the new barcode is built from the new lot, with a test GS1 identifier. | Real renderer |
-| 3:00 | D7 Review | Click Run re-check. | The rendered PDF is read back as an image. The finding `B-LOT barcode_mismatch` appears: the printed lot differs from the barcode, with an uncertain OCR read, so a person must look. The decision is a rule. The finding shows its citation underneath (21 CFR 801.40, section "Form of a unique device identifier", verbatim quote), the same box as on D4 and D5. | Real (e5b retrieval, falls back to hybrid) |
-| 3:30 | D5 Evidence | Search `format of expiration date on a device label`, then ask `What must a label show for the expiration date?` | Cited regulation passages from the real retrieval (21 CFR 801, 820, 830), with the section, title and quote for each. | Real |
-| 3:40 | D7 Review | Switch user to `usr_demo_reviewer`, add a comment, Approve. | Approval is bound to this exact PDF hash and a passed check. A new version would void it. | Real |
-| 4:10 | D8 Export | Download the PDF. | Physical size, hash verified, DRAFT mark still on it: the approved variant is not built. | Real |
-| 4:30 | `/public/medicine` | Type the name `Childrens Ibuprofen`, read the reference fields, ask `stomach bleeding`. Then `Zzyzx Gummies` for the no-match case. | A separate public module, 30 curated reference products. No language model writes the answer: the page shows the closest sentences, picked by a MiniLM cross-encoder from the retrieved passages (for `stomach bleeding`: "This product contains an NSAID, which may cause severe stomach bleeding." from the Stomach bleeding warning section, with its DailyMed link). It says plainly that nothing was generated or verified. | Real (reranked extractive) |
-| 4:50 | `/public/medicine` | Type a name outside the 30, for example one not in the curated list, spelled exactly. Pick the label from the candidate list. | Live DailyMed lookup (CR-28): you choose the label, it is marked not curated and nothing is picked for you. Needs internet; a large label can take minutes, so use a small OTC one or skip it. | Real |
+| 0:00 | Home `/ui/` | Click **Open Public Mode**. | Two modules, kept apart: public medicine (21 CFR 201, 208, 211 and DailyMed labels) and professional devices (21 CFR 801, 820, 830). | |
+| 0:10 | Public, Scan | **Upload a photo**: `demo_photos/public/04_barcode_aspirin.jpg`. About 3 s. "Is this Aspirin? We read NDC barcode ..." Click **Confirm**. | The NDC barcode decides; the page never confirms by itself. The photos are DailyMed package artwork with simulated camera conditions, not phone photos. | Do not call it "verified": the banner says authenticity is not verified. |
+| 0:40 | Public, Ask | **Ask questions about this medicine**, type `how should I store it`, **Ask**. | Retrieval over this product's label only. With no language model the page shows "Closest passages from the label", the sentences retrieval ranked highest, each with its label section and a DailyMed link. Score and gate only in the small details line. | |
+| 1:10 | Public, Scan | **Upload a photo**: `demo_photos/public/08_live_zetia.jpg` (about 20 to 30 s, a counter runs). | Zetia is not one of the 30 curated medicines. The scan reads "ZETIA" next to "10 mg", searches DailyMed for it and asks "Is this ZETIA (EZETIMIBE) TABLET?". **Confirm** fetches the label (seconds when warmed): "Fetched live from DailyMed, not in the curated set". | If the photo reader times out, use **Type the name**, `Zetia`, **Find**, **Search DailyMed**, **Use this label**. |
+| 1:50 | Public, Ask | Type `metoprolol` as the medicine name and ask `how to store it`. "Pick a medicine first" appears and DailyMed is searched; click **Use this label** on the first entry, then ask again. Then ask `side effects`. | Storage answers from "16 HOW SUPPLIED/STORAGE AND HANDLING" with the "Store at 20° to 25°C" sentence; side effects from "6 ADVERSE REACTIONS". A question the label does not answer (for example `capital of France`) says "This label doesn't seem to answer that." with the passages folded. | Do not present the live label gate (0.02) as evaluated: it is a conservative probe-based threshold. |
+| 2:30 | Home, then **Open Professional Workspace** | Products list (LIVE API badge). **Add label**, **Choose PDF or image**: `demo_photos/device/03_golden_blurry.jpg`, **Read label**. | Refused in about 2 s: the photo is too blurry, no label is created. Bad input never becomes a record. | |
+| 2:50 | Pro, Add label | Click **Use the sample label** (or choose `demo_photos/device/01_golden_label.pdf`), **Read label**, correct the highlighted fields (model `GP-100`, lot `LOT1`, expiry `2030-06-30`), **Save product**. | The reader fills the fields; highlighted ones need a person; "What the regulations require" shows the governing passage for each required element. | |
+| 3:30 | Pro, Check | **Run check**. Scroll to **Findings by field**. | Each card: the product value, what the rules decided (rule id), and the top regulation passage for that field, filtered for this product (no latex condom section for a pump). Rules decide; retrieval explains. | Do not say "compliant": Pass means no rule found a problem. |
+| 4:00 | Pro, Check | **Ask the regulations**, press the example **Expiration date**. Then **Ask with AI** on the same question (warmed: about 10 to 60 s; the page counts the seconds). | Passages: 21 CFR 801.18 first, each section once. The AI may only use those passages and a checker rejects unsupported sentences; on a timeout the page shows the passages with a note. | Do not wait in silence: talk about the passages while the AI runs. |
+| 4:40 | Pro, Retrieval lab | **Retrieval lab**, first example. | The same query in all five systems (our BM25 and TF-IDF, dense, hybrid, E5b), labeled "raw retrieval, unfiltered". The table under it is the Step 18 evaluation (LLM grades). | |
+| 5:00 | Pro, Change | **Change a detail**: lot `LOT2`, **Assess**, confirm the checklist, **Revise artwork**, **Generate**. | The lot is in the barcode, so the decision is REGENERATE; the template is filled (never an image model) and the draft carries DRAFT. | |
+| 5:30 | Pro, Review and approve | Switch to **Reviewer**, **Run re-check**, read the finding cards, comment, **Approve**. | Approval is bound to this PDF hash and a passed re-check. A newer version voids it. | |
+| 5:50 | Pro, Export | **Download PDF**, **Download findings report**. Optionally **Verify print** with a photo. | Physical size, hash checked in the browser, DRAFT mark kept. The report lists every finding with its rule id and cited passages. Print verification is measured on simulated photos only. | |
 
-## Stages that use mocks, fallbacks or are not shown
+## If something goes wrong
 
-- **Mock:** none (all 42 operations are real). A mock response would carry the header `X-Mock: true` and the UI badge would say `mock`.
-- **Photo scan:** real, never auto-confirming, and slow. It reads the NDC printed on the package or in its barcode first and falls back to full-label text matching; the page says reading can take up to a minute. A match asks "Is this X?" and shows the label only after Confirm; the other buttons are Not this one and Type the name. Evaluated on DailyMed package images with simulated camera conditions, not real phone photos (`reports/ndc_scan.md`). Show it with one prepared photo, or skip it in a 5 minute demo.
-- **Reranker:** the sentences come from `cross-encoder/ms-marco-MiniLM-L-6-v2`, cached by `scripts/run_demo.py` with the other models. If it is missing the page shows chunk quotes instead (the answer text is unchanged). Checked on this build: the model loads offline and the `/public/ask` sources are single sentences. Held-out result: 9/15 vs 8/15 hits, median 1.04 s vs 0.37 s (`reports/rag_rerank.md`), a small test.
-- **Optional, slow:** the AI answer (`/public/ask?mode=ai`, qwen2.5 3b through Ollama) takes about 30 to 40 s and falls back to the extractive passages. In the checked run it fell back with `verification_failed`. Skip it in a 5 minute demo.
-- **Not shown:** print verification (D10) is real but measured on simulated photos only; multi-side scan does not exist.
-- **If something fails live:** `demo_e2e.py` prints PASS, PASS (mock), FALLBACK or FAIL per stage. Say which one it is.
+- **API offline badge:** the server is not running; start `scripts/run_demo.py` again.
+- **Photo reader timeout (about 55 s):** say the reader is slow on a busy CPU and use **Type the name**.
+- **DailyMed unreachable:** the page says so; the curated 30 medicines and the professional workspace keep working.
+- **AI answer timeout (180 s):** the passages are already shown with a note. That is the designed fallback.
+
+## Things not to claim
+
+- Not real phone photos: DailyMed package artwork with simulated camera conditions.
+- The live-label gate (0.02) is a conservative threshold from a probe on one label, not evaluated.
+- The AI answer is slow on CPU and optional; the default is extractive.
+- Relevance grades are LLM grades except the 308-row human sample.
+- Exports are DRAFT only; no approved variant is rendered.
+
+## Other demo photos
+
+`demo_photos/README.md` lists every photo with the expected result. `demo_photos/public/12_synthetic_lopressor.jpg` is a synthetic pack (placeholder NDC 12345-678-90) made by `demo_photos/make_lopressor_image.py`: no NDC resolves, the scan reads "LOPRESSOR" next to "50 mg" and asks "Is this LOPRESSOR (METOPROLOL TARTRATE) TABLET?".

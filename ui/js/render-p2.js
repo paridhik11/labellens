@@ -242,7 +242,7 @@
                   <span class="kv-label">${escapeHtml(k)}</span>
                   <span class="kv-value">${escapeHtml(String(v))} ${renderTestBadge(v)}</span>
                 </div>
-              `).join('')}
+              `).join('') || '<p class="text-sm text-muted" data-testid="no-photo-fields" style="margin: 8px 0;">No fields from a photo for this label: it was chosen by name, or the photo only told us the name.</p>'}
             </div>
           </div>
 

@@ -85,3 +85,8 @@ def test_api_ask_with_product_id_filters(device_chunks) -> None:
         sections = [s["section"] for s in body["sources"]]
         assert "801.435" not in sections and len(sections) == len(set(sections))
         assert client.post("/ask", json={"question": q, "product_id": "prd_nope"}).status_code == 404
+
+
+def test_other_product_specific_sections() -> None:
+    assert not applies("809.10", "Golden Pump infusion pump") and applies("809.10", "In vitro diagnostic reagent kit")
+    assert not applies("801.430", "Golden Pump") and applies("801.430", "Menstrual tampons, regular")
