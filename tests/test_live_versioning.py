@@ -49,3 +49,29 @@ def test_side_effect_rewrite() -> None:
     assert expand_side_effects("what is the dose") == "what is the dose"
     expected = "what are Aspirin's side effects adverse reactions"
     assert rewrite_for_retrieval("what are its side effects", "Aspirin") == expected
+
+
+def test_quote_uses_the_persons_question_not_the_expanded_query() -> None:
+    from src.common.schemas import Chunk, Hit
+    from src.crawl.chunk import compute_content_hash
+    from src.rag.pipeline import answer_question
+    from src.rag.provider import NullProvider
+    from src.rag.settings import RagSettings
+
+    text = ("Metoprolol Tartrate Tablets, USP are available as follows: Tablets 25 mg are white and round. "
+            "Store at 20 to 25 C (68 to 77 F). Protect from moisture and heat.")
+    chunk = Chunk(chunk_id="c1", source="DailyMed", url="https://dailymed.nlm.nih.gov/x", title="M: 16 HOW SUPPLIED",
+                  section="storage/34069-5/1", text=text, fetched="2026-11-24", hash=compute_content_hash(text),
+                  module="medicine")
+
+    class One:
+        def search(self, query: str, k: int = 10) -> list[Hit]:
+            return [Hit(doc_id="c1", score=0.033, rank=1)]
+
+    expanded = "how to store Metoprolol Tartrate storage and handling, how supplied, store at"
+    settings = RagSettings(rerank_display=False)
+    plain = answer_question(expanded, "medicine", One(), {"c1": chunk}, NullProvider(), settings, 0.02)
+    fixed = answer_question(expanded, "medicine", One(), {"c1": chunk}, NullProvider(), settings, 0.02,
+                            quote_question="how to store it")
+    assert plain.sources[0]["quote"].startswith("Metoprolol Tartrate Tablets")
+    assert fixed.sources[0]["quote"].startswith("Store at 20 to 25 C")

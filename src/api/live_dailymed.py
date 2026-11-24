@@ -508,7 +508,7 @@ class LiveService:
         label = self.load(product_id)
         chunks = {c.chunk_id: c for c in label.chunks}
         result = answer_question(rewrite_for_retrieval(question, label.name), "medicine", self.retriever(label), chunks,
-                                 provider, settings, LABEL_GATE if gated else None)
+                                 provider, settings, LABEL_GATE if gated else None, quote_question=question)
         result.question = question
         if result.cause == "score_gate":  # the gate stops before quotes exist: keep the closest, folded in the UI
             from src.rag.pipeline import extractive_sources

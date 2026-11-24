@@ -102,13 +102,17 @@ def extractive_sources(question: str, chunks: list[Chunk], n: int) -> list[dict[
 def answer_question(
     question: str, module: str, retriever: Retriever, chunks: dict[str, Chunk], provider: Provider,
     settings: RagSettings | None = None, threshold: float | None = None,
-    context_filter: Callable[[list[Chunk]], list[Chunk]] | None = None,
+    context_filter: Callable[[list[Chunk]], list[Chunk]] | None = None, quote_question: str | None = None,
 ) -> RagResult:
     """Run the pipeline. Every path returns a RagResult; provider failures never raise.
 
     context_filter (optional) removes passages that do not apply to one product and repeated sections before
     anything is shown or given to the model. The score gate still reads the unfiltered top hit, so the gate is
     unchanged. With a filter, twice cfg.k hits are retrieved so up to cfg.k remain after filtering.
+
+    quote_question (optional) picks the shown sentences of the extractive passages. Live labels retrieve with an
+    expanded query ("... how supplied, store at") but quote with the person's own question, so "how to store it"
+    shows the "Store at ..." sentence, not "Tablets are available as follows".
     """
     cfg = settings or RagSettings()
     started = time.perf_counter()
@@ -141,8 +145,9 @@ def answer_question(
         return done("needs_human_check", "score_gate")
 
     def fall_back(cause: str) -> RagResult:
-        shown_sentences = reranked_display_sources(question, context) if cfg.rerank_display else []
-        result.sources = shown_sentences or extractive_sources(question, context, cfg.fallback_quotes)
+        quote_q = quote_question or question
+        shown_sentences = reranked_display_sources(quote_q, context) if cfg.rerank_display else []
+        result.sources = shown_sentences or extractive_sources(quote_q, context, cfg.fallback_quotes)
         result.mode = "extractive"
         return done("needs_human_check", cause)
 
