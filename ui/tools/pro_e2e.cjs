@@ -259,12 +259,16 @@ async function main() {
     if (!/No regulation passage answers this\. Try a labeling question\./.test(noText)) throw new Error('no-answer text: ' + noText);
     // the user's own example is reported, not asserted: the existing score gate sits just below its score
     const golden = await ask('benefits of golden pump');
+    const goldenFolded = !!(await page.$(`${first} [data-testid="not-defined"]`));
+    await ask('what is sterilization in medical?');
+    const general = await page.$eval(first, (e) => ({ note: !!e.querySelector('[data-testid="not-defined"]'), open: (e.querySelector('[data-testid="not-defined-passages"]') || {}).open }));
+    if (!general.note || general.open) throw new Error('general question not folded with "The regulations don\'t define this directly": ' + JSON.stringify(general));
     const turns = await page.$$eval('[data-testid="thread"] > .turn', (x) => x.length);
-    if (turns !== 3) throw new Error('thread has ' + turns + ' turns, expected 3');
+    if (turns !== 4) throw new Error('thread has ' + turns + ' turns, expected 4');
     const card = await text(page, '[data-testid="evidence"]');
     if (mocked.length !== mockedBefore) throw new Error('a mock response was served: ' + mocked.slice(mockedBefore).join(', '));
     if (/\b(sample|mock|lorem)\b/i.test(card)) throw new Error('sample or mock wording on the evidence card');
-    return `expiry: ${expiry.length} passages, first "${expiry[0].slice(0, 60)}", ${marks} marked words, +${more} more; "weather in Paris tomorrow": abstained; "benefits of golden pump": ${golden.none ? 'abstained' : golden.passages.length + ' passages shown (the gate does not stop it)'}; 3 turns kept; no X-Mock responses`;
+    return `expiry: ${expiry.length} passages, first "${expiry[0].slice(0, 60)}", ${marks} marked words, +${more} more; "weather in Paris tomorrow": abstained; "benefits of golden pump": ${golden.none ? 'abstained' : goldenFolded ? 'folded as not defined' : golden.passages.length + ' passages shown'}; "what is sterilization in medical?": folded; 4 turns kept; no X-Mock responses`;
   });
 
   await step(page, 'Ask with AI: a verified answer or the passages with the reason (about 50 s)', '06b_ai', async () => {

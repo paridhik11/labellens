@@ -901,11 +901,32 @@
       + `${c.quote ? `<div class="q clamp2">"${markTerms(c.quote, q)}"</div>` : ''}</div>`;
   }
 
+  // Display only (the gate itself is unchanged): a general question, not about labeling, whose top score sits just
+  // above the gate or whose top passages do not name its key term, folds its passages. "what is sterilization in
+  // medical?" retrieves 801.150 (processing and repacking), which does not define sterilization.
+  const GATE_MARGIN = 0.0005;
+  const LABELING_WORDS = /\b(label|labels|labeling|labelling|labeled|show|must|shall|require|required|requirements?|package|carton|udi|identifier|barcode|printed|appear|format|date|lot|batch|serial|expiration|expiry)\b/i;
+  const TERM_STOP = new Set(['what', 'which', 'where', 'when', 'about', 'medical', 'device', 'devices', 'mean', 'means', 'meaning', 'define', 'definition', 'does', 'there', 'their', 'benefits', 'should', 'would', 'could', 'explain', 'tell']);
+  function weakGeneral(res, q) {
+    const question = String(q || '');
+    if (!res || !(res.sources || []).length || LABELING_WORDS.test(question)) return false;
+    const near = res.score !== null && res.score !== undefined && res.threshold !== null && res.threshold !== undefined && res.score - res.threshold < GATE_MARGIN;
+    const terms = (question.toLowerCase().match(/[a-z]{5,}/g) || []).filter((t) => !TERM_STOP.has(t)).map((t) => t.slice(0, 7));
+    const heads = res.sources.slice(0, 3).map((c) => `${c.section} ${c.title}`.toLowerCase()).join(' ');
+    const named = terms.length && terms.some((t) => heads.includes(t));
+    return near || !named;
+  }
+
   /** The result of one /ask call: a no-answer notice, or the top 3 passages. more is the "show more" block. */
   function askResultHtml(res, more, q) {
     if (!res) return '';
     if (res.error) return `<div class="note">The lookup failed: ${esc(res.error)}</div>`;
     const sources = res.sources || [];
+    if (res.abstained && weakGeneral(res, q)) {
+      const det = res.score !== null && res.score !== undefined ? `<div class="small muted mt" data-testid="evidence-details-line">${esc(res.score_name)} ${esc(Number(res.score).toFixed(5))}, gate ${esc(Number(res.threshold).toFixed(5))}</div>` : '';
+      return `<div class="note" data-testid="not-defined">The regulations don't define this directly. Ask about what a device label must show, or open the closest passages.</div>`
+        + `<details class="small mt" data-testid="not-defined-passages"><summary>Show closest passages (${Math.min(3, sources.length)})</summary>${sources.slice(0, 3).map((c) => passageHtml(c, q)).join('')}</details>${det}`;
+    }
     const gate = res.score !== null && res.score !== undefined
       ? `<div>${esc(res.score_name)} ${esc(Number(res.score).toFixed(5))}${res.threshold !== null && res.threshold !== undefined ? `, gate ${esc(Number(res.threshold).toFixed(5))}` : ''}</div>` : '';
     const ids = sources.length ? `<div>Passage ids: ${sources.map((c) => `<span class="mono">${esc(c.chunk_id)}</span>`).join(', ')}</div>` : '';
