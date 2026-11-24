@@ -26,7 +26,8 @@ class RagSettings:
 
 
 # Step 24c: the optional AI answer. Same model, prompt, schema and token cap as the frozen Step 23e run
-# (tests/test_ai_mode.py checks the two stay equal), with the 90 s limit of the API.
+# (tests/test_ai_mode.py checks the two stay equal), with the time limit of the API. The limit was 90 s; a cold model
+# (first question after start) can need about a minute just to load, so it is 170 s, under the pages' 180 s wait.
 AI_MODEL = "qwen2.5:3b-instruct-q4_K_M"
-AI_TIMEOUT_S = 90.0
+AI_TIMEOUT_S = 170.0
 AI_SETTINGS = RagSettings(output="json", prompt="v3", max_tokens=300, timeout_s=AI_TIMEOUT_S)

@@ -46,7 +46,7 @@
       // A job id this server never issued is answered with a mock job that never finishes: stop and say so.
       if (r.mock) return Object.assign({}, r.body, { _mock: true });
       if (r.body.state === 'done' || r.body.state === 'failed') return r.body;
-      if (Date.now() - t0 > timeoutMs) throw new Error('The job took longer than 120 s. Try again later.');
+      if (Date.now() - t0 > timeoutMs) throw new Error(`The job took longer than ${Math.round(timeoutMs / 1000)} s. Try again later.`);
       await new Promise(res => setTimeout(res, intervalMs));
     }
   }
@@ -139,7 +139,7 @@
         return { job_id: 'none', kind: 'ask', state: 'done', progress: 1, result: { answer: r.body, model: 'none', model_used: false } };
       }
       if (r.status !== 202) throw apiError(r);
-      return pollJob(r.body.job_id, onProgress);
+      return pollJob(r.body.job_id, onProgress, 2000, 180000); // a cold model can take about a minute
     },
 
     /** Upload a label (product_id is required by the server, CR-20). Resolves {job, scan}. */

@@ -47,7 +47,7 @@
           <div class="text-xs text-muted" style="margin-top:4px;">${[c.generic_name, c.dosage_form, c.labeler].filter(Boolean).map(esc).join(' | ')}</div>
           <div class="text-xs text-muted">Label updated ${esc(c.published_date || '')}</div>
         </div>
-        <button class="btn btn-sm btn-primary" type="button" data-testid="live-select" data-index="${i}">Select</button>
+        <button class="btn btn-sm btn-secondary" type="button" data-testid="live-select" data-index="${i}">Use this label</button>
       </div>`).join('');
     return `
       ${banner('', 'Pick the label that matches your pack', 'These labels come from DailyMed, in its own order. Nothing is chosen for you, even when only one is listed.', 'live-pick-note')}
@@ -61,8 +61,9 @@
     return `<div class="card" data-testid="live-fetching" style="text-align:center;padding:32px 24px;max-width:640px;margin:16px auto;">
       <div class="spinner" aria-hidden="true" style="margin:0 auto 12px auto;"></div>
       <h3>Fetching this label from DailyMed</h3>
-      <p class="text-sm" style="margin-top:8px;">This can take a little while: the label is downloaded and prepared for questions. Large labels can take several minutes on a busy computer.</p>
-      <p class="text-xs text-muted" style="margin-top:8px;">${esc((job && job.state) || 'processing')} | ${pct}%${seconds != null ? ` | ${seconds} s` : ''}</p>
+      <p class="text-sm" style="margin-top:8px;">The first fetch of a label downloads it and prepares it for questions: about 30 s to 2 minutes. Later questions on it are quick.</p>
+      ${seconds != null ? `<p class="font-semibold" data-testid="live-elapsed" style="margin-top:8px;">${esc(seconds)} s elapsed</p>` : ''}
+      <p class="text-xs text-muted" style="margin-top:4px;">${esc((job && job.message) || (job && job.state) || 'starting')} | ${pct}%</p>
     </div>`;
   }
 
@@ -120,7 +121,11 @@
     try {
       const r = await window.LabelLensApi.request('POST', '/public/live/fetch', { json: { setid: candidate.setid, version: candidate.version } });
       if (r.status !== 202) { area.innerHTML = failedHtml(r.body); out.querySelectorAll('[data-testid="live-select"]').forEach((b) => { b.disabled = false; }); return; }
-      const job = await pollJob(r.body.job_id, (j, s) => { area.innerHTML = fetchingHtml(j, s); });
+      // a 1 s clock between polls so the counter never stands still
+      const t0 = Date.now(); let last = null;
+      const clock = setInterval(() => { area.innerHTML = fetchingHtml(last, Math.round((Date.now() - t0) / 1000)); }, 1000);
+      let job;
+      try { job = await pollJob(r.body.job_id, (j) => { last = j; area.innerHTML = fetchingHtml(j, Math.round((Date.now() - t0) / 1000)); }); } finally { clearInterval(clock); }
       if (job.state !== 'done') { area.innerHTML = failedHtml(job.error); out.querySelectorAll('[data-testid="live-select"]').forEach((b) => { b.disabled = false; }); return; }
       const p = await window.LabelLensApi.request('GET', job.result_url);
       if (p.status !== 200) { area.innerHTML = failedHtml(p.body); return; }
@@ -205,7 +210,7 @@
   wrapP2();
 
   /** Append the "Search DailyMed" panel to `host` (name: a string or a function returning the typed name). */
-  function mountSearch(host, name) {
+  function mountSearch(host, name, opts) {
     const typed = typeof name === 'function' ? name() : name;
     const holder = document.createElement('div');
     holder.style.cssText = 'max-width:640px;margin:0 auto;';
@@ -218,6 +223,8 @@
       state.lastName = n;
       search(n, out);
     });
+    // "Pick a medicine first": search for the typed name at once (a list to choose from, nothing is picked)
+    if (opts && opts.autoSearch && String(typed || '').trim()) { state.lastName = typed; search(typed, out); }
   }
 
   window.LabelLensLive = {

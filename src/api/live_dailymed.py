@@ -69,14 +69,18 @@ CATEGORIES = {
 }
 # Live labels also keep How Supplied (LOINC 34069-5, section 16) and Storage and Handling (44425-7), so a storage
 # question can be answered. The curated corpus is frozen without them, so CATEGORIES above stays equal to it.
-LIVE_EXTRA_CATEGORIES = {"34069-5": "storage", "44425-7": "storage"}
+# Adverse Reactions (34084-4) is kept too, so "side effects" answers from that section (live labels only).
+LIVE_EXTRA_CATEGORIES = {"34069-5": "storage", "44425-7": "storage", "34084-4": "adverse"}
 LIVE_CATEGORIES = {**CATEGORIES, **LIVE_EXTRA_CATEGORIES}
 # Score gate for one label's own retrieval. The curated gate (0.0315) was fitted on the 903-chunk index and is not
 # comparable here. A top RRF score of 1/61 = 0.0164 is one system's rank-1 vote alone (no wording shared with any
 # chunk); with both systems agreeing a chunk scores about 0.03. 0.02 sits between them. Seen on one label only
 # (metoprolol, 8 questions: off-topic 0.0164, on-topic 0.0306 to 0.0328); it is not tuned or evaluated further.
 LABEL_GATE = 0.02
-PARSER_VERSION = 2  # 1 had no storage sections: a cache file without this number is fetched again
+PARSER_VERSION = 3  # 1 had no storage sections, 2 no adverse reactions: an older cache file is fetched again
+# Chunking version, part of the cache file name (live_<id>_v<n>.c<CHUNK_VERSION>.json). Raise it whenever the
+# section rules or the chunker change, so old cache files are never read and the label is fetched again.
+CHUNK_VERSION = 3
 
 
 class LiveUnavailable(Exception):
@@ -431,13 +435,13 @@ class LiveService:
     def _path(self, product_id: str) -> Path:
         if not LIVE_ID_RE.match(product_id):
             raise LiveFetchError("not_found", "Unknown live product id.")
-        return self.cache_dir / f"{product_id}.json"
+        return self.cache_dir / f"{product_id}.c{CHUNK_VERSION}.json"
 
     def knows(self, product_id: str | None) -> bool:
         """True when this id is a live label that is cached on disk."""
         if not product_id or not LIVE_ID_RE.match(product_id):
             return False
-        return (self.cache_dir / f"{product_id}.json").exists()
+        return (self.cache_dir / f"{product_id}.c{CHUNK_VERSION}.json").exists()
 
     def load(self, product_id: str) -> LiveLabel:
         """The cached label (LiveFetchError not_found when absent or damaged)."""

@@ -47,14 +47,14 @@
           ${isApi ? `
             <div style="margin-top: 12px;">
               <label class="text-xs text-muted" for="p3Medicine">Medicine name (matched to a reference label)</label>
-              <input type="text" id="p3Medicine" value="${esc(currentMedicine || (window.LabelLensLive && window.LabelLensLive.currentName()) || '')}" placeholder="for example: Childrens Ibuprofen" style="width: 100%; padding: 6px 10px; border: 1px solid var(--color-border); border-radius: var(--radius-md);">
+              <input type="text" id="p3Medicine" value="${esc(currentMedicine || (window.LabelLensCurrentProduct && window.LabelLensCurrentProduct.product_name) || (window.LabelLensLive && window.LabelLensLive.currentName()) || '')}" placeholder="for example: Childrens Ibuprofen" style="width: 100%; padding: 6px 10px; border: 1px solid var(--color-border); border-radius: var(--radius-md);">
             </div>` : ''}
 
           <div style="margin: 16px 0;">
             <div class="flex-row" style="background: var(--color-bg-subtle); padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid var(--color-border); gap: 8px;">
               <input type="text" id="p3QuestionInput" value="${esc(currentTypedQuestion)}" placeholder="Ask a question about this medicine (e.g. storage, expiration, packaging requirements)..." style="flex: 1; border: none; background: transparent; outline: none; font-size: 0.92rem;">
               <button class="btn btn-sm btn-primary" type="button" id="btnP3AskSubmit" ${view.busy ? 'disabled' : ''}>Ask</button>
-              <button class="btn btn-sm btn-secondary" type="button" id="btnP3AskAI" ${view.busy ? 'disabled' : ''}>Ask AI (about 40 s)</button>
+              <button class="btn btn-sm btn-secondary" type="button" id="btnP3AskAI" ${view.busy ? 'disabled' : ''}>Ask AI (slow, first run about a minute)</button>
             </div>
             <div class="text-xs text-muted" id="p3Note" style="margin-top: 6px;">${esc(view.note)}</div>
           </div>
@@ -62,8 +62,8 @@
           ${view.noLabel ? `
             <div class="notice-banner notice-warning" data-testid="no-label-loaded" style="margin-bottom: 12px;">
               <div class="notice-icon">i</div>
-              <div><div class="notice-title">No label loaded for this name</div>
-              <div class="notice-text">The 30 curated reference labels do not match it, so no answer is shown. Search DailyMed, pick the label, then ask again.</div></div>
+              <div><div class="notice-title">Pick a medicine first</div>
+              <div class="notice-text">${view.noLabelName ? `"${esc(view.noLabelName)}" is not one of the 30 curated medicines. DailyMed is searched for it below: pick the label that matches your pack, then ask again.` : 'Type the medicine name above, then search DailyMed and pick its label.'}</div></div>
             </div>
             <div id="p3LiveHost"></div>` : ''}
           ${view.answer ? `
@@ -78,7 +78,11 @@
         </div>`;
       bind();
       const host = container.querySelector('#p3LiveHost');
-      if (host && window.LabelLensLive) window.LabelLensLive.mountSearch(host, () => (container.querySelector('#p3Medicine') || {}).value || currentMedicine);
+      if (host && window.LabelLensLive) {
+        window.LabelLensLive.mountSearch(host, () => (container.querySelector('#p3Medicine') || {}).value || currentMedicine,
+          { autoSearch: Boolean(view.noLabelName && !view.searched) });
+        view.searched = true; // search once per "Pick a medicine first"; the button repeats it
+      }
     }
 
     /** Resolve the reference product id: match the typed medicine name (the real matcher, CR-23). */
@@ -87,11 +91,15 @@
       currentMedicine = name;
       const liveId = window.LabelLensLive && window.LabelLensLive.productIdFor(name);
       if (liveId) return liveId; // a label the person picked from DailyMed (CR-28)
-      if (!name.trim()) throw new Error('Type a medicine name first.');
+      const shown = window.LabelLensCurrentProduct; // the label P2 showed (confirmed scan, confident match or picked)
+      const norm = (x) => String(x || '').trim().toLowerCase();
+      if (shown && shown.product_id && norm(name) === norm(shown.product_name)) return shown.product_id;
+      if (!name.trim()) { const err = new Error('Pick a medicine first.'); err.noLabel = true; err.name = ''; throw err; }
       const r = await window.LabelLensApi.request('POST', '/public/match', { json: { product_name: name.trim() } });
       if (r.status !== 200) throw new Error((r.body && r.body.message) || `matching failed (HTTP ${r.status})`);
       const best = (r.body.candidates || [])[0];
-      if (!best || r.body.outcome === 'no_reference_match') { const err = new Error('No label loaded for this name'); err.noLabel = true; throw err; }
+      // Only a confident match answers by itself. A review-band candidate is not confident: ask the person to pick.
+      if (!best || r.body.outcome !== 'matched') { const err = new Error('Pick a medicine first.'); err.noLabel = true; err.typed = name.trim(); throw err; }
       return best.product_id;
     }
 
@@ -114,27 +122,41 @@
         try {
           const product_id = await resolveProduct();
           const extra = { product_id };
+          view.noLabel = false;
           if (kind === 'instant') {
             view.answer = await window.LabelLensActions.ask('public', currentTypedQuestion, extra);
             view.note = '';
             paint();
           } else {
-            view.ai = { job_id: '...', kind: 'ask', state: 'queued', progress: 0, message: 'Starting the AI answer (about 40 s).' };
+            const t0 = Date.now();
+            const secs = () => Math.round((Date.now() - t0) / 1000);
+            view.ai = { job_id: '...', kind: 'ask', state: 'queued', progress: 0, message: 'Model is loading, first run can take about a minute.' };
             view.busy = true;
+            view.noLabel = false;
             view.note = 'The instant passages stay above while the AI answer runs.';
             // The instant answer shows first, the AI panel follows.
             try { view.answer = await window.LabelLensActions.ask('public', currentTypedQuestion, extra); } catch (e) { view.answer = null; }
             paint();
-            view.ai = await window.LabelLensActions.askAI('public', currentTypedQuestion, (j) => { view.ai = j; paint(); }, extra);
+            try {
+              view.ai = await window.LabelLensActions.askAI('public', currentTypedQuestion, (j) => {
+                view.ai = Object.assign({}, j, { elapsed_s: secs() }); paint();
+              }, extra);
+            } catch (e) {
+              // the wait limit passed (180 s): the instant passages above stay; say so instead of an error
+              view.ai = { state: 'done', kind: 'ask', result: { fallback_reason: 'timeout', model_used: false, answer: view.answer || {} }, client_timeout: true };
+            }
             view.busy = false;
             view.note = '';
             paint();
           }
         } catch (e) {
           view.busy = false;
-          view.note = e.message;
+          view.note = e.noLabel ? '' : e.message;
           view.noLabel = Boolean(e.noLabel);
+          view.noLabelName = e.typed || '';
+          view.searched = false;
           view.answer = null;
+          view.ai = null;
           paint();
         }
       };

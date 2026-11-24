@@ -117,7 +117,7 @@ def test_ai_settings_equal_the_frozen_step23e_run() -> None:
     cfg = json.loads(step23e.CONFIG.read_text(encoding="utf-8"))
     assert AI_MODEL in cfg["models"]
     assert dataclasses.replace(AI_SETTINGS, timeout_s=step23e.SETTINGS.timeout_s) == step23e.SETTINGS
-    assert AI_SETTINGS.timeout_s == 90.0
+    assert AI_SETTINGS.timeout_s == 170.0  # under the 180 s the pages wait
 
 
 def test_ai_results_are_append_only(client) -> None:

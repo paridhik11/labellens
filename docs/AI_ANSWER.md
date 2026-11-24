@@ -11,7 +11,7 @@ Extractive passages stay the default of `askPublic` and `askProfessional`: insta
 | Situation | Result |
 |---|---|
 | Ollama missing, not running, model not pulled, HTTP error | `done`, extractive passages, `fallback_reason: model_unavailable` |
-| No reply within 90 s | `done`, extractive passages, `fallback_reason: timeout` |
+| No reply within 170 s (the pages wait 180 s) | `done`, extractive passages, `fallback_reason: timeout` |
 | Reply is not valid JSON or fails the citation checks | `done`, extractive passages, `fallback_reason: verification_failed` |
 | The model says the passages do not answer | `done`, abstained without passages, no `fallback_reason` |
 | Scope rule or score gate stops it before the model | `done`, abstained as in the extractive call, `model_used: false` |
@@ -20,7 +20,7 @@ Extractive passages stay the default of `askPublic` and `askProfessional`: insta
 ## Exact limits (read before showing it to anyone)
 - **Evidence is small and LLM-graded.** The evaluation used 40 fresh queries (30 answerable, 10 not) written by the assistant. Faithfulness grades come from an LLM (claude-sonnet-5-5), not a human. Reports: `reports/step23_e.md`, `results/step23e_structured.md`.
 - **Only 57 percent of answerable queries get a verified answer** (17 of 30, Wilson interval 0.39 to 0.73). The rest stop at the score gate, the model's own no-answer, or the checks.
-- **Slow on the development CPU.** Median 38.6 s, 90th percentile 76.9 s. The 90 s limit cuts off the slowest replies. A faster machine or a GPU would change this.
+- **Slow on the development CPU.** Median 38.6 s, 90th percentile 76.9 s. The limit was 90 s in that run; it is now 170 s so a cold model (about a minute to load) can still answer. `scripts/run_demo.py` loads the model at start when Ollama runs. A faster machine or a GPU would change this.
 - **Faithfulness means "supported by the cited text".** 24 of 26 sentences were graded supported. It does not mean the answer is complete, current, relevant to the exact question, or medical or compliance advice. Many sentences are close copies of the passage. The system never says a label complies.
 - The model did not pass the acceptance rule of Step 23e (median under 30 s, answered rate 0.60). That is why the AI answer is optional and the extractive answer is the default.
 

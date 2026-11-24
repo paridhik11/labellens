@@ -1,7 +1,7 @@
 """The optional AI answer (Step 24c): a 202 job around the Step 23 pipeline with the structured-output model.
 
 Extractive stays the default of askPublic and askProfessional. `mode=ai` starts a job. The job never ends
-in a failure the user can do nothing about: a missing Ollama, a slow model (90 s) or an answer that fails
+in a failure the user can do nothing about: a missing Ollama, a slow model (170 s) or an answer that fails
 verification all end `done` with the extractive passages and a `fallback_reason`. The one exception is a
 retrieval system that cannot be built at all, because then there are no passages to show either.
 """
