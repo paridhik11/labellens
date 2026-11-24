@@ -29,3 +29,18 @@ The exact old failure (a label with no storage section) is the unit test `test_r
 - Adverse reactions (LOINC 34084-4) is also not chunked for live labels; "side effects" answers from other sections.
 - Abstention metrics (`results/step16_abstention.md`, `step18_final.md`) are computed on the regulation corpus; that code path is unchanged (the gate branch still returns no quotes there).
 - Live cache files made before this change need a new search and pick.
+
+## Curated products: gate measured, not added
+Question: does the 0.02 label gate also fit the 30 curated products? Measured through the live API (gate off for curated, `score` read from the answer), 3 products (Childrens Ibuprofen, Atorvastatin Calcium, Amoxicillin), 8 on-topic and 8 off-topic questions each, one run. On-topic: what is it used for, recommended dose, warnings, who should not take it, pregnant, side effects, contraindications, how should I take it. Off-topic: car engine, capital of France, world cup, bread, python, Paris weather, tire, pizza.
+
+The old display problem is present on curated products: an off-topic question returns needs_human_check with the "No language model is running" text and unrelated passages.
+
+| product | on-topic scores (n scored) | under 0.02 | off-topic scores | under 0.02 |
+| --- | --- | --- | --- | --- |
+| Childrens Ibuprofen | 0.0083 to 0.0225 (6) | 5 of 6 | 0.0062 to 0.0188 (8) | 8 of 8 |
+| Atorvastatin Calcium | 0.0145 to 0.0259 (6) | 3 of 6 | 0.0051 to 0.0153 (8) | 8 of 8 |
+| Amoxicillin | 0.0088 to 0.0264 (6) | 4 of 6 | 0.0083 to 0.0179 (8) | 8 of 8 |
+
+Two on-topic questions per product ("can I take it when pregnant", "how should I take it") are stopped by the existing scope rule (out_of_scope) and have no score.
+
+Decision: no gate for curated products. Scores sit on a different scale than the live label retriever (0.005 to 0.026, not 0.016 to 0.033), the ranges overlap (on-topic from 0.0083, off-topic up to 0.0188), and 12 of 18 scored on-topic questions would be wrongly abstained at 0.02. No threshold separates the two groups in this sample. Open: the curated display problem remains.
