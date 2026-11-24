@@ -922,14 +922,14 @@
 
   const AI_FALLBACK = {
     model_unavailable: 'The AI model is not available here. Showing the closest passages.',
-    timeout: 'The AI took too long. Showing the closest passages.',
+    timeout: 'The AI did not answer within 3 minutes. Showing the closest passages instead.',
     verification_failed: 'The AI answer did not pass the citation checks. Showing the closest passages.',
   };
 
   /** Body of an AI turn: the verified answer, or the passages with the reason the model was not used. */
   function aiBody(t) {
     const ai = t.ai; const a = ai.answer || {};
-    const meta = `<div class="small muted mt" data-testid="ai-meta">Model ${esc(ai.model)}${ai.latency_s !== undefined ? `, ${esc(Number(ai.latency_s).toFixed(1))} s` : ''}. The model may only use the retrieved passages; a checker rejects any sentence the passages do not support.</div>`;
+    const meta = !ai.model ? '' : `<div class="small muted mt" data-testid="ai-meta">Model ${esc(ai.model)}${ai.latency_s !== undefined ? `, ${esc(Number(ai.latency_s).toFixed(1))} s` : ''}. The model may only use the retrieved passages; a checker rejects any sentence the passages do not support.</div>`;
     if (ai.fallback_reason) return `<div class="info small" data-testid="ai-fallback" data-reason="${esc(ai.fallback_reason)}">${esc(AI_FALLBACK[ai.fallback_reason] || ai.fallback_reason)}</div>${askResultHtml(a, '', t.q)}${meta}`;
     if (ai.model_used && a.abstained) return `<div class="note" data-testid="ai-no-answer">The model says the retrieved passages do not answer this question.</div>${meta}`;
     if (ai.model_used) return `<div class="okbox" data-testid="ai-answer">${esc(a.answer)}</div><div class="small muted">AI-generated, supported by the cited text only. Check the quotes. This is not a compliance decision.</div><div data-testid="evidence-results">${(a.sources || []).slice(0, 3).map((c) => passageHtml(c, t.q)).join('')}</div>${meta}`;
@@ -951,6 +951,21 @@
       + `${ai ? aiBody(t) : askResultHtml(t.res, moreHtml(t, i), t.q)}</div>`;
   }
 
+  // Sections that only apply to some products (latex condoms) are dropped for other products; each section shows once.
+  const PRODUCT_SPECIFIC = { '801.435': /latex|condom/i };
+  function applicableOnly(res, rec) {
+    if (!res || !res.sources) return res;
+    const text = Object.values(rec || {}).filter((x) => typeof x === 'string').join(' ');
+    const seen = new Set();
+    const sources = res.sources.filter((c) => {
+      const sec = String(c.section);
+      if (PRODUCT_SPECIFIC[sec] && !PRODUCT_SPECIFIC[sec].test(text)) return false;
+      if (seen.has(sec)) return false;
+      seen.add(sec); return true;
+    });
+    return { ...res, sources };
+  }
+
   /** The three parts of "Evidence for this field": the record value, the latest check for the field, the passages. */
   function fieldPanel() {
     const ev = S.evidence; const f = ev.field;
@@ -960,7 +975,7 @@
     const rules = FIELD_RULES[f] || [];
     let check;
     if (!rules.length) check = '<div class="small muted">No check rule looks at this field. A person compares it with the label by eye.</div>';
-    else if (!c) check = `<div class="small muted" data-testid="field-nocheck">No check has been run on L${esc(v ? v.artwork_version : '?')} yet. Press Run check.</div>`;
+    else if (!c) check = `<div class="small muted" data-testid="field-nocheck">No check yet on L${esc(v ? v.artwork_version : '?')}.</div><div class="mt">${btn('check', 'Run check', { primary: true, small: true, disabled: !v, testid: 'field-run-check' })}</div>`;
     else {
       check = rules.map((rid) => {
         const cov = (c.coverage || []).find((x) => x.rule_id === rid);
@@ -977,7 +992,7 @@
       <div class="grid3">
         <div><div class="part">1. Product record</div><div data-testid="field-value">${fmtVal(recVal(rec, f)) || '<span class="muted">(empty)</span>'}</div><div class="small muted">record version ${esc(rec.version)}</div></div>
         <div><div class="part">2. Latest check${v ? ` (L${esc(v.artwork_version)})` : ''}</div>${check}</div>
-        <div><div class="part">3. Regulation passages (retrieval)</div><div class="small muted">Question: ${esc(FIELD_QUESTION[f])}</div>${statusHtml('field-ask')}${askResultHtml(ev.fieldAsk, '', FIELD_QUESTION[f])}</div>
+        <div><div class="part">3. Regulation passages (retrieval)</div><div class="small" style="color:#888" data-testid="field-search-used">Search used: ${esc(FIELD_QUESTION[f])}</div>${statusHtml('field-ask')}${askResultHtml(applicableOnly(ev.fieldAsk, rec), '', FIELD_QUESTION[f])}</div>
       </div></div>`;
   }
 
@@ -1291,8 +1306,14 @@
     'ask-ai': () => act('ask-ai', async () => {
       const q = S.evidence.question.trim();
       if (!q) throw new Error('Type a question first, or press one of the examples.');
-      setMsg('The AI is reading the retrieved passages (about 40 s, at most 90 s)');
-      const ai = await A.askAi(q, (j) => setMsg(`AI answer: ${j.message || j.state}`));
+      setMsg('Model is loading, the first run can take about a minute (waiting up to 180 s)');
+      let ai;
+      try {
+        ai = await A.askAi(q, () => {});
+      } catch (e) {
+        if (!e.timeout) throw e;
+        ai = { fallback_reason: 'timeout', model_used: false, answer: await A.ask(q) };
+      }
       S.evidence.thread.push({ q, mode: 'ai', ai });
     }),
     'lab-run': () => act('lab', runLab),

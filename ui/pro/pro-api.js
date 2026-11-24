@@ -86,7 +86,7 @@
         const e = s.error || {};
         throw new ApiError(describe(e, `The ${s.kind} job failed`), { code: e.error, body: e });
       }
-      if (Date.now() > end) throw new ApiError(`The ${s.kind} job did not finish within ${Math.round((limitMs || 300000) / 1000)} s.`, {});
+      if (Date.now() > end) throw new ApiError(`The ${s.kind} job did not finish within ${Math.round((limitMs || 300000) / 1000)} s.`, { timeout: true });
       await new Promise((res) => setTimeout(res, 1500));
     }
   }
@@ -140,7 +140,7 @@
     /** The optional AI answer (CR-21): a 202 job, polled; the finished job carries result (AskJobResult). */
     async askAi(question, onTick) {
       const r = await expect('POST', '/ask?mode=ai', [202], { json: { question } });
-      const done = await waitJob(r.data, onTick, 120000);
+      const done = await waitJob(r.data, onTick, 180000);
       if (!done.result) throw new ApiError('The AI job finished without a result.', {});
       return done.result;
     },

@@ -276,6 +276,27 @@ async function main() {
     return `${kind.answer ? 'verified AI answer' : kind.fallback ? 'fallback ' + kind.fallback : kind.none ? 'model said no answer' : 'gate'}; ${kind.passages} passages; ${kind.meta}`;
   });
 
+  await step(page, 'Ask with AI timeout: passages with a note, no error (job never finishes, clock jumped)', '06b2_ai_timeout', async () => {
+    await page.route('**/ask?mode=ai', (route) => route.fulfill({ status: 202, contentType: 'application/json', body: JSON.stringify({ job_id: 'job_fake_timeout', kind: 'ask', state: 'running' }) }));
+    await page.route('**/jobs/job_fake_timeout', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ job_id: 'job_fake_timeout', kind: 'ask', state: 'running' }) }));
+    await page.evaluate(() => { const real = Date.now.bind(Date); window.__jump = 0; Date.now = () => real() + window.__jump; });
+    await fill(page, 'evidence-question', 'What must a label show for the expiration date?');
+    await page.click('[data-testid="btn-ask-ai"]');
+    await page.waitForSelector('[data-testid="busy-ask-ai"]');
+    const msg = await text(page, '[data-testid="busy-ask-ai"]');
+    if (!/Model is loading/.test(msg) || !/180/.test(msg)) throw new Error('waiting message: ' + msg);
+    await page.waitForTimeout(800);
+    await page.evaluate(() => { window.__jump = 400000; });
+    await idle(page, 30000);
+    await page.unroute('**/ask?mode=ai'); await page.unroute('**/jobs/job_fake_timeout');
+    await page.evaluate(() => { delete window.__jump; });
+    await noError(page, 'ask-ai');
+    const turn = '[data-testid="thread"] > .turn:first-child';
+    const r = await page.$eval(turn, (e) => ({ reason: (e.querySelector('[data-testid="ai-fallback"]') || { dataset: {} }).dataset.reason, passages: e.querySelectorAll('[data-testid="passage"]').length }));
+    if (r.reason !== 'timeout' || !r.passages) throw new Error('timeout turn: ' + JSON.stringify(r));
+    return `fallback timeout with ${r.passages} passages`;
+  });
+
   await step(page, 'Retrieval lab: one query, five systems, agreement marked', '06c_lab', async () => {
     await click(page, 'open-lab');
     await click(page, 'lab-example-0');
@@ -388,10 +409,18 @@ async function main() {
           passages: [...p.querySelectorAll('[data-testid="passage"] .ptitle strong')].map((x) => x.innerText),
           abstained: !!p.querySelector('[data-testid="no-passage"]'),
           title: p.querySelector('h3').innerText,
+          searchUsed: (p.querySelector('[data-testid="field-search-used"]') || { innerText: '' }).innerText,
+          questionLabel: /(^|\n)Question:/.test(p.innerText),
+          noCheckNoButton: !!p.querySelector('[data-testid="field-nocheck"]') && !p.querySelector('[data-testid="field-run-check"]'),
+          allSections: [...p.querySelectorAll('[data-testid="passage"] .ptitle strong')].map((x) => x.innerText),
         };
       });
       if (!r.title.includes(word[f] || f)) throw new Error(`${f}: panel title ${r.title}`);
       if (r.value === '') throw new Error(`${f}: no record value shown`);
+      if (!/^Search used: /.test(r.searchUsed) || r.questionLabel) throw new Error(`${f}: expected "Search used:" and no "Question:" (${r.searchUsed.slice(0, 30)})`);
+      if (r.noCheckNoButton) throw new Error(`${f}: no check yet but no Run check button`);
+      if (new Set(r.allSections).size !== r.allSections.length) throw new Error(`${f}: a section is listed twice: ${r.allSections.join(',')}`);
+      if (r.allSections.some((x) => /801\.435/.test(x))) throw new Error(`${f}: 801.435 (latex condoms) shown for Golden Pump`);
       if (!r.passages.length && !r.abstained) throw new Error(`${f}: neither passages nor a no-answer notice`);
       out.push(`${f}=${r.value.slice(0, 14)} [${r.rules.join(',') || (r.noRule ? 'no rule' : 'no check yet')}] ${r.passages.length ? r.passages[0] : 'no passage'}`);
       if (f === 'lot') {
