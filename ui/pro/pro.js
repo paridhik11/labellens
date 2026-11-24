@@ -772,7 +772,7 @@
     const L = S.lab;
     let html = head('Retrieval lab', 'Retrieval is the core of LabelLens: it finds the regulation text that explains a check. Type one query and see what each of the five systems returns, side by side. Passages that several systems agree on are marked.',
       btn('go-products', 'Back to Products'));
-    html += `<div class="card"><h3>Same query, five systems</h3>
+    html += `<div class="card"><h3>Same query, five systems <span class="badge" data-testid="lab-raw">raw retrieval, unfiltered</span></h3><p class="small muted">Each system's top 5 as ranked, with no product filter and no merging of a section's chunks. Ask the regulations shows filtered passages.</p>
       <div class="row mb">${LAB_EXAMPLES.map((q, i) => btn('lab-example', esc(q), { small: true, data: { q }, testid: `lab-example-${i}` })).join('')}</div>
       <div class="row"><input class="input" style="flex:1 1 380px" data-model="lab.query" data-enter="lab-run" data-testid="lab-query" placeholder="A labeling question or keywords" value="${esc(L.query)}">${btn('lab-run', 'Run on all five', { primary: true })}</div>
       ${statusHtml('lab')}`;
@@ -939,8 +939,9 @@
   /** "Show more passages" for one turn: the rest of retrieval's top 10 that are not already shown. */
   function moreHtml(t, i) {
     if (!t.res || !(t.res.sources || []).length) return '';
-    const shown = new Set((t.res.sources || []).map((c) => c.chunk_id));
-    const rest = (t.more || []).filter((c) => !shown.has(c.chunk_id)).slice(0, 7);
+    // /search is raw retrieval: apply the same product filter, skip sections already shown, one chunk per section
+    const shown = new Set((t.res.sources || []).map((c) => String(c.section)));
+    const rest = (applicableOnly({ sources: t.more || [] }, S.product && S.product.record).sources || []).filter((c) => !shown.has(String(c.section))).slice(0, 7);
     return `<div class="mt">${btn('more-passages', t.showMore ? 'Hide more passages' : 'Show more passages', { small: true, data: { i }, testid: `more-${i}` })}${statusHtml('more')}</div>`
       + (t.showMore ? `<div data-testid="more-results">${rest.map((c) => passageHtml(c, t.q)).join('') || '<div class="muted small mt">No further passages.</div>'}</div>` : '');
   }
@@ -952,7 +953,10 @@
   }
 
   // Sections that only apply to some products (latex condoms) are dropped for other products; each section shows once.
+  // Same table as src/rag/applicability.py, which filters /ask on the server when a product_id is sent.
   const PRODUCT_SPECIFIC = { '801.435': /latex|condom/i };
+  /** The open device product, sent with /ask so the server filters passages for it (CR-29). */
+  const productId = () => (S.product && S.product.product ? S.product.product.product_id : undefined);
   function applicableOnly(res, rec) {
     if (!res || !res.sources) return res;
     const text = Object.values(rec || {}).filter((x) => typeof x === 'string').join(' ');
@@ -1005,7 +1009,7 @@
       <p class="small muted mb">Answers labeling-regulation questions, not questions about this product. The passages appear at once; the AI answer is optional and slow (about 40 s). Try:</p>
       <div class="row mb">${EXAMPLES.map(([label, q]) => btn('ask-example', esc(label), { small: true, data: { q }, testid: 'example-' + label.toLowerCase().split(' ')[0] })).join('')}</div>
       <label class="small" for="evQuestion"><strong>Regulation search (general)</strong></label>
-      <div class="row"><input class="input" id="evQuestion" style="flex:1 1 380px" data-model="evidence.question" data-enter="ask" data-testid="evidence-question" placeholder="For example: what must a label show for the expiration date?" value="${esc(ev.question)}">${btn('ask', 'Ask', { primary: true })}${btn('ask-ai', 'Ask with AI (optional, about 40 s)', { testid: 'btn-ask-ai' })}</div>
+      <div class="row"><input class="input" id="evQuestion" style="flex:1 1 380px" data-model="evidence.question" data-enter="ask" data-testid="evidence-question" placeholder="For example: what must a label show for the expiration date?" value="${esc(ev.question)}">${btn('ask', 'Ask', { primary: true })}${btn('ask-ai', 'Ask with AI (optional, first run about a minute)', { testid: 'btn-ask-ai' })}</div>
       ${statusHtml('ask')}${statusHtml('ask-ai')}
       <div data-testid="thread">${ev.thread.slice().reverse().map((t) => ({ t, i: ev.thread.indexOf(t) })).map(({ t, i }) => turnHtml(t, i)).join('')}</div>
       ${ev.thread.length ? `<div class="mt">${btn('clear-thread', 'Clear questions', { small: true })}</div>` : ''}</div>`;
@@ -1300,7 +1304,7 @@
       const q = S.evidence.question.trim();
       if (!q) throw new Error('Type a question first, or press one of the examples.');
       setMsg('Retrieving regulation passages');
-      S.evidence.thread.push({ q, mode: 'extractive', res: await A.ask(q), more: null, showMore: false });
+      S.evidence.thread.push({ q, mode: 'extractive', res: await A.ask(q, productId()), more: null, showMore: false });
     }),
     'ask-example': (el) => { S.evidence.question = el.dataset.q; HANDLERS.ask(); },
     'ask-ai': () => act('ask-ai', async () => {
@@ -1309,10 +1313,11 @@
       setMsg('Model is loading, the first run can take about a minute (waiting up to 180 s)');
       let ai;
       try {
-        ai = await A.askAi(q, () => {});
+        const t0 = Date.now();
+        ai = await A.askAi(q, () => setMsg(`Model is loading, the first run can take about a minute (${Math.round((Date.now() - t0) / 1000)} s of up to 180 s)`), productId());
       } catch (e) {
         if (!e.timeout) throw e;
-        ai = { fallback_reason: 'timeout', model_used: false, answer: await A.ask(q) };
+        ai = { fallback_reason: 'timeout', model_used: false, answer: await A.ask(q, productId()) };
       }
       S.evidence.thread.push({ q, mode: 'ai', ai });
     }),
@@ -1336,7 +1341,7 @@
       S.evidence.open = true; S.evidence.field = f; S.evidence.fieldAsk = null;
       act('field-ask', async () => {
         setMsg('Retrieving the governing regulation passages');
-        S.evidence.fieldAsk = await A.ask(FIELD_QUESTION[f]);
+        S.evidence.fieldAsk = await A.ask(FIELD_QUESTION[f], productId());
         pendingScroll = 'evidence';
       });
     },

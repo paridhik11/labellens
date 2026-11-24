@@ -2335,6 +2335,13 @@ components:
       additionalProperties: false
       properties:
         question: {type: string, minLength: 1}
+        product_id:
+          type: string
+          minLength: 1
+          description: |
+            Optional device product (CR-29). Passages of sections that do not apply to this product (for
+            example 21 CFR 801.435 for a product that is not a latex condom) are dropped and each section
+            appears once, in the passages shown and in what the AI model sees. Unknown id: 404.
     ProfessionalAnsweredAnswer:
       type: object
       required: [abstained, answer, sources]

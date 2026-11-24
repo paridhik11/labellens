@@ -5,6 +5,7 @@ Three outcomes: answered, needs_human_check, out_of_scope. Nothing here says a l
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -101,8 +102,14 @@ def extractive_sources(question: str, chunks: list[Chunk], n: int) -> list[dict[
 def answer_question(
     question: str, module: str, retriever: Retriever, chunks: dict[str, Chunk], provider: Provider,
     settings: RagSettings | None = None, threshold: float | None = None,
+    context_filter: Callable[[list[Chunk]], list[Chunk]] | None = None,
 ) -> RagResult:
-    """Run the pipeline. Every path returns a RagResult; provider failures never raise."""
+    """Run the pipeline. Every path returns a RagResult; provider failures never raise.
+
+    context_filter (optional) removes passages that do not apply to one product and repeated sections before
+    anything is shown or given to the model. The score gate still reads the unfiltered top hit, so the gate is
+    unchanged. With a filter, twice cfg.k hits are retrieved so up to cfg.k remain after filtering.
+    """
     cfg = settings or RagSettings()
     started = time.perf_counter()
     result = RagResult(outcome="needs_human_check", cause="", question=question, module=module,
@@ -116,12 +123,20 @@ def answer_question(
     if out_of_scope(question, module):
         result.score = result.threshold = None
         return done("out_of_scope", "scope")
-    hits = [h for h in retriever.search(question, k=cfg.k) if h.doc_id in chunks][: cfg.k]
-    result.retrieved = [h.doc_id for h in hits]
+    depth = cfg.k * 2 if context_filter else cfg.k
+    hits = [h for h in retriever.search(question, k=depth) if h.doc_id in chunks][:depth]
     if not hits:
+        result.retrieved = []
         return done("needs_human_check", "no_hits")
-    context = [chunks[h.doc_id] for h in hits]
     result.score = float(hits[0].score)
+    context = [chunks[h.doc_id] for h in hits]
+    if context_filter:
+        context = context_filter(context)[: cfg.k]
+    else:
+        context = context[: cfg.k]
+    result.retrieved = [c.chunk_id for c in context]
+    if not context:
+        return done("needs_human_check", "no_hits")
     if threshold is not None and result.score < threshold:
         return done("needs_human_check", "score_gate")
 
