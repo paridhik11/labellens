@@ -1323,7 +1323,7 @@
     html += `<div class="card" data-testid="export-findings"><h3>Findings report of L${esc(v.artwork_version)}</h3>`
       + (chk
         ? `<p class="small muted">Every finding of check ${esc(chk.check_id)} with its rule id and cited passages, the per-field results, and the rules that need a person. Plain text, made in this browser from the stored check.</p>
-          <ul class="small" data-testid="export-findings-list">${(chk.findings || []).map((x) => `<li><span class="mono">${esc(x.rule_id || '-')}</span> ${esc(x.message)}${(x.citations || []).length ? ` (cited: ${x.citations.map((cc) => `21 CFR ${esc(cc.section)}`).join(', ')})` : ' (no citation, a person must look)'}</li>`).join('') || '<li>No problem findings.</li>'}</ul>
+          <ul class="small" style="padding-left:18px" data-testid="export-findings-list">${(chk.findings || []).map((x) => `<li><span class="mono">${esc(x.rule_id || '-')}</span> ${esc(x.message)}${(x.citations || []).length ? ` (cited: ${x.citations.map((cc) => `21 CFR ${esc(cc.section)}`).join(', ')})` : ' (no citation, a person must look)'}</li>`).join('') || '<li>No problem findings.</li>'}</ul>
           <div class="row">${btn('download-report', 'Download findings report (.txt)')}</div>`
         : `<div class="small muted" data-testid="export-no-check">No check of L${esc(v.artwork_version)} in this session. Run the re-check in Review and approve first; the report is built from it.</div>`)
       + '</div>';

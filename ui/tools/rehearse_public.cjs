@@ -131,6 +131,25 @@ async function ask(page, medicine, question, name) {
     rows.push({ step: 'P3 metoprolol', error: e.message.split('\n')[0], shot: await shot(page, 'p3_error') });
     console.log('P3 ERROR ' + e.message.split('\n')[0]);
   }
+  // device photos on the Professional page: Add label, choose the file, Read label
+  for (const file of fs.readdirSync(path.join(ROOT, 'demo_photos', 'device')).filter((f) => /\.(jpe?g|png|pdf)$/.test(f)).sort()) {
+    try {
+      await page.goto(`${BASE}/ui/pro/index.html`);
+      await page.waitForFunction(() => document.getElementById('proLiveText').textContent === 'LIVE API', null, { timeout: 30000 });
+      await page.click('[data-testid="step-add"]');
+      await page.setInputFiles('#addFile', path.join(ROOT, 'demo_photos', 'device', file));
+      const t0 = Date.now();
+      await page.click('[data-testid="btn-read"]');
+      await page.waitForSelector('[data-testid="read-result"], [data-testid="error-read"]', { timeout: 150000 });
+      const secs = (Date.now() - t0) / 1000;
+      const msg = await page.evaluate(() => { const e = document.querySelector('[data-testid="error-read"] .msg'); return e ? e.innerText : 'read: ' + [...document.querySelectorAll('[data-testid^="input-"]')].map((i) => `${i.dataset.testid.slice(6)}=${i.value}`).join(', '); });
+      rows.push({ step: `device ${file}`, secs, msg, seen: await look(page), shot: await shot(page, `device_${file.replace(/\.[a-z]+$/, '')}`) });
+      console.log(`device ${file}: ${secs.toFixed(1)} s; ${msg.slice(0, 160)}`);
+    } catch (e) {
+      rows.push({ step: `device ${file}`, error: e.message.split('\n')[0], shot: await shot(page, `device_${file}_error`) });
+      console.log(`device ${file}: ERROR ${e.message.split('\n')[0]}`);
+    }
+  }
   await browser.close();
   const problems = rows.flatMap((r) => [r.seen, r.after].filter(Boolean).map((s) => [
     s.banners > 1 && 'duplicated banner', s.abstained && '"Abstained" shown', s.zero && '0% shown', s.cfrLabel && '21 CFR label-section citation', s.odd && `odd text "${s.odd}"`,
