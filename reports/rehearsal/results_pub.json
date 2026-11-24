@@ -1,0 +1,16 @@
+[
+  {
+    "step": "Public: 04_barcode_aspirin photo",
+    "status": "PASS",
+    "seconds": 4.1,
+    "note": "Is this Aspirin? We read NDC barcode 46122059602 on the pack and it matches the reference label for Aspirin.; after Confirm: Aspirin Reference match found tablets | 125 tablets Confidence: 100% Summary Sources (1) Read from your photo Product name NDC barcode 46122059602 Fro",
+    "shot": "shots/r01_aspirin.png"
+  },
+  {
+    "step": "Public: 08_live_zetia photo, then name, Find, Search DailyMed, Select",
+    "status": "PASS",
+    "seconds": 75.8,
+    "note": "live label shown: Zetia Reference match found tablet | ezetimibe | 30 tablets Summary Sources (1) Read ",
+    "shot": "shots/r02_zetia.png"
+  }
+]

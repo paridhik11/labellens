@@ -1,0 +1,184 @@
+[
+  {
+    "step": "Public: 04_barcode_aspirin photo",
+    "status": "PASS",
+    "seconds": 4.1,
+    "note": "Is this Aspirin? We read NDC barcode 46122059602 on the pack and it matches the reference label for Aspirin.; after Confirm: Aspirin Reference match found tablets | 125 tablets Confidence: 100% Summary Sources (1) Read from your photo Product name NDC barcode 46122059602 Fro",
+    "shot": "shots/r01_aspirin.png"
+  },
+  {
+    "step": "Public: 08_live_zetia photo, then name, Find, Search DailyMed, Select",
+    "status": "PASS",
+    "seconds": 75.8,
+    "note": "live label shown: Zetia Reference match found tablet | ezetimibe | 30 tablets Summary Sources (1) Read ",
+    "shot": "shots/r02_zetia.png"
+  },
+  {
+    "step": "Public page: type metoprolol, ask \"how to store it\"",
+    "status": "FAIL",
+    "seconds": 30.2,
+    "note": "locator.fill: Timeout 30000ms exceeded.",
+    "shot": "shots/r04_metoprolol.png"
+  },
+  {
+    "step": "Device: 03_golden_blurry refused",
+    "status": "PASS",
+    "seconds": 2.7,
+    "note": "retake_photo: The photo is too blurry to read. Hold the camera steady and focus on the label. (reasons: blur) Retry",
+    "shot": "shots/r03_blurry.png"
+  },
+  {
+    "step": "Public page: type metoprolol, ask \"how to store it\"",
+    "status": "PASS",
+    "seconds": 2.7,
+    "note": "Medicine Q&A Medicine name (matched to a reference label) Ask Ask AI (about 40 s) No label loaded for this name i No label loaded for this name The 30 curated reference labels do not match it, so no answer is shown. Search DailyMed, pick the label, then ask again. Not one of the 30 curated medicines? Search DailyMed (the US label database) for metoprolol. You will see a list and choose the label yourself. Labels found this way are not part of the curated set. Search DailyMed ← Back to product information Public corpus: 21 CFR 201, 208, 211 LIVE API",
+    "shot": "shots/r04_metoprolol.png"
+  },
+  {
+    "step": "Public page: type metoprolol, ask \"how to store it\"",
+    "status": "PASS",
+    "seconds": 9.7,
+    "note": "first ask: Medicine Q&A Medicine name (matched to a reference label) Ask Ask AI (about 40 s) No label loaded for this name i No label loaded for this name The 30 curated reference labels do not match it, so no answer is shown. Search DailyMed, pick the label, then ask ag || after Search DailyMed + Select: ",
+    "shot": "shots/r04_metoprolol.png"
+  },
+  {
+    "step": "Pro: Golden Pump saved (sample, GP-100, LOT1, EXP 2030-06-30)",
+    "status": "PASS",
+    "seconds": 55.5,
+    "note": "prd_c7bc4a8b {\"name\":\"Golden Pump\",\"model\":\"GP-100\",\"lot\":\"LOT1\",\"expiry\":\"2030-06-30\"}",
+    "shot": "shots/r05_saved.png"
+  },
+  {
+    "step": "Pro: run check",
+    "status": "PASS",
+    "seconds": 0.5,
+    "note": "No critical finding 3 rule(s) need a person 1 to review, 0 info. Check chk_c81b3e37 (inspection) on lbv_0f741e18, 2026-11-24 13:01:20 UTC. Citations found with e5b. No critical finding was raised by the rules that ran. This does not mean the label meets the regulations: the human checks below still ",
+    "shot": "shots/r06_check.png"
+  },
+  {
+    "step": "Pro: change lot to LOT2, confirm",
+    "status": "PASS",
+    "seconds": 1.5,
+    "note": "confirmed",
+    "shot": "shots/r07_change.png"
+  },
+  {
+    "step": "Pro: generate artwork, barcode REGENERATE with DRAFT",
+    "status": "PASS",
+    "seconds": 2.4,
+    "note": "REGENERATE; DRAFT text on page: true",
+    "shot": "shots/r08_generate.png"
+  },
+  {
+    "step": "Pro: reviewer re-check and approve",
+    "status": "PASS",
+    "seconds": 22.3,
+    "note": "Recorded: approve by usr_demo_reviewer (rev_4229283c). Status is now reviewed.",
+    "shot": "shots/r09_approve.png"
+  },
+  {
+    "step": "Pro: export PDF",
+    "status": "PASS",
+    "seconds": 0.9,
+    "note": "lbv_54d48fea.pdf 2751 bytes; Downloaded 2751 bytes as lbv_54d48fea.pdf. The sha256 computed in this browser matches the recorded hash. Mark on the file: DRAFT, not for production ",
+    "shot": "shots/r10_export.png"
+  },
+  {
+    "step": "Pro: print verification",
+    "status": "PASS",
+    "seconds": 2.4,
+    "note": "outcome match (rasterized copy of the exported PDF, not a camera photo)",
+    "shot": "shots/r11_verify.png"
+  },
+  {
+    "step": "Pro: Ask the regulations (expiration date)",
+    "status": "PASS",
+    "seconds": 2,
+    "note": "21 CFR 801.18 | 21 CFR 801.435 | 21 CFR 801.435",
+    "shot": "shots/r12_ask.png"
+  },
+  {
+    "step": "Pro: Retrieval lab, same query",
+    "status": "PASS",
+    "seconds": 5.2,
+    "note": "25 cells; 8 different passages in the five top-5 lists; 5 appear in three or more systems (marked). Question words are not highlighted here: ranking, not wording, is the point. Timings include the network.",
+    "shot": "shots/r13_lab.png"
+  },
+  {
+    "step": "Pro: Ask with AI (after warm-up)",
+    "status": "FAIL",
+    "seconds": 30,
+    "note": "page.click: Timeout 30000ms exceeded.",
+    "shot": "shots/r14_ai.png"
+  },
+  {
+    "step": "Pro: Golden Pump saved (sample, GP-100, LOT1, EXP 2030-06-30)",
+    "status": "PASS",
+    "seconds": 49.1,
+    "note": "prd_e5db900c {\"name\":\"Golden Pump\",\"model\":\"GP-100\",\"lot\":\"LOT1\",\"expiry\":\"2030-06-30\"}",
+    "shot": "shots/r05_saved.png"
+  },
+  {
+    "step": "Pro: run check",
+    "status": "PASS",
+    "seconds": 0.5,
+    "note": "No critical finding 3 rule(s) need a person 1 to review, 0 info. Check chk_92267d6c (inspection) on lbv_aaaad8b2, 2026-11-24 13:03:30 UTC. Citations found with e5b. No critical finding was raised by the rules that ran. This does not mean the label meets the regulations: the human checks below still ",
+    "shot": "shots/r06_check.png"
+  },
+  {
+    "step": "Pro: change lot to LOT2, confirm",
+    "status": "PASS",
+    "seconds": 1.5,
+    "note": "confirmed",
+    "shot": "shots/r07_change.png"
+  },
+  {
+    "step": "Pro: generate artwork, barcode REGENERATE with DRAFT",
+    "status": "PASS",
+    "seconds": 2.2,
+    "note": "REGENERATE; DRAFT text on page: true",
+    "shot": "shots/r08_generate.png"
+  },
+  {
+    "step": "Pro: reviewer re-check and approve",
+    "status": "PASS",
+    "seconds": 23.7,
+    "note": "Recorded: approve by usr_demo_reviewer (rev_d77d7409). Status is now reviewed.",
+    "shot": "shots/r09_approve.png"
+  },
+  {
+    "step": "Pro: export PDF",
+    "status": "PASS",
+    "seconds": 0.9,
+    "note": "lbv_c04c4bf8.pdf 2751 bytes; Downloaded 2751 bytes as lbv_c04c4bf8.pdf. The sha256 computed in this browser matches the recorded hash. Mark on the file: DRAFT, not for production ",
+    "shot": "shots/r10_export.png"
+  },
+  {
+    "step": "Pro: print verification",
+    "status": "PASS",
+    "seconds": 2.3,
+    "note": "outcome match (rasterized copy of the exported PDF, not a camera photo)",
+    "shot": "shots/r11_verify.png"
+  },
+  {
+    "step": "Pro: Ask the regulations (expiration date)",
+    "status": "PASS",
+    "seconds": 2,
+    "note": "21 CFR 801.18 | 21 CFR 801.435 | 21 CFR 801.435",
+    "shot": "shots/r12_ask.png"
+  },
+  {
+    "step": "Pro: Retrieval lab, same query",
+    "status": "PASS",
+    "seconds": 5.1,
+    "note": "25 cells; 8 different passages in the five top-5 lists; 5 appear in three or more systems (marked). Question words are not highlighted here: ranking, not wording, is the point. Timings include the network.",
+    "shot": "shots/r13_lab.png"
+  },
+  {
+    "step": "Pro: Ask with AI (after warm-up)",
+    "status": "PASS",
+    "seconds": 13.9,
+    "note": "AI answer what must a label show for the expiration date? The expiration date, as demonstrated by testing procedures required by paragraphs (d) and (h) of this section, must be displayed prominently and legibly on the primary packaging (i.e., individual package), and higher levels of packaging (e.g.",
+    "shot": "shots/r14_ai.png"
+  }
+]

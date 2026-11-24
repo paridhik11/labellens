@@ -1,0 +1,22 @@
+# Rehearsal report
+
+Final code (main, after the landing page and pro polish commits), server on port 8138 started by `scripts/run_demo.py` with Tesseract on PATH, headless Chromium driven by `reports/rehearsal/rehearse.cjs`, one step at a time. Nothing was fixed during the rehearsal. The seconds are from one PC; another `run_demo.py` (port 8030) was already running on this PC and idle. The database was not reset (earlier e2e products are still in the list). Screenshots in `shots/`.
+
+| Step | Result | Seconds | On screen, anything ugly or wrong |
+|---|---|---|---|
+| Public: 04_barcode_aspirin photo | pass | 4.1 | "Authenticity not verified" banner appears twice after Confirm. Citation label reads "21 CFR labelling/34067-9/4". Is this Aspirin? We read NDC barcode 46122059602 on the pack and it matches the reference label for Aspirin.; after Confirm: Aspirin Reference match found table |
+| Public: 08_live_zetia photo, then name, Find, Search DailyMed, Select | pass | 75.8 | Slow (75.8 s), mostly the first live DailyMed fetch and index. Not-identified screen then typing path worked. live label shown: Zetia Reference match found tablet / ezetimibe / 30 tablets Summary Sources (1) Read |
+| Device: 03_golden_blurry refused | pass | 2.7 | Clear refusal, no label created. retake_photo: The photo is too blurry to read. Hold the camera steady and focus on the label. (reasons: blur) Retry |
+| Public page: type metoprolol, ask "how to store it" | pass | 9.7 | Metoprolol is not one of the 30 curated medicines, so the first ask shows "No label loaded"; after Search DailyMed + Select the answer is "Abstained: needs_human_check" with three passages, none of which states a storage temperature (the section 16 quote is the tablet description). Score 0.0328 shown above threshold 0.02 next to the word Abstained, confusing. first ask: Medicine Q&A Medicine name (matched to a reference label) Ask Ask AI (about 40 s) No label loaded for this name i No label loaded for this name The 3 |
+| Pro: Golden Pump saved (sample, GP-100, LOT1, EXP 2030-06-30) | pass | 49.1 | No error text on the page (screenshot not inspected by eye). prd_e5db900c {"name":"Golden Pump","model":"GP-100","lot":"LOT1","expiry":"2030-06-30"} |
+| Pro: run check | pass | 0.5 | No error text on the page (screenshot not inspected by eye). No critical finding 3 rule(s) need a person 1 to review, 0 info. Check chk_92267d6c (inspection) on lbv_aaaad8b2, 2026-11-24 13:03:30 UTC. Citations found with |
+| Pro: change lot to LOT2, confirm | pass | 1.5 | No error text on the page (screenshot not inspected by eye). confirmed |
+| Pro: generate artwork, barcode REGENERATE with DRAFT | pass | 2.2 | No error text on the page (screenshot not inspected by eye). REGENERATE; DRAFT text on page: true |
+| Pro: reviewer re-check and approve | pass | 23.7 | No error text on the page (screenshot not inspected by eye). Recorded: approve by usr_demo_reviewer (rev_d77d7409). Status is now reviewed. |
+| Pro: export PDF | pass | 0.9 | No error text on the page (screenshot not inspected by eye). lbv_c04c4bf8.pdf 2751 bytes; Downloaded 2751 bytes as lbv_c04c4bf8.pdf. The sha256 computed in this browser matches the recorded hash. Mark on the file: DRAFT, |
+| Pro: print verification | pass | 2.3 | Match is on a rasterized copy of the exported PDF, not a camera photo. outcome match (rasterized copy of the exported PDF, not a camera photo) |
+| Pro: Ask the regulations (expiration date) | pass | 2 | Passages: 801.18, then 801.435 twice (latex condom section, not applicable to Golden Pump). The polish dedupe only covers the per-field panel, not this general Ask. 21 CFR 801.18 / 21 CFR 801.435 / 21 CFR 801.435 |
+| Pro: Retrieval lab, same query | pass | 5.1 | No error text on the page (screenshot not inspected by eye). 25 cells; 8 different passages in the five top-5 lists; 5 appear in three or more systems (marked). Question words are not highlighted here: ranking, not wordin |
+| Pro: Ask with AI (after warm-up) | pass | 13.9 | The AI answer quotes "testing procedures required by paragraphs (d) and (h) of this section", text from 801.435 (latex condoms), shown as the answer for a pump label. AI answer what must a label show for the expiration date? The expiration date, as demonstrated by testing procedures required by paragraphs (d) and (h) of this |
+
+Not run: public `07`/`08` other than zetia, multi-side scan. Public photos are DailyMed artwork with simulated camera conditions, not real phone photos.
