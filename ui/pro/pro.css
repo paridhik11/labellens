@@ -150,4 +150,9 @@ mark { background: #fff2a8; color: inherit; padding: 0 1px; border-radius: 2px; 
 .fcards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
 .fcard { border: 1px solid var(--color-border); border-radius: 10px; padding: 12px; background: var(--color-bg-subtle); display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .fcard .row { justify-content: space-between; }
+.fcard[data-status="critical"] { border-left: 4px solid var(--color-danger-text, #b3261e); }
+.fcard[data-status="review"] { border-left: 4px solid var(--color-warning-icon); }
+.fcard[data-status="passed"] { border-left: 4px solid var(--color-primary-teal); }
+.fcard[data-status="notchecked"] { border-left: 4px dashed var(--color-border); }
+.fcard .item { margin-top: 6px; padding: 10px; }
 .fcard details summary { cursor: pointer; margin-top: 6px; }

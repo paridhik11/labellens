@@ -1073,6 +1073,81 @@
       }).join('')}</div></div>`;
   }
 
+  /** Four plain states for a field: Critical, Needs review, Passed, Not checked. Presentation only; the rules decided. */
+  function fieldStatus(fr) {
+    if (fr.findings.some((x) => x.severity === 'critical')) return { key: 'critical', cls: 'danger', word: 'Critical' };
+    if (fr.worst === 'fail' || fr.worst === 'needs_human' || fr.findings.some((x) => x.severity === 'review')) return { key: 'review', cls: 'warn', word: 'Needs review' };
+    if (fr.worst === 'pass') return { key: 'passed', cls: 'teal', word: 'Passed' };
+    return { key: 'notchecked', cls: '', word: 'Not checked' };
+  }
+
+  /** One finding, citations not already shown for this field go inside it (open for critical findings). */
+  function findingItemHtml(f, seen) {
+    const [cls, word] = SEVERITY[f.severity] || ['blue', f.severity];
+    const cites = (f.citations || []).filter((cc) => { const k = `${cc.section}|${cc.chunk_id}`; if (seen.has(k)) return false; seen.add(k); return true; });
+    const had = (f.citations || []).length > 0;
+    return `<div class="item" data-testid="finding" data-rule="${esc(f.rule_id || '')}">
+      <div class="item-head"><span class="badge ${cls}">${esc(word)}</span><span class="item-title">${esc(String(f.kind || '').split('_').join(' '))}</span>
+      ${f.rule_id ? `<span class="badge">rule ${esc(f.rule_id)}</span>` : ''}${f.needs_human ? '<span class="badge warn">a person must look</span>' : ''}</div>
+      <div>${esc(f.message)}</div>
+      ${f.field && (f.observed || f.expected) ? `<div class="small muted mt">Read on the label: <strong>${esc(f.observed || '(nothing)')}</strong>. Expected: <strong>${esc(f.expected || '(nothing)')}</strong>.</div>` : ''}
+      ${cites.length ? `<details class="small mt"${f.severity === 'critical' ? ' open' : ''}><summary>Regulatory citations (${cites.length})</summary>${cites.map(citationHtml).join('')}</details>`
+        : (had ? '<div class="small muted mt">Same citation as the finding above.</div>' : '<div class="nocite" data-testid="no-citation">No regulation passage is attached to this finding. A person must look.</div>')}
+    </div>`;
+  }
+
+  /** The Check page results: one section, each field once, global findings, then Advanced Details. */
+  function consolidatedCheckHtml(v, c) {
+    const rec = S.product.record;
+    const findings = c.findings || [];
+    const coverage = c.coverage || [];
+    const human = coverage.filter((x) => x.outcome === 'needs_human');
+    const skipped = coverage.filter((x) => x.outcome === 'not_checked' || x.outcome === 'not_applicable');
+    const cfg = c.retrieval_config || {};
+    const unreliable = findings.some((f) => f.kind === 'extraction_unreliable');
+    const fieldRuleIds = new Set(CARD_FIELDS.flatMap((f) => FIELD_RULES[f] || []));
+    const globals = findings.filter((x) => !fieldRuleIds.has(x.rule_id));
+    const cards = CARD_FIELDS.map((f) => ({ f, fr: fieldResult(c, f) })).map((x) => ({ ...x, st: fieldStatus(x.fr) }));
+    const count = (k) => cards.filter((x) => x.st.key === k).length;
+    const seenGlobal = new Set();
+    return `<div class="card" data-testid="check-result"><h3>Inspection results (L${esc(v.artwork_version)})</h3>
+      ${S.restored === c.check_id ? `<div class="small muted mb" data-testid="restored">Showing the saved check ${esc(c.check_id)} from ${when(c.run_at)}. Press Run check to check again.</div>` : ''}
+      <div class="row"><span class="badge ${c.critical_count ? 'danger' : 'teal'}" data-testid="check-outcome">${c.critical_count ? `${esc(c.critical_count)} critical` : 'No critical finding'}</span>
+        <span class="badge warn">${esc(c.needs_human_count || 0)} rule(s) need a person</span>
+        <span class="small muted">${esc(c.review_count)} to review, ${esc(c.info_count)} info. Fields: ${count('passed')} passed, ${count('critical')} critical, ${count('review')} need review, ${count('notchecked')} not checked.</span></div>
+      ${c.passed
+        ? '<div class="info">No critical finding was raised by the rules that ran. This does not mean the label meets the regulations: the human checks still apply.</div>'
+        : '<div class="note">At least one critical finding: this version cannot be approved until it is fixed.</div>'}
+      ${unreliable ? '<div class="note" data-testid="unreliable-note"><strong>The label text could not be read reliably</strong> (for example, a rendered PDF page has no label edge for the reader to find), so the text checks were skipped and only the barcode checks ran. A person must compare the printed text with the product record by eye.</div>' : ''}
+      ${globals.length ? `<h3 class="mt">Label-wide findings (${globals.length})</h3>${globals.map((x) => findingItemHtml(x, seenGlobal)).join('')}` : ''}
+      <h3 class="mt">By field</h3>
+      <p class="small muted mb">Each field once: the product record value, what was read on the label, the result, and the regulation passage. Rules decide; the passage explains. Passed is not a statement that the label meets the regulations.</p>
+      <div class="fcards">${cards.map(({ f, fr, st }) => {
+        const seen = new Set();
+        const read = [...new Set(fr.findings.map((x) => x.observed).filter(Boolean))];
+        const readHtml = read.length ? read.map((x) => `<strong>${esc(x)}</strong>`).join(', ')
+          : (st.key === 'passed' ? '<span class="muted">matches the record</span>' : '<span class="muted">(not read)</span>');
+        const cited = fr.findings.some((x) => (x.citations || []).length);
+        return `<div class="fcard" data-testid="finding-card" data-field="${esc(f)}" data-outcome="${esc(fr.worst)}" data-status="${esc(st.key)}">
+          <div class="row"><strong>${esc(FIELD_WORD[f] || f)}</strong><span class="badge ${st.cls}" data-testid="card-result">${esc(st.word)}</span></div>
+          <div class="small">Expected (product record): <strong data-testid="card-value">${fmtVal(recVal(rec, f)) || '<span class="muted">(empty)</span>'}</strong></div>
+          <div class="small">Read on the label: ${readHtml}</div>
+          ${fr.findings.map((x) => findingItemHtml(x, seen)).join('')}
+          <div class="small muted" data-testid="card-rules">Rule${fr.rules.length > 1 ? 's' : ''}: ${fr.rules.map((r) => `<span class="mono" title="${esc(r.reason)}">${esc(r.rid)}</span> ${esc((RESULT_WORD[r.outcome] || ['', r.outcome])[1].toLowerCase())}`).join(', ')}</div>
+          ${cited ? '' : `<details class="small mt"><summary>Regulatory citations</summary>${cardPassagesHtml(f, fr)}</details>`}</div>`;
+      }).join('')}</div>
+      ${c.disclaimer ? `<div class="small muted mt">${esc(c.disclaimer)}</div>` : ''}
+      <details class="mt small" data-testid="advanced-details"><summary><strong>Advanced details</strong> (rule coverage and check metadata)</summary>
+        <div class="mt">Check ${esc(c.check_id)} (${esc(c.kind)}) on ${esc(c.version_id)}, ${when(c.run_at)}. Citations found with ${esc(cfg.method || 'retrieval')}.</div>
+        <h4 class="mt">A person must check (${human.length})</h4>
+        ${human.length ? `<ul data-testid="human-review">${human.map((h) => `<li><strong>${esc(h.rule_id)}</strong>: ${esc(h.reason || 'needs a person')}</li>`).join('')}</ul>` : '<div class="muted">No rule asked for a person.</div>'}
+        <h4 class="mt">Rules not checked or not applicable (${skipped.length})</h4>
+        ${skipped.length ? `<ul>${skipped.map((h) => `<li><strong>${esc(h.rule_id)}</strong> ${esc(h.outcome.split('_').join(' '))}: ${esc(h.reason || '')}</li>`).join('')}</ul>` : '<div class="muted">None.</div>'}
+        <h4 class="mt">All rules (${coverage.length})</h4>
+        <ul>${coverage.map((h) => `<li><strong>${esc(h.rule_id)}</strong> ${esc(String(h.outcome).split('_').join(' '))}${h.reason ? `: ${esc(h.reason)}` : ''}</li>`).join('')}</ul>
+      </details></div>`;
+  }
+
   /** Plain-text findings report for the export: every finding with its rule id and cited passages. */
   function findingsReport(v, c) {
     const rec = S.product.record;
@@ -1149,9 +1224,8 @@
       + productHeader()
       + statusHtml('check');
     const c = v && S.checks[v.version_id];
-    if (c) html += `<div class="card">${S.restored === c.check_id ? `<div class="small muted mb" data-testid="restored">Showing the saved check ${esc(c.check_id)} from ${when(c.run_at)}. Press Run check to check again.</div>` : ''}${checkHtml(c)}</div>`;
-    else if (v) html += `<div class="info small">No saved check exists for L${esc(v.artwork_version)}. ${v.kind === 'generated' ? 'For generated artwork the check reads the rendered PDF back (re-check).' : 'Press Run check.'}</div>`;
-    html += findingCardsHtml(v, false);
+    if (c) html += consolidatedCheckHtml(v, c);
+    else if (v) html += `<div class="info small" data-testid="cards-nocheck">No saved check exists for L${esc(v.artwork_version)}. ${v.kind === 'generated' ? 'For generated artwork the check reads the rendered PDF back (re-check).' : 'Press Run check.'}</div>`;
     if (S.evidence.open) html += renderEvidence();
     const fieldRow = (f, k, val) => `<dt>${k}</dt><dd>${fmtVal(val) || '<span class="muted">(empty)</span>'}</dd>`;
     html += `<div class="grid2"><div class="card"><h3>Product record</h3><dl class="kv" data-testid="record">
