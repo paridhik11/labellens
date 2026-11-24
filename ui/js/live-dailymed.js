@@ -229,6 +229,8 @@
 
   window.LabelLensLive = {
     mountSearch,
+    /** Fetch one label the person confirmed (photo name lookup), then show it on P2. */
+    fetchCandidate(candidate, typedName, area) { return pick(candidate, typedName, area); },
     LIVE_LABEL, current, setLastName(n) { state.lastName = n; }, currentName() { return current.typed_name || ''; },
     productIdFor(name) {
       const n = norm(name);

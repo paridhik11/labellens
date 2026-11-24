@@ -18,7 +18,7 @@ from typing import Any
 # Live medicines used by demo_photos (07 pregabalin, 08 Zetia), the synthetic LOPRESSOR pack and the rehearsal
 # (metoprolol "how to store it", "side effects").
 DEMO_LIVE_NAMES = ("pregabalin", "Zetia", "metoprolol", "Lopressor")
-FIRST_N = 2
+FIRST_N = 1  # the photo flow proposes the first DailyMed label whose name holds the word read; --first-n for more
 JOB_LIMIT_S = 600
 
 

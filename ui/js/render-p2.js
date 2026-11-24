@@ -81,9 +81,9 @@
         ${authenticityBannerHtml}
         <div class="card" style="text-align: center; padding: 48px 24px; max-width: 640px; margin: 0 auto;">
           <div style="font-size: 2.2rem; margin-bottom: 12px; color: var(--color-text-muted);"><svg class="icon icon-xl" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l5 5v13H6V3z"/><path d="M14 3v5h5"/></svg></div>
-          <h3>No reference label found</h3>
+          <h3>${Array.isArray(safeData.read_lines) ? 'Not one of the 30 curated medicines' : 'No reference label found'}</h3>
           <p class="text-muted text-sm" style="margin-top: 8px;">
-            We could not match this package against official FDA drug labels in 21 CFR 201, 208, or 211.
+            ${Array.isArray(safeData.read_lines) ? 'The photo did not match a curated reference label with enough confidence, so no curated label is shown.' : 'This name does not match one of the 30 curated reference labels.'}
           </p>
           ${canScanAnother ? `
             <div style="margin-top: 20px;">
